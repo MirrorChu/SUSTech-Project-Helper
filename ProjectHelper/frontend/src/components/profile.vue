@@ -1,7 +1,7 @@
 <template>
   <div id="profile">
-    <el-row>Name: {{ this.name }}</el-row>
-    <el-row>SID: {{ this.sid }}</el-row>
+    <el-row>Name: {{ this.$props.name }}</el-row>
+    <el-row>SID: {{ this.$props.sid }}</el-row>
   </div>
 </template>
 
@@ -9,21 +9,15 @@
 export default {
   name: 'profile',
   props: {
-    sid: {
-      type: String,
-    },
     name: {
       type: String,
     },
-  },
-  data ()
-  {
-    return {
-      sid: this.props.sid,
-      name: this.props.name,
-    }
+    sid: {
+      type: String,
+    },
   },
 }
+
 </script>
 
 <style scoped>
