@@ -7,6 +7,7 @@
   </div>
 </template>
 <script>
+  import {setCookie,getCookie} from '../assets/js/cookie.js'
 export default {
   name: 'login',
   data ()
@@ -16,11 +17,18 @@ export default {
       pswd: '',
     }
   },
+  mounted(){
+    /*页面挂载获取cookie，如果存在username的cookie，则跳转到主页，不需登录*/
+    if(getCookie('sid')){
+      this.$router.push('/homepage')
+    }
+  },
   methods: {
     onLoginClick ()
     {
       if (this.sid === '11813121' && this.pswd === '11813121')
       {
+        setCookie('sid',this.sid,1000*60);
         this.$router.push(
           {
             name: 'homepage',

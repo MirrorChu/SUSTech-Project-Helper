@@ -7,6 +7,7 @@
     <el-row>
       <el-button @click="onClickProfile">My Profile</el-button>
       <el-button @click="onClickNewPassword">New Password</el-button>
+      <el-button @click="onClickLogout">Logout</el-button>
     </el-row>
     <profile id="my_profile" v-if="show_profile" v-bind:sid="this.sid" v-bind:name="this.name"></profile>
   </div>
@@ -14,6 +15,7 @@
 
 <script>
 import profile from './profile'
+import { getCookie,delCookie } from '../assets/js/cookie.js'
 
 export default {
   name: 'homepage',
@@ -21,7 +23,7 @@ export default {
   data ()
   {
     return {
-      sid: this.$route.params.sid,
+      sid: 3463462,
       pswd: this.$route.params.pswd,
       name: '',
       show_profile: false,
@@ -29,14 +31,26 @@ export default {
   },
   created ()
   {
+    // console.log('sid', this.sid)
+    // if (this.sid !== '11813121' || this.pswd !== '11813121')
+    // {
+    //   this.$router.push('/login')
+    // }
+    // else
+    // {
+    //   this.name = 'Jiashu'
+    // }
+    /*页面挂载获取保存的cookie值，渲染到页面上*/
+    let cookie = getCookie('sid')
+    this.sid = cookie;
     console.log('sid', this.sid)
-    if (this.sid === '11813121' && this.pswd === '11813121')
-    {
-      this.name = 'Jiashu'
+    /*如果cookie不存在，则跳转到登录页*/
+    if(cookie === ""){
+      this.$router.push('/login')
     }
     else
     {
-      this.$router.push('login')
+      this.name = 'JIASHU';
     }
   },
   methods: {
@@ -47,6 +61,11 @@ export default {
     onClickNewPassword ()
     {
 
+    },
+    onClickLogout ()
+    {
+      delCookie('sid');
+      this.$router.push('/')
     },
   },
 }
