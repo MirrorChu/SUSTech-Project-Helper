@@ -31,17 +31,9 @@ export default {
   },
   created ()
   {
-    // console.log('sid', this.sid)
-    // if (this.sid !== '11813121' || this.pswd !== '11813121')
-    // {
-    //   this.$router.push('/login')
-    // }
-    // else
-    // {
-    //   this.name = 'Jiashu'
-    // }
     /*页面挂载获取保存的cookie值，渲染到页面上*/
     let cookie = getCookie('sid')
+    console.log(cookie)
     this.sid = cookie
     console.log('sid', this.sid)
     /*如果cookie不存在，则跳转到登录页*/
@@ -57,6 +49,11 @@ export default {
   methods: {
     onClickProfile ()
     {
+      let cookie = getCookie('sid')
+      if (cookie === '')
+      {
+        this.$router.push('/login')
+      }
       this.show_profile = !this.show_profile
     },
     onClickNewPassword ()
