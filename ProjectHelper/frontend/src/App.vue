@@ -1,3 +1,4 @@
+<!--TODO: A better template.-->
 <template>
   <div id="app">
     <img src="./assets/logo.png">

@@ -29,6 +29,7 @@ export default {
   methods: {
     onLoginClick ()
     {
+      //TODO Login request.
       this.$axios.get('').then(res =>
       {
         console.log('res', res)

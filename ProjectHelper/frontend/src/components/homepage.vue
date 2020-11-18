@@ -41,12 +41,14 @@ export default {
     {
       this.$router.push('/login')
     }
+    //TODO: Do we use a request to get name?
     else
     {
       this.name = 'JIASHU'
     }
   },
   methods: {
+    //TODO: Personal profile request.
     onClickProfile ()
     {
       let cookie = getCookie('sid')
@@ -57,10 +59,12 @@ export default {
       this.show_profile = !this.show_profile
       updateCookie('sid', this.sid, 1000 * 60)
     },
+    //TODO: New password request.
     onClickNewPassword ()
     {
       updateCookie('sid', this.sid, 1000 * 60)
     },
+    //TODO: Logout request.
     onClickLogout ()
     {
       delCookie('sid')
