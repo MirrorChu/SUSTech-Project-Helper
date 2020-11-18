@@ -15,7 +15,7 @@
 
 <script>
 import profile from './profile'
-import { getCookie, delCookie } from '../assets/js/cookie.js'
+import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 
 export default {
   name: 'homepage',
@@ -55,10 +55,11 @@ export default {
         this.$router.push('/login')
       }
       this.show_profile = !this.show_profile
+      updateCookie('sid', this.sid, 1000 * 60)
     },
     onClickNewPassword ()
     {
-
+      updateCookie('sid', this.sid, 1000 * 60)
     },
     onClickLogout ()
     {

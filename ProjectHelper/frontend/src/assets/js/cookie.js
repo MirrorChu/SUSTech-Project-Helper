@@ -33,8 +33,9 @@ export function delCookie (c_name)
   setCookie(c_name, '', -1)
 }
 
-//TODO
-export function updateCookie (c_name)
+/*更新cookie时间*/
+export function updateCookie (c_name, value, expire)
 {
-
+  setCookie(c_name, value, expire)
+  console.log(document.cookie)
 }

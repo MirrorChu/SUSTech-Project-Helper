@@ -38,7 +38,7 @@ export default {
       })
       if (this.sid === '11813121' && this.pswd === '11813121')
       {
-        setCookie('sid', this.sid, 1000 * 10)
+        setCookie('sid', this.sid, 1000 * 60)
         this.$router.push(
           {
             name: 'homepage',
