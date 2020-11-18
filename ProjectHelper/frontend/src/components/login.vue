@@ -8,6 +8,7 @@
 </template>
 <script>
 import { setCookie, getCookie } from '../assets/js/cookie.js'
+import axios from 'axios'
 
 export default {
   name: 'login',
@@ -30,7 +31,9 @@ export default {
     onLoginClick ()
     {
       //TODO Login request.
-      this.$axios.post('/login/', { 'sid': this.sid, 'pswd': this.pswd }).then(res =>
+      axios.defaults.xsrfCookieName = 'csrftoken'
+      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN"
+      this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
         console.log(res.data)
       })
