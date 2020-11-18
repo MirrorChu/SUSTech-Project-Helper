@@ -30,7 +30,7 @@ export default {
     onLoginClick ()
     {
       //TODO Login request.
-      this.$axios.post('/login/', { 'sid': this.sid, 'pswd': this.pswd }).then(res =>
+      this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
         console.log(res.data)
       })
