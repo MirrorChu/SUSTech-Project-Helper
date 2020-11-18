@@ -63,6 +63,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'ProjectHelper.urls'
 
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
