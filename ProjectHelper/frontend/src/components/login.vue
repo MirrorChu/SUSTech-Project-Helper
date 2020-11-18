@@ -30,13 +30,17 @@ export default {
     onLoginClick ()
     {
       //TODO Login request.
-      this.$axios.get('').then(res =>
+      this.$axios.post('/login', { 'sid': this.sid, 'pswd': this.pswd }).then(res =>
       {
-        console.log('res', res)
-      }).catch(err =>
-      {
-        console.log('err', err)
+        console.log(res.data)
       })
+      // this.$axios.get('').then(res =>
+      // {
+      //   console.log('res', res)
+      // }).catch(err =>
+      // {
+      //   console.log('err', err)
+      // })
       if (this.sid === '11813121' && this.pswd === '11813121')
       {
         setCookie('sid', this.sid, 1000 * 60)
