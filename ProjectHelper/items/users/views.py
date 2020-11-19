@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -23,32 +23,18 @@ class LoginView(View):
         print(type(request.body))
         print(request.body)
 
+        student_id = eval(request.body.decode()).get("sid")
+        password = eval(request.body.decode()).get("pswd")
 
-
-        # login_form = LoginForm(request.POST)
-        # if login_form.is_valid():
-        #     # 分别获取表单中的用户名和密码
-        #     username = login_form.cleaned_data["username"]
-        #     password = login_form.cleaned_data["password"]
-        #     # 通过用户名和密码确认数据库中是否有和user对应的记录
-        #     user = authenticate(username=username, password=password)
-        #     # password是未加密的，而数据库中存储的是加密后的密码。因此要先将password加密再查询。
-        #
-        #     # 如果能查询到相应记录
-        #     if user is not None:
-        #         # 用django自带的函数登录
-        #         login(request, user)
-        #         return HttpResponseRedirect(reverse("index"))
-        #         # 若用render函数，则返回后的网址还是/login
-        #         # 若用HttpResponseRedirect函数，则返回后的网址会自动变化
-        #         # 登录成功后还是返回首页
-        #     # 如果未能查询到用户
-        #     else:
-        #         return render(request, "login.html", {"msg": "用户名或密码错误", "login_form": login_form})
-        #     # 若数据库检验的结果是登录失败，则停留在登录页面
-        # else:
-        #     return render(request, "login.html", {"login_form": login_form})
-        #     # 若表单检验的结果是登录失败，则停留在登录页面
-
+        # 通过用户名和密码确认数据库中是否有和user对应的记录
+        user = authenticate(student_id=student_id, password=password)
+        # password是未加密的，而数据库中存储的是加密后的密码。因此要先将password加密再查询。
+        # 如果能查询到相应记录
+        if user is not None:
+            return JsonResponse({"message": "Login success!"})
+        # 如果未能查询到用户
+        else:
+            return JsonResponse({"message": "Login failed!"})
+        # 若数据库检验的结果是登录失败，则停留在登录页面
 
 
