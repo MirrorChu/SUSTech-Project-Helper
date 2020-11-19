@@ -33,6 +33,7 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('newpassword/', ChangePasswordView.as_view()),
     path('personaldata/', ShowPersonalDataView.as_view()),
+    path('testapi/', TestAPI.as_view()),
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页
 ]
 # 访问函数view的实现方法可以基于类(class base view)，也可以基于函数(function base view)，而这里选择前者是因为它便于维护
