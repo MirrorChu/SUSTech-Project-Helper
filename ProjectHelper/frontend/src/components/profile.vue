@@ -1,6 +1,9 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
+    <!--    <img src="../assets/logo.png">-->
+    <el-image :src="logo"/>
+    <el-avatar :src="logo" fit="scale-down"></el-avatar>
     <el-row>Name: {{ this.$route.params.name }}</el-row>
     <el-row>SID: {{ this.$route.params.sid }}</el-row>
     <!--    <el-upload-->
@@ -31,6 +34,9 @@
 </template>
 
 <script>
+
+import logo from '../assets/logo.png'
+
 export default {
   name: 'profile',
   data ()
@@ -40,6 +46,7 @@ export default {
       dialogImageUrl: '',
       dialogVisible: '',
       file: null,
+      logo: null,
     }
   },
   methods: {
@@ -56,6 +63,16 @@ export default {
 
     upload (file)
     {
+      //TODO Move this elsewhere.
+      this.logo = require('../assets/logo.png')
+
+
+
+
+      console.log(this.logo)
+      console.log('upload')
+      console.log(JSON.stringify(file))
+      console.log(JSON.stringify(file.file))
       console.log(file)
 
       const formData = new FormData()
@@ -83,7 +100,6 @@ export default {
     beforeAvatarUpload (file)
     {
       this.file = file
-      console.log('upload')
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
 
