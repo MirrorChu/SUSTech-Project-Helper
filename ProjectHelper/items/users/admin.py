@@ -9,5 +9,5 @@ class UserProfileAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(UserProfile, UserAdmin)
+# admin.site.register(UserProfile, UserAdmin)
 # 会自动将存储进数据库的密码加密，不可反解

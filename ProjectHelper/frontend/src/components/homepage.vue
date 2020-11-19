@@ -6,6 +6,7 @@
     </el-row>
     <el-row>
       <el-button @click="onClickProfile">My Profile</el-button>
+      <el-button @click="onClickNewPassword">New Password</el-button>
       <el-button @click="onClickLogout">Logout</el-button>
     </el-row>
   </div>
@@ -60,7 +61,11 @@ export default {
         this.$router.push({ name: 'homepage_profile', params: { name: this.name, sid: this.sid } })
       }
     },
-
+    //TODO: New password request.
+    onClickNewPassword ()
+    {
+      updateCookie('sid', this.sid, 1000 * 60)
+    },
     //TODO: Logout request.
     onClickLogout ()
     {

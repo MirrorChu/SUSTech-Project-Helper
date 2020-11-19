@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <el-input placeholder="old pswd" v-model="old_pswd" show-password clearable></el-input>
-    <el-input placeholder="new pswd" v-model="new_pswd" show-password clearable></el-input>
-    <el-input placeholder="confirm" v-model="confirm" show-password clearable></el-input>
-    <el-button>change password</el-button>
-  </div>
+  <el-input placeholder="old pswd" v-model="old_pswd" show-password clearable></el-input>
+  <el-input placeholder="new pswd" v-model="new_pswd" show-password clearable></el-input>
+  <el-input placeholder="confirm" v-model="confirm" show-password clearable></el-input>
+  <el-button>change password</el-button>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'new_password',
   props: {
