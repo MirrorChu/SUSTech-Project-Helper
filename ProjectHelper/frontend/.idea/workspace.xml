@@ -19,10 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="Added Avatar">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
-    </list>
+    <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="Modify Avatar" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +83,7 @@
       <workItem from="1605768884571" duration="1526000" />
       <workItem from="1605774380414" duration="1089000" />
       <workItem from="1605779611638" duration="4467000" />
-      <workItem from="1605799550167" duration="2675000" />
+      <workItem from="1605799550167" duration="2994000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
@@ -102,7 +99,14 @@
       <option name="project" value="LOCAL" />
       <updated>1605801518307</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Modify Avatar">
+      <created>1605802802238</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1605802802238</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,7 +127,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="new password component" />
     <MESSAGE value="Added Avatar" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Avatar" />
+    <MESSAGE value="Modify Avatar" />
+    <option name="LAST_COMMIT_MESSAGE" value="Modify Avatar" />
   </component>
   <component name="WindowStateProjectService">
     <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605774504996">
@@ -138,34 +143,34 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1605759649866" />
-    <state width="1515" height="265" key="GridCell.Tab.0.bottom" timestamp="1605802243647">
+    <state width="1515" height="265" key="GridCell.Tab.0.bottom" timestamp="1605802767861">
       <screen x="0" y="0" width="1536" height="960" />
     </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.bottom/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802243647" />
+    <state width="1515" height="265" key="GridCell.Tab.0.bottom/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767861" />
     <state width="1515" height="265" key="GridCell.Tab.0.bottom/0.0.1536.960@0.0.1536.960" timestamp="1605770261360" />
     <state width="1899" height="281" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1605788280770" />
-    <state width="1515" height="265" key="GridCell.Tab.0.center" timestamp="1605802243645">
+    <state width="1515" height="265" key="GridCell.Tab.0.center" timestamp="1605802767860">
       <screen x="0" y="0" width="1536" height="960" />
     </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.center/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802243645" />
+    <state width="1515" height="265" key="GridCell.Tab.0.center/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767860" />
     <state width="1515" height="265" key="GridCell.Tab.0.center/0.0.1536.960@0.0.1536.960" timestamp="1605770261359" />
     <state width="1899" height="281" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1605788280770" />
-    <state width="1515" height="265" key="GridCell.Tab.0.left" timestamp="1605802243644">
+    <state width="1515" height="265" key="GridCell.Tab.0.left" timestamp="1605802767859">
       <screen x="0" y="0" width="1536" height="960" />
     </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.left/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802243644" />
+    <state width="1515" height="265" key="GridCell.Tab.0.left/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767859" />
     <state width="1515" height="265" key="GridCell.Tab.0.left/0.0.1536.960@0.0.1536.960" timestamp="1605770261358" />
     <state width="1899" height="281" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1605788280770" />
-    <state width="1515" height="265" key="GridCell.Tab.0.right" timestamp="1605802243646">
+    <state width="1515" height="265" key="GridCell.Tab.0.right" timestamp="1605802767860">
       <screen x="0" y="0" width="1536" height="960" />
     </state>
-    <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802243646" />
+    <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767860" />
     <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960@0.0.1536.960" timestamp="1605770261360" />
     <state width="1899" height="281" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1605788280770" />
-    <state x="368" y="217" key="Vcs.Push.Dialog.v2" timestamp="1605801522377">
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2" timestamp="1605802805662">
       <screen x="0" y="0" width="1536" height="960" />
     </state>
-    <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605801522377" />
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802805662" />
     <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960@0.0.1536.960" timestamp="1605770000922" />
   </component>
 </project>
