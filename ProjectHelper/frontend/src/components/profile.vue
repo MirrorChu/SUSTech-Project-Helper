@@ -1,11 +1,26 @@
+<!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
     <el-row>Name: {{ this.$route.params.name }}</el-row>
     <el-row>SID: {{ this.$route.params.sid }}</el-row>
+    <!--    <el-upload-->
+    <!--      class="avatar-uploader"-->
+    <!--      action=""-->
+    <!--      list-type="picture"-->
+    <!--      :on-preview="handlePictureCardPreview"-->
+    <!--      :auto-upload="true"-->
+    <!--      :show-file-list="false"-->
+    <!--      :on-success="handleAvatarSuccess"-->
+    <!--      :before-upload="beforeAvatarUpload">-->
+    <!--      <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
+    <!--      <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
+    <!--    </el-upload>-->
     <el-upload
       class="avatar-uploader"
-      action="http://10.20.0.228:8000/post/"
+      action=""
+      :auto-upload="true"
       :show-file-list="false"
+      :http-request="upload"
       :on-success="handleAvatarSuccess"
       :before-upload="beforeAvatarUpload">
       <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -21,9 +36,16 @@ export default {
   {
     return {
       imageUrl: '',
+      dialogImageUrl: '',
+      dialogVisible: '',
     }
   },
   methods: {
+    upload (file)
+    {
+      console.log(file)
+      this.$axios.post('/profile/avatar', { file: file })
+    },
     handleAvatarSuccess (res, file)
     {
       console.log('success')
@@ -47,6 +69,12 @@ export default {
         this.$message.error('上传头像图片大小不能超过 2MB!')
       }
       return isJPG && isLt2M
+    },
+    handlePictureCardPreview (file)
+    {
+      console.log('preview')
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
     },
   },
 }
