@@ -67,6 +67,8 @@ class ShowPersonalDataView(View):
         # 如果未能查询到用户
         else:
             x = UserProfile.objects.get(student_id=student_id, password=password)
+            file_path = x.image
+            file = open(file_path, "rb")
 
             return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
                                  "realname": x.real_name,
@@ -74,9 +76,9 @@ class ShowPersonalDataView(View):
                                  "gender": x.gender,
                                  "address": x.address,
                                  "email": x.email,
-                                 "mobile": x.mobile
+                                 "mobile": x.mobile,
+                                 "image": file
                                  })
-
 
 
 
