@@ -32,18 +32,14 @@ export default {
     {
       //TODO Login request.
       axios.defaults.xsrfCookieName = 'csrftoken'
-      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN"
+      axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
       this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
         console.log(res.data)
+      }).catch(err =>
+      {
+        console.log('err', err)
       })
-      // this.$axios.get('').then(res =>
-      // {
-      //   console.log('res', res)
-      // }).catch(err =>
-      // {
-      //   console.log('err', err)
-      // })
       if (this.sid === '11813121' && this.pswd === '11813121')
       {
         setCookie('sid', this.sid, 1000 * 60)
