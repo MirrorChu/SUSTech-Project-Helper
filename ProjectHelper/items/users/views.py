@@ -31,7 +31,6 @@ class LoginView(View):
             return JsonResponse({"LoginCheck": "Login success!"})
 
 
-
 class ChangePasswordView(View):
     # 当用户按下登录按键时
     def post(self, request):
@@ -50,4 +49,34 @@ class ChangePasswordView(View):
         else:
             user.update(password=new_password)
             return JsonResponse({"ChangePasswordCheck": "Change success!"})
+
+
+class ShowPersonalDataView(View):
+    # 当用户按下登录按键时
+    def get(self, request):
+        print(request.body)
+
+        student_id = eval(request.body.decode()).get("sid")
+        password = eval(request.body.decode()).get("pswd")
+
+        # 通过用户名和密码确认数据库中是否有和user对应的记录
+        user = UserProfile.objects.filter(student_id=student_id, password=password)
+        # 如果能查询到相应记录
+        if user.count() == 0:
+            return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
+        # 如果未能查询到用户
+        else:
+            x = UserProfile.objects.get(student_id=student_id, password=password)
+
+            return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
+                                 "realname": x.real_name,
+                                 "student_id": x.student_id,
+                                 "gender": x.gender,
+                                 "address": x.address,
+                                 "email": x.email,
+                                 "mobile": x.mobile
+                                 })
+
+
+
 
