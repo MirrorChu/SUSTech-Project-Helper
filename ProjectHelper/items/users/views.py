@@ -80,5 +80,10 @@ class ShowPersonalDataView(View):
                                  "image": file
                                  })
 
+        
+class TestAPI(View):
+   def post(self, request):
+       print(request.body)
+       return JsonResponse({"message": "get it"})
 
 
