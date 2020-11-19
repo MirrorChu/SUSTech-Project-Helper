@@ -1,14 +1,18 @@
 <template>
   <div class="homepage">
     <el-header>HOMEPAGE</el-header>
-    <el-row>
-      Hello, {{ name }}
-    </el-row>
-    <el-row>
-      <el-button @click="onClickProfile">My Profile</el-button>
 
-      <el-button @click="onClickLogout">Logout</el-button>
-    </el-row>
+    <el-container>
+      <el-aside>
+        <el-button @click="onClickProfile">My Profile</el-button>
+        <el-button @click="onClickLogout">Logout</el-button>
+      </el-aside>
+      <el-main>
+        <el-row>
+          Hello, {{ name }}
+        </el-row>
+      </el-main>
+    </el-container>
   </div>
 </template>
 

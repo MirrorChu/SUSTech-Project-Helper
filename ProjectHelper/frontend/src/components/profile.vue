@@ -18,9 +18,10 @@
     <el-button @click="onClickNewPassword">New Password</el-button>
     <el-upload
       class="avatar-uploader"
-      action="http://127.0.0.1:8000/personaldata"
+      action=""
       :auto-upload="true"
       :show-file-list="false"
+      :http-request="upload"
       :on-success="handleAvatarSuccess"
       :before-upload="beforeAvatarUpload">
       <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -38,6 +39,7 @@ export default {
       imageUrl: '',
       dialogImageUrl: '',
       dialogVisible: '',
+      file: null,
     }
   },
   methods: {
@@ -51,11 +53,26 @@ export default {
         console.log(err)
       })
     },
+
     upload (file)
     {
       console.log(file)
-      this.$axios.post('/profile/avatar', { file: file })
+
+      const formData = new FormData()
+      formData.append('image', file.file)
+      this.$axios.post('/profile/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then(res =>
+      {
+        console.log(res)
+      }).catch(err =>
+      {
+        console.this.upload(err)
+      })
     },
+
     handleAvatarSuccess (res, file)
     {
       console.log('success')
@@ -65,8 +82,8 @@ export default {
     },
     beforeAvatarUpload (file)
     {
+      this.file = file
       console.log('upload')
-      console.log(file)
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
 
