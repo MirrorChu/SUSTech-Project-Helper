@@ -19,7 +19,14 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="Modify Avatar" />
+    <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="Modify Avatar">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/new_password.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/new_password.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,7 +90,7 @@
       <workItem from="1605768884571" duration="1526000" />
       <workItem from="1605774380414" duration="1089000" />
       <workItem from="1605779611638" duration="4467000" />
-      <workItem from="1605799550167" duration="2994000" />
+      <workItem from="1605799550167" duration="5296000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
@@ -106,7 +113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1605802802238</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Modify Avatar">
+      <created>1605802832962</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1605802832962</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -167,10 +181,14 @@
     <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767860" />
     <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960@0.0.1536.960" timestamp="1605770261360" />
     <state width="1899" height="281" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1605788280770" />
-    <state x="368" y="217" key="Vcs.Push.Dialog.v2" timestamp="1605802805662">
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2" timestamp="1605802838012">
       <screen x="0" y="0" width="1536" height="960" />
     </state>
-    <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802805662" />
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802838012" />
     <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960@0.0.1536.960" timestamp="1605770000922" />
+    <state x="569" y="398" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1605804012799">
+      <screen x="0" y="0" width="1536" height="960" />
+    </state>
+    <state x="569" y="398" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605804012799" />
   </component>
 </project>

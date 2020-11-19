@@ -4,6 +4,7 @@ import HelloWorld from '../components/HelloWorld'
 import login from '../components/login'
 import homepage from '../components/homepage'
 import profile from '../components/profile'
+import new_password from '../components/new_password'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/homepage/profile',
       name: 'homepage_profile',
       component: profile,
+    },
+    {
+      path: '/homepage/profile/newpassword',
+      name: 'homepage_profile_newpassword',
+      component: new_password,
     },
   ],
 })

@@ -6,7 +6,7 @@
     </el-row>
     <el-row>
       <el-button @click="onClickProfile">My Profile</el-button>
-      <el-button @click="onClickNewPassword">New Password</el-button>
+
       <el-button @click="onClickLogout">Logout</el-button>
     </el-row>
   </div>

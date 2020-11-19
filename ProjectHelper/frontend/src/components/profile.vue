@@ -15,12 +15,12 @@
     <!--      <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
     <!--      <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
     <!--    </el-upload>-->
+    <el-button @click="onClickNewPassword">New Password</el-button>
     <el-upload
       class="avatar-uploader"
-      action=""
+      action="http://127.0.0.1:8000/personaldata"
       :auto-upload="true"
       :show-file-list="false"
-      :http-request="upload"
       :on-success="handleAvatarSuccess"
       :before-upload="beforeAvatarUpload">
       <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -41,6 +41,16 @@ export default {
     }
   },
   methods: {
+    onClickNewPassword ()
+    {
+      this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res =>
+      {
+        console.log(res)
+      }).catch(err =>
+      {
+        console.log(err)
+      })
+    },
     upload (file)
     {
       console.log(file)
