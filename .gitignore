@@ -13,3 +13,10 @@ ProjectHelper/frontend/*.suo
 ProjectHelper/frontend/*.ntvs*
 ProjectHelper/frontend/*.njsproj
 ProjectHelper/frontend/*.sln
+ProjectHelper/.DS_Store
+*.pyc
+ProjectHelper/DjangoUeditor/.DS_Store
+.DS_Store
+ProjectHelper/items/.DS_Store
+ProjectHelper/ProjectHelper/.DS_Store
+ProjectHelper/xadmin/.DS_Store
