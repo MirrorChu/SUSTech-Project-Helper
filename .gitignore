@@ -1,2 +1,15 @@
-.DS_Store
-.idea
+ProjectHelper/frontend/.gitignore
+ProjectHelper/frontend/.DS_Store
+ProjectHelper/frontend/node_modules/
+ProjectHelper/frontend/dist/
+ProjectHelper/frontend/npm-debug.log*
+ProjectHelper/frontend/yarn-debug.log*
+ProjectHelper/frontend/yarn-error.log*
+
+# Editor directories and files
+ProjectHelper/frontend/.idea
+ProjectHelper/frontend/.vscode
+ProjectHelper/frontend/*.suo
+ProjectHelper/frontend/*.ntvs*
+ProjectHelper/frontend/*.njsproj
+ProjectHelper/frontend/*.sln

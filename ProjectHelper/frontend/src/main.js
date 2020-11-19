@@ -12,7 +12,7 @@ Axios.defaults.baseURL = '/api'
 Axios.defaults.headers.post['Content-Type'] = 'application/json'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
-Vue.use(Axios)
+
 
 /* eslint-disable no-new */
 new Vue({

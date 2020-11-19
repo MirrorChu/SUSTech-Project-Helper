@@ -33,7 +33,7 @@ export default {
       //TODO Login request.
       axios.defaults.xsrfCookieName = 'csrftoken'
       axios.defaults.xsrfHeaderName = "X-CSRFTOKEN"
-      this.$axios.post('/login', { sid: this.sid, pswd: this.pswd }).then(res =>
+      this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
         console.log(res.data)
       })
