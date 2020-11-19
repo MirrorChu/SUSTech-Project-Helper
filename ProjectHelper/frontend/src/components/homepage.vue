@@ -9,7 +9,6 @@
       <el-button @click="onClickNewPassword">New Password</el-button>
       <el-button @click="onClickLogout">Logout</el-button>
     </el-row>
-    <profile id="my_profile" v-if="show_profile" v-bind:name="this.name" v-bind:sid="this.sid"></profile>
   </div>
 </template>
 
@@ -26,7 +25,6 @@ export default {
       sid: 3463462,
       pswd: this.$route.params.pswd,
       name: '',
-      show_profile: false,
     }
   },
   created ()
@@ -56,8 +54,12 @@ export default {
       {
         this.$router.push('/login')
       }
-      this.show_profile = !this.show_profile
-      updateCookie('sid', this.sid, 1000 * 60)
+      else
+      {
+        updateCookie('sid', this.sid, 1000 * 60)
+        //Why is this a warning here?
+        this.$router.push({ name: 'homepage_profile', params: { name: this.name, sid: this.sid } })
+      }
     },
     //TODO: New password request.
     onClickNewPassword ()

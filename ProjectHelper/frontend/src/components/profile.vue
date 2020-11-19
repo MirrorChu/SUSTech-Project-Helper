@@ -1,21 +1,13 @@
 <template>
   <div id="profile">
-    <el-row>Name: {{ this.$props.name }}</el-row>
-    <el-row>SID: {{ this.$props.sid }}</el-row>
+    <el-row>Name: {{ this.$route.params.name }}</el-row>
+    <el-row>SID: {{ this.$route.params.sid }}</el-row>
   </div>
 </template>
 
 <script>
 export default {
   name: 'profile',
-  props: {
-    name: {
-      type: String,
-    },
-    sid: {
-      type: String,
-    },
-  },
 }
 
 </script>
