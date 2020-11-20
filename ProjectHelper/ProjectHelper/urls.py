@@ -22,7 +22,7 @@ from django.views.static import serve
 
 import xadmin
 
-from items.users.views import LoginView,ChangePasswordView,ShowPersonalDataView
+from items.users.views import LoginView,ChangePasswordView,ShowPersonalDataView,File,TestAPI
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
