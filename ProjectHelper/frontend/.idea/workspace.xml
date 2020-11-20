@@ -19,9 +19,16 @@
     <select />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="Test File Download">
+=======
+    <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="File Upload">
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+>>>>>>> Stashed changes
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/config/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,6 +94,11 @@
       <workItem from="1605774380414" duration="1089000" />
       <workItem from="1605779611638" duration="4467000" />
       <workItem from="1605799550167" duration="2994000" />
+      <workItem from="1605859684434" duration="550000" />
+      <workItem from="1605860278649" duration="230000" />
+      <workItem from="1605860522815" duration="8000" />
+      <workItem from="1605861475872" duration="1519000" />
+      <workItem from="1605863014770" duration="1633000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
@@ -150,17 +162,18 @@
     <option name="LAST_COMMIT_MESSAGE" value="Test File Download" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605774504996">
+    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605860089148">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605774504996" />
+    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605860089148" />
     <state x="818" y="290" key="EnvironmentVariablesDialog" timestamp="1605759572321">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="818" y="290" key="EnvironmentVariablesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605759572321" />
-    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1605759649866">
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1605860529074">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
+<<<<<<< Updated upstream
     <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1605759649866" />
     <state width="1515" height="265" key="GridCell.Tab.0.bottom" timestamp="1605860776848">
       <screen x="0" y="0" width="1536" height="960" />
@@ -195,5 +208,41 @@
       <screen x="0" y="0" width="1536" height="960" />
     </state>
     <state x="569" y="398" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.960@0.0.1536.960" timestamp="1605857362746" />
+=======
+    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1605860529074" />
+    <state width="1899" height="281" key="GridCell.Tab.0.bottom" timestamp="1605864648284">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1515" height="265" key="GridCell.Tab.0.bottom/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767861" />
+    <state width="1515" height="265" key="GridCell.Tab.0.bottom/0.0.1536.960@0.0.1536.960" timestamp="1605856861052" />
+    <state width="1899" height="281" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1605864648284" />
+    <state width="1899" height="281" key="GridCell.Tab.0.center" timestamp="1605864648284">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1515" height="265" key="GridCell.Tab.0.center/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767860" />
+    <state width="1515" height="265" key="GridCell.Tab.0.center/0.0.1536.960@0.0.1536.960" timestamp="1605856861051" />
+    <state width="1899" height="281" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1605864648284" />
+    <state width="1899" height="281" key="GridCell.Tab.0.left" timestamp="1605864648284">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1515" height="265" key="GridCell.Tab.0.left/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767859" />
+    <state width="1515" height="265" key="GridCell.Tab.0.left/0.0.1536.960@0.0.1536.960" timestamp="1605856861050" />
+    <state width="1899" height="281" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1605864648284" />
+    <state width="1899" height="281" key="GridCell.Tab.0.right" timestamp="1605864648284">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802767860" />
+    <state width="1515" height="265" key="GridCell.Tab.0.right/0.0.1536.960@0.0.1536.960" timestamp="1605856861051" />
+    <state width="1899" height="281" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1605864648284" />
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2" timestamp="1605852479074">
+      <screen x="0" y="0" width="1536" height="960" />
+    </state>
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960/-166.-1080.1920.1080@0.0.1536.960" timestamp="1605802805662" />
+    <state x="368" y="217" key="Vcs.Push.Dialog.v2/0.0.1536.960@0.0.1536.960" timestamp="1605852479074" />
+    <state x="763" y="432" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1605863031059">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="763" y="432" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1605863031059" />
+>>>>>>> Stashed changes
   </component>
 </project>
