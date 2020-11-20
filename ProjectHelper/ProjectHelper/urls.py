@@ -22,7 +22,7 @@ from django.views.static import serve
 
 import xadmin
 
-from items.users.views import LoginView,ChangePasswordView,ShowPersonalDataView,File,Test
+from items.users.views import LoginView,ChangePasswordView,ShowPersonalDataView,UploadFile,DownloadFile,Test
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -33,7 +33,8 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('newpassword/', ChangePasswordView.as_view()),
     path('personaldata/', ShowPersonalDataView.as_view()),
-    path('uploadfile/', File.as_view()),
+    path('uploadfile/', UploadFile.as_view()),
+    path('downloadfile/', DownloadFile.as_view()),
     path('test/', Test.as_view()),
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页
 ]
