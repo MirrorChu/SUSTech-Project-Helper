@@ -174,14 +174,17 @@ class StudentGetAllProject(View):
         student_id = eval(request.body.decode()).get("sid")
         password = eval(request.body.decode()).get("pswd")
         user = UserProfile.objects.filter(student_id=student_id, password=password)
-        course = UserCourse.objects.filter(user_name_id=user.id)
+        for i in user:
+            course = UserCourse.objects.filter(user_name_id=i.id)
         courses = {}
         for i in course:
             courseObject = Course.objects.filter(id=i.course_name_id)
-            courses[courseObject.name] = {}
-            projects = Project.objects.filter(course_id=courseObject.id)
+            for j in courseObject:
+                name = j.name
+                courses[name] = {}
+                projects = Project.objects.filter(course_id=j.id)
             for j in projects:
-                courses[courseObject.name][j.id] = j.name
+                courses[name][j.id] = j.name
         return JsonResponse({"GetProjectsCheck": courses})
     #返回{课程名：{项目ID:项目名，}，}
 
