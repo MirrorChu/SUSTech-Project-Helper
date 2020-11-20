@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth import authenticate, login
@@ -7,9 +9,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from items.users.models import UserProfile
+from ProjectHelper.settings import BASE_DIR
 
 
-class LoginView(View):
+class Login(View):
     @method_decorator(ensure_csrf_cookie)
     # def get(self, request, *args, **kwargs):
     #     return render(request, "login.html")
@@ -31,7 +34,7 @@ class LoginView(View):
             return JsonResponse({"LoginCheck": "Login success!"})
 
 
-class ChangePasswordView(View):
+class ChangePassword(View):
     # 当用户按下登录按键时
     def post(self, request):
         print(request.body)
@@ -51,7 +54,7 @@ class ChangePasswordView(View):
             return JsonResponse({"ChangePasswordCheck": "Change success!"})
 
 
-class ShowPersonalDataView(View):
+class ShowPersonalData(View):
     # 当用户按下登录按键时
     def get(self, request):
         print(request.body)
@@ -80,7 +83,30 @@ class ShowPersonalDataView(View):
                                  "image": file
                                  })
 
-        
+
+class Image(View):
+
+    def post(self, request):
+        print(request.body)
+
+        file_obj = request.FILES.get('image')
+
+        print("file_obj", file_obj.name)
+
+        file_path = os.path.join(BASE_DIR, 'static', 'head_images', file_obj.name)
+
+        print("file_path", file_path)
+
+        with open(file_path, 'wb+') as f:
+            for chunk in file_obj.chunks():
+                f.write(chunk)
+
+        message = {}
+        message['code'] = 200
+
+        return JsonResponse(message)
+
+
 class TestAPI(View):
    def post(self, request):
        print(request.body)
