@@ -1,6 +1,7 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
+    <el-button @click="testFileDownload">test file download</el-button>
     <el-avatar :size="48" :src="this.avatar"></el-avatar>
     <el-row>SID: {{ this.sid }}</el-row>
     <el-row>NAME: {{ this.name }}</el-row>
@@ -27,9 +28,8 @@
       <div class="el-upload__tip" slot="tip">.zip supported only</div>
     </el-upload>
   </div>
-  <div>
-    <el-button @click="testFileDownload">test file download</el-button>
-  </div>
+  <!--  <div>-->
+  <!--  </div>-->
 </template>
 
 <script>
@@ -56,9 +56,34 @@ export default {
     }
   },
   methods: {
+
+    saveFile (data, name)
+    {
+      try
+      {
+        const blobUrl = window.URL.createObjectURL(data)
+        const a = document.createElement('a')
+        a.style.display = 'none'
+        a.download = name
+        a.href = blobUrl
+        a.click()
+
+      }
+      catch (e)
+      {
+        alert('保存文件出错')
+      }
+    },
+
     testFileDownload ()
     {
-      this.$axios.post('/login/', { sid: this.sid })
+      this.$axios.post('/login/', { sid: this.sid }).then(res =>
+      {
+        this.saveFile(res, 'demo.zip')
+      }).catch(err =>
+      {
+        console.log('err', err)
+      })
     },
     onClickNewPassword ()
     {
