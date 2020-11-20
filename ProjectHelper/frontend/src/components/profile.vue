@@ -15,12 +15,13 @@
     <!--      <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
     <!--      <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
     <!--    </el-upload>-->
+    <el-button @click="onClickNewPassword">New Password</el-button>
     <el-upload
       class="avatar-uploader"
-      action=""
+      action="/api/personaldata/"
+      :name="this.sid"
       :auto-upload="true"
       :show-file-list="false"
-      :http-request="upload"
       :on-success="handleAvatarSuccess"
       :before-upload="beforeAvatarUpload">
       <img v-if="imageUrl" :src="imageUrl" class="avatar">
@@ -30,84 +31,112 @@
 </template>
 
 <script>
-export default {
-  name: 'profile',
-  data ()
-  {
-    return {
-      imageUrl: '',
-      dialogImageUrl: '',
-      dialogVisible: '',
-    }
-  },
-  methods: {
-    upload (file)
+  export default {
+    name: 'profile',
+    data ()
     {
-      console.log(file)
-      this.$axios.post('/profile/avatar', { file: file })
+      return {
+        sid: '11813121',
+        imageUrl: '',
+        dialogImageUrl: '',
+        dialogVisible: '',
+      }
     },
-    handleAvatarSuccess (res, file)
-    {
-      console.log('success')
-      console.log(res)
-      console.log(file)
-      this.imageUrl = URL.createObjectURL(file.raw)
-    },
-    beforeAvatarUpload (file)
-    {
-      console.log('upload')
-      console.log(file)
-      const isJPG = file.type === 'image/jpeg'
-      const isLt2M = file.size / 1024 / 1024 < 2
+    methods: {
+      onClickNewPassword ()
+      {
+        this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res =>
+        {
+          console.log(res)
+        }).catch(err =>
+        {
+          console.log(err)
+        })
+      },
+      upload (file)
+      {
+        console.log(file)
+        const formData = new FormData()
+        formData.append('file', file.file)
+        this.$axios.post('/personaldata/', formData, {
+          headers: {
+            'name': 'shguivhdiv.jpg',
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then(res =>
+        {
+          console.log(res)
+        }).catch(err =>
+        {
+          console.this.upload(err)
+        })
+      },
+      handleAvatarSuccess (res, file)
+      {
+        console.log('raw', file.raw)
+        console.log('raws', file.raws)
+        console.log('success')
+        console.log(res)
+        console.log(file)
+        this.imageUrl = URL.createObjectURL(file.raw)
+      },
+      beforeAvatarUpload (file)
+      {
+        console.log('upload')
+        console.log('file', file)
+        console.log('raw', file.raw)
+        console.log('raws', file.raws)
+        const isJPG = file.type === 'image/jpeg'
+        const isLt2M = file.size / 1024 / 1024 < 2
 
-      if (!isJPG)
+        if (!isJPG)
+        {
+          this.$message.error('上传头像图片只能是 JPG 格式!')
+        }
+        if (!isLt2M)
+        {
+          this.$message.error('上传头像图片大小不能超过 2MB!')
+        }
+        return isJPG && isLt2M
+      },
+      handlePictureCardPreview (file)
       {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
-      }
-      if (!isLt2M)
-      {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
-      }
-      return isJPG && isLt2M
+        console.log('preview')
+        this.dialogImageUrl = file.url
+        this.dialogVisible = true
+      },
     },
-    handlePictureCardPreview (file)
-    {
-      console.log('preview')
-      this.dialogImageUrl = file.url
-      this.dialogVisible = true
-    },
-  },
-}
+  }
 
 </script>
 
 <style>
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
 
-.avatar-uploader .el-upload:hover {
-  border-color: #409EFF;
-}
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
 
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
 
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
 </style>
 
 <style scoped>
