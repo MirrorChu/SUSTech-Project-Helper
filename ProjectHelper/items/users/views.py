@@ -103,12 +103,15 @@ class ShowPersonalDataView(View):
         #                          })
 
 
-class File(View):
+class UploadFile(View):
 
     def post(self, request):
         print(request.body)
 
         file_obj = request.FILES.get('file', None)
+
+        path = eval(request.body.decode()).get("sid")
+        old_password = eval(request.body.decode()).get("old_pswd")
 
         if not file_obj:
             return JsonResponse({"UploadFileCheck": "failed"})
@@ -123,11 +126,26 @@ class File(View):
                 with open(file_path, 'wb+') as f:
                     for chunk in file_obj.chunks():
                         f.write(chunk)
-                        
+
                 return JsonResponse({"UploadFileCheck": "success"})
 
             except Exception as e:
                 return JsonResponse({"UploadFileCheck": "failed"})
+
+
+class DownloadFile(View):
+    def post(request):
+        print(request.body)
+
+        path = eval(request.body.decode()).get("path")
+        file_name = eval(request.body.decode()).get("file_name")
+
+        file_obj = open(path, 'rb')
+
+        response = HttpResponse(file_obj)
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = "attachment;filename="+file_name
+        return response
 
 
 class Test(View):
