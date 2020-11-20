@@ -113,18 +113,21 @@ class File(View):
         if not file_obj:
             return JsonResponse({"UploadFileCheck": "failed"})
         else:
+            try:
+                print("file_obj", file_obj.name)
 
-            print("file_obj", file_obj.name)
+                file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
 
-            file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
+                print("file_path", file_path)
 
-            print("file_path", file_path)
+                with open(file_path, 'wb+') as f:
+                    for chunk in file_obj.chunks():
+                        f.write(chunk)
+                        
+                return JsonResponse({"UploadFileCheck": "success"})
 
-            with open(file_path, 'wb+') as f:
-                for chunk in file_obj.chunks():
-                    f.write(chunk)
-
-            return JsonResponse({"UploadFileCheck": "success"})
+            except Exception as e:
+                return JsonResponse({"UploadFileCheck": "failed"})
 
 
 class Test(View):
