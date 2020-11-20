@@ -108,24 +108,26 @@ class File(View):
     def post(self, request):
         print(request.body)
 
-        file_obj = request.FILES.get('image')
+        file_obj = request.FILES.get('file', None)
 
-        print("file_obj", file_obj.name)
+        if not file_obj:
+            return JsonResponse({"UploadFileCheck": "failed"})
+        else:
 
-        file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
+            print("file_obj", file_obj.name)
 
-        print("file_path", file_path)
+            file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
 
-        with open(file_path, 'wb+') as f:
-            for chunk in file_obj.chunks():
-                f.write(chunk)
+            print("file_path", file_path)
 
-        message = {'code': 200}
+            with open(file_path, 'wb+') as f:
+                for chunk in file_obj.chunks():
+                    f.write(chunk)
 
-        return JsonResponse(message)
+            return JsonResponse({"UploadFileCheck": "success"})
 
 
-class TestAPI(View):
+class Test(View):
    def get(self, request):
        print(request.body)
        message = {'code': 200}
