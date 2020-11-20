@@ -1,6 +1,7 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
+    <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>
     <el-button @click="testFileDownload">test file download</el-button>
     <el-avatar :size="48" :src="this.avatar"></el-avatar>
     <el-row>SID: {{ this.sid }}</el-row>
@@ -33,6 +34,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'profile',
   data ()
@@ -61,13 +63,14 @@ export default {
     {
       try
       {
+        data = new Blob([data])
         const blobUrl = window.URL.createObjectURL(data)
         const a = document.createElement('a')
         a.style.display = 'none'
         a.download = name
         a.href = blobUrl
         a.click()
-
+        URL.revokeObjectURL(a.href)
       }
       catch (e)
       {
@@ -77,9 +80,9 @@ export default {
 
     testFileDownload ()
     {
-      this.$axios.post('/login/', { sid: this.sid }).then(res =>
+      this.$axios.post('/test/', { sid: this.sid }).then(res =>
       {
-        this.saveFile(res, 'demo.zip')
+        this.saveFile(res.data, '11811002.txt')
       }).catch(err =>
       {
         console.log('err', err)
