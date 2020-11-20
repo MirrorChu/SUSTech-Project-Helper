@@ -103,4 +103,31 @@ class ShowPersonalDataView(View):
         #                          })
 
 
+class File(View):
+
+    def post(self, request):
+        print(request.body)
+
+        file_obj = request.FILES.get('image')
+
+        print("file_obj", file_obj.name)
+
+        file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
+
+        print("file_path", file_path)
+
+        with open(file_path, 'wb+') as f:
+            for chunk in file_obj.chunks():
+                f.write(chunk)
+
+        message = {'code': 200}
+
+        return JsonResponse(message)
+
+
+class TestAPI(View):
+   def post(self, request):
+       print(request.body)
+       message = {'code': 200}
+       return JsonResponse(message)
 
