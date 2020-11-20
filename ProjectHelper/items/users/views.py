@@ -103,4 +103,41 @@ class ShowPersonalDataView(View):
         #                          })
 
 
+class File(View):
+
+    def post(self, request):
+        print(request.body)
+
+        file_obj = request.FILES.get('file', None)
+
+        if not file_obj:
+            return JsonResponse({"UploadFileCheck": "failed"})
+        else:
+            try:
+                print("file_obj", file_obj.name)
+
+                file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
+
+                print("file_path", file_path)
+
+                with open(file_path, 'wb+') as f:
+                    for chunk in file_obj.chunks():
+                        f.write(chunk)
+                        
+                return JsonResponse({"UploadFileCheck": "success"})
+
+            except Exception as e:
+                return JsonResponse({"UploadFileCheck": "failed"})
+
+
+class Test(View):
+   def get(self, request):
+       print(request.body)
+       message = {'code': 200}
+       return JsonResponse(message)
+
+   def post(self, request):
+       print(request.body)
+       message = {'code': 200}
+       return JsonResponse(message)
 
