@@ -161,7 +161,7 @@ class Test(View):
        response = HttpResponse(file)
        print(file)
        response['Content-Type'] = 'application/zip'
-       response['Content-Disposition'] = 'attachment;filename="11811002.zip"'
+       response['Content-Disposition'] = 'attachment; filename=11811002.zip'
 
        return response
 

@@ -83,9 +83,10 @@ export default {
     },
     testFileDownload ()
     {
-      this.$axios.post('/test/', { sid: this.sid }).then(res =>
+      this.$axios.post('/test/', { sid: this.sid }, {responseType: "blob"}).then(res =>
       {
         console.log('res', res)
+        console.log(res.data.size)
         this.saveFile(res.data, '11811002.zip')
       }).catch(err =>
       {
