@@ -3,10 +3,7 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
-<<<<<<< Updated upstream
     <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>
-=======
->>>>>>> Stashed changes
     <el-button @click="testFileDownload">test file download</el-button>
     <el-avatar :size="48" :src="this.avatar"></el-avatar>
     <el-row>SID: {{ this.sid }}</el-row>
@@ -30,8 +27,8 @@
       :name="this.sid"
       :multiple="true">
       <i class="el-icon-upload"></i>
-      <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
-      <div class="el-upload__tip" slot="tip">.zip supported only</div>
+<!--      <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>-->
+<!--      <div class="el-upload__tip" slot="tip">.zip supported only</div>-->
     </el-upload>
   </div>
   <!--  <div>-->
@@ -63,49 +60,33 @@ export default {
     }
   },
   methods: {
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     saveFile (data, name)
     {
       try
       {
-<<<<<<< Updated upstream
         data = new Blob([data])
-=======
         console.log(data)
         console.log(name)
->>>>>>> Stashed changes
+
         const blobUrl = window.URL.createObjectURL(data)
         const a = document.createElement('a')
         a.style.display = 'none'
         a.download = name
         a.href = blobUrl
         a.click()
-<<<<<<< Updated upstream
         URL.revokeObjectURL(a.href)
-=======
->>>>>>> Stashed changes
       }
       catch (e)
       {
         alert('保存文件出错')
       }
     },
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     testFileDownload ()
     {
       this.$axios.post('/test/', { sid: this.sid }).then(res =>
       {
-<<<<<<< Updated upstream
-=======
         console.log('res', res)
->>>>>>> Stashed changes
-        this.saveFile(res.data, '11811002.txt')
+        this.saveFile(res.data, '11811002.zip')
       }).catch(err =>
       {
         console.log('err', err)

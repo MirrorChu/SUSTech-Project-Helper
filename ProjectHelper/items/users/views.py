@@ -157,11 +157,11 @@ class Test(View):
    def post(self, request):
        print(request.body)
 
-       file = open('static/11811002.txt', 'rb').read()
+       file = open('static/11811002.zip', 'rb').read()
        response = HttpResponse(file)
        print(file)
-       response['Content-Type'] = 'text/plain'
-       response['Content-Disposition'] = 'attachment;filename="11811002.txt"'
+       response['Content-Type'] = 'application/zip'
+       response['Content-Disposition'] = 'attachment;filename="11811002.zip"'
 
        return response
 
