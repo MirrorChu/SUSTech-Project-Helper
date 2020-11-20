@@ -27,6 +27,9 @@
       <div class="el-upload__tip" slot="tip">.zip supported only</div>
     </el-upload>
   </div>
+  <div>
+    <el-button @click="testFileDownload">test file download</el-button>
+  </div>
 </template>
 
 <script>
@@ -42,10 +45,6 @@ export default {
       avatar: null,
     }
   },
-  mounted ()
-  {
-
-  },
   created ()
   {
     console.log('before create')
@@ -57,6 +56,10 @@ export default {
     }
   },
   methods: {
+    testFileDownload ()
+    {
+      this.$axios.post('/login/', { sid: this.sid })
+    },
     onClickNewPassword ()
     {
       this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res =>
