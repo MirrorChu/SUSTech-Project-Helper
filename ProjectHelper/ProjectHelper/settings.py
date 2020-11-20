@@ -90,9 +90,9 @@ WSGI_APPLICATION = 'ProjectHelper.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ooad',
+        'NAME': 'demo_mysql',
         'USER': 'root',
-        'PASSWORD': 'Xia12345',
+        'PASSWORD': '',
         'HOST': '127.0.0.1',
         'TEST': {
             'CHARSET': 'utf8',
