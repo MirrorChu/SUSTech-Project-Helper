@@ -126,6 +126,11 @@ class File(View):
 
 
 class TestAPI(View):
+   def get(self, request):
+       print(request.body)
+       message = {'code': 200}
+       return JsonResponse(message)
+
    def post(self, request):
        print(request.body)
        message = {'code': 200}
