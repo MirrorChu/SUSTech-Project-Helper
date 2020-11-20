@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -119,7 +119,7 @@ class UploadFile(View):
             try:
                 print("file_obj", file_obj.name)
 
-                file_path = os.path.join(BASE_DIR, 'static', 'files_uploaded', file_obj.name)
+                file_path = os.path.join('static', 'files_uploaded', file_obj.name)
 
                 print("file_path", file_path)
 
@@ -156,6 +156,12 @@ class Test(View):
 
    def post(self, request):
        print(request.body)
-       message = {'code': 200}
-       return JsonResponse(message)
+
+       file = open('static/11811002.txt', 'rb').read()
+       response = HttpResponse(file)
+       print(file)
+       response['Content-Type'] = 'text/plain'
+       response['Content-Disposition'] = 'attachment;filename="11811002.txt"'
+
+       return response
 

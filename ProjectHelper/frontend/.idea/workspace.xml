@@ -26,6 +26,10 @@
       <change beforePath="$PROJECT_DIR$/../ProjectHelper/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ProjectHelper/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node_modules.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/config/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +98,11 @@
       <workItem from="1605774380414" duration="1089000" />
       <workItem from="1605779611638" duration="4467000" />
       <workItem from="1605799550167" duration="2994000" />
-      <workItem from="1605862753506" duration="420000" />
+      <workItem from="1605859684434" duration="550000" />
+      <workItem from="1605860278649" duration="230000" />
+      <workItem from="1605860522815" duration="8000" />
+      <workItem from="1605861475872" duration="1519000" />
+      <workItem from="1605863014770" duration="1633000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
@@ -150,15 +158,15 @@
     <option name="LAST_COMMIT_MESSAGE" value="File Upload" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605774504996">
+    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605860089148">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605774504996" />
+    <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605860089148" />
     <state x="818" y="290" key="EnvironmentVariablesDialog" timestamp="1605759572321">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="818" y="290" key="EnvironmentVariablesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605759572321" />
-    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1605759649866">
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1605860529074">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1605759649866" />
