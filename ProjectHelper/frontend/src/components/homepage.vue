@@ -58,7 +58,8 @@ export default {
       {
         updateCookie('sid', this.sid, 1000 * 60)
         //Why is this a warning here?
-        this.$router.push({ name: 'homepage_profile', params: { name: this.name, sid: this.sid } })
+        console.log(this.sid, this.name)
+        this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
       }
     },
     //TODO: New password request.
