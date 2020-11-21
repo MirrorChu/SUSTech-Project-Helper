@@ -295,3 +295,35 @@ class StudentGetsSingleGroupInformation(View):
                              })
 
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
+
+
+class StudentCreatesGroup(View):
+    def post(self, request):
+        student_id = eval(request.body.decode()).get("sid")
+        password = eval(request.body.decode()).get("pswd")
+        group_name = eval(request.body.decode()).get("group_name")
+        introduction = eval(request.body.decode()).get("introduction")
+        project_id = eval(request.body.decode()).get("project_id")
+
+        query_set = UserProfile.objects.filter(student_id=student_id, password=password)
+        captain_id = 0
+        members = 1
+
+        for i in query_set:
+            captain_id = i.id
+
+        # create group
+        GroupOrg.objects.create(group_name=group_name,
+                                members=members,
+                                detail=introduction,
+                                captain_name_id=captain_id,
+                                project_id=project_id
+                                )
+
+        # update user_group
+        query_set = GroupOrg.objects.filter(group_name=group_name, captain_name_id=captain_id, project_id=project_id)
+        for i in query_set:
+            UserGroup.objects.create(group_name_id=i.id, user_name_id=captain_id)
+
+        return JsonResponse({"CreatesGroupCheck": "success"})
+
