@@ -51,7 +51,7 @@ class ChangePasswordView(View):
         new_password = eval(request.body.decode()).get("new_pswd")
 
         # 通过用户名和密码确认数据库中是否有和user对应的记录
-        user = UserProfile.objects.filter(student_id=student_id, password=old_password)
+        user = UserProfile.objects.filter(username=student_id, password=old_password)
         # 如果能查询到相应记录
         if user.count() == 0:
             return JsonResponse({"ChangePasswordCheck": "Change failed!"})
@@ -86,13 +86,13 @@ class ShowPersonalDataView(View):
         # password = eval(request.body.decode()).get("pswd")
         #
         # # 通过用户名和密码确认数据库中是否有和user对应的记录
-        # user = UserProfile.objects.filter(student_id=student_id, password=password)
+        # user = UserProfile.objects.filter(username=student_id, password=password)
         # # 如果能查询到相应记录
         # if user.count() == 0:
         #     return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
         # # 如果未能查询到用户
         # else:
-        #     x = UserProfile.objects.get(student_id=student_id, password=password)
+        #     x = UserProfile.objects.get(username=student_id, password=password)
         #     file_path = x.image
         #     file = open(file_path, "rb")
         #
@@ -171,7 +171,7 @@ class StudentGetsAllProjects(View):
     def post(self, request):
         student_id = eval(request.body.decode()).get("sid")
         password = eval(request.body.decode()).get("pswd")
-        user = UserProfile.objects.filter(student_id=student_id, password=password)
+        user = UserProfile.objects.filter(username=student_id, password=password)
         for i in user:
             course = UserCourse.objects.filter(user_name_id=i.id)
         courses = {}
@@ -214,7 +214,7 @@ class StudentGetsAllGroups(View):
     def post(self, request):
         student_id = eval(request.body.decode()).get("sid")
         password = eval(request.body.decode()).get("pswd")
-        user = UserProfile.objects.filter(student_id=student_id, password=password)
+        user = UserProfile.objects.filter(username=student_id, password=password)
         for i in user:
             # 获得学生参加的所有队伍
             group_id = UserGroup.objects.filter(user_name_id=i.id)
@@ -305,7 +305,7 @@ class StudentCreatesGroup(View):
         introduction = eval(request.body.decode()).get("introduction")
         project_id = eval(request.body.decode()).get("project_id")
 
-        query_set = UserProfile.objects.filter(student_id=student_id, password=password)
+        query_set = UserProfile.objects.filter(username=student_id, password=password)
         captain_id = 0
         members = 1
 
@@ -327,3 +327,87 @@ class StudentCreatesGroup(View):
 
         return JsonResponse({"CreatesGroupCheck": "success"})
 
+
+class EditsGroupIntroduction(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            group_id = eval(request.body.decode()).get("group_id")
+
+            introduction = ""
+            query_set = GroupOrg.objects.filter(id=group_id)
+            for i in query_set:
+                introduction = i.detail
+                i.update(detail=introduction)
+
+            # 后面可能要做站内信功能，记录谁修改了简介，所以先留着学号和密码
+
+            return JsonResponse({"EditsGroupIntroductionCheck": "success"})
+
+        except Exception as e:
+            return JsonResponse({"EditsGroupIntroductionCheck": "failed"})
+
+
+class EditsGroupName(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            group_id = eval(request.body.decode()).get("group_id")
+
+            group_name = ""
+            query_set = GroupOrg.objects.filter(id=group_name)
+            for i in query_set:
+                group_name = i.group_name
+                i.update(group_name=group_name)
+
+            return JsonResponse({"EditsGroupNameCheck": "success"})
+
+        except Exception as e:
+            return JsonResponse({"EditsGroupNameCheck": "failed"})
+
+
+class GroupMemberValidation(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            group_id = eval(request.body.decode()).get("group_id")
+
+            user_id = 0
+
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            for i in query_set:
+                user_id = i.id
+
+            query_set = UserGroup.objects.filter(user_name_id=user_id, group_name_id=group_id)
+            if query_set.count() == 0:
+                return JsonResponse({"GroupMemberValidation": "guest"})
+
+            query_set = GroupOrg.objects.filter(id=group_id, captain_name_id=user_id)
+            if query_set.count() == 0:
+                return JsonResponse({"GroupMemberValidation": "member"})
+            else:
+                return JsonResponse({"EditsGroupNameCheck": "captain"})
+
+        except Exception as e:
+            return JsonResponse({"EditsGroupNameCheck": "failed"})
+
+
+class StudentQuitsGroup(View):
+    def post(self, request):
+        group_id = eval(request.body.decode()).get("group_id")
+        student_id = eval(request.body.decode()).get("sid")
+        password = eval(request.body.decode()).get("pswd")
+
+        user = UserProfile.objects.filter(student_id=student_id, password=password)
+        for i in user:
+            user_id = i.id
+        group = GroupOrg.objects.filter(group_name_id=group_id)
+        mem = 0
+        for i in group:
+            mem = i.member - 1
+        GroupOrg.objects.filter(group_name_id=group_id).update(member=mem)
+        UserGroup.objects.delete(group_name_id=group_id, user_name_id=user_id)
+        return JsonResponse({"StudentQuitGroupCheck": "success"})

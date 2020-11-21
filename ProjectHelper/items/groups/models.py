@@ -8,7 +8,7 @@ UserProfile = get_user_model()
 
 
 class GroupOrg(models.Model):
-    group_name = models.CharField(verbose_name="队伍名称", max_length=50)
+    group_name = models.CharField(verbose_name="队伍名称", max_length=50, unique=True)
 
     # 队长是队伍的创始人，只有队长会收到申请，并且决定是否接受
     captain_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="队长名称")
