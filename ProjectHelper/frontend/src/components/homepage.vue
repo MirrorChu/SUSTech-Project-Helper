@@ -1,14 +1,50 @@
 <template>
   <div class="homepage">
-    <el-header>HOMEPAGE</el-header>
-    <el-row>
-      Hello, {{ name }}
-    </el-row>
-    <el-row>
-      <el-button @click="onClickProfile">My Profile</el-button>
-      <el-button @click="onClickNewPassword">New Password</el-button>
-      <el-button @click="onClickLogout">Logout</el-button>
-    </el-row>
+    <el-container direction="horizontal">
+
+      <el-aside>
+        <el-menu default-active="1-4-1" class="nav" @open="handleOpen" @close="handleClose"
+                 :collapse="!showNav">
+          <el-header v-if="showNav">
+            Project Helper
+          </el-header>
+          <el-header v-if="!showNav">
+            PH
+          </el-header>
+          <el-menu-item>
+            <i class="el-icon-user"></i>
+            <span slot="title">My Profile</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-folder"></i>
+            <span slot="title">My Projects</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-message"></i>
+            <span slot="title">Messages</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-setting"></i>
+            <span slot="title">Settings</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-circle-close"></i>
+            <span slot="title">Logout</span>
+          </el-menu-item>
+          <el-menu-item v-if="this.showNav" @click="openCloseNav">
+            <i class="el-icon-arrow-left"></i>
+          </el-menu-item>
+          <el-menu-item v-if="!this.showNav" @click="openCloseNav">
+            <i class="el-icon-arrow-right"></i>
+          </el-menu-item>
+        </el-menu>
+      </el-aside>
+
+      <el-main>
+
+      </el-main>
+
+    </el-container>
   </div>
 </template>
 
@@ -25,6 +61,7 @@ export default {
       sid: 3463462,
       pswd: this.$route.params.pswd,
       name: '',
+      showNav: true,
     }
   },
   created ()
@@ -46,6 +83,11 @@ export default {
     }
   },
   methods: {
+    openCloseNav ()
+    {
+      this.showNav = !this.showNav
+    },
+
     //TODO: Personal profile request.
     onClickProfile ()
     {
@@ -78,5 +120,8 @@ export default {
 </script>
 
 <style scoped>
-
+.nav:not(.el-menu--collapse) {
+  width: 200px;
+  min-height: 400px;
+}
 </style>

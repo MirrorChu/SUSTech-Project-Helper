@@ -1,9 +1,16 @@
 <template>
   <div class="login">
-    <h1>LOGIN</h1>
-    <el-input v-model="sid" placeholder="SID" clearable></el-input>
-    <el-input v-model="pswd" show-password placeholder="PASSWORD" clearable></el-input>
-    <el-button @click="onLoginClick()">LOGIN</el-button>
+    <el-form :label-position="labelPosition" :label-width="labelWidth">
+      <el-form-item label="Student ID">
+        <el-input v-model="sid" placeholder="SID" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="PASSWORD">
+        <el-input v-model="pswd" show-password placeholder="PASSWORD" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="onLoginClick()">LOGIN</el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 <script>
@@ -17,6 +24,8 @@ export default {
     return {
       sid: '',
       pswd: '',
+      labelPosition: 'left',
+      labelWidth: '100px',
     }
   },
   mounted ()
