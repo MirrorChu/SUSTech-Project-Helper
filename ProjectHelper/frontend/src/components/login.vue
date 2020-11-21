@@ -31,10 +31,10 @@ export default {
   mounted ()
   {
     /*页面挂载获取cookie，如果存在username的cookie，则跳转到主页，不需登录*/
-    if (getCookie('sid'))
-    {
-      this.$router.push('/homepage')
-    }
+    // if (getCookie('sid'))
+    // {
+    //   this.$router.push('/homepage')
+    // }
   },
   methods: {
     onLoginClick ()
@@ -44,7 +44,11 @@ export default {
       axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
       this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
-        console.log(res.data)
+        console.log('data: ', res.data)
+        let token = 'Bearer ' + res.data.token
+        console.log('token: ', token)
+        this.$store.commit('Login', {Authorization: token, sid: this.sid})
+
       }).catch(err =>
       {
         console.log('err', err)

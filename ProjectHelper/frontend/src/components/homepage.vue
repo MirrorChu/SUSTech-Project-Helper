@@ -71,15 +71,15 @@ export default {
     this.sid = cookie
     console.log('sid', this.sid)
     /*如果cookie不存在，则跳转到登录页*/
-    if (cookie === '')
-    {
-      this.$router.push('/login')
-    }
+    // if (cookie === '')
+    // {
+    //   this.$router.push('/login')
+    // }
     //TODO: Do we use a request to get name?
-    else
-    {
+    // else
+    // {
       this.name = 'JIASHU'
-    }
+    // }
   },
   methods: {
     openCloseNav ()
@@ -90,18 +90,18 @@ export default {
     //TODO: Personal profile request.
     onClickProfile ()
     {
-      let cookie = getCookie('sid')
-      if (cookie === '')
-      {
-        this.$router.push('/login')
-      }
-      else
-      {
+      // let cookie = getCookie('sid')
+      // if (cookie === '')
+      // {
+      //   this.$router.push('/login')
+      // }
+      // else
+      // {
         updateCookie('sid', this.sid, 1000 * 60)
         //Why is this a warning here?
         console.log(this.sid, this.name)
         this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
-      }
+      // }
     },
 
     //TODO: New password request.
