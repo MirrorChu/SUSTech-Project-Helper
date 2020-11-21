@@ -6,4 +6,4 @@ This branch is actively developed.
 
 The frontend runs on 127.0.0.1:8080. You should use WebStorm for frontend development. The dependencies are now uploaded. Please unzip it in frontend yourself.
 
-The backend runs on 127.0.0.1:8080. You should use PyCharm for backend developement.
+The backend runs on 127.0.0.1:8000. You should use PyCharm for backend developement. The dependencies are installed through PIP. You should install them yourself.
