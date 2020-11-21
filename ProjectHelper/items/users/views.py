@@ -12,8 +12,9 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
 
+from items.groups.models import GroupOrg
 from items.users.models import UserProfile
-from items.operations.models import UserCourse
+from items.operations.models import UserCourse, UserGroup
 from items.courses.models import Course
 from items.projects.models import Project
 
@@ -77,7 +78,7 @@ class ShowPersonalDataView(View):
 
         if file_name != '':
             file = request.FILES.get(file_name)
-            path = default_storage.save('tmp/' + file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
+            path = default_storage.save('tmp/'+file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
 
             message = {'code': 200}
         return JsonResponse(message)
@@ -144,26 +145,26 @@ class DownloadFile(View):
 
         response = HttpResponse(file_obj)
         response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = "attachment;filename=" + file_name
+        response['Content-Disposition'] = "attachment;filename="+file_name
         return response
 
 
 class Test(View):
-    def get(self, request):
-        print(request.body)
-        message = {'code': 200}
-        return JsonResponse(message)
+   def get(self, request):
+       print(request.body)
+       message = {'code': 200}
+       return JsonResponse(message)
 
-    def post(self, request):
-        print(request.body)
+   def post(self, request):
+       print(request.body)
 
-        file = open('static/11811002.zip', 'rb').read()
-        response = HttpResponse(file)
-        print(file)
-        response['Content-Type'] = 'application/zip'
-        response['Content-Disposition'] = 'attachment; filename=11811002.zip'
+       file = open('static/11811002.zip', 'rb').read()
+       response = HttpResponse(file)
+       print(file)
+       response['Content-Type'] = 'application/zip'
+       response['Content-Disposition'] = 'attachment; filename=11811002.zip'
 
-        return response
+       return response
 
 
 class StudentGetAllProject(View):
@@ -207,3 +208,39 @@ class StudentGetSingleProjectInformation(View):
                              "course_name": course_name})
 
         # 返回{项目名, 项目简介, 课程名}
+
+
+class StudentGetAllGroup(View):
+    def post(self, request):
+        student_id = eval(request.body.decode()).get("sid")
+        password = eval(request.body.decode()).get("pswd")
+        user = UserProfile.objects.filter(student_id=student_id, password=password)
+        for i in user:
+            # 获得学生参加的所有队伍
+            group_id = UserGroup.objects.filter(user_name_id=i.id)
+
+        groups = {}
+        for i in group_id:
+            group_obj = GroupOrg.objects.filter(id=i.group_name_id)
+            for j in group_obj:
+                group_name = j.group_name
+                groups[group_name] = []
+                groups[group_name].append(j.id)
+
+                project_id = j.project_id
+                groups[group_name].append(project_id)
+                project = Project.objects.filter(id=project_id)
+                for k in project:
+                    project_name = k.name
+                    groups[group_name].append(project_name)
+                    course_id = k.course_id
+                    groups[group_name].append(course_id)
+                    course = Course.objects.filter(id=course_id)
+                    for l in course:
+                        course_name = l.name
+                        groups[group_name].append(course_name)
+        return JsonResponse(groups)
+
+    # 返回{队伍名:[队伍id,项目id,项目名,课程id,课程名],}
+
+
