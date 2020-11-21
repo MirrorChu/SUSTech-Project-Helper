@@ -23,9 +23,9 @@ from django.views.static import serve
 import xadmin
 
 from items.users.views import LoginView, ChangePasswordView, ShowPersonalDataView,\
-    UploadFile, DownloadFile, Test, StudentGetAllProject, \
-    StudentGetSingleProjectInformation, StudentGetAllGroup, \
-    StudentGetSingleGroupInformation
+    UploadFile, DownloadFile, Test, StudentGetsAllProjects, \
+    StudentGetsSingleProjectInformation, StudentGetsAllGroups, \
+    StudentGetsSingleGroupInformation
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -39,10 +39,10 @@ urlpatterns = [
     path('uploadfile/', UploadFile.as_view()),
     path('downloadfile/', DownloadFile.as_view()),
     path('test/', Test.as_view()),
-    path('studentgetprojects/', StudentGetAllProject.as_view()),
-    path('studentgetsingleprojectinformation/', StudentGetSingleProjectInformation.as_view()),
-    path('studentgetallgroup/', StudentGetAllGroup.as_view()),
-    path('studentgetsinglegroupinformation/', StudentGetAllGroup.as_view())
+    path('student_gets_all_projects/', StudentGetsAllProjects.as_view()),
+    path('student_gets_single_project_information/', StudentGetsSingleProjectInformation.as_view()),
+    path('student_get_all_groups/', StudentGetsAllGroups.as_view()),
+    path('student_get_single_group_information/', StudentGetsSingleGroupInformation.as_view())
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页
 ]
 # 访问函数view的实现方法可以基于类(class base view)，也可以基于函数(function base view)，而这里选择前者是因为它便于维护

@@ -167,7 +167,7 @@ class Test(View):
         return response
 
 
-class StudentGetAllProject(View):
+class StudentGetsAllProjects(View):
     def post(self, request):
         student_id = eval(request.body.decode()).get("sid")
         password = eval(request.body.decode()).get("pswd")
@@ -187,7 +187,7 @@ class StudentGetAllProject(View):
     # 返回{课程名：{项目ID:项目名，}，}
 
 
-class StudentGetSingleProjectInformation(View):
+class StudentGetsSingleProjectInformation(View):
     def post(self, request):
         project_id = eval(request.body.decode()).get("project_id")
         query_set = Project.objects.filter(id=project_id)
@@ -210,7 +210,7 @@ class StudentGetSingleProjectInformation(View):
         # 返回{项目名, 项目简介, 课程名}
 
 
-class StudentGetAllGroup(View):
+class StudentGetsAllGroups(View):
     def post(self, request):
         student_id = eval(request.body.decode()).get("sid")
         password = eval(request.body.decode()).get("pswd")
@@ -244,7 +244,7 @@ class StudentGetAllGroup(View):
     # 返回{队伍名:[队伍id,项目id,项目名,课程id,课程名],}
 
 
-class StudentGetSingleGroupInformation(View):
+class StudentGetsSingleGroupInformation(View):
     def post(self, request):
         group_id = eval(request.body.decode()).get("group_id")
         query_set = GroupOrg.objects.filter(id=group_id)
