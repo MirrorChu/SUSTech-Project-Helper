@@ -1,55 +1,99 @@
+
+
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
-    <!--    <img src="../assets/logo.png">-->
-    <el-image :src="logo"/>
-    <el-avatar :src="logo" fit="scale-down"></el-avatar>
-    <el-row>Name: {{ this.$route.params.name }}</el-row>
-    <el-row>SID: {{ this.$route.params.sid }}</el-row>
-    <!--    <el-upload-->
-    <!--      class="avatar-uploader"-->
-    <!--      action=""-->
-    <!--      list-type="picture"-->
-    <!--      :on-preview="handlePictureCardPreview"-->
-    <!--      :auto-upload="true"-->
-    <!--      :show-file-list="false"-->
-    <!--      :on-success="handleAvatarSuccess"-->
-    <!--      :before-upload="beforeAvatarUpload">-->
-    <!--      <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
-    <!--      <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
-    <!--    </el-upload>-->
+    <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>
+    <el-button @click="testFileDownload">test file download</el-button>
+    <el-avatar :size="48" :src="this.avatar"></el-avatar>
+    <el-row>SID: {{ this.sid }}</el-row>
+    <el-row>NAME: {{ this.name }}</el-row>
     <el-button @click="onClickNewPassword">New Password</el-button>
     <el-upload
       class="avatar-uploader"
-      action=""
+      action="/api/personaldata/"
+      :name="this.sid"
       :auto-upload="true"
       :show-file-list="false"
-      :http-request="upload"
       :on-success="handleAvatarSuccess"
       :before-upload="beforeAvatarUpload">
       <img v-if="imageUrl" :src="imageUrl" class="avatar">
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
+    <el-upload
+      class="upload-demo"
+      drag
+      action="/api/personaldata/"
+      :name="this.sid"
+      :multiple="true">
+      <i class="el-icon-upload"></i>
+<!--      <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>-->
+<!--      <div class="el-upload__tip" slot="tip">.zip supported only</div>-->
+    </el-upload>
   </div>
+  <!--  <div>-->
+  <!--  </div>-->
 </template>
 
 <script>
 
-import logo from '../assets/logo.png'
 
 export default {
   name: 'profile',
   data ()
   {
     return {
+      sid: '',
       imageUrl: '',
       dialogImageUrl: '',
       dialogVisible: '',
-      file: null,
-      logo: null,
+      avatar: null,
+    }
+  },
+  created ()
+  {
+    console.log('before create')
+    this.avatar = require('../assets/logo.png')
+    if (this.sid === '')
+    {
+      this.sid = this.$route.params.sid
+      this.name = this.$route.params.name
     }
   },
   methods: {
+    saveFile (data, name)
+    {
+      try
+      {
+        data = new Blob([data])
+        console.log(data)
+        console.log(name)
+
+        const blobUrl = window.URL.createObjectURL(data)
+        const a = document.createElement('a')
+        a.style.display = 'none'
+        a.download = name
+        a.href = blobUrl
+        a.click()
+        URL.revokeObjectURL(a.href)
+      }
+      catch (e)
+      {
+        alert('保存文件出错')
+      }
+    },
+    testFileDownload ()
+    {
+      this.$axios.post('/test/', { sid: this.sid }, {responseType: "blob"}).then(res =>
+      {
+        console.log('res', res)
+        console.log(res.data.size)
+        this.saveFile(res.data, '11811002.zip')
+      }).catch(err =>
+      {
+        console.log('err', err)
+      })
+    },
     onClickNewPassword ()
     {
       this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res =>
@@ -61,37 +105,10 @@ export default {
       })
     },
 
-    upload (file)
-    {
-      //TODO Move this elsewhere.
-      this.logo = require('../assets/logo.png')
-
-
-
-
-      console.log(this.logo)
-      console.log('upload')
-      console.log(JSON.stringify(file))
-      console.log(JSON.stringify(file.file))
-      console.log(file)
-
-      const formData = new FormData()
-      formData.append('image', file.file)
-      this.$axios.post('/profile/avatar', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }).then(res =>
-      {
-        console.log(res)
-      }).catch(err =>
-      {
-        console.this.upload(err)
-      })
-    },
-
     handleAvatarSuccess (res, file)
     {
+      console.log('raw', file.raw)
+      console.log('raws', file.raws)
       console.log('success')
       console.log(res)
       console.log(file)
@@ -99,10 +116,8 @@ export default {
     },
     beforeAvatarUpload (file)
     {
-      this.file = file
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
-
       if (!isJPG)
       {
         this.$message.error('上传头像图片只能是 JPG 格式!')
@@ -121,7 +136,6 @@ export default {
     },
   },
 }
-
 </script>
 
 <style>
@@ -132,11 +146,9 @@ export default {
   position: relative;
   overflow: hidden;
 }
-
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
-
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -145,7 +157,6 @@ export default {
   line-height: 178px;
   text-align: center;
 }
-
 .avatar {
   width: 178px;
   height: 178px;
@@ -154,5 +165,16 @@ export default {
 </style>
 
 <style scoped>
-
 </style>
+© 2020 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About

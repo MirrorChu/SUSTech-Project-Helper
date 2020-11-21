@@ -24,11 +24,17 @@ export default new Router({
       path: '/homepage',
       name: 'homepage',
       component: homepage,
+      meta: {
+        requireAuth: true,
+      },
     },
     {
       path: '/homepage/profile',
       name: 'homepage_profile',
       component: profile,
+      meta: {
+        requireAuth: true,
+      },
     },
     {
       path: '/homepage/profile/newpassword',

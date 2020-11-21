@@ -1,16 +1,46 @@
 <template>
   <div class="homepage">
-    <el-header>HOMEPAGE</el-header>
+    <el-container direction="horizontal">
 
-    <el-container>
       <el-aside>
-        <el-button @click="onClickProfile">My Profile</el-button>
-        <el-button @click="onClickLogout">Logout</el-button>
+        <el-menu default-active="1-4-1" class="nav" :collapse="!showNav">
+          <el-header v-if="showNav">
+            Project Helper
+          </el-header>
+          <el-header v-if="!showNav">
+            PH
+          </el-header>
+          <el-menu-item>
+            <i class="el-icon-user"></i>
+            <span slot="title">My Profile</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-folder"></i>
+            <span slot="title">My Projects</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-message"></i>
+            <span slot="title">Messages</span>
+          </el-menu-item>
+          <el-menu-item>
+            <i class="el-icon-setting"></i>
+            <span slot="title">Settings</span>
+          </el-menu-item>
+          <el-menu-item @click="onClickLogout">
+            <i class="el-icon-circle-close" @click="onClickLogout"></i>
+            <span slot="title" @click="onClickLogout">Logout</span>
+          </el-menu-item>
+          <el-menu-item v-if="this.showNav" @click="openCloseNav">
+            <i class="el-icon-arrow-left"></i>
+          </el-menu-item>
+          <el-menu-item v-if="!this.showNav" @click="openCloseNav">
+            <i class="el-icon-arrow-right"></i>
+          </el-menu-item>
+        </el-menu>
       </el-aside>
+
       <el-main>
-        <el-row>
-          Hello, {{ name }}
-        </el-row>
+
       </el-main>
     </el-container>
   </div>
@@ -29,6 +59,7 @@ export default {
       sid: 3463462,
       pswd: this.$route.params.pswd,
       name: '',
+      showNav: false,
     }
   },
   created ()
@@ -39,40 +70,49 @@ export default {
     this.sid = cookie
     console.log('sid', this.sid)
     /*如果cookie不存在，则跳转到登录页*/
-    if (cookie === '')
-    {
-      this.$router.push('/login')
-    }
+    // if (cookie === '')
+    // {
+    //   this.$router.push('/login')
+    // }
     //TODO: Do we use a request to get name?
-    else
-    {
+    // else
+    // {
       this.name = 'JIASHU'
-    }
+    // }
   },
   methods: {
+    openCloseNav ()
+    {
+      this.showNav = !this.showNav
+    },
+
     //TODO: Personal profile request.
     onClickProfile ()
     {
-      let cookie = getCookie('sid')
-      if (cookie === '')
-      {
-        this.$router.push('/login')
-      }
-      else
-      {
+      // let cookie = getCookie('sid')
+      // if (cookie === '')
+      // {
+      //   this.$router.push('/login')
+      // }
+      // else
+      // {
         updateCookie('sid', this.sid, 1000 * 60)
         //Why is this a warning here?
-        this.$router.push({ name: 'homepage_profile', params: { name: this.name, sid: this.sid } })
-      }
+        console.log(this.sid, this.name)
+        this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
+      // }
     },
+
     //TODO: New password request.
     onClickNewPassword ()
     {
       updateCookie('sid', this.sid, 1000 * 60)
     },
+
     //TODO: Logout request.
     onClickLogout ()
     {
+      console.log('logout')
       delCookie('sid')
       this.$router.push('/')
     },
@@ -81,5 +121,8 @@ export default {
 </script>
 
 <style scoped>
-
+.nav:not(.el-menu--collapse) {
+  width: 200px;
+  min-height: 400px;
+}
 </style>
