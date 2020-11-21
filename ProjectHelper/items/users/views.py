@@ -77,7 +77,7 @@ class ShowPersonalDataView(View):
 
         if file_name != '':
             file = request.FILES.get(file_name)
-            path = default_storage.save('tmp/'+file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
+            path = default_storage.save('tmp/' + file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
 
             message = {'code': 200}
         return JsonResponse(message)
@@ -113,9 +113,6 @@ class UploadFile(View):
 
         file_obj = request.FILES.get('file', None)
 
-        path = eval(request.body.decode()).get("sid")
-        old_password = eval(request.body.decode()).get("old_pswd")
-
         if not file_obj:
             return JsonResponse({"UploadFileCheck": "failed"})
         else:
@@ -147,26 +144,26 @@ class DownloadFile(View):
 
         response = HttpResponse(file_obj)
         response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = "attachment;filename="+file_name
+        response['Content-Disposition'] = "attachment;filename=" + file_name
         return response
 
 
 class Test(View):
-   def get(self, request):
-       print(request.body)
-       message = {'code': 200}
-       return JsonResponse(message)
+    def get(self, request):
+        print(request.body)
+        message = {'code': 200}
+        return JsonResponse(message)
 
-   def post(self, request):
-       print(request.body)
+    def post(self, request):
+        print(request.body)
 
-       file = open('static/11811002.zip', 'rb').read()
-       response = HttpResponse(file)
-       print(file)
-       response['Content-Type'] = 'application/zip'
-       response['Content-Disposition'] = 'attachment; filename=11811002.zip'
+        file = open('static/11811002.zip', 'rb').read()
+        response = HttpResponse(file)
+        print(file)
+        response['Content-Type'] = 'application/zip'
+        response['Content-Disposition'] = 'attachment; filename=11811002.zip'
 
-       return response
+        return response
 
 
 class StudentGetAllProject(View):
@@ -186,7 +183,27 @@ class StudentGetAllProject(View):
             for j in projects:
                 courses[name][j.id] = j.name
         return JsonResponse({"GetProjectsCheck": courses})
-    #返回{课程名：{项目ID:项目名，}，}
+    # 返回{课程名：{项目ID:项目名，}，}
 
 
+class StudentGetSingleProjectInformation(View):
+    def post(self, request):
+        project_id = eval(request.body.decode()).get("project_id")
+        query_set = Project.objects.filter(id=project_id)
 
+        project_name = ""
+        project_introduction = ""
+        course_name = ""
+
+        for i in query_set:
+            project_name = i.name
+            project_introduction = i.introduction
+            course = i.course_id
+            query_set = Course.objects.filter(id=course)
+            for j in query_set:
+                course_name = j.name
+
+        return JsonResponse({"project_name": project_name, "project_introduction": project_introduction,
+                             "course_name": course_name})
+
+        # 返回{项目名, 项目简介, 课程名}
