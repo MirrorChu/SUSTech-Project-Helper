@@ -36,13 +36,13 @@ class LoginView(View):
             user = UserProfile.objects.filter(username=student_id, password=password)
             # 如果能查询到相应记录
             if user.count() == 0:
-                return JsonResponse({"LoginCheck": "Login failed!"})
+                return JsonResponse({"LoginCheck": "failed"})
             # 如果未能查询到用户
             else:
-                return JsonResponse({"LoginCheck": "Login success!"})
+                return JsonResponse({"LoginCheck": "success"})
 
         except Exception as e:
-            return JsonResponse({"ChangePasswordCheck": "failed"})
+            return JsonResponse({"LoginCheck": "failed"})
 
 
 class ChangePasswordView(View):
@@ -59,11 +59,11 @@ class ChangePasswordView(View):
             user = UserProfile.objects.filter(username=student_id, password=old_password)
             # 如果能查询到相应记录
             if user.count() == 0:
-                return JsonResponse({"ChangePasswordCheck": "Change failed!"})
+                return JsonResponse({"ChangePasswordCheck": "failed"})
             # 如果未能查询到用户
             else:
                 user.update(password=new_password)
-                return JsonResponse({"ChangePasswordCheck": "Change success!"})
+                return JsonResponse({"ChangePasswordCheck": "success"})
 
         except Exception as e:
             return JsonResponse({"ChangePasswordCheck": "failed"})
@@ -90,8 +90,7 @@ class ShowPersonalDataView(View):
                 file = request.FILES.get(file_name)
                 path = default_storage.save('tmp/' + file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
 
-                message = {'code': 200}
-            return JsonResponse(message)
+            return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
             return JsonResponse({"ShowPersonalData": "failed"})
@@ -366,12 +365,9 @@ class EditsGroupIntroduction(View):
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
             group_id = eval(request.body.decode()).get("group_id")
+            group_introduction = eval(request.body.decode()).get("group_introduction")
 
-            introduction = ""
-            query_set = GroupOrg.objects.filter(id=group_id)
-            for i in query_set:
-                introduction = i.detail
-                i.update(detail=introduction)
+            GroupOrg.objects.filter(id=group_id).update(detail=group_introduction)
 
             # 后面可能要做站内信功能，记录谁修改了简介，所以先留着学号和密码
 
@@ -387,12 +383,9 @@ class EditsGroupName(View):
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
             group_id = eval(request.body.decode()).get("group_id")
+            group_name = eval(request.body.decode()).get("group_name")
 
-            group_name = ""
-            query_set = GroupOrg.objects.filter(id=group_name)
-            for i in query_set:
-                group_name = i.group_name
-                i.update(group_name=group_name)
+            GroupOrg.objects.filter(id=group_id).update(group_name=group_name)
 
             return JsonResponse({"EditsGroupNameCheck": "success"})
 
