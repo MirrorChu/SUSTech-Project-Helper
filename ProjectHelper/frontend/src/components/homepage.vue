@@ -10,7 +10,7 @@
           <el-header v-if="!showNav">
             PH
           </el-header>
-          <el-menu-item>
+          <el-menu-item @click="onClickProfile">
             <i class="el-icon-user"></i>
             <span slot="title">My Profile</span>
           </el-menu-item>
