@@ -504,6 +504,9 @@ class Image(View):
         file_obj = request.FILES.get('image')
 
         print("file_obj", file_obj.name)
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
         file_path = os.path.join(BASE_DIR, 'static', 'head_images', file_obj.name)
         print("file_path", file_path)
         with open(file_path, 'wb+') as f:

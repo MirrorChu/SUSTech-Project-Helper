@@ -22,7 +22,7 @@ from django.views.static import serve
 
 import xadmin
 
-from items.users.views import LoginView, ChangePasswordView, ShowPersonalDataView,\
+from items.users.views import Login, ChangePassword, ShowPersonalData,\
     UploadFile, DownloadFile, Test, StudentGetsAllProjects, \
     StudentGetsSingleProjectInformation, StudentGetsAllGroups, \
     StudentGetsSingleGroupInformation, StudentCreatesGroup, \
@@ -38,9 +38,9 @@ urlpatterns = [
     # 配置首页的路径
     path('', TemplateView.as_view(template_name="index.html"), name="index"),
 
-    path('login/', LoginView.as_view()),
-    path('newpassword/', ChangePasswordView.as_view()),
-    path('personaldata/', ShowPersonalDataView.as_view()),
+    path('login/', Login.as_view()),
+    path('newpassword/', ChangePassword.as_view()),
+    path('personaldata/', ShowPersonalData.as_view()),
     path('uploadfile/', UploadFile.as_view()),
     path('downloadfile/', DownloadFile.as_view()),
     path('test/', Test.as_view()),
