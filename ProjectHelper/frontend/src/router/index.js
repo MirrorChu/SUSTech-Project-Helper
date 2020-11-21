@@ -4,6 +4,7 @@ import HelloWorld from '../components/HelloWorld'
 import login from '../components/login'
 import homepage from '../components/homepage'
 import profile from '../components/profile'
+import new_password from '../components/new_password'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       meta: {
         requireAuth: true,
       },
+    },
+    {
+      path: '/homepage/profile/newpassword',
+      name: 'homepage_profile_newpassword',
+      component: new_password,
     },
   ],
 })

@@ -1,13 +1,13 @@
 <template>
-  <el-input placeholder="old pswd" v-model="old_pswd" show-password clearable></el-input>
-  <el-input placeholder="new pswd" v-model="new_pswd" show-password clearable></el-input>
-  <el-input placeholder="confirm" v-model="confirm" show-password clearable></el-input>
-  <el-button>change password</el-button>
+  <div>
+    <el-input placeholder="old pswd" v-model="old_pswd" show-password clearable></el-input>
+    <el-input placeholder="new pswd" v-model="new_pswd" show-password clearable></el-input>
+    <el-input placeholder="repeat to confirm" v-model="repeat" show-password clearable></el-input>
+    <el-button @click="onChangeClicked">change password</el-button>
+  </div>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   name: 'new_password',
   props: {
@@ -20,19 +20,19 @@ export default {
     return {
       old_pswd: '',
       new_pswd: '',
-      confirm: '',
+      repeat: '',
     }
   },
   //TODO: Add cookie.
   methods: {
     onChangeClicked ()
     {
-      if (this.new_pswd !== this.confirm)
+      if (this.new_pswd !== this.repeat)
       {
         this.$alert('New passwords input are not the same.')
         this.old_pswd = ''
         this.new_pswd = ''
-        this.confirm = ''
+        this.repeat = ''
       }
       else
       {
@@ -43,6 +43,9 @@ export default {
         {
           console.log('err', err)
         })
+        this.old_pswd = ''
+        this.new_pswd = ''
+        this.repeat = ''
       }
     },
   },

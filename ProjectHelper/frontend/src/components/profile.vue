@@ -37,6 +37,7 @@
 
 <script>
 
+
 export default {
   name: 'profile',
   data ()
@@ -103,6 +104,7 @@ export default {
         console.log(err)
       })
     },
+
     handleAvatarSuccess (res, file)
     {
       console.log('raw', file.raw)

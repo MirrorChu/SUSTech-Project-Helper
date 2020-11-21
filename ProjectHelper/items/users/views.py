@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth import authenticate, login
@@ -18,8 +20,7 @@ from items.operations.models import UserCourse, UserGroup
 from items.courses.models import Course
 from items.projects.models import Project
 
-
-class LoginView(View):
+class Login(View):
     @method_decorator(ensure_csrf_cookie)
     # def get(self, request, *args, **kwargs):
     #     return render(request, "login.html")
@@ -45,7 +46,7 @@ class LoginView(View):
             return JsonResponse({"LoginCheck": "failed"})
 
 
-class ChangePasswordView(View):
+class ChangePassword(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
@@ -69,7 +70,7 @@ class ChangePasswordView(View):
             return JsonResponse({"ChangePasswordCheck": "failed"})
 
 
-class ShowPersonalDataView(View):
+class ShowPersonalData(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
@@ -493,7 +494,29 @@ class CaptainGiveCaptain(View):
                 return JsonResponse({"CaptainGiveCaptainCheck": "fail"})
             GroupOrg.objects.filter(group_name_id=group_id).update(captain_name_id=target_id)
             return JsonResponse({"CaptainGiveCaptainCheck": "success"})
-
         except Exception as e:
             return JsonResponse({"CaptainGiveCaptainCheck": "failed"})
 
+class Image(View):
+    def post(self, request):
+        print(request.body)
+
+        file_obj = request.FILES.get('image')
+
+        print("file_obj", file_obj.name)
+        file_path = os.path.join(BASE_DIR, 'static', 'head_images', file_obj.name)
+        print("file_path", file_path)
+        with open(file_path, 'wb+') as f:
+            for chunk in file_obj.chunks():
+                f.write(chunk)
+
+        message = {}
+        message['code'] = 200
+
+        return JsonResponse(message)
+
+
+class TestAPI(View):
+   def post(self, request):
+       print(request.body)
+       return JsonResponse({"message": "get it"})

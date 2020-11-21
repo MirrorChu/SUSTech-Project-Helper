@@ -90,9 +90,9 @@ WSGI_APPLICATION = 'ProjectHelper.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'project',
-        'USER': 'root',
-        'PASSWORD': 'z9=0bk65cd,.2a',
+        'NAME': 'demo_mysql',
+        'USER': 'ooad',
+        'PASSWORD': '00000000',
         'HOST': '127.0.0.1',
         'TEST': {
             'CHARSET': 'utf8',
@@ -143,5 +143,4 @@ USE_TZ = False
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'items/message_form/static')
 ]
