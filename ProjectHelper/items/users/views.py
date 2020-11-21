@@ -486,3 +486,21 @@ class CaptainDismissGroup(View):
         except Exception as e:
             return JsonResponse({"CaptainDismissGroupCheck": "failed"})
 
+
+class CaptainGiveCaptain(View):
+    def post(self, request):
+        try:
+            group_id = eval(request.body.decode()).get("group_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            target_id = eval(request.body.decode()).get("t_sid")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"CaptainGiveCaptainCheck": "fail"})
+            GroupOrg.objects.filter(group_name_id=group_id).update(captain_name_id=target_id)
+            return JsonResponse({"CaptainGiveCaptainCheck": "success"})
+
+        except Exception as e:
+            return JsonResponse({"CaptainGiveCaptainCheck": "failed"})
+
