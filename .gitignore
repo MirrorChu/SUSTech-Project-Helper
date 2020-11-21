@@ -5,6 +5,7 @@ ProjectHelper/frontend/dist/
 ProjectHelper/frontend/npm-debug.log*
 ProjectHelper/frontend/yarn-debug.log*
 ProjectHelper/frontend/yarn-error.log*
+ProjectHelper/.idea
 
 # Editor directories and files
 ProjectHelper/frontend/.idea
@@ -20,9 +21,14 @@ ProjectHelper/DjangoUeditor/.DS_Store
 ProjectHelper/items/.DS_Store
 ProjectHelper/ProjectHelper/.DS_Store
 ProjectHelper/xadmin/.DS_Store
-ProjectHelper/.idea/misc.xml
-ProjectHelper/.idea/ProjectHelper.iml
+
 ProjectHelper/frontend/.idea/workspace.xml
+ProjectHelper/venv
+ProjectHelper/.idea/dataSources.xml
+ProjectHelper/.idea/ProjectHelper.iml
+ProjectHelper/items/users/migrations/0003_auto_20201121_0008.py
+ProjectHelper/ProjectHelper/settings.py
+ProjectHelper/xadmin/filters.py
 ProjectHelper/.idea/dataSources/753baa43-bbe9-47ce-a7eb-51b2d244318c.xml
 ProjectHelper/.idea/dataSources/753baa43-bbe9-47ce-a7eb-51b2d244318c/storage_v2/_src_/schema/information_schema.FNRwLQ.meta
 ProjectHelper/ProjectHelper/settings.py
