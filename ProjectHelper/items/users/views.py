@@ -394,7 +394,7 @@ class EditsGroupName(View):
 
 
 class GroupMemberValidation(View):
-    def get(self, request):
+    def post(self, request):
         try:
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
