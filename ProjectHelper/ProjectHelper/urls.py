@@ -27,7 +27,7 @@ from items.users.views import LoginView, ChangePasswordView, ShowPersonalDataVie
     StudentGetsSingleProjectInformation, StudentGetsAllGroups, \
     StudentGetsSingleGroupInformation, StudentCreatesGroup, \
     EditsGroupIntroduction, EditsGroupName, GroupMemberValidation, \
-    StudentQuitsGroup
+    StudentQuitsGroup, CaptainKickMember, CaptainDismissGroup
 
 
 urlpatterns = [
@@ -51,6 +51,8 @@ urlpatterns = [
     path('edits_group_name/', EditsGroupName.as_view()),
     path('group_member_validation/', GroupMemberValidation.as_view()),
     path('student_quits_group/', StudentQuitsGroup.as_view()),
+    path('captain_kick_member/', CaptainKickMember.as_view()),
+    path('captain_dismiss_group/', CaptainDismissGroup.as_view()),
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页
 ]
