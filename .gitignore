@@ -46,3 +46,10 @@ ProjectHelper/items/users/migrations/0003_auto_20201121_1744.py
 ProjectHelper/.idea/vcs.xml
 ProjectHelper/xadmin/filters.py
 ProjectHelper/ProjectHelper/settings.py
+
+ProjectHelper/items/courses/migrations
+ProjectHelper/items/groups/migrations
+ProjectHelper/items/operations/migrations
+ProjectHelper/items/projects/migrations
+ProjectHelper/items/users/migrations
+ProjectHelper/xadmin/migrations
