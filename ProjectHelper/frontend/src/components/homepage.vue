@@ -3,8 +3,7 @@
     <el-container direction="horizontal">
 
       <el-aside>
-        <el-menu default-active="1-4-1" class="nav" @open="handleOpen" @close="handleClose"
-                 :collapse="!showNav">
+        <el-menu default-active="1-4-1" class="nav" :collapse="!showNav">
           <el-header v-if="showNav">
             Project Helper
           </el-header>
@@ -27,9 +26,9 @@
             <i class="el-icon-setting"></i>
             <span slot="title">Settings</span>
           </el-menu-item>
-          <el-menu-item>
-            <i class="el-icon-circle-close"></i>
-            <span slot="title">Logout</span>
+          <el-menu-item @click="onClickLogout">
+            <i class="el-icon-circle-close" @click="onClickLogout"></i>
+            <span slot="title" @click="onClickLogout">Logout</span>
           </el-menu-item>
           <el-menu-item v-if="this.showNav" @click="openCloseNav">
             <i class="el-icon-arrow-left"></i>
@@ -61,7 +60,7 @@ export default {
       sid: 3463462,
       pswd: this.$route.params.pswd,
       name: '',
-      showNav: true,
+      showNav: false,
     }
   },
   created ()
@@ -104,14 +103,17 @@ export default {
         this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
       }
     },
+
     //TODO: New password request.
     onClickNewPassword ()
     {
       updateCookie('sid', this.sid, 1000 * 60)
     },
+
     //TODO: Logout request.
     onClickLogout ()
     {
+      console.log('logout')
       delCookie('sid')
       this.$router.push('/')
     },
