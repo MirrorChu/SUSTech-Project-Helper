@@ -32,7 +32,7 @@ class LoginView(View):
         password = eval(request.body.decode()).get("pswd")
 
         # 通过用户名和密码确认数据库中是否有和user对应的记录
-        user = UserProfile.objects.filter(student_id=student_id, password=password)
+        user = UserProfile.objects.filter(username=student_id, password=password)
         # 如果能查询到相应记录
         if user.count() == 0:
             return JsonResponse({"LoginCheck": "Login failed!"})
@@ -78,7 +78,7 @@ class ShowPersonalDataView(View):
 
         if file_name != '':
             file = request.FILES.get(file_name)
-            path = default_storage.save('tmp/'+file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
+            path = default_storage.save('tmp/' + file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
 
             message = {'code': 200}
         return JsonResponse(message)
@@ -145,26 +145,26 @@ class DownloadFile(View):
 
         response = HttpResponse(file_obj)
         response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = "attachment;filename="+file_name
+        response['Content-Disposition'] = "attachment;filename=" + file_name
         return response
 
 
 class Test(View):
-   def get(self, request):
-       print(request.body)
-       message = {'code': 200}
-       return JsonResponse(message)
+    def get(self, request):
+        print(request.body)
+        message = {'code': 200}
+        return JsonResponse(message)
 
-   def post(self, request):
-       print(request.body)
+    def post(self, request):
+        print(request.body)
 
-       file = open('static/11811002.zip', 'rb').read()
-       response = HttpResponse(file)
-       print(file)
-       response['Content-Type'] = 'application/zip'
-       response['Content-Disposition'] = 'attachment; filename=11811002.zip'
+        file = open('static/11811002.zip', 'rb').read()
+        response = HttpResponse(file)
+        print(file)
+        response['Content-Type'] = 'application/zip'
+        response['Content-Disposition'] = 'attachment; filename=11811002.zip'
 
-       return response
+        return response
 
 
 class StudentGetAllProject(View):
@@ -244,3 +244,54 @@ class StudentGetAllGroup(View):
     # 返回{队伍名:[队伍id,项目id,项目名,课程id,课程名],}
 
 
+class StudentGetSingleGroupInformation(View):
+    def post(self, request):
+        group_id = eval(request.body.decode()).get("group_id")
+        query_set = GroupOrg.objects.filter(id=group_id)
+
+        group_name = ""
+        group_detail = ""
+        project_name = ""
+        course_name = ""
+        captain_name = ""
+        captain_id = 0
+        project_id = 0
+        course_id = 0
+        members = []
+
+        for i in query_set:
+            group_name = i.group_name
+            group_detail = i.detail
+            captain_id = i.captain_name_id
+            project_id = i.project_id
+
+            query_set = Project.objects.filter(id=project_id)
+            for j in query_set:
+                project_name = j.name
+                course_id = j.course_id
+                query_set = Course.objects.filter(id=project_id)
+                for k in query_set:
+                    course_name = k.name
+
+            query_set = UserProfile.objects.filter(id=captain_id)
+            for j in query_set:
+                captain_name = j.username
+
+            query_set = UserGroup.objects.filter(id=group_id)
+            for j in query_set:
+                user_id = j.user_name_id
+                query_set = UserProfile.objects.filter(id=user_id)
+                for k in query_set:
+                    members.append(k.username)
+
+        return JsonResponse({"group_name": group_name,
+                             "group_introduction": group_detail,
+                             "project_id": project_id,
+                             "project_name": project_name,
+                             "course_id": course_id,
+                             "course_name": course_name,
+                             "captain_name": captain_name,
+                             "members": members,
+                             })
+
+        # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
