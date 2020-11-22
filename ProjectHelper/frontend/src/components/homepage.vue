@@ -45,7 +45,9 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <el-table v-show="mainContent.projects" :data="tableData" style="width: 100%" height="500">
+        <el-table v-show="mainContent.projects" :data="tableData.filter(data =>
+          !searchKey || JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
+                  style="width: 100%" height="500">
 
           <el-table-column fixed prop="course" label="Course" width="120"></el-table-column>
 
@@ -59,9 +61,7 @@
 
           <el-table-column width="120" align="right">
             <template slot="header" slot-scope="scope">
-              <el-input
-                size="mini"
-                placeholder="输入关键字搜索"/>
+              <el-input size="mini" v-model="searchKey" placeholder="Search"/>
             </template>
             <template slot-scope="scope">
               <el-button @click="onClickDetail(scope.$index)">Detail</el-button>
@@ -87,7 +87,8 @@ export default {
   props: {},
   data() {
     return {
-      //TODO: Data is lost after refersh.
+      //TODO: Data is lost after refresh.
+      searchKey: '',
       sid: this.$route.params.sid,
       pswd: this.$route.params.pswd,
       name: '',
@@ -164,7 +165,6 @@ export default {
     //TODO: Do we use a request to get name?
     // else
     // {
-    this.name = 'JIASHU'
     // }
   },
   methods: {
@@ -192,6 +192,7 @@ export default {
 
     onClickDetail(project) {
       console.log(project)
+      console.log('searchKey', this.searchKey)
     },
 
     onClickSettings() {
