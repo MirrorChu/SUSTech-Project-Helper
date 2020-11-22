@@ -677,35 +677,112 @@ class Image(View):
 
         return JsonResponse(message)
 
+    def post(self, request):
+        try:
+            # file = request.FILES.get('file')
+            # print(type(file))
+            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
+            # return JsonResponse({
+            #                          "image": file
+            #                          })
+            print(request.POST)
+            arr = request.FILES.keys()
+            print(arr)
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            sid = ''
+            pswd = ''
+            for k in request.POST:
+                if str(k) == 'sid':
+                    sid = str(request.POST[k])
+                else:
+                    pswd = str(request.POST[k])
+
+            print(sid, pswd)
+
+            if file_name != '':
+                file = request.FILES.get(file_name)
+                path = default_storage.save('tmp/' + file_name + ".jpg",
+                                            ContentFile(file.read()))  # 根据名字存图(无类型)
+                print(path)
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            user = UserProfile.objects.filter(username=sid, password=pswd)
+            # 如果能查询到相应记录
+            if user.count() == 0:
+                print('avatar fail')
+                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
+            # 如果未能查询到用户
+            else:
+                print('avatar success')
+                x = UserProfile.objects.get(username=sid, password=pswd)
+
+                # TODO: Fix image.
+                # file_path = x.image
+                # file = open(file_path, "rb")
+
+                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
+                                     # "realname": x.real_name,
+                                     # "student_id": x.student_id,
+                                     # "gender": x.gender,
+                                     # "address": x.address,
+                                     # "email": x.email,
+                                     # "mobile": x.mobile,
+                                     "image": None
+                                     })
+
+            # return JsonResponse({"ShowPersonalData": "success"})
+
+        except Exception as e:
+            print('avatar exception')
+            return JsonResponse({"ShowPersonalData": "failed"})
+
 
 class ChangeHeadImage(View):
     def post(self, request):
         try:
-            print(request.body)
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            print(request.POST)
+            arr = request.FILES.keys()
+            print(arr)
+            file_name = ''
+            for k in arr:
+                file_name = k
 
-            # get file
-            file = request.FILES.get('file', None)
-            print(type(file))
+            sid = ''
+            pswd = ''
+            for k in request.POST:
+                if str(k) == 'sid':
+                    sid = str(request.POST[k])
+                else:
+                    pswd = str(request.POST[k])
 
-            file_path = os.path.join('static', 'head_images', student_id,
-                                     time.strftime("%Y-%m-%d %H %M %S", time.localtime()))
+            print(sid, pswd)
 
-            isExists = os.path.exists(file_path)
+            if file_name != '':
+                file = request.FILES.get(file_name)
+                path = default_storage.save('head_images/' + sid + "/" +
+                                            time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
+                                            + "/" + file_name + ".jpg",
+                                            ContentFile(file.read()))  # 根据名字存图(无类型)
+                print(path)
 
-            if not isExists:
-                os.makedirs(file_path)
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            user = UserProfile.objects.filter(username=sid, password=pswd)
+            # 如果能查询到相应记录
+            if user.count() == 0:
+                print('avatar fail')
+                return JsonResponse({"ChangeHeadImage": "failed"})
+            # 如果未能查询到用户
+            else:
+                print('avatar success')
+                UserProfile.objects.filter(username=sid, password=pswd).update(image=path)
 
-            default_storage.save(file_path + str(request.FILES.get('file')),
-                                 ContentFile(file.read()))  # 根据名字存图
-
-            UserProfile.objects.filter(username=student_id, password=password). \
-                update(image=file_path + str(request.FILES.get('file')))
-
-            return JsonResponse({"ChangeHeadImage": "success"})
+                return JsonResponse({"ChangeHeadImage": "success"})
 
         except Exception as e:
+            print('avatar exception')
             return JsonResponse({"ChangeHeadImage": "failed"})
 
 

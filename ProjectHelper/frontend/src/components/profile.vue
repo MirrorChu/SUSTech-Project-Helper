@@ -8,7 +8,7 @@
     <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
     <el-upload v-if="this.edit"
                class="avatar-uploader"
-               action="/api/test/"
+               action="/api/change_head_image/"
                :data="{sid: this.sid, pswd: this.pswd}"
                :auto-upload="true"
                :show-file-list="false"
