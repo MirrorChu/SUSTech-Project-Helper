@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +100,7 @@
       <workItem from="1606016823601" duration="11007000" />
       <workItem from="1606027942619" duration="15000" />
       <workItem from="1606027964379" duration="4255000" />
-      <workItem from="1606050332806" duration="6359000" />
+      <workItem from="1606050332806" duration="6943000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
