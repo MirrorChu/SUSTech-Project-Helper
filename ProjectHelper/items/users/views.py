@@ -200,53 +200,114 @@ class DownloadFile(View):
 
 class Test(View):
     def get(self, request):
-            print(request.body)
-            student_id = "11811002"
-            password = "123"
-            # get file
+        print(request.body)
+        student_id = "11811002"
+        password = "123"
+        # get file
 
-            file = open('LinuxLogo.jpg', 'wb+')
-            print(file)
-            path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
-                                            file)  # 根据名字存图(无类型)
+        file = open('LinuxLogo.jpg', 'wb+')
+        print(file)
+        path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
+                                    file)  # 根据名字存图(无类型)
 
-            return JsonResponse({"ChangeHeadImage": "success"})
-
+        return JsonResponse({"ChangeHeadImage": "success"})
 
     def post(self, request):
-            try:
-                print(request.body)
-                student_id = "11811002"
-                password = "123"
-                # get file
+        try:
+            # file = request.FILES.get('file')
+            # print(type(file))
+            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
+            # return JsonResponse({
+            #                          "image": file
+            #                          })
+            print(request.POST)
+            arr = request.FILES.keys()
+            print(arr)
+            file_name = ''
+            for k in arr:
+                file_name = k
 
-                file = open('test.txt', 'wb+')
-
-                file_obj = request.FILES.get('file', None)
-
-                if not file_obj:
-                    return JsonResponse({"ChangeHeadImage": "failed"})
+            sid = ''
+            pswd = ''
+            for k in request.POST:
+                if str(k) == 'sid':
+                    sid = str(request.POST[k])
                 else:
-                    print("file_obj", file_obj.name)
+                    pswd = str(request.POST[k])
 
-                    # create path
-                    file_path = os.path.join('static', 'head_images', student_id,
-                                             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
+            print(sid, pswd)
 
-                    print("file_path", file_path)
+            if file_name != '':
+                file = request.FILES.get(file_name)
+                path = default_storage.save('tmp/' + file_name + ".jpg",
+                                            ContentFile(file.read()))  # 根据名字存图(无类型)
+                print(path)
 
-                    # store file
-                    with open(file_path, 'wb+') as f:
-                        for chunk in file_obj.chunks():
-                            f.write(chunk)
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            user = UserProfile.objects.filter(username=sid, password=pswd)
+            # 如果能查询到相应记录
+            if user.count() == 0:
+                print('avatar fail')
+                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
+            # 如果未能查询到用户
+            else:
+                print('avatar success')
+                x = UserProfile.objects.get(username=sid, password=pswd)
 
-                    # update database path
-                    UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
+                # TODO: Fix image.
+                # file_path = x.image
+                # file = open(file_path, "rb")
 
-                    return JsonResponse({"ChangeHeadImage": "success"})
+                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
+                                     # "realname": x.real_name,
+                                     # "student_id": x.student_id,
+                                     # "gender": x.gender,
+                                     # "address": x.address,
+                                     # "email": x.email,
+                                     # "mobile": x.mobile,
+                                     "image": None
+                                     })
 
-            except Exception as e:
-                return JsonResponse({"ChangeHeadImage": "failed"})
+            # return JsonResponse({"ShowPersonalData": "success"})
+
+        except Exception as e:
+            print('avatar exception')
+            return JsonResponse({"ShowPersonalData": "failed"})
+
+    # def post(self, request):
+    #         try:
+    #             print(request.body)
+    #             student_id = "11811002"
+    #             password = "123"
+    #             # get file
+    #
+    #             file = open('test.txt', 'wb+')
+    #
+    #             file_obj = request.FILES.get('file', None)
+    #
+    #             if not file_obj:
+    #                 return JsonResponse({"ChangeHeadImage": "failed"})
+    #             else:
+    #                 print("file_obj", file_obj.name)
+    #
+    #                 # create path
+    #                 file_path = os.path.join('static', 'head_images', student_id,
+    #                                          time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
+    #
+    #                 print("file_path", file_path)
+    #
+    #                 # store file
+    #                 with open(file_path, 'wb+') as f:
+    #                     for chunk in file_obj.chunks():
+    #                         f.write(chunk)
+    #
+    #                 # update database path
+    #                 UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
+    #
+    #                 return JsonResponse({"ChangeHeadImage": "success"})
+    #
+    #         except Exception as e:
+    #             return JsonResponse({"ChangeHeadImage": "failed"})
 
 
 class StudentGetsAllProjects(View):
@@ -636,9 +697,10 @@ class ChangeHeadImage(View):
             if not isExists:
                 os.makedirs(file_path)
 
-            default_storage.save(file_path + str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
+            default_storage.save(file_path + str(request.FILES.get('file')),
+                                 ContentFile(file.read()))  # 根据名字存图
 
-            UserProfile.objects.filter(username=student_id, password=password).\
+            UserProfile.objects.filter(username=student_id, password=password). \
                 update(image=file_path + str(request.FILES.get('file')))
 
             return JsonResponse({"ChangeHeadImage": "success"})
