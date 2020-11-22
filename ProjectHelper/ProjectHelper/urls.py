@@ -22,14 +22,13 @@ from django.views.static import serve
 
 import xadmin
 
-from items.users.views import Login, ChangePassword, ShowPersonalData,\
+from items.users.views import Login, ChangePassword, ShowPersonalData, \
     UploadFile, DownloadFile, Test, StudentGetsAllProjects, \
     StudentGetsSingleProjectInformation, StudentGetsAllGroups, \
     StudentGetsSingleGroupInformation, StudentCreatesGroup, \
     EditsGroupIntroduction, EditsGroupName, GroupMemberValidation, \
     StudentQuitsGroup, CaptainKickMember, CaptainDismissGroup, \
-    CaptainGiveCaptain
-
+    CaptainGiveCaptain, ChangePersonalData
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -40,7 +39,8 @@ urlpatterns = [
 
     path('login/', Login.as_view()),
     path('newpassword/', ChangePassword.as_view()),
-    path('personaldata/', ShowPersonalData.as_view()),
+    path('showpersonaldata/', ShowPersonalData.as_view()),
+    path('changepersonaldata/', ChangePersonalData.as_view()),
     path('uploadfile/', UploadFile.as_view()),
     path('downloadfile/', DownloadFile.as_view()),
     path('test/', Test.as_view()),
