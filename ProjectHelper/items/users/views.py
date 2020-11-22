@@ -20,6 +20,7 @@ from items.operations.models import UserCourse, UserGroup
 from items.courses.models import Course
 from items.projects.models import Project
 
+
 class Login(View):
     @method_decorator(ensure_csrf_cookie)
     # def get(self, request, *args, **kwargs):
@@ -149,7 +150,6 @@ class ChangePersonalData(View):
 
         except Exception as e:
             return JsonResponse({"ChangePersonalData": "failed"})
-
 
 
 class UploadFile(View):
@@ -382,7 +382,8 @@ class StudentCreatesGroup(View):
                                     )
 
             # update user_group
-            query_set = GroupOrg.objects.filter(group_name=group_name, captain_name_id=captain_id, project_id=project_id)
+            query_set = GroupOrg.objects.filter(group_name=group_name, captain_name_id=captain_id,
+                                                project_id=project_id)
             for i in query_set:
                 UserGroup.objects.create(group_name_id=i.id, user_name_id=captain_id)
 
@@ -529,6 +530,37 @@ class CaptainGiveCaptain(View):
         except Exception as e:
             return JsonResponse({"CaptainGiveCaptainCheck": "failed"})
 
+
+class StudentGetAllGroupsInProject(View):
+    def post(self, request):
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetAllGroupsInProjectCheck": "fail"})
+            groups = GroupOrg.objects.filter(project_id=project_id)
+            project = Project.objects.filter(id=project_id)
+            result = {}
+            for i in project:
+                result["group_size"] = i.group_size
+            for i in groups:
+                result[i.id] = {}
+                result[i.id]["group_name"] = i.group_name
+                result[i.id]["member"] = i.member
+                result[i.id]["captain_id"] = i.captain_name_id
+                captain = UserProfile.objects.filter(student_id=i.captain_name_id)
+                for j in captain:
+                    result[i.id]["captain_name"] = j.username
+
+            return JsonResponse({"StudentGetAllGroupsInProjectCheck": result})
+        except Exception as e:
+            return JsonResponse({"StudentGetAllGroupsInProjectCheck": "failed"})
+
+
+
 class Image(View):
     def post(self, request):
         print(request.body)
@@ -552,6 +584,6 @@ class Image(View):
 
 
 class TestAPI(View):
-   def post(self, request):
-       print(request.body)
-       return JsonResponse({"message": "get it"})
+    def post(self, request):
+        print(request.body)
+        return JsonResponse({"message": "get it"})
