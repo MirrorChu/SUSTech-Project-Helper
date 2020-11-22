@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+import time
 import json
 import sys
 import os
@@ -83,7 +84,6 @@ class ShowPersonalData(View):
             #                          })
             arr = request.FILES.keys()
             file_name = ''
-            message = {}
 
             for k in arr:
                 file_name = k
@@ -96,17 +96,13 @@ class ShowPersonalData(View):
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
 
-            print(student_id, password)
-
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             user = UserProfile.objects.filter(username=student_id, password=password)
             # 如果能查询到相应记录
             if user.count() == 0:
-                print('failed')
                 return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
             # 如果未能查询到用户
             else:
-                print('success')
                 x = UserProfile.objects.get(username=student_id, password=password)
 
                 # TODO: Fix image.
@@ -586,6 +582,64 @@ class Image(View):
         message['code'] = 200
 
         return JsonResponse(message)
+
+
+class ChangeHeadImage(View):
+    def post(self, request):
+        try:
+            print(request.body)
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            # get file
+            file_obj = request.FILES.get('file', None)
+
+            if not file_obj:
+                return JsonResponse({"ChangeHeadImage": "failed"})
+            else:
+                print("file_obj", file_obj.name)
+
+                # create path
+                file_path = os.path.join('static', 'head_images', student_id,
+                                         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
+
+                print("file_path", file_path)
+
+                # store file
+                with open(file_path, 'wb+') as f:
+                    for chunk in file_obj.chunks():
+                        f.write(chunk)
+
+                # update database path
+                UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
+
+                return JsonResponse({"ChangeHeadImage": "success"})
+
+        except Exception as e:
+            return JsonResponse({"ChangeHeadImage": "failed"})
+
+
+class ShowHeadImage(View):
+    # return path
+    def post(self, request):
+        try:
+            print(request.body)
+
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            head_image_path = ""
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"ShowHeadImage": "failed"})
+            else:
+                for i in query_set:
+                    head_image_path = i.image
+                return JsonResponse({"ShowHeadImage": head_image_path})
+
+        except Exception as e:
+            return JsonResponse({"ShowHeadImage": "failed"})
 
 
 class TestAPI(View):
