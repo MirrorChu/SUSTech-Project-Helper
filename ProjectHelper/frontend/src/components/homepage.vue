@@ -2,7 +2,7 @@
   <div class="homepage">
     <el-container direction="horizontal">
 
-      <el-aside>
+      <el-aside :width="asideWidth">
         <el-menu default-active="1-4-1" class="nav" :collapse="!showNav">
           <el-header v-if="showNav">
             Project Helper
@@ -41,7 +41,10 @@
 
       <el-main>
 
+        <profile v-show="mainContent.profile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"></profile>
+
       </el-main>
+
     </el-container>
   </div>
 </template>
@@ -53,16 +56,25 @@ import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 export default {
   name: 'homepage',
   components: { profile },
-  data () {
+  props: {},
+  data ()
+  {
     return {
-      sid: 3463462,
-      pswd: this.$route.params.pswd,
+      sid: '11813121',
+      pswd: '456',
       name: '',
+      asideWidth: '160px',
       showNav: false,
-      showProfile: false,
+      mainContent: {
+        profile: false,
+        projects: false,
+        messages: false,
+        settings: false,
+      },
     }
   },
-  created () {
+  created ()
+  {
     /*页面挂载获取保存的cookie值，渲染到页面上*/
     let cookie = getCookie('sid')
     console.log(cookie)
@@ -80,34 +92,48 @@ export default {
     // }
   },
   methods: {
-    openCloseNav () {
-      this.showNav = !this.showNav
+    changeMainContent (item)
+    {
+      for (const iter in this.mainContent)
+      {
+        if (iter === item)
+        {
+          this.mainContent[iter] = !this.mainContent[iter]
+        } else
+        {
+          this.mainContent[iter] = false
+        }
+      }
     },
-
-    //TODO: Personal profile request.
-    onClickProfile () {
-      // let cookie = getCookie('sid')
-      // if (cookie === '')
+    openCloseNav ()
+    {
+      this.showNav = !this.showNav
+      // if (this.showNav)
       // {
-      //   this.$router.push('/login')
+      //   this.asideWidth = '160px';
       // }
       // else
       // {
-      updateCookie('sid', this.sid, 1000 * 60)
-      this.showProfile = true
-      //Why is this a warning here?
-      console.log(this.sid, this.name)
-      // this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
+      //   this.asideWidth = '160px';
       // }
     },
 
+    //TODO: Personal profile request.
+    onClickProfile ()
+    {
+      this.changeMainContent('profile')
+      console.log(this.sid, this.name)
+    },
+
     //TODO: New password request.
-    onClickNewPassword () {
+    onClickNewPassword ()
+    {
       updateCookie('sid', this.sid, 1000 * 60)
     },
 
     //TODO: Logout request.
-    onClickLogout () {
+    onClickLogout ()
+    {
       console.log('logout')
       delCookie('sid')
       this.$router.push('/')
@@ -118,7 +144,6 @@ export default {
 
 <style scoped>
 .nav:not(.el-menu--collapse) {
-  width: 200px;
   min-height: 400px;
 }
 </style>
