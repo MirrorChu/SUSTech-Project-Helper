@@ -90,7 +90,8 @@ class ShowPersonalData(View):
 
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('tmp/' + file_name, ContentFile(file.read()))  # 根据名字存图(无类型)
+                path = default_storage.save('tmp/' + file_name,
+                                            ContentFile(file.read()))  # 根据名字存图(无类型)
 
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
@@ -129,6 +130,7 @@ class ChangePersonalData(View):
     # {student_id:string, password:string, email: string, gender: string, mobile: string, address: string}
     def post(self, request):
         try:
+            print(request.body)
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
             email = eval(request.body.decode()).get("email")
@@ -138,13 +140,16 @@ class ChangePersonalData(View):
 
             query_set = UserProfile.objects.filter(username=student_id, password=password)
             if query_set.count() == 0:
+                print('fail')
                 return JsonResponse({"ChangePersonalData": "failed"})
             # 如果未能查询到用户
             else:
+                print('success')
                 query_set.update(email=email, gender=gender, mobile=mobile, address=address)
                 return JsonResponse({"ChangePersonalData": "success"})
 
         except Exception as e:
+            print('exception')
             return JsonResponse({"ChangePersonalData": "failed"})
 
 
@@ -253,8 +258,9 @@ class StudentGetsSingleProjectInformation(View):
                 for j in query_set:
                     course_name = j.name
 
-            return JsonResponse({"project_name": project_name, "project_introduction": project_introduction,
-                                 "course_name": course_name})
+            return JsonResponse(
+                {"project_name": project_name, "project_introduction": project_introduction,
+                 "course_name": course_name})
         except Exception as e:
             return JsonResponse({"StudentGetsSingleProjectInformation": "failed"})
 
@@ -554,7 +560,6 @@ class StudentGetAllGroupsInProject(View):
             return JsonResponse({"StudentGetAllGroupsInProjectCheck": result})
         except Exception as e:
             return JsonResponse({"StudentGetAllGroupsInProjectCheck": "failed"})
-
 
 
 class Image(View):
