@@ -54,8 +54,8 @@ class ChangePassword(View):
             print(request.body)
 
             student_id = eval(request.body.decode()).get("sid")
-            old_password = eval(request.body.decode()).get("old_pswd")
-            new_password = eval(request.body.decode()).get("new_pswd")
+            old_password = eval(request.body.decode()).get("old")
+            new_password = eval(request.body.decode()).get("new")
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             user = UserProfile.objects.filter(username=student_id, password=old_password)
