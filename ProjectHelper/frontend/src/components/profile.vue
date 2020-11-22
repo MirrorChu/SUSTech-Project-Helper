@@ -5,7 +5,19 @@
     <!--    <el-button @click="testFileDownload">test file download</el-button>-->
     <!--    <el-avatar :size="60" :src="this.avatar"></el-avatar>-->
 
-    <el-image style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
+    <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
+    <el-upload v-if="this.edit"
+               class="avatar-uploader"
+               action="/api/personaldata/"
+               :sid="this.sid"
+               :pswd="this.pswd"
+               :auto-upload="true"
+               :show-file-list="false"
+               :on-success="handleAvatarSuccess"
+               :before-upload="beforeAvatarUpload">
+      <img v-if="imageUrl" :src="imageUrl" class="avatar">
+      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+    </el-upload>
 
     <el-form ref="form" label-position="left" label-width="80px">
 
@@ -69,21 +81,6 @@
     </el-form>
 
 
-    <!--    <el-button @click="onClickNewPassword">New Password</el-button>-->
-
-    <!--    TODO: Avatar upload.-->
-    <!--    <el-upload-->
-    <!--        class="avatar-uploader"-->
-    <!--        action="/api/personaldata/"-->
-    <!--        :name="this.sid"-->
-    <!--        :auto-upload="true"-->
-    <!--        :show-file-list="false"-->
-    <!--        :on-success="handleAvatarSuccess"-->
-    <!--        :before-upload="beforeAvatarUpload">-->
-    <!--      <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
-    <!--      <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
-    <!--    </el-upload>-->
-
     <!--    TODO: File upload. -->
     <!--    <el-upload-->
     <!--        class="upload-demo"-->
@@ -115,8 +112,7 @@ export default {
       required: true,
     },
   },
-  data ()
-  {
+  data() {
     return {
       name: '',
       email: '',
@@ -130,8 +126,7 @@ export default {
       edit: false,
     }
   },
-  created ()
-  {
+  created() {
     console.log('profile created')
     console.log(this.sid)
     console.log(this.pswd)
@@ -143,48 +138,43 @@ export default {
     //   this.name = this.$route.params.name
     // }
   },
-  mounted ()
-  {
+  mounted() {
     console.log('profile mounted')
   },
-  destroyed ()
-  {
+  destroyed() {
     console.log('profile destroyed')
   },
 
   methods: {
 
-    pullPersonalData ()
-    {
-      this.$axios.post('/show_personal_data/', { sid: this.sid, pswd: this.pswd }).then(res =>
-      {
+    pullPersonalData() {
+      this.$axios.post('/show_personal_data/', {sid: this.sid, pswd: this.pswd}).then(res => {
         const data = res.data
         console.log('res.data', data)
         //Remote quotes.
         console.log(data['email'])
         this.name = data['realname']
+        this.gender = data['gender']
         this.email = data['email']
-      }).catch(err =>
-      {
+        this.mobile = data['mobile']
+        this.address = data['address']
+      }).catch(err => {
         console.log(err)
       })
     },
 
     //TODO: Add regex check for fields.
-    onConfirmEditClicked ()
-    {
+    onConfirmEditClicked() {
       this.$axios.post('/change_personal_data/', {
-        student_id: this.sid,
-        password: this.pswd,
+        sid: this.sid,
+        pswd: this.pswd,
         email: this.email,
         gender: this.gender,
         mobile: this.mobile,
         address: this.address,
-      }).then(res =>
-      {
+      }).then(res => {
         console.log('res', res)
-      }).catch(err =>
-      {
+      }).catch(err => {
         console.log('err', err)
       })
 
@@ -192,15 +182,12 @@ export default {
 
       this.edit = false
     },
-    onEditClicked ()
-    {
+    onEditClicked() {
       this.edit = true
     },
 
-    saveFile (data, name)
-    {
-      try
-      {
+    saveFile(data, name) {
+      try {
         data = new Blob([data])
         console.log(data)
         console.log(name)
@@ -212,36 +199,28 @@ export default {
         a.href = blobUrl
         a.click()
         URL.revokeObjectURL(a.href)
-      } catch (e)
-      {
+      } catch (e) {
         alert('保存文件出错')
       }
     },
-    testFileDownload ()
-    {
-      this.$axios.post('/test/', { sid: this.sid }, { responseType: 'blob' }).then(res =>
-      {
+    testFileDownload() {
+      this.$axios.post('/test/', {sid: this.sid}, {responseType: 'blob'}).then(res => {
         console.log('res', res)
         console.log(res.data.size)
         this.saveFile(res.data, '11811002.zip')
-      }).catch(err =>
-      {
+      }).catch(err => {
         console.log('err', err)
       })
     },
-    onClickNewPassword ()
-    {
-      this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res =>
-      {
+    onClickNewPassword() {
+      this.$router.push({name: 'homepage_profile_newpassword', sid: this.$route.params.sid}).then(res => {
         console.log(res)
-      }).catch(err =>
-      {
+      }).catch(err => {
         console.log(err)
       })
     },
 
-    handleAvatarSuccess (res, file)
-    {
+    handleAvatarSuccess(res, file) {
       console.log('raw', file.raw)
       console.log('raws', file.raws)
       console.log('success')
@@ -249,22 +228,18 @@ export default {
       console.log(file)
       this.imageUrl = URL.createObjectURL(file.raw)
     },
-    beforeAvatarUpload (file)
-    {
+    beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
-      if (!isJPG)
-      {
+      if (!isJPG) {
         this.$message.error('上传头像图片只能是 JPG 格式!')
       }
-      if (!isLt2M)
-      {
+      if (!isLt2M) {
         this.$message.error('上传头像图片大小不能超过 2MB!')
       }
       return isJPG && isLt2M
     },
-    handlePictureCardPreview (file)
-    {
+    handlePictureCardPreview(file) {
       console.log('preview')
       this.dialogImageUrl = file.url
       this.dialogVisible = true
@@ -289,9 +264,9 @@ export default {
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
+  width: 200px;
+  height: 200px;
+  line-height: 200px;
   text-align: center;
 }
 
@@ -304,15 +279,3 @@ export default {
 
 <style scoped>
 </style>
-© 2020 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About

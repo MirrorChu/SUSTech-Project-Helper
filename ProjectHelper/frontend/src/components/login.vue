@@ -14,13 +14,12 @@
   </div>
 </template>
 <script>
-import { setCookie, getCookie } from '../assets/js/cookie.js'
+import {setCookie, getCookie} from '../assets/js/cookie.js'
 import axios from 'axios'
 
 export default {
   name: 'login',
-  data ()
-  {
+  data() {
     return {
       sid: '',
       pswd: '',
@@ -28,8 +27,7 @@ export default {
       labelWidth: '100px',
     }
   },
-  mounted ()
-  {
+  mounted() {
     /*页面挂载获取cookie，如果存在username的cookie，则跳转到主页，不需登录*/
     // if (getCookie('sid'))
     // {
@@ -37,39 +35,34 @@ export default {
     // }
   },
   methods: {
-    onLoginClick ()
-    {
+    onLoginClick() {
       //TODO Login request.
       axios.defaults.xsrfCookieName = 'csrftoken'
       axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
       var status = ''
-      this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
-      {
+      this.$axios.post('/login/', {sid: this.sid, pswd: this.pswd}).then(res => {
         status = res.data['LoginCheck']
         console.log(status)
-        if (status === 'success')
-        {
+        if (status === 'success') {
           let token = 'Bearer ' + res.data.token
           // setCookie('sid', this.sid, 1000 * 60)
           console.log('token: ', token)
-          this.$store.commit('Login', { Authorization: token, sid: this.sid })
+          this.$store.commit('Login', {Authorization: token, sid: this.sid})
           this.$router.push(
-              {
-                name: 'homepage',
-                params: {
-                  sid: this.sid,
-                  pswd: this.pswd,
-                },
-              })
-        } else
-        {
+            {
+              name: 'homepage',
+              params: {
+                sid: this.sid,
+                pswd: this.pswd,
+              },
+            })
+        } else {
           this.sid = ''
           this.pswd = ''
           alert('WRONG SID OR PASSWORD')
         }
 
-      }).catch(err =>
-      {
+      }).catch(err => {
         console.log('err', err)
         alert(err)
       })
