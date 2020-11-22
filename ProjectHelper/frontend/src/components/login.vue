@@ -42,35 +42,37 @@ export default {
       //TODO Login request.
       axios.defaults.xsrfCookieName = 'csrftoken'
       axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
+      var status = ''
       this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
-        console.log('data: ', res.data)
-        let token = 'Bearer ' + res.data.token
-        console.log('token: ', token)
-        this.$store.commit('Login', {Authorization: token, sid: this.sid})
+        status = res.data['LoginCheck']
+        console.log(status)
+        if (status === 'success')
+        {
+          let token = 'Bearer ' + res.data.token
+          // setCookie('sid', this.sid, 1000 * 60)
+          console.log('token: ', token)
+          this.$store.commit('Login', { Authorization: token, sid: this.sid })
+          this.$router.push(
+              {
+                name: 'homepage',
+                params: {
+                  sid: this.sid,
+                  pswd: this.pswd,
+                },
+              })
+        } else
+        {
+          this.sid = ''
+          this.pswd = ''
+          alert('WRONG SID OR PASSWORD')
+        }
 
       }).catch(err =>
       {
         console.log('err', err)
+        alert(err)
       })
-      if (this.sid === '11813121' && this.pswd === '11813121')
-      {
-        setCookie('sid', this.sid, 1000 * 60)
-        this.$router.push(
-          {
-            name: 'homepage',
-            params: {
-              sid: this.sid,
-              pswd: this.pswd,
-            },
-          })
-      }
-      else
-      {
-        this.sid = ''
-        this.pswd = ''
-        alert('WRONG SID OR PASSWORD')
-      }
     },
   },
 }

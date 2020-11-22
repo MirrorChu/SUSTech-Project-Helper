@@ -1,5 +1,3 @@
-
-
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">

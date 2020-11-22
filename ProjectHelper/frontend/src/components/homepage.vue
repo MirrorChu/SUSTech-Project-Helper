@@ -53,17 +53,16 @@ import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 export default {
   name: 'homepage',
   components: { profile },
-  data ()
-  {
+  data () {
     return {
       sid: 3463462,
       pswd: this.$route.params.pswd,
       name: '',
       showNav: false,
+      showProfile: false,
     }
   },
-  created ()
-  {
+  created () {
     /*页面挂载获取保存的cookie值，渲染到页面上*/
     let cookie = getCookie('sid')
     console.log(cookie)
@@ -77,18 +76,16 @@ export default {
     //TODO: Do we use a request to get name?
     // else
     // {
-      this.name = 'JIASHU'
+    this.name = 'JIASHU'
     // }
   },
   methods: {
-    openCloseNav ()
-    {
+    openCloseNav () {
       this.showNav = !this.showNav
     },
 
     //TODO: Personal profile request.
-    onClickProfile ()
-    {
+    onClickProfile () {
       // let cookie = getCookie('sid')
       // if (cookie === '')
       // {
@@ -96,22 +93,21 @@ export default {
       // }
       // else
       // {
-        updateCookie('sid', this.sid, 1000 * 60)
-        //Why is this a warning here?
-        console.log(this.sid, this.name)
-        this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
+      updateCookie('sid', this.sid, 1000 * 60)
+      this.showProfile = true
+      //Why is this a warning here?
+      console.log(this.sid, this.name)
+      // this.$router.push({ name: 'homepage_profile', params: { sid: this.sid, name: this.name } })
       // }
     },
 
     //TODO: New password request.
-    onClickNewPassword ()
-    {
+    onClickNewPassword () {
       updateCookie('sid', this.sid, 1000 * 60)
     },
 
     //TODO: Logout request.
-    onClickLogout ()
-    {
+    onClickLogout () {
       console.log('logout')
       delCookie('sid')
       this.$router.push('/')
