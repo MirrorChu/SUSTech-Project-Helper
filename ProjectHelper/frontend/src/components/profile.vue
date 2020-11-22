@@ -156,7 +156,7 @@ export default {
 
     pullPersonalData ()
     {
-      this.$axios.post('/personaldata/', { sid: this.sid, pswd: this.pswd }).then(res =>
+      this.$axios.post('/showpersonaldata/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
         const data = res.data
         console.log('res.data', data)

@@ -23,7 +23,7 @@
             <span slot="title">Messages</span>
           </el-menu-item>
           <el-menu-item>
-            <i class="el-icon-setting"></i>
+            <i class="el-icon-setting" @click="onClickSettings"></i>
             <span slot="title">Settings</span>
           </el-menu-item>
           <el-menu-item @click="onClickLogout">
@@ -33,15 +33,17 @@
           <el-menu-item v-if="this.showNav" @click="openCloseNav">
             <i class="el-icon-arrow-left"></i>
           </el-menu-item>
-<!--          <el-menu-item v-if="!this.showNav" @click="openCloseNav">-->
-<!--            <i class="el-icon-arrow-right"></i>-->
-<!--          </el-menu-item>-->
+          <!--          <el-menu-item v-if="!this.showNav" @click="openCloseNav">-->
+          <!--            <i class="el-icon-arrow-right"></i>-->
+          <!--          </el-menu-item>-->
         </el-menu>
       </el-aside>
 
       <el-main>
 
         <profile v-show="mainContent.profile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"></profile>
+
+        <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
       </el-main>
 
@@ -52,10 +54,11 @@
 <script>
 import profile from './profile'
 import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
+import New_password from './new_password'
 
 export default {
   name: 'homepage',
-  components: { profile },
+  components: { New_password, profile },
   props: {},
   data ()
   {
@@ -116,6 +119,11 @@ export default {
       // {
       //   this.asideWidth = '160px';
       // }
+    },
+
+    onClickSettings ()
+    {
+      this.changeMainContent('settings')
     },
 
     //TODO: Personal profile request.
