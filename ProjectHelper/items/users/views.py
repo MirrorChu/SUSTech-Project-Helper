@@ -752,6 +752,8 @@ class ChangeHeadImage(View):
 
             sid = ''
             pswd = ''
+            path = " "
+
             for k in request.POST:
                 if str(k) == 'sid':
                     sid = str(request.POST[k])

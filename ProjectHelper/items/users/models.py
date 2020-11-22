@@ -25,7 +25,7 @@ class UserProfile(AbstractUser):
     gender = models.CharField(max_length=6, verbose_name="性别", choices=GENDER_CHOICES)
     address = models.CharField(max_length=50, verbose_name="住址", default="")
     mobile = models.CharField(max_length=11, verbose_name="手机号")
-    image = models.CharField(verbose_name="头像", max_length=50 , default="")
+    image = models.CharField(verbose_name="头像", max_length=50, default="")
     # 用户上传的照片会自动保存到指定文件夹中，并以保持年份加月份来命名
 
     class Meta:
