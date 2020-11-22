@@ -38,7 +38,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="index.html"), name="index"),
 
     path('login/', Login.as_view()),
-    path('new_password/', ChangePassword.as_view()),
+    path('change_password/', ChangePassword.as_view()),
     path('show_personal_data/', ShowPersonalData.as_view()),
     path('change_personal_data/', ChangePersonalData.as_view()),
     path('upload_file/', UploadFile.as_view()),
