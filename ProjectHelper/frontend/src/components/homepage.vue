@@ -53,7 +53,7 @@
 
 <script>
 import profile from './profile'
-import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
+// import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 import New_password from './new_password'
 
 export default {
@@ -63,8 +63,9 @@ export default {
   data ()
   {
     return {
-      sid: '11813121',
-      pswd: '456',
+      //TODO: Data is lost after refersh.
+      sid: this.$route.params.sid,
+      pswd: this.$route.params.pswd,
       name: '',
       asideWidth: '160px',
       showNav: false,
@@ -143,7 +144,7 @@ export default {
     onClickLogout ()
     {
       console.log('logout')
-      delCookie('sid')
+      // delCookie('sid')
       this.$router.push('/')
     },
   },

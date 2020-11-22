@@ -156,7 +156,7 @@ export default {
 
     pullPersonalData ()
     {
-      this.$axios.post('/showpersonaldata/', { sid: this.sid, pswd: this.pswd }).then(res =>
+      this.$axios.post('/show_personal_data/', { sid: this.sid, pswd: this.pswd }).then(res =>
       {
         const data = res.data
         console.log('res.data', data)
@@ -173,7 +173,7 @@ export default {
     //TODO: Add regex check for fields.
     onConfirmEditClicked ()
     {
-      this.$axios.post('/changepersonaldata/', {
+      this.$axios.post('/change_personal_data/', {
         student_id: this.sid,
         password: this.pswd,
         email: this.email,
