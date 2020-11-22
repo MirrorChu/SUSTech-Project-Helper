@@ -6,7 +6,11 @@
     <el-avatar :size="60" :src="this.avatar"></el-avatar>
     <el-row>SID: {{ this.sid }}</el-row>
     <el-row>NAME: {{ this.name }}</el-row>
-    <el-button @click="onClickNewPassword">New Password</el-button>
+    <el-row>GENDER: {{ this.gender }}</el-row>
+    <el-row>EMAIL: {{ this.email }}</el-row>
+    <el-row>MOBILE: {{ this.mobile }}</el-row>
+    <el-row>ADDRESS: {{ this.address }}</el-row>
+    <!--    <el-button @click="onClickNewPassword">New Password</el-button>-->
     <el-upload
         class="avatar-uploader"
         action="/api/personaldata/"
@@ -52,6 +56,10 @@ export default {
   {
     return {
       name: '',
+      email: '',
+      gender: '',
+      mobile: '',
+      address: '',
       imageUrl: '',
       dialogImageUrl: '',
       dialogVisible: '',
@@ -61,9 +69,16 @@ export default {
   created ()
   {
     console.log('profile created')
+    console.log(this.sid)
+    console.log(this.pswd)
     this.$axios.post('/personaldata/', { sid: this.sid, pswd: this.pswd }).then(res =>
     {
-      console.log('res.data', res.data)
+      const data = res.data
+      console.log('res.data', data)
+      //Remote quotes.
+      console.log(data['email'])
+      this.name = data['realname']
+      this.email = data['email']
     }).catch(err =>
     {
       console.log(err)

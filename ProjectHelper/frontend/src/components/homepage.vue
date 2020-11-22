@@ -76,10 +76,10 @@ export default {
   created ()
   {
     /*页面挂载获取保存的cookie值，渲染到页面上*/
-    let cookie = getCookie('sid')
-    console.log(cookie)
-    this.sid = cookie
-    console.log('sid', this.sid)
+    // let cookie = getCookie('sid')
+    // console.log(cookie)
+    // this.sid = cookie
+    // console.log('sid', this.sid)
     /*如果cookie不存在，则跳转到登录页*/
     // if (cookie === '')
     // {
@@ -128,7 +128,7 @@ export default {
     //TODO: New password request.
     onClickNewPassword ()
     {
-      updateCookie('sid', this.sid, 1000 * 60)
+      // updateCookie('sid', this.sid, 1000 * 60)
     },
 
     //TODO: Logout request.
