@@ -13,6 +13,7 @@ export default {
   props: {
     sid: {
       type: String,
+      required: true,
     },
   },
   data ()
@@ -22,6 +23,12 @@ export default {
       new_pswd: '',
       repeat: '',
     }
+  },
+  beforeDestroy ()
+  {
+    this.old_pswd = ''
+    this.new_pswd = ''
+    this.repeat = ''
   },
   //TODO: Add cookie.
   methods: {
@@ -33,12 +40,13 @@ export default {
         this.old_pswd = ''
         this.new_pswd = ''
         this.repeat = ''
-      }
-      else
+      } else
       {
-        this.$axios.post('/newpassword/', { sid: this.$props.sid, old: this.old_pswd, new: this.new_pswd }).then(res =>
+        this.$axios.post('/new_password/', { sid: this.$props.sid, old: this.old_pswd, new: this.new_pswd }).then(res =>
         {
+          data = res.data
           console.log(res.data)
+          alert(data['ChangePasswordCheck'])
         }).catch(err =>
         {
           console.log('err', err)
