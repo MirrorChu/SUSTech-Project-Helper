@@ -90,7 +90,7 @@ class ShowPersonalData(View):
 
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('tmp/' + file_name,
+                path = default_storage.save('tmp/' + file_name + ".jpg",
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
 
             student_id = eval(request.body.decode()).get("sid")
@@ -200,20 +200,53 @@ class DownloadFile(View):
 
 class Test(View):
     def get(self, request):
-        print(request.body)
-        message = {'code': 200}
-        return JsonResponse(message)
+            print(request.body)
+            student_id = "11811002"
+            password = "123"
+            # get file
+
+            file = open('LinuxLogo.jpg', 'wb+')
+            print(file)
+            path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
+                                            file)  # 根据名字存图(无类型)
+
+            return JsonResponse({"ChangeHeadImage": "success"})
+
 
     def post(self, request):
-        print(request.body)
+            try:
+                print(request.body)
+                student_id = "11811002"
+                password = "123"
+                # get file
 
-        file = open('static/11811002.zip', 'rb').read()
-        response = HttpResponse(file)
-        print(file)
-        response['Content-Type'] = 'application/zip'
-        response['Content-Disposition'] = 'attachment; filename=11811002.zip'
+                file = open('test.txt', 'wb+')
 
-        return response
+                file_obj = request.FILES.get('file', None)
+
+                if not file_obj:
+                    return JsonResponse({"ChangeHeadImage": "failed"})
+                else:
+                    print("file_obj", file_obj.name)
+
+                    # create path
+                    file_path = os.path.join('static', 'head_images', student_id,
+                                             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
+
+                    print("file_path", file_path)
+
+                    # store file
+                    with open(file_path, 'wb+') as f:
+                        for chunk in file_obj.chunks():
+                            f.write(chunk)
+
+                    # update database path
+                    UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
+
+                    return JsonResponse({"ChangeHeadImage": "success"})
+
+            except Exception as e:
+                return JsonResponse({"ChangeHeadImage": "failed"})
 
 
 class StudentGetsAllProjects(View):
@@ -590,29 +623,25 @@ class ChangeHeadImage(View):
             print(request.body)
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
+
             # get file
-            file_obj = request.FILES.get('file', None)
+            file = request.FILES.get('file', None)
+            print(type(file))
 
-            if not file_obj:
-                return JsonResponse({"ChangeHeadImage": "failed"})
-            else:
-                print("file_obj", file_obj.name)
+            file_path = os.path.join('static', 'head_images', student_id,
+                                     time.strftime("%Y-%m-%d %H %M %S", time.localtime()))
 
-                # create path
-                file_path = os.path.join('static', 'head_images', student_id,
-                                         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
+            isExists = os.path.exists(file_path)
 
-                print("file_path", file_path)
+            if not isExists:
+                os.makedirs(file_path)
 
-                # store file
-                with open(file_path, 'wb+') as f:
-                    for chunk in file_obj.chunks():
-                        f.write(chunk)
+            default_storage.save(file_path + str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
 
-                # update database path
-                UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
+            UserProfile.objects.filter(username=student_id, password=password).\
+                update(image=file_path + str(request.FILES.get('file')))
 
-                return JsonResponse({"ChangeHeadImage": "success"})
+            return JsonResponse({"ChangeHeadImage": "success"})
 
         except Exception as e:
             return JsonResponse({"ChangeHeadImage": "failed"})
