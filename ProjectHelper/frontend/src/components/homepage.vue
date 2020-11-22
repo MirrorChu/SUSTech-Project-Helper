@@ -33,9 +33,9 @@
           <el-menu-item v-if="this.showNav" @click="openCloseNav">
             <i class="el-icon-arrow-left"></i>
           </el-menu-item>
-          <el-menu-item v-if="!this.showNav" @click="openCloseNav">
-            <i class="el-icon-arrow-right"></i>
-          </el-menu-item>
+<!--          <el-menu-item v-if="!this.showNav" @click="openCloseNav">-->
+<!--            <i class="el-icon-arrow-right"></i>-->
+<!--          </el-menu-item>-->
         </el-menu>
       </el-aside>
 

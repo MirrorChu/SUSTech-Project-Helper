@@ -3,35 +3,98 @@
   <div id="profile">
     <!--    <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>-->
     <!--    <el-button @click="testFileDownload">test file download</el-button>-->
-    <el-avatar :size="60" :src="this.avatar"></el-avatar>
-    <el-row>SID: {{ this.sid }}</el-row>
-    <el-row>NAME: {{ this.name }}</el-row>
-    <el-row>GENDER: {{ this.gender }}</el-row>
-    <el-row>EMAIL: {{ this.email }}</el-row>
-    <el-row>MOBILE: {{ this.mobile }}</el-row>
-    <el-row>ADDRESS: {{ this.address }}</el-row>
+    <!--    <el-avatar :size="60" :src="this.avatar"></el-avatar>-->
+
+    <el-image style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
+
+    <el-form ref="form" label-position="left" label-width="80px">
+
+      <el-form-item label="SID">
+        <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
+        </el-input>
+
+        <el-row>
+          {{ this.sid }}
+        </el-row>
+
+      </el-form-item>
+
+      <el-form-item label="NAME">
+        <el-input v-model="this.name" v-if="false" :placeholder="this.name" clearable>
+        </el-input>
+        <el-row>
+          {{ this.name }}
+        </el-row>
+      </el-form-item>
+
+      <el-form-item label="GENDER">
+        <el-input v-model="this.name" v-if="false" :placeholder="this.name" clearable>
+        </el-input>
+        <el-row>
+          {{ this.gender }}
+        </el-row>
+      </el-form-item>
+
+      <el-form-item label="EMAIL">
+        <el-input v-model="email" v-if="this.edit" :placeholder="this.email" clearable>
+        </el-input>
+
+        <el-row v-if="!this.edit">
+          {{ this.email }}
+        </el-row>
+      </el-form-item>
+
+
+      <el-form-item label="MOBILE">
+        <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
+        </el-input>
+
+        <el-row v-if="!this.edit">
+          {{ this.mobile }}
+        </el-row>
+      </el-form-item>
+
+      <el-form-item label="ADDR">
+        <el-input v-model="address" v-if="this.edit" :placeholder="address" clearable>
+        </el-input>
+
+        <el-row v-if="!this.edit">
+          {{ this.address }}
+        </el-row>
+      </el-form-item>
+
+      <el-button v-if="!this.edit" @click="onEditClicked()">EDIT</el-button>
+      <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
+
+    </el-form>
+
+
     <!--    <el-button @click="onClickNewPassword">New Password</el-button>-->
-    <el-upload
-        class="avatar-uploader"
-        action="/api/personaldata/"
-        :name="this.sid"
-        :auto-upload="true"
-        :show-file-list="false"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar">
-      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-    </el-upload>
-    <el-upload
-        class="upload-demo"
-        drag
-        action="/api/personaldata/"
-        :name="this.sid"
-        :multiple="true">
-      <i class="el-icon-upload"></i>
-      <!--      <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>-->
-      <!--      <div class="el-upload__tip" slot="tip">.zip supported only</div>-->
-    </el-upload>
+
+    <!--    TODO: Avatar upload.-->
+    <!--    <el-upload-->
+    <!--        class="avatar-uploader"-->
+    <!--        action="/api/personaldata/"-->
+    <!--        :name="this.sid"-->
+    <!--        :auto-upload="true"-->
+    <!--        :show-file-list="false"-->
+    <!--        :on-success="handleAvatarSuccess"-->
+    <!--        :before-upload="beforeAvatarUpload">-->
+    <!--      <img v-if="imageUrl" :src="imageUrl" class="avatar">-->
+    <!--      <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
+    <!--    </el-upload>-->
+
+    <!--    TODO: File upload. -->
+    <!--    <el-upload-->
+    <!--        class="upload-demo"-->
+    <!--        drag-->
+    <!--        action="/api/personaldata/"-->
+    <!--        :name="this.sid"-->
+    <!--        :multiple="true">-->
+    <!--      <i class="el-icon-upload"></i>-->
+    <!--    </el-upload>-->
+
+
   </div>
   <!--  <div>-->
   <!--  </div>-->
@@ -64,6 +127,7 @@ export default {
       dialogImageUrl: '',
       dialogVisible: '',
       avatar: null,
+      edit: false,
     }
   },
   created ()
@@ -71,18 +135,7 @@ export default {
     console.log('profile created')
     console.log(this.sid)
     console.log(this.pswd)
-    this.$axios.post('/personaldata/', { sid: this.sid, pswd: this.pswd }).then(res =>
-    {
-      const data = res.data
-      console.log('res.data', data)
-      //Remote quotes.
-      console.log(data['email'])
-      this.name = data['realname']
-      this.email = data['email']
-    }).catch(err =>
-    {
-      console.log(err)
-    })
+    this.pullPersonalData()
     this.avatar = require('../assets/logo.png')
     // if (this.sid === '')
     // {
@@ -100,6 +153,50 @@ export default {
   },
 
   methods: {
+
+    pullPersonalData ()
+    {
+      this.$axios.post('/personaldata/', { sid: this.sid, pswd: this.pswd }).then(res =>
+      {
+        const data = res.data
+        console.log('res.data', data)
+        //Remote quotes.
+        console.log(data['email'])
+        this.name = data['realname']
+        this.email = data['email']
+      }).catch(err =>
+      {
+        console.log(err)
+      })
+    },
+
+    //TODO: Add regex check for fields.
+    onConfirmEditClicked ()
+    {
+      this.$axios.post('/changepersonaldata/', {
+        student_id: this.sid,
+        password: this.pswd,
+        email: this.email,
+        gender: this.gender,
+        mobile: this.mobile,
+        address: this.address,
+      }).then(res =>
+      {
+        console.log('res', res)
+      }).catch(err =>
+      {
+        console.log('err', err)
+      })
+
+      this.pullPersonalData()
+
+      this.edit = false
+    },
+    onEditClicked ()
+    {
+      this.edit = true
+    },
+
     saveFile (data, name)
     {
       try
