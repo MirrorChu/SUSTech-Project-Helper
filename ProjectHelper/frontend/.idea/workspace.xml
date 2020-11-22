@@ -21,8 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="File Upload">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +56,7 @@
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
-    <configuration name="dev" type="js.build_tools.npm" singleton="false" nameIsGenerated="true">
+    <configuration name="frontend" type="js.build_tools.npm" singleton="false">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
       <scripts>
@@ -99,7 +97,7 @@
       <workItem from="1605861475872" duration="1519000" />
       <workItem from="1605863014770" duration="1633000" />
       <workItem from="1605888897582" duration="7657000" />
-      <workItem from="1606016823601" duration="5743000" />
+      <workItem from="1606016823601" duration="6322000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
@@ -159,11 +157,12 @@
       <screen x="2560" y="-432" width="1152" height="2008" />
     </state>
     <state x="2729" y="213" key="#Plugins/0.0.2048.1112/2560.-432.1152.2008@2560.-432.1152.2008" timestamp="1606018887651" />
-    <state x="442" y="186" width="1165" height="894" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606017055886">
-      <screen x="0" y="0" width="2048" height="1112" />
+    <state x="2809" y="-96" width="690" height="1615" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606022845063">
+      <screen x="2560" y="-432" width="1152" height="2008" />
     </state>
     <state x="414" y="174" width="1092" height="791" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1605860089148" />
     <state x="442" y="186" width="1165" height="894" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2048.1112/2560.-432.1152.2008@0.0.2048.1112" timestamp="1606017055886" />
+    <state x="2809" y="-96" width="690" height="1615" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2048.1112/2560.-432.1152.2008@2560.-432.1152.2008" timestamp="1606022845063" />
     <state x="818" y="290" key="EnvironmentVariablesDialog" timestamp="1605759572321">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
