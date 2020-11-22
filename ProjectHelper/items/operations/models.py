@@ -9,9 +9,15 @@ from items.projects.models import Project
 
 UserProfile = get_user_model()
 
+VISIBILITY_CHOICES = (
+    ("invisible", "不可见"),
+    ("visible", "可见")
+)
+
 
 class Tag(BaseModel):
     tag = models.CharField(verbose_name="标签", max_length=50)
+    visibility = models.CharField(verbose_name="可见度", choices=VISIBILITY_CHOICES, max_length=50)
 
     class Meta:
         verbose_name = "标签清单"
@@ -94,13 +100,24 @@ class UserMessage(BaseModel):
         return self.receiver_name
 
 
-# 记录每个人都有上哪些课
 class UserTag(BaseModel):
     user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户名称")
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="标签")
 
     class Meta:
-        verbose_name = "用户标签"
+        verbose_name = "用户拥有的标签"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.user_name
+
+
+class UserLikeTag(BaseModel):
+    user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户名称")
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="标签")
+
+    class Meta:
+        verbose_name = "用户点赞的标签"
         verbose_name_plural = verbose_name
 
     def __str__(self):
