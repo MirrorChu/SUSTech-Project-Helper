@@ -14,9 +14,9 @@
             <i class="el-icon-user"></i>
             <span slot="title">My Profile</span>
           </el-menu-item>
-          <el-menu-item>
+          <el-menu-item @click="onClickProjects">
             <i class="el-icon-folder"></i>
-            <span slot="title">My Projects</span>
+            <span slot="title" @click="onClickProjects">My Projects</span>
           </el-menu-item>
           <el-menu-item>
             <i class="el-icon-message"></i>
@@ -45,6 +45,31 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
+        <el-table v-show="mainContent.projects" :data="tableData" style="width: 100%" height="500">
+
+          <el-table-column fixed prop="course" label="Course" width="120"></el-table-column>
+
+          <el-table-column prop="project" label="Project" width="120"></el-table-column>
+
+          <el-table-column prop="start" label="Start" width="120"></el-table-column>
+
+          <el-table-column prop="due" label="Due" width="120"></el-table-column>
+
+          <el-table-column prop="status" label="Status" width="120"></el-table-column>
+
+          <el-table-column width="120" align="right">
+            <template slot="header" slot-scope="scope">
+              <el-input
+                size="mini"
+                placeholder="输入关键字搜索"/>
+            </template>
+            <template slot-scope="scope">
+              <el-button @click="onClickDetail(scope.$index)">Detail</el-button>
+            </template>
+          </el-table-column>
+
+        </el-table>
+
       </el-main>
 
     </el-container>
@@ -58,10 +83,9 @@ import New_password from './new_password'
 
 export default {
   name: 'homepage',
-  components: { New_password, profile },
+  components: {New_password, profile},
   props: {},
-  data ()
-  {
+  data() {
     return {
       //TODO: Data is lost after refersh.
       sid: this.$route.params.sid,
@@ -75,10 +99,58 @@ export default {
         messages: false,
         settings: false,
       },
+      tableData: [{
+        course: 'CS301',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS302',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS303',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS304',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS305',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS306',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS307',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }, {
+        course: 'CS308',
+        project: 'Project Helper',
+        start: '2020-09-10',
+        due: '2020-12-31',
+        status: 'Not Submitted',
+      }]
     }
   },
-  created ()
-  {
+  created() {
     /*页面挂载获取保存的cookie值，渲染到页面上*/
     // let cookie = getCookie('sid')
     // console.log(cookie)
@@ -96,21 +168,17 @@ export default {
     // }
   },
   methods: {
-    changeMainContent (item)
-    {
-      for (const iter in this.mainContent)
-      {
-        if (iter === item)
-        {
+    changeMainContent(item) {
+      for (const iter in this.mainContent) {
+        if (iter === item) {
+          console.log(item, iter)
           this.mainContent[iter] = !this.mainContent[iter]
-        } else
-        {
+        } else {
           this.mainContent[iter] = false
         }
       }
     },
-    openCloseNav ()
-    {
+    openCloseNav() {
       this.showNav = !this.showNav
       // if (this.showNav)
       // {
@@ -122,27 +190,31 @@ export default {
       // }
     },
 
-    onClickSettings ()
-    {
+    onClickDetail(project) {
+      console.log(project)
+    },
+
+    onClickSettings() {
       this.changeMainContent('settings')
     },
 
     //TODO: Personal profile request.
-    onClickProfile ()
-    {
+    onClickProfile() {
       this.changeMainContent('profile')
       console.log(this.sid, this.name)
     },
 
+    onClickProjects() {
+      this.changeMainContent('projects')
+    },
+
     //TODO: New password request.
-    onClickNewPassword ()
-    {
+    onClickNewPassword() {
       // updateCookie('sid', this.sid, 1000 * 60)
     },
 
     //TODO: Logout request.
-    onClickLogout ()
-    {
+    onClickLogout() {
       console.log('logout')
       // delCookie('sid')
       this.$router.push('/')
