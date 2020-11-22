@@ -128,6 +128,29 @@ class ShowPersonalData(View):
             return JsonResponse({"ShowPersonalData": "failed"})
 
 
+class ChangePersonalData(View):
+    # {student_id:string, password:string, email: string, gender: string, mobile: string, address: string}
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            email = eval(request.body.decode()).get("email")
+            gender = eval(request.body.decode()).get("gender")
+            mobile = eval(request.body.decode()).get("mobile")
+            address = eval(request.body.decode()).get("address")
+
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"ChangePersonalData": "failed"})
+            # 如果未能查询到用户
+            else:
+                query_set.update(email=email, gender=gender, mobile=mobile, address=address)
+                return JsonResponse({"ChangePersonalData": "success"})
+
+        except Exception as e:
+            return JsonResponse({"ChangePersonalData": "failed"})
+
+
 
 class UploadFile(View):
 
