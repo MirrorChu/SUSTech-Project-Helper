@@ -232,10 +232,10 @@ class StudentGetsAllProjects(View):
                     projects = Project.objects.filter(course_id=j.id)
                 for j in projects:
                     courses[name][j.id] = j.name
-            return JsonResponse({"GetProjectsCheck": courses})
+            return JsonResponse({"Data": courses})
 
         except Exception as e:
-            return JsonResponse({"StudentGetsAllProjects": "failed"})
+            return JsonResponse({"StudentGetsAllProjectsCheck": "failed"})
     # 返回{课程名：{项目ID:项目名，}，}
 
 
@@ -280,26 +280,26 @@ class StudentGetsAllGroups(View):
                 group_obj = GroupOrg.objects.filter(id=i.group_name_id)
                 for j in group_obj:
                     group_name = j.group_name
-                    groups[group_name] = []
-                    groups[group_name].append(j.id)
+                    groups[group_name] = {}
+                    groups[group_name]["group_id"] = j.id
 
                     project_id = j.project_id
-                    groups[group_name].append(project_id)
+                    groups[group_name]["project_id"] = project_id
                     project = Project.objects.filter(id=project_id)
                     for k in project:
                         project_name = k.name
-                        groups[group_name].append(project_name)
+                        groups[group_name]["project_name"] = project_name
                         course_id = k.course_id
-                        groups[group_name].append(course_id)
+                        groups[group_name]["course_id"] = course_id
                         course = Course.objects.filter(id=course_id)
                         for l in course:
                             course_name = l.name
-                            groups[group_name].append(course_name)
-            return JsonResponse(groups)
+                            groups[group_name]["course_name"] = course_name
+            return JsonResponse({"Data": groups})
         except Exception as e:
             return JsonResponse({"StudentGetsAllGroups": "failed"})
 
-    # 返回{队伍名:[队伍id,项目id,项目名,课程id,课程名],}
+    # 返回{队伍名:{队伍id,项目id,项目名,课程id,课程名},}
 
 
 class StudentGetsSingleGroupInformation(View):
