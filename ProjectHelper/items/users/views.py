@@ -924,6 +924,7 @@ class Test(View):
             else:
                 for i in query_set:
                     tag_id = i.tag_id
+                    print(tag_id)
                     visibility = i.visibility
 
                 query_set2 = Tag.objects.filter(id=tag_id)
@@ -933,4 +934,4 @@ class Test(View):
                     for j in query_set:
                         tags[tag_id] = {"tag_name": str(j.tag), "visibility": visibility}
 
-            return JsonResponse({"StudentGetsAllTags": tags})
+            return JsonResponse({"Data": tags})
