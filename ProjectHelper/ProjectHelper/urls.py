@@ -29,7 +29,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     EditsGroupIntroduction, EditsGroupName, GroupMemberValidation, \
     StudentQuitsGroup, CaptainKickMember, CaptainDismissGroup, \
     CaptainGiveCaptain, ChangePersonalData, StudentGetAllGroupsInProject, \
-    ShowHeadImage, ChangeHeadImage
+    ShowHeadImage, ChangeHeadImage, StudentGetAllStudentsInProject
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -58,6 +58,7 @@ urlpatterns = [
     path('captain_dismiss_group/', CaptainDismissGroup.as_view()),
     path('captain_give_captain/', CaptainGiveCaptain.as_view()),
     path('student_get_all_groups_in_project/', StudentGetAllGroupsInProject.as_view()),
+    path('student_get_all_students_in_project/', StudentGetAllStudentsInProject.as_view()),
     path('show_head_image/', ShowHeadImage.as_view()),
     path('change_head_image/', ChangeHeadImage.as_view()),
 
