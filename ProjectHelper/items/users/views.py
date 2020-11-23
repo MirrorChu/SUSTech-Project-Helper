@@ -879,9 +879,9 @@ class StudentGetsAllTags(View):
                     return JsonResponse({"StudentGetsAllTags": "failed"})
                 else:
                     for j in query_set:
-                        tags[tag_id] = (j.tag, visibility)
+                        tags[tag_id] = {"tag_name": str(j.tag), "visibility": visibility}
 
-            return JsonResponse(tags)
+            return JsonResponse({"Data": tags})
 
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
@@ -931,6 +931,6 @@ class Test(View):
                     return JsonResponse({"StudentGetsAllTags": "failed"})
                 else:
                     for j in query_set:
-                        tags[tag_id] = (str(j.tag), visibility)
+                        tags[tag_id] = {"tag_name": str(j.tag), "visibility": visibility}
 
-            return JsonResponse(tags)
+            return JsonResponse({"StudentGetsAllTags": tags})
