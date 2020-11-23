@@ -527,21 +527,65 @@ class StudentGetAllGroupsInProject(View):
                 return JsonResponse({"StudentGetAllGroupsInProjectCheck": "fail"})
             groups = GroupOrg.objects.filter(project_id=project_id)
             project = Project.objects.filter(id=project_id)
-            result = {}
+            group = {}
             for i in project:
-                result["group_size"] = i.group_size
+                group["group_size"] = i.group_size
             for i in groups:
-                result[i.id] = {}
-                result[i.id]["group_name"] = i.group_name
-                result[i.id]["member"] = i.member
-                result[i.id]["captain_id"] = i.captain_name_id
+                group[i.id] = {}
+                group[i.id]["group_name"] = i.group_name
+                group[i.id]["member"] = i.member
+                group[i.id]["captain_id"] = i.captain_name_id
                 captain = UserProfile.objects.filter(student_id=i.captain_name_id)
                 for j in captain:
-                    result[i.id]["captain_name"] = j.username
+                    group[i.id]["captain_name"] = j.username
 
-            return JsonResponse({"StudentGetAllGroupsInProjectCheck": result})
+            return JsonResponse({"Data": group, "StudentGetAllGroupsInProjectCheck": "success"})
         except Exception as e:
             return JsonResponse({"StudentGetAllGroupsInProjectCheck": "failed"})
+
+
+class StudentGetAllStudentsInProject(View):
+    def post(self, request):
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetAllStudentsInProjectCheck": "fail"})
+            groups = GroupOrg.objects.filter(project_id=project_id)
+            project = Project.objects.filter(id=project_id)
+            group = {}
+            groupList = []
+            for i in project:
+                group["group_size"] = i.group_size
+                group["course_id"] = i.course_id
+            for i in groups:
+                group[i.id] = {}
+                groupList.append(i.id)
+                group[i.id]["group_name"] = i.group_name
+                group[i.id]["member"] = i.member
+            student = {}
+            students = UserCourse.objects.filter(course_name_id= group["course_id"])
+            for i in students:
+                studentProfile = UserProfile.objects.filter(id= i.user_name_id)
+                for j in studentProfile:
+                    student[j.id] = {}
+                    student[j.id]["username"] = j.username
+                    student[j.id]["has_group"] = False
+                    for k in groupList:
+                        judge = UserGroup.objects.filter(group_name_id= k,user_name_id= j.id)
+                        if judge.count() != 0:
+                            student[j.id]["has_group"] = True
+                            student[j.id]["group_id"] = k
+                            student[j.id]["group_name"] = group[k]["group_name"]
+                            student[j.id]["member"] = group[k]["member"]
+                            break
+
+            return JsonResponse({"Data": student, "StudentGetAllStudentsInProjectCheck": "success"})
+        except Exception as e:
+            return JsonResponse({"StudentGetAllStudentsInProjectCheck": "failed"})
 
 
 class Image(View):
