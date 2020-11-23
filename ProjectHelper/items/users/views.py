@@ -198,118 +198,6 @@ class DownloadFile(View):
             return JsonResponse({"DownloadFile": "failed"})
 
 
-class Test(View):
-    def get(self, request):
-        print(request.body)
-        student_id = "11811002"
-        password = "123"
-        # get file
-
-        file = open('LinuxLogo.jpg', 'wb+')
-        print(file)
-        path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
-                                    file)  # 根据名字存图(无类型)
-
-        return JsonResponse({"ChangeHeadImage": "success"})
-
-    def post(self, request):
-        try:
-            # file = request.FILES.get('file')
-            # print(type(file))
-            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
-            # return JsonResponse({
-            #                          "image": file
-            #                          })
-            print(request.POST)
-            arr = request.FILES.keys()
-            print(arr)
-            file_name = ''
-            for k in arr:
-                file_name = k
-
-            sid = ''
-            pswd = ''
-            for k in request.POST:
-                if str(k) == 'sid':
-                    sid = str(request.POST[k])
-                else:
-                    pswd = str(request.POST[k])
-
-            print(sid, pswd)
-
-            if file_name != '':
-                file = request.FILES.get(file_name)
-                path = default_storage.save('tmp/' + file_name + ".jpg",
-                                            ContentFile(file.read()))  # 根据名字存图(无类型)
-                print(path)
-
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=sid, password=pswd)
-            # 如果能查询到相应记录
-            if user.count() == 0:
-                print('avatar fail')
-                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
-            # 如果未能查询到用户
-            else:
-                print('avatar success')
-                x = UserProfile.objects.get(username=sid, password=pswd)
-
-                # TODO: Fix image.
-                # file_path = x.image
-                # file = open(file_path, "rb")
-
-                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
-                                     # "realname": x.real_name,
-                                     # "student_id": x.student_id,
-                                     # "gender": x.gender,
-                                     # "address": x.address,
-                                     # "email": x.email,
-                                     # "mobile": x.mobile,
-                                     "image": None
-                                     })
-
-            # return JsonResponse({"ShowPersonalData": "success"})
-
-        except Exception as e:
-            print('avatar exception')
-            return JsonResponse({"ShowPersonalData": "failed"})
-
-    # def post(self, request):
-    #         try:
-    #             print(request.body)
-    #             student_id = "11811002"
-    #             password = "123"
-    #             # get file
-    #
-    #             file = open('test.txt', 'wb+')
-    #
-    #             file_obj = request.FILES.get('file', None)
-    #
-    #             if not file_obj:
-    #                 return JsonResponse({"ChangeHeadImage": "failed"})
-    #             else:
-    #                 print("file_obj", file_obj.name)
-    #
-    #                 # create path
-    #                 file_path = os.path.join('static', 'head_images', student_id,
-    #                                          time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
-    #
-    #                 print("file_path", file_path)
-    #
-    #                 # store file
-    #                 with open(file_path, 'wb+') as f:
-    #                     for chunk in file_obj.chunks():
-    #                         f.write(chunk)
-    #
-    #                 # update database path
-    #                 UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
-    #
-    #                 return JsonResponse({"ChangeHeadImage": "success"})
-    #
-    #         except Exception as e:
-    #             return JsonResponse({"ChangeHeadImage": "failed"})
-
-
 class StudentGetsAllProjects(View):
     def post(self, request):
         try:
@@ -809,6 +697,7 @@ class ShowHeadImage(View):
         except Exception as e:
             return JsonResponse({"ShowHeadImage": "failed"})
 
+
 class TestAPI(View):
     def post(self, request):
         print(request.body)
@@ -833,12 +722,17 @@ class AddTag(View):
                 for i in query_set:
                     user_id = i.id
 
-            query_set = Tag.objects.filter(username=student_id, password=password)
+            query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
                 return JsonResponse({"AddTag": "failed"})
             else:
                 for i in query_set:
                     tag_id = i.id
+
+            # 验证是否有重复的记录
+            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
+            if query_set.count() != 0:
+                return JsonResponse({"AddTag": "failed"})
 
             UserTag.objects.create(user_name_id=user_id, tag_id=tag_id)
 
@@ -866,7 +760,7 @@ class ShowTag(View):
                 for i in query_set:
                     user_id = i.id
 
-            query_set = Tag.objects.filter(username=student_id, password=password)
+            query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
                 return JsonResponse({"ShowTag": "failed"})
             else:
@@ -899,7 +793,7 @@ class UnshowTag(View):
                 for i in query_set:
                     user_id = i.id
 
-            query_set = Tag.objects.filter(username=student_id, password=password)
+            query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
                 return JsonResponse({"UnshowTag": "failed"})
             else:
@@ -932,7 +826,7 @@ class GetTagVisibility(View):
                 for i in query_set:
                     user_id = i.id
 
-            query_set = Tag.objects.filter(username=student_id, password=password)
+            query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
                 return JsonResponse({"GetTagVisibility": "failed"})
             else:
@@ -991,3 +885,50 @@ class StudentGetsAllTags(View):
 
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
+
+
+class Test(View):
+    def post(self, request):
+        print(request.body)
+        student_id = "11811002"
+        password = "123"
+        # get file
+
+        file = open('LinuxLogo.jpg', 'wb+')
+        print(file)
+        path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
+                                    file)  # 根据名字存图(无类型)
+
+        return JsonResponse({"ChangeHeadImage": "success"})
+
+    def get(self, request):
+            student_id = "11811001"
+            password = "123"
+            tag_id = "7"
+
+            user_id = 0
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"AddTag": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = Tag.objects.filter(id=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"AddTag": "failed"})
+            else:
+                for i in query_set:
+                    tag_id = i.id
+
+            # 验证是否有重复的记录
+            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
+            if query_set.count() != 0:
+                return JsonResponse({"AddTag": "failed"})
+
+            UserTag.objects.create(user_name_id=user_id, tag_id=tag_id)
+
+            return JsonResponse({"AddTag": "success"})
+

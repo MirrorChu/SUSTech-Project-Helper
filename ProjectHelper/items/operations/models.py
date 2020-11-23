@@ -11,7 +11,10 @@ UserProfile = get_user_model()
 
 
 class Tag(BaseModel):
-    tag = models.CharField(verbose_name="标签", max_length=50)
+    tag = models.CharField(verbose_name="标签", max_length=50, default="")
+
+    # 加分项：不同类型的标签相应的颜色不同
+    type = models.CharField(verbose_name="属性", max_length=50, default="")
 
     class Meta:
         verbose_name = "标签清单"
