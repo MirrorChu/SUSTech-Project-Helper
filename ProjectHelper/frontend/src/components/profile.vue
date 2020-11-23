@@ -130,7 +130,7 @@ export default {
     console.log(this.sid)
     console.log(this.pswd)
     this.pullPersonalData()
-    this.avatar = require('../assets/logo.png')
+    this.avatar = require('../assets/11810101/' + this.sid + '.jpg')
     // if (this.sid === '')
     // {
     //   this.sid = this.$route.params.sid
