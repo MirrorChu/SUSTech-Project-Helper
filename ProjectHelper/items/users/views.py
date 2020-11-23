@@ -904,31 +904,33 @@ class Test(View):
     def get(self, request):
             student_id = "11811001"
             password = "123"
-            tag_id = "7"
 
             user_id = 0
+            tag_id = 0
+            visibility = 1
+            tags = {}
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             query_set = UserProfile.objects.filter(username=student_id, password=password)
             if query_set.count() == 0:
-                return JsonResponse({"AddTag": "failed"})
+                return JsonResponse({"StudentGetsAllTags": "failed"})
             else:
                 for i in query_set:
                     user_id = i.id
 
-            query_set = Tag.objects.filter(id=tag_id)
+            query_set = UserTag.objects.filter(user_name_id=user_id)
             if query_set.count() == 0:
-                return JsonResponse({"AddTag": "failed"})
+                return JsonResponse({"StudentGetsAllTags": "failed"})
             else:
                 for i in query_set:
-                    tag_id = i.id
+                    tag_id = i.tag_id
+                    visibility = i.visibility
 
-            # 验证是否有重复的记录
-            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
-            if query_set.count() != 0:
-                return JsonResponse({"AddTag": "failed"})
+                query_set2 = Tag.objects.filter(id=tag_id)
+                if query_set2.count() == 0:
+                    return JsonResponse({"StudentGetsAllTags": "failed"})
+                else:
+                    for j in query_set:
+                        tags[tag_id] = (str(j.tag), visibility)
 
-            UserTag.objects.create(user_name_id=user_id, tag_id=tag_id)
-
-            return JsonResponse({"AddTag": "success"})
-
+            return JsonResponse(tags)
