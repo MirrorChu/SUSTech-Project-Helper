@@ -938,7 +938,7 @@ class SendMailToInvite(View):
         try:
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
-            tag_id = eval(request.body.decode()).get("tag_id")
+            tag_id = eval(request.body.decode()).get("t_sid")
             group_id = eval(request.body.decode()).get("group_id")
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
