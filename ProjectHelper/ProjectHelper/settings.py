@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'mkdzemoi$+2i$+yjk#y)_^drwps#vm5nc^9mjgp#!gnh@y6axj'
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -55,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -83,7 +81,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ProjectHelper.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -100,7 +97,6 @@ DATABASES = {
         }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -136,7 +132,6 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -144,3 +139,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+EMAIL_HOST = 'smtp.exmail.qq.com'  # qq邮箱的服务器
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465  # 具体端口见上一步，注意是否将EMAIL_USE_SSL设置为True，如果是就是SSL端口，否就是非SSL端口
+EMAIL_HOST_USER = '11812710@mail.sustech.edu.cn'  # 你的发件用户
+EMAIL_HOST_PASSWORD = 'hV5D8488hPdhTrwE'  # 你获取到的授权码
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # 默认发件用户

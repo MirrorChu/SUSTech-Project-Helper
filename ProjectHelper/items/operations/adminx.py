@@ -2,7 +2,7 @@ import xadmin
 
 from django.contrib.auth import get_user_model
 
-from items.operations.models import UserCourse, UserAsk, UserComment, UserGroup, UserMessage
+from items.operations.models import UserCourse, UserComment, UserGroup
 
 UserProfile = get_user_model()
 
@@ -78,8 +78,8 @@ class UserMessageAdmin(object):
 
 
 xadmin.site.register(UserCourse, UserCourseAdmin)
-xadmin.site.register(UserAsk,  UserAskAdmin)
+# xadmin.site.register(UserAsk,  UserAskAdmin)
 xadmin.site.register(UserComment,  UserCommentAdmin)
 xadmin.site.register(UserGroup,  UserGroupAdmin)
-xadmin.site.register(UserMessage, UserMessageAdmin)
+# xadmin.site.register(UserMessage, UserMessageAdmin)
 
