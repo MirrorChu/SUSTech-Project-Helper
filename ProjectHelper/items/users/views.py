@@ -13,11 +13,13 @@ import sys
 import os
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail
 from django.conf import settings
 
 from items.groups.models import GroupOrg
 from items.users.models import UserProfile
-from items.operations.models import UserCourse, UserGroup
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag
 from items.courses.models import Course
 from items.projects.models import Project
 
@@ -308,7 +310,6 @@ class Test(View):
     #
     #         except Exception as e:
     #             return JsonResponse({"ChangeHeadImage": "failed"})
-
 
 class StudentGetsAllProjects(View):
     def post(self, request):
@@ -639,21 +640,65 @@ class StudentGetAllGroupsInProject(View):
                 return JsonResponse({"StudentGetAllGroupsInProjectCheck": "fail"})
             groups = GroupOrg.objects.filter(project_id=project_id)
             project = Project.objects.filter(id=project_id)
-            result = {}
+            group = {}
             for i in project:
-                result["group_size"] = i.group_size
+                group["group_size"] = i.group_size
             for i in groups:
-                result[i.id] = {}
-                result[i.id]["group_name"] = i.group_name
-                result[i.id]["member"] = i.member
-                result[i.id]["captain_id"] = i.captain_name_id
+                group[i.id] = {}
+                group[i.id]["group_name"] = i.group_name
+                group[i.id]["member"] = i.member
+                group[i.id]["captain_id"] = i.captain_name_id
                 captain = UserProfile.objects.filter(student_id=i.captain_name_id)
                 for j in captain:
-                    result[i.id]["captain_name"] = j.username
+                    group[i.id]["captain_name"] = j.username
 
-            return JsonResponse({"StudentGetAllGroupsInProjectCheck": result})
+            return JsonResponse({"Data": group, "StudentGetAllGroupsInProjectCheck": "success"})
         except Exception as e:
             return JsonResponse({"StudentGetAllGroupsInProjectCheck": "failed"})
+
+
+class StudentGetAllStudentsInProject(View):
+    def post(self, request):
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetAllStudentsInProjectCheck": "fail"})
+            groups = GroupOrg.objects.filter(project_id=project_id)
+            project = Project.objects.filter(id=project_id)
+            group = {}
+            groupList = []
+            for i in project:
+                group["group_size"] = i.group_size
+                group["course_id"] = i.course_id
+            for i in groups:
+                group[i.id] = {}
+                groupList.append(i.id)
+                group[i.id]["group_name"] = i.group_name
+                group[i.id]["member"] = i.member
+            student = {}
+            students = UserCourse.objects.filter(course_name_id=group["course_id"])
+            for i in students:
+                studentProfile = UserProfile.objects.filter(id=i.user_name_id)
+                for j in studentProfile:
+                    student[j.id] = {}
+                    student[j.id]["username"] = j.username
+                    student[j.id]["has_group"] = False
+                    for k in groupList:
+                        judge = UserGroup.objects.filter(group_name_id=k, user_name_id=j.id)
+                        if judge.count() != 0:
+                            student[j.id]["has_group"] = True
+                            student[j.id]["group_id"] = k
+                            student[j.id]["group_name"] = group[k]["group_name"]
+                            student[j.id]["member"] = group[k]["member"]
+                            break
+
+            return JsonResponse({"Data": student, "StudentGetAllStudentsInProjectCheck": "success"})
+        except Exception as e:
+            return JsonResponse({"StudentGetAllStudentsInProjectCheck": "failed"})
 
 
 class Image(View):
@@ -792,8 +837,6 @@ class ShowHeadImage(View):
     # return path
     def post(self, request):
         try:
-            print(request.body)
-
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
 
@@ -816,3 +859,252 @@ class TestAPI(View):
     def post(self, request):
         print(request.body)
         return JsonResponse({"message": "get it"})
+
+
+class AddTag(View):
+    # return path
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            tag_id = eval(request.body.decode()).get("tag_id")
+
+            user_id = 0
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"AddTag": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = Tag.objects.filter(id=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"AddTag": "failed"})
+            else:
+                for i in query_set:
+                    tag_id = i.id
+
+            # 验证是否有重复的记录
+            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
+            if query_set.count() != 0:
+                return JsonResponse({"AddTag": "failed"})
+
+            UserTag.objects.create(user_name_id=user_id, tag_id=tag_id)
+
+            return JsonResponse({"AddTag": "success"})
+
+        except Exception as e:
+            return JsonResponse({"AddTag": "failed"})
+
+
+class ShowTag(View):
+    # return path
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            tag_id = eval(request.body.decode()).get("tag_id")
+
+            user_id = 0
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"ShowTag": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = Tag.objects.filter(id=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"ShowTag": "failed"})
+            else:
+                for i in query_set:
+                    tag_id = i.id
+
+            UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(visibility=1)
+
+            return JsonResponse({"ShowTag": "success"})
+
+        except Exception as e:
+            return JsonResponse({"ShowTag": "failed"})
+
+
+class UnshowTag(View):
+    # return path
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            tag_id = eval(request.body.decode()).get("tag_id")
+
+            user_id = 0
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"UnshowTag": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = Tag.objects.filter(id=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"UnshowTag": "failed"})
+            else:
+                for i in query_set:
+                    tag_id = i.id
+
+            UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(visibility=0)
+
+            return JsonResponse({"UnshowTag": "success"})
+
+        except Exception as e:
+            return JsonResponse({"UnshowTag": "failed"})
+
+
+class GetTagVisibility(View):
+    # return path
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            tag_id = eval(request.body.decode()).get("tag_id")
+
+            user_id = 0
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"GetTagVisibility": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = Tag.objects.filter(id=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"GetTagVisibility": "failed"})
+            else:
+                for i in query_set:
+                    tag_id = i.id
+
+            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"GetTagVisibility": "failed"})
+            else:
+                for i in query_set:
+                    visibility = i.visibility
+
+            return JsonResponse({"GetTagVisibility": visibility})
+
+        except Exception as e:
+            return JsonResponse({"GetTagVisibility": "failed"})
+
+
+class StudentGetsAllTags(View):
+    # return path
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user_id = 0
+            tag_id = 0
+            visibility = 1
+            tags = {}
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"StudentGetsAllTags": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = UserTag.objects.filter(user_name_id=user_id)
+            if query_set.count() == 0:
+                return JsonResponse({"StudentGetsAllTags": "failed"})
+            else:
+                for i in query_set:
+                    tag_id = i.tag_id
+                    visibility = i.visibility
+
+                query_set2 = Tag.objects.filter(id=tag_id)
+                if query_set2.count() == 0:
+                    return JsonResponse({"StudentGetsAllTags": "failed"})
+                else:
+                    for j in query_set:
+                        tags[tag_id] = {"tag_name": str(j.tag), "visibility": visibility}
+
+            return JsonResponse({"Data": tags})
+
+        except Exception as e:
+            return JsonResponse({"StudentGetsAllTags": "failed"})
+
+
+class SendMailToInvite(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            tag_id = eval(request.body.decode()).get("t_sid")
+            group_id = eval(request.body.decode()).get("group_id")
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"SendMailToInvite": "failed"})
+            query_set = UserProfile.objects.filter(username=tag_id)
+            if query_set.count() == 0:
+                return JsonResponse({"SendMailToInvite": "failed"})
+            else:
+                for i in query_set:
+                    email = i.email
+            subject = '来自自强学堂的问候'
+            text_content = '这是一封重要的邮件.'
+            html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
+            msg = EmailMultiAlternatives(subject, text_content, student_id + '<11812710@mail.sustech.edu.cn>', [email])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            return JsonResponse({"SendMailToInvite": "success"})
+
+        except Exception as e:
+            return JsonResponse({"SendMailToInvite": "failed"})
+
+
+class MailUrl(View):
+    def get(self, request):
+        # sender = request.GET.get('s')
+        reciver = request.GET.get('r')
+        # type = request.GET.get('t')
+        # password = request.GET.get('c')
+        # send_mail('Subject here', 'Here is the message.', 'me'+'<11812710@mail.sustech.edu.cn>',
+        #           ['11811002@mail.sustech.edu.cn'], fail_silently=False)
+        subject = '来自自强学堂的问候'
+        text_content = '这是一封重要的邮件.'
+        html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
+        msg = EmailMultiAlternatives(subject, text_content, 'me' + '<11812710@mail.sustech.edu.cn>', [reciver])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()  # http://127.0.0.1:8000/mailurl/?r=目标邮箱 测试用例
+        return HttpResponse("success")
+
+
+class Test(View):
+    def post(self, request):
+        print(request.body)
+        student_id = "admin"
+        password = "123"
+        # get file
+        user = UserProfile.objects.filter(username=student_id, password=password)
+        if user.count() == 1:
+            return HttpResponse("yes")
+
+        return HttpResponse("no")
+
+    def get(self, request):
+        p1 = request.GET.get('p1')
+        p2 = request.GET.get('p2')
+        return HttpResponse("p1 = " + p1 + "; p2 = " + p2)

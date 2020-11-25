@@ -8,9 +8,8 @@
     <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
     <el-upload v-if="this.edit"
                class="avatar-uploader"
-               action="/api/personaldata/"
-               :sid="this.sid"
-               :pswd="this.pswd"
+               action="/api/change_head_image/"
+               :data="{sid: this.sid, pswd: this.pswd}"
                :auto-upload="true"
                :show-file-list="false"
                :on-success="handleAvatarSuccess"
@@ -131,7 +130,7 @@ export default {
     console.log(this.sid)
     console.log(this.pswd)
     this.pullPersonalData()
-    this.avatar = require('../assets/logo.png')
+    this.avatar = require('../assets/11810101/' + this.sid + '.jpg')
     // if (this.sid === '')
     // {
     //   this.sid = this.$route.params.sid
