@@ -6,7 +6,7 @@ ProjectHelper/frontend/npm-debug.log*
 ProjectHelper/frontend/yarn-debug.log*
 ProjectHelper/frontend/yarn-error.log*
 ProjectHelper/.idea
-
+venv
 # Editor directories and files
 ProjectHelper/frontend/.idea
 ProjectHelper/frontend/.vscode
@@ -46,10 +46,15 @@ ProjectHelper/items/users/migrations/0003_auto_20201121_1744.py
 ProjectHelper/.idea/vcs.xml
 ProjectHelper/xadmin/filters.py
 ProjectHelper/ProjectHelper/settings.py
-
+ProjectHelper/settings.py
 ProjectHelper/items/courses/migrations
 ProjectHelper/items/groups/migrations
 ProjectHelper/items/operations/migrations
 ProjectHelper/items/projects/migrations
 ProjectHelper/items/users/migrations
 ProjectHelper/xadmin/migrations
+.idea
+testPlace.py
+1.png
+QQ截图20201108074240.png
+QQ截图20201108074240
