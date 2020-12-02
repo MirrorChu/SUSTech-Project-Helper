@@ -45,7 +45,7 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <el-table v-show="mainContent.projects" :data="tableData.filter(data =>
+        <el-table v-if="mainContent.projects" :data="tableData.filter(data =>
           !searchKey || JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
                   style="width: 100%" height="500">
 
@@ -57,7 +57,7 @@
 
           <el-table-column prop="due" label="Due" width="120"></el-table-column>
 
-          <el-table-column prop="status" label="Status" width="120"></el-table-column>
+          <!--          <el-table-column prop="status" label="Status" width="120"></el-table-column>-->
 
           <el-table-column width="120" align="right">
             <template slot="header" slot-scope="scope">
@@ -70,6 +70,11 @@
 
         </el-table>
 
+        <ProjectDetail v-if="mainContent.showProjectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
+                       v-bind:projectDetail="this.projectDetail">
+
+        </ProjectDetail>
+
       </el-main>
 
     </el-container>
@@ -80,10 +85,11 @@
 import profile from './profile'
 // import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 import New_password from './new_password'
+import ProjectDetail from "./ProjectDetail";
 
 export default {
   name: 'homepage',
-  components: {New_password, profile},
+  components: {ProjectDetail, New_password, profile},
   props: {},
   data() {
     return {
@@ -99,73 +105,18 @@ export default {
         projects: false,
         messages: false,
         settings: false,
+        showProjectDetail: false
       },
-      tableData: [{
-        course: 'CS301',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS302',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS303',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS304',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS305',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS306',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS307',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }, {
-        course: 'CS308',
-        project: 'Project Helper',
-        start: '2020-09-10',
-        due: '2020-12-31',
-        status: 'Not Submitted',
-      }]
+      projectDetail: null,
+      tableData: null
     }
   },
   created() {
-    /*页面挂载获取保存的cookie值，渲染到页面上*/
-    // let cookie = getCookie('sid')
-    // console.log(cookie)
-    // this.sid = cookie
-    // console.log('sid', this.sid)
-    /*如果cookie不存在，则跳转到登录页*/
-    // if (cookie === '')
-    // {
-    //   this.$router.push('/login')
-    // }
-    //TODO: Do we use a request to get name?
-    // else
-    // {
-    // }
+    this.$axios.post('/student_gets_all_projects/', {sid: this.sid, pswd: this.pswd}).then(res => {
+      this.tableData = res.data.courses
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     changeMainContent(item) {
@@ -190,9 +141,21 @@ export default {
       // }
     },
 
-    onClickDetail(project) {
-      console.log(project)
-      console.log('searchKey', this.searchKey)
+    onClickDetail(index) {
+      const local_data = this.tableData.filter(data => !this.searchKey ||
+        JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
+      const local_project = local_data[index]
+      this.$axios.post('/student_gets_single_project_information/', {
+        sid: this.sid,
+        pswd: this.pswd,
+        course: local_project.course,
+        project: local_project.project
+      }).then(res => {
+        this.projectDetail = res.data.projectDetail
+        this.changeMainContent('showProjectDetail')
+      }).catch(err => {
+        console.log(err)
+      })
     },
 
     onClickSettings() {

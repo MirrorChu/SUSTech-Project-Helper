@@ -315,6 +315,16 @@ class StudentGetsAllProjects(View):
         try:
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
+
+            # TODO: Delete this.
+            if student_id == '11810101' and password == '11810101':
+                data = [{'course': 'CS301', 'project': '2.4G', 'start': '2020-12-01',
+                         'due': '2020-12-21'},
+                        {'course': 'CS303', 'project': 'IMP', 'start': '2020-11-15',
+                         'due': '2020-11-30'}]
+                print(data)
+                return JsonResponse({'courses': data})
+
             user = UserProfile.objects.filter(username=student_id, password=password)
             for i in user:
                 course = UserCourse.objects.filter(user_name_id=i.id)
@@ -337,9 +347,21 @@ class StudentGetsAllProjects(View):
 class StudentGetsSingleProjectInformation(View):
     def post(self, request):
         try:
+
+            # TODO: Delete this.
+            sid = eval(request.body.decode()).get("sid")
+            pswd = eval(request.body.decode()).get("pswd")
+            course = eval(request.body.decode()).get("course")
+            project = eval(request.body.decode()).get("project")
+            if sid == '11810101' and pswd == '11810101' and course == 'CS303' and project == 'IMP':
+                data = {'description': 'This is a demo description',
+                        'inspectors': ['inspector1', 'inspector2'],
+                        'milestone': {'event1': 'datetime1', 'event2': 'datetime2'},
+                        'attachment': 'path to the attachment'}
+                return JsonResponse({'projectDetail': data})
+
             project_id = eval(request.body.decode()).get("project_id")
             query_set = Project.objects.filter(id=project_id)
-
             project_name = ""
             project_introduction = ""
             course_name = ""
