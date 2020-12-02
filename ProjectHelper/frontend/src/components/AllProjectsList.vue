@@ -16,7 +16,11 @@ export default {
   },
   name: "AllProjectsList",
   created() {
-    this.$axios.post('/student_gets_all_projects/', {sid: this.props.sid, pswd: this.props.pswd})
+    this.$axios.post('/student_gets_all_projects/', {sid: this.$props.sid, pswd: this.$props.pswd}).then(res => {
+
+    }).catch(err => {
+
+    })
   }
 }
 </script>

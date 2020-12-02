@@ -343,6 +343,11 @@ class StudentGetsSingleProjectInformation(View):
         try:
 
             project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
             query_set = Project.objects.filter(id=project_id)
             project_name = ""
             project_introduction = ""
