@@ -370,6 +370,7 @@ class StudentGetsSingleProjectInformation(View):
         # 返回{项目名, 项目简介, 课程名}
 
 
+
 class StudentGetsAllGroups(View):
     def post(self, request):
         try:
@@ -466,6 +467,69 @@ class StudentGetsSingleGroupInformation(View):
             return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
 
+class StudentGetsGroupInformationInProject(View):
+    def post(self, request):
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
+
+            group = UserGroup.objects.filter(project_name_id= project_id, user_name_id= student_id)
+            if group.count() == 0:
+                return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
+            for i in group:
+                group_id = group.id
+            query_set = GroupOrg.objects.filter(id=group_id)
+            group_name = ""
+            group_detail = ""
+            project_name = ""
+            course_name = ""
+            captain_name = ""
+            captain_id = 0
+            project_id = 0
+            course_id = 0
+            members = []
+
+            for i in query_set:
+                group_name = i.group_name
+                group_detail = i.detail
+                captain_id = i.captain_name_id
+                project_id = i.project_id
+
+                query_set = Project.objects.filter(id=project_id)
+                for j in query_set:
+                    project_name = j.name
+                    course_id = j.course_id
+                    query_set = Course.objects.filter(id=project_id)
+                    for k in query_set:
+                        course_name = k.name
+
+                query_set = UserProfile.objects.filter(id=captain_id)
+                for j in query_set:
+                    captain_name = j.username
+
+                query_set = UserGroup.objects.filter(id=group_id)
+                for j in query_set:
+                    user_id = j.user_name_id
+                    query_set = UserProfile.objects.filter(id=user_id)
+                    for k in query_set:
+                        members.append(k.username)
+
+            return JsonResponse({"group_name": group_name,
+                                 "group_introduction": group_detail,
+                                 "project_id": project_id,
+                                 "project_name": project_name,
+                                 "course_id": course_id,
+                                 "course_name": course_name,
+                                 "captain_name": captain_name,
+                                 "members": members,
+                                 })
+        except Exception as e:
+            return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
+        # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
 
 class StudentCreatesGroup(View):
     def post(self, request):
