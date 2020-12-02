@@ -477,6 +477,9 @@ class StudentGetsGroupInformationInProject(View):
             if user.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
 
+            for i in user:
+                student_id = i.id
+
             group_id = 0
 
             group = UserGroup.objects.filter(user_name_id = student_id)
