@@ -20,8 +20,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/project_detail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AllProjectsList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -72,7 +72,6 @@
 
         <ProjectDetail v-if="mainContent.showProjectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
                        v-bind:projectDetail="this.projectDetail">
-
         </ProjectDetail>
 
       </el-main>
@@ -112,7 +111,9 @@ export default {
     }
   },
   created() {
+    console.log('/student_gets_all_projects/')
     this.$axios.post('/student_gets_all_projects/', {sid: this.sid, pswd: this.pswd}).then(res => {
+      console.log('all projects', res.data)
       this.tableData = res.data.courses
     }).catch(err => {
       console.log(err)
@@ -145,12 +146,13 @@ export default {
       const local_data = this.tableData.filter(data => !this.searchKey ||
         JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const local_project = local_data[index]
-      this.$axios.post('/student_gets_single_project_information/', {
+      this.$axios.post('/student_get_project/', {
         sid: this.sid,
         pswd: this.pswd,
         course: local_project.course,
         project: local_project.project
       }).then(res => {
+        console.log(res.data)
         this.projectDetail = res.data.projectDetail
         this.changeMainContent('showProjectDetail')
       }).catch(err => {

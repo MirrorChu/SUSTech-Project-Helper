@@ -1,8 +1,8 @@
 <template>
   <div>
-    {{ this.sid }}
-    {{ this.pswd }}
-    {{ this.projectDetail }}
+    {{ this.$props.projectDetail }}
+
+    {{ this.groupInfo }}
   </div>
 </template>
 
@@ -21,18 +21,24 @@ export default {
       required: true
     },
   },
+  created() {
+    //Use == instead of === here.
+    if (this.$props.groupInfo == null) {
+      this.groupInfo = 'You have not created or joined a group!'
+    } else {
+      this.groupInfo = 'unknown'
+    }
+  },
   data() {
     return {
       val1: 'val1',
       val2: 'val2',
       val3: 'val3',
-      groupInfo: ''
+      groupInfo: '',
     }
   },
-  created() {
-
-  },
   name: "ProjectDetail"
+
 }
 </script>
 

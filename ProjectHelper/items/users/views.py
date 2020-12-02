@@ -107,10 +107,6 @@ class ShowPersonalData(View):
             else:
                 x = UserProfile.objects.get(username=student_id, password=password)
 
-                # TODO: Fix image.
-                # file_path = x.image
-                # file = open(file_path, "rb")
-
                 return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
                                      "realname": x.real_name,
                                      "student_id": x.student_id,
@@ -256,10 +252,6 @@ class Test(View):
                 print('avatar success')
                 x = UserProfile.objects.get(username=sid, password=pswd)
 
-                # TODO: Fix image.
-                # file_path = x.image
-                # file = open(file_path, "rb")
-
                 return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
                                      # "realname": x.real_name,
                                      # "student_id": x.student_id,
@@ -319,13 +311,13 @@ class StudentGetsAllProjects(View):
             password = eval(request.body.decode()).get("pswd")
 
             # TODO: Delete this.
-            if student_id == '11810101' and password == '11810101':
-                data = [{'course': 'CS301', 'project': '2.4G', 'start': '2020-12-01',
-                         'due': '2020-12-21'},
-                        {'course': 'CS303', 'project': 'IMP', 'start': '2020-11-15',
-                         'due': '2020-11-30'}]
-                print(data)
-                return JsonResponse({'courses': data})
+            # if student_id == '11810101' and password == '11810101':
+            #     data = [{'course': 'CS301', 'project': '2.4G', 'start': '2020-12-01',
+            #              'due': '2020-12-21'},
+            #             {'course': 'CS303', 'project': 'IMP', 'start': '2020-11-15',
+            #              'due': '2020-11-30'}]
+            #     print(data)
+            #     return JsonResponse({'courses': data})
 
             user = UserProfile.objects.filter(username=student_id, password=password)
             for i in user:
@@ -349,18 +341,6 @@ class StudentGetsAllProjects(View):
 class StudentGetsSingleProjectInformation(View):
     def post(self, request):
         try:
-
-            # TODO: Delete this.
-            sid = eval(request.body.decode()).get("sid")
-            pswd = eval(request.body.decode()).get("pswd")
-            course = eval(request.body.decode()).get("course")
-            project = eval(request.body.decode()).get("project")
-            if sid == '11810101' and pswd == '11810101' and course == 'CS303' and project == 'IMP':
-                data = {'description': 'This is a demo description',
-                        'inspectors': ['inspector1', 'inspector2'],
-                        'milestone': {'event1': 'datetime1', 'event2': 'datetime2'},
-                        'attachment': 'path to the attachment'}
-                return JsonResponse({'projectDetail': data})
 
             project_id = eval(request.body.decode()).get("project_id")
             query_set = Project.objects.filter(id=project_id)
@@ -1070,6 +1050,20 @@ class StudentGetsAllTags(View):
 class StudentGetProject(View):
     def post(self, request):
         try:
+
+            # TODO: Delete this.
+            sid = eval(request.body.decode()).get("sid")
+            pswd = eval(request.body.decode()).get("pswd")
+            course = eval(request.body.decode()).get("course")
+            project = eval(request.body.decode()).get("project")
+            if sid == '11810101' and pswd == '11810101' and course == 'CS303' and project == 'IMP':
+                data = {'description': 'This is a demo description',
+                        'inspectors': ['inspector1', 'inspector2'],
+                        'milestone': {'event1': 'datetime1', 'event2': 'datetime2'},
+                        'attachment': 'path to the attachment',
+                        'groupInfo': None}
+                return JsonResponse({'projectDetail': data})
+
             project_id = eval(request.body.decode()).get("project_id")
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
@@ -1090,7 +1084,7 @@ class StudentGetProject(View):
                 captain = UserProfile.objects.filter(student_id=i.captain_name_id)
                 for j in captain:
                     group[i.id]["captain_name"] = j.username
-                userGroup = UserGroup.objects.filter(group_name_id= i.id, user_name_id= student_id)
+                userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
                 if userGroup.count() == 1:
                     query_set = GroupOrg.objects.filter(id=i.id)
 
@@ -1167,7 +1161,8 @@ class SendMailToInvite(View):
             subject = '来自自强学堂的问候'
             text_content = '这是一封重要的邮件.'
             html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
-            msg = EmailMultiAlternatives(subject, text_content, student_id + '<11812710@mail.sustech.edu.cn>', [email])
+            msg = EmailMultiAlternatives(subject, text_content,
+                                         student_id + '<11812710@mail.sustech.edu.cn>', [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
 
@@ -1188,7 +1183,8 @@ class MailUrl(View):
         subject = '来自自强学堂的问候'
         text_content = '这是一封重要的邮件.'
         html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
-        msg = EmailMultiAlternatives(subject, text_content, 'me' + '<11812710@mail.sustech.edu.cn>', [reciver])
+        msg = EmailMultiAlternatives(subject, text_content, 'me' + '<11812710@mail.sustech.edu.cn>',
+                                     [reciver])
         msg.attach_alternative(html_content, "text/html")
         msg.send()  # http://127.0.0.1:8000/mailurl/?r=目标邮箱 测试用例
         return HttpResponse("success")
