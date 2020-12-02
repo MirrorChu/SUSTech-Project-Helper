@@ -481,7 +481,7 @@ class StudentGetsGroupInformationInProject(View):
             if group.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             for i in group:
-                group_id = group.id
+                group_id = i.id
             query_set = GroupOrg.objects.filter(id=group_id)
             group_name = ""
             group_detail = ""
