@@ -439,8 +439,8 @@ class StudentGetsSingleGroupInformation(View):
                 for j in query_set:
                     project_name = j.name
                     course_id = j.course_id
-                    query_set = Course.objects.filter(id=project_id)
-                    for k in query_set:
+                    query_set1 = Course.objects.filter(id=project_id)
+                    for k in query_set1:
                         course_name = k.name
 
                 query_set = UserProfile.objects.filter(id=captain_id)
@@ -450,8 +450,8 @@ class StudentGetsSingleGroupInformation(View):
                 query_set = UserGroup.objects.filter(id=group_id)
                 for j in query_set:
                     user_id = j.user_name_id
-                    query_set = UserProfile.objects.filter(id=user_id)
-                    for k in query_set:
+                    query_set1 = UserProfile.objects.filter(id=user_id)
+                    for k in query_set1:
                         members.append(k.username)
 
             return JsonResponse({"group_name": group_name,
