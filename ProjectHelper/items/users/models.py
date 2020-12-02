@@ -1,3 +1,4 @@
+  
 from datetime import datetime
 
 from django.db import models
@@ -38,5 +39,3 @@ class UserProfile(AbstractUser):
         else:
             return self.username
     # 支持用户修改姓名
-
-
