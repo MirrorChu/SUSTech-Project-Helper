@@ -322,15 +322,15 @@ class StudentGetsAllProjects(View):
             user = UserProfile.objects.filter(username=student_id, password=password)
             for i in user:
                 course = UserCourse.objects.filter(user_name_id=i.id)
-            courses = {}
+            courses = []
+            name = ""
             for i in course:
                 courseObject = Course.objects.filter(id=i.course_name_id)
                 for j in courseObject:
                     name = j.name
-                    courses[name] = {}
                     projects = Project.objects.filter(course_id=j.id)
-                for j in projects:
-                    courses[name][j.id] = j.name
+                for k in projects:
+                    courses.append((k.id, name, k.name))
             return JsonResponse({"Data": courses})
 
         except Exception as e:
