@@ -67,7 +67,7 @@
         </el-table>
 
         <ProjectDetail v-if="mainContent.showProjectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
-                       v-bind:projectDetail="this.projectDetail">
+                       v-bind:projectDetail="this.projectDetail" v-bind:groupInfo="this.groupInfo">
         </ProjectDetail>
 
       </el-main>
@@ -103,6 +103,7 @@ export default {
         showProjectDetail: false
       },
       projectDetail: null,
+      groupInfo: null,
       courses: null
     }
   },
@@ -142,15 +143,28 @@ export default {
       const localCourses = this.courses.filter(data => !this.searchKey ||
         JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const local_project = localCourses[index]
-      this.$axios.post('/student_gets_single_project_information/', {
+      // this.$axios.post('/student_gets_single_project_information/', {
+      //   sid: this.sid,
+      //   pswd: this.pswd,
+      //   project_id: local_project[0]
+      // }).then(res => {
+      //   console.log('projectdata', res.data)
+      //   this.projectDetail = res.data
+      //   // this.changeMainContent('showProjectDetail')
+      // }).catch(err => {
+      //   console.log(err)
+      // })
+
+      this.$axios.post('/student_gets_group_information_in_project/', {
         sid: this.sid,
         pswd: this.pswd,
         project_id: local_project[0]
       }).then(res => {
-        console.log(res.data)
-        this.projectDetail = res.data.projectDetail
+        console.log('groupdata', res.data)
+        this.groupInfo = res.data
         this.changeMainContent('showProjectDetail')
       }).catch(err => {
+        this.projectDetail = null
         console.log(err)
       })
     },
