@@ -477,11 +477,18 @@ class StudentGetsGroupInformationInProject(View):
             if user.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
 
-            group = UserGroup.objects.filter(project_name_id= project_id, user_name_id= student_id)
+            group_id = 0
+
+            group = UserGroup.objects.filter(user_name_id = student_id)
             if group.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             for i in group:
-                group_id = i.id
+                project = GroupOrg.objects.filter(id= i.group_name_id)
+                for j in project:
+                    if j.project_id == project_id:
+                        group_id = j.id
+            if group_id == 0:
+                return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             query_set = GroupOrg.objects.filter(id=group_id)
             group_name = ""
             group_detail = ""
