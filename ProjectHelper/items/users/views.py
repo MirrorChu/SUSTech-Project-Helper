@@ -406,7 +406,12 @@ class StudentGetsSingleGroupInformation(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
             query_set = GroupOrg.objects.filter(id=group_id)
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
 
             group_name = ""
             group_detail = ""
