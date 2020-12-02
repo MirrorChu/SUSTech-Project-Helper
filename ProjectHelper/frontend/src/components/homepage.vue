@@ -139,14 +139,13 @@ export default {
     },
 
     onClickDetail(index) {
-      const local_data = this.tableData.filter(data => !this.searchKey ||
+      const localCourses = this.courses.filter(data => !this.searchKey ||
         JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
-      const local_project = local_data[index]
-      this.$axios.post('/student_get_project/', {
+      const local_project = localCourses[index]
+      this.$axios.post('/student_gets_single_project_information/', {
         sid: this.sid,
         pswd: this.pswd,
-        course: local_project.course,
-        project: local_project.project
+        project_id: local_project[0]
       }).then(res => {
         console.log(res.data)
         this.projectDetail = res.data.projectDetail
