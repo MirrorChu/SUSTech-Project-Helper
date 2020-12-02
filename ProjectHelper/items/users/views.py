@@ -933,6 +933,85 @@ class StudentGetsAllTags(View):
             return JsonResponse({"StudentGetsAllTags": "failed"})
 
 
+class StudentGetProject(View):
+    def post(self, request):
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetProjectCheck": "fail"})
+            groups = GroupOrg.objects.filter(project_id=project_id)
+            project = Project.objects.filter(id=project_id)
+            group = {}
+            for i in project:
+                group["group_size"] = i.group_size
+            for i in groups:
+                group[i.id] = {}
+                group[i.id]["group_name"] = i.group_name
+                group[i.id]["member"] = i.member
+                group[i.id]["captain_id"] = i.captain_name_id
+                captain = UserProfile.objects.filter(student_id=i.captain_name_id)
+                for j in captain:
+                    group[i.id]["captain_name"] = j.username
+                userGroup = UserGroup.objects.filter(group_name_id= i.id, user_name_id= student_id)
+                if userGroup.count() == 1:
+                    query_set = GroupOrg.objects.filter(id=i.id)
+
+                    group_name = ""
+                    group_detail = ""
+                    project_name = ""
+                    course_name = ""
+                    captain_name = ""
+                    captain_id = 0
+                    project_id = 0
+                    course_id = 0
+                    members = []
+
+                    for j in query_set:
+                        group_name = j.group_name
+                        group_detail = j.detail
+                        captain_id = j.captain_name_id
+                        project_id = j.project_id
+
+                        query_set = Project.objects.filter(id=project_id)
+                        for k in query_set:
+                            project_name = k.name
+                            course_id = k.course_id
+                            query_set = Course.objects.filter(id=project_id)
+                            for k in query_set:
+                                course_name = k.name
+
+                        query_set = UserProfile.objects.filter(id=captain_id)
+                        for k in query_set:
+                            captain_name = k.username
+
+                        query_set = UserGroup.objects.filter(id=i.id)
+                        for k in query_set:
+                            user_id = k.user_name_id
+                            query_set = UserProfile.objects.filter(id=user_id)
+                            for k in query_set:
+                                members.append(k.username)
+
+                    return JsonResponse({"group_name": group_name,
+                                         "group_introduction": group_detail,
+                                         "project_id": project_id,
+                                         "project_name": project_name,
+                                         "course_id": course_id,
+                                         "course_name": course_name,
+                                         "captain_name": captain_name,
+                                         "members": members,
+                                         })
+                if i.member == group["group_size"]:
+                    group.pop(i.id)
+
+            return JsonResponse({"Data": group, "StudentGetProjectCheck": "success"})
+        except Exception as e:
+            return JsonResponse({"StudentGetProjectCheck": "failed"})
+
+
 class SendMailToInvite(View):
     def post(self, request):
         try:
