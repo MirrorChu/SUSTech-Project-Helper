@@ -45,17 +45,13 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <el-table v-if="mainContent.projects" :data="tableData.filter(data =>
+        <el-table v-if="mainContent.projects" :data="courses.filter(data =>
           !searchKey || JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
                   style="width: 100%" height="500">
 
-          <el-table-column fixed prop="course" label="Course" width="120"></el-table-column>
+          <el-table-column fixed prop=1 label="Course" width="120"></el-table-column>
 
-          <el-table-column prop="project" label="Project" width="120"></el-table-column>
-
-          <el-table-column prop="start" label="Start" width="120"></el-table-column>
-
-          <el-table-column prop="due" label="Due" width="120"></el-table-column>
+          <el-table-column prop=2 label="Project" width="120"></el-table-column>
 
           <!--          <el-table-column prop="status" label="Status" width="120"></el-table-column>-->
 
@@ -107,14 +103,14 @@ export default {
         showProjectDetail: false
       },
       projectDetail: null,
-      tableData: null
+      courses: null
     }
   },
   created() {
     console.log('/student_gets_all_projects/')
     this.$axios.post('/student_gets_all_projects/', {sid: this.sid, pswd: this.pswd}).then(res => {
-      console.log('all projects', res.data)
-      this.tableData = res.data.courses
+      console.log('all projects', res.data.Data)
+      this.courses = res.data.Data
     }).catch(err => {
       console.log(err)
     })

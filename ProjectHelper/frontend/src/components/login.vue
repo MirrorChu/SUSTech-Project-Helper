@@ -41,8 +41,8 @@ export default {
       axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
       var status = ''
       this.$axios.post('/login/', {sid: this.sid, pswd: this.pswd}).then(res => {
+        console.log(res)
         status = res.data['LoginCheck']
-        console.log(status)
         if (status === 'success') {
           let token = 'Bearer ' + res.data.token
           // setCookie('sid', this.sid, 1000 * 60)
