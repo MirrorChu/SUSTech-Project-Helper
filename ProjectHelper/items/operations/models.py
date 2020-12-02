@@ -9,15 +9,12 @@ from items.projects.models import Project
 
 UserProfile = get_user_model()
 
-VISIBILITY_CHOICES = (
-    ("invisible", "不可见"),
-    ("visible", "可见")
-)
-
 
 class Tag(BaseModel):
-    tag = models.CharField(verbose_name="标签", max_length=50)
-    visibility = models.CharField(verbose_name="可见度", choices=VISIBILITY_CHOICES, max_length=50)
+    tag = models.CharField(verbose_name="标签", max_length=50, default="")
+
+    # 加分项：不同类型的标签相应的颜色不同
+    type = models.CharField(verbose_name="属性", max_length=50, default="")
 
     class Meta:
         verbose_name = "标签清单"
@@ -40,19 +37,6 @@ class UserCourse(BaseModel):
 
     def __str__(self):
         return self.user_name
-
-
-# 记录每个队都有谁申请加入
-class UserAsk(BaseModel):
-    user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="申请用户的名称")
-    group_name = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="申请加入队伍的名称")
-
-    class Meta:
-        verbose_name = "组队申请"
-        verbose_name_plural = verbose_name
-
-    def __str__(self):
-        return self.group_name
 
 
 # 记录每个队有谁评论了什么，队伍成员也能在评论区发表内容
@@ -82,27 +66,10 @@ class UserGroup(BaseModel):
         return self.group_name
 
 
-# 记录所有用户的聊天消息
-class UserMessage(BaseModel):
-    receiver_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE,
-                                      verbose_name="接收方的用户名称", related_name='receiver')
-    sender_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE,
-                                    verbose_name="发出方的用户名称", related_name='sender')
-    message = models.CharField(max_length=200, verbose_name="消息内容")
-    is_read = models.BooleanField(default=False, verbose_name="消息是否已读取")
-    # False代表没有读
-
-    class Meta:
-        verbose_name = "消息记录"
-        verbose_name_plural = verbose_name
-
-    def __str__(self):
-        return self.receiver_name
-
-
 class UserTag(BaseModel):
     user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户名称")
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="标签")
+    visibility = models.IntegerField(verbose_name="可见度", default=1)
 
     class Meta:
         verbose_name = "用户拥有的标签"
@@ -136,3 +103,99 @@ class ProjectComment(BaseModel):
 
     def __str__(self):
         return self.project_name
+
+
+# 记录每个项目有什么附件
+class ProjectAttachment(BaseModel):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
+    file_path = models.CharField(max_length=200, verbose_name="文件路径", default="")
+
+    class Meta:
+        verbose_name = "项目附件"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.project
+
+
+class Annexation(BaseModel):
+    a = models.CharField(max_length=200, verbose_name="a", default="")
+    b = models.CharField(max_length=200, verbose_name="b", default="")
+    c = models.CharField(max_length=200, verbose_name="c", default="")
+    d = models.CharField(max_length=200, verbose_name="d", default="")
+    e = models.CharField(max_length=200, verbose_name="e", default="")
+    f = models.CharField(max_length=200, verbose_name="f", default="")
+    g = models.CharField(max_length=200, verbose_name="g", default="")
+    h = models.CharField(max_length=200, verbose_name="h", default="")
+    i = models.CharField(max_length=200, verbose_name="i", default="")
+    j = models.CharField(max_length=200, verbose_name="j", default="")
+
+    class Meta:
+        verbose_name = "Annexation"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.a
+
+
+# # 记录谁向另一个人发送了聊天消息
+# class UserMessage(BaseModel):
+#     receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="接收方", default="")
+#     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="发送方", default="")
+#     receiver_is_read = models.BooleanField(default=False, verbose_name="接收方是否已读")
+#     sender_is_read = models.BooleanField(default=False, verbose_name="发送方是否已读")
+#     content = models.TextField(verbose_name="内容", default="", max_length=65535)
+#     send_time = models.DateTimeField(verbose_name="发送时间")
+#
+#     class Meta:
+#         verbose_name = "聊天消息"
+#         verbose_name_plural = verbose_name
+#
+#     def __str__(self):
+#         return self.receiver
+#
+#
+# # 记录每个队都有谁申请加入
+# class UserAsk(BaseModel):
+#     receiver_group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="接收申请的队伍")
+#     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="发出申请的用户")
+#
+#     receiver_group_is_read = models.BooleanField(default=False, verbose_name="接收方是否已读")
+#     sender_is_read = models.BooleanField(default=False, verbose_name="发送方是否已读")
+#     is_accepted = models.BooleanField(default=False, verbose_name="是否已接受")
+#
+#     request_send_time = models.DateTimeField(verbose_name="申请发送时间")
+#     request_receive_time = models.DateTimeField(verbose_name="申请接收时间")
+#
+#     reply_send_time = models.DateTimeField(verbose_name="申请回复发送时间")
+#     reply_receive_time = models.DateTimeField(verbose_name="申请回复接收时间")
+#
+#     class Meta:
+#         verbose_name = "组队申请"
+#         verbose_name_plural = verbose_name
+#
+#     def __str__(self):
+#         return self.receiver_group
+#
+#
+# # 记录每个队都有谁申请加入
+# class UserInvite(BaseModel):
+#     receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="接收邀请的用户")
+#     sender_group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="发出邀请的用户")
+#
+#     receiver_is_read = models.BooleanField(default=False, verbose_name="接收方是否已读")
+#     sender_group_is_read = models.BooleanField(default=False, verbose_name="发送方是否已读")
+#     is_accepted = models.BooleanField(default=False, verbose_name="是否已接受")
+#
+#     request_send_time = models.DateTimeField(verbose_name="邀请发送时间")
+#     request_receive_time = models.DateTimeField(verbose_name="邀请接收时间")
+#
+#     reply_send_time = models.DateTimeField(verbose_name="申请回复发送时间")
+#     reply_receive_time = models.DateTimeField(verbose_name="申请回复接收时间")
+#
+#     class Meta:
+#         verbose_name = "组队邀请"
+#         verbose_name_plural = verbose_name
+#
+#     def __str__(self):
+#         return self.receiver
