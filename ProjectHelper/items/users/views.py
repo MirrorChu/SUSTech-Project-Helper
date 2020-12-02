@@ -435,23 +435,23 @@ class StudentGetsSingleGroupInformation(View):
                 captain_id = i.captain_name_id
                 project_id = i.project_id
 
-                query_set = Project.objects.filter(id=project_id)
-                for j in query_set:
+                query_set3 = Project.objects.filter(id=project_id)
+                for j in query_set3:
                     project_name = j.name
                     course_id = j.course_id
-                    query_set = Course.objects.filter(id=project_id)
-                    for k in query_set:
+                    query_set1 = Course.objects.filter(id=project_id)
+                    for k in query_set1:
                         course_name = k.name
 
-                query_set = UserProfile.objects.filter(id=captain_id)
-                for j in query_set:
+                query_set3 = UserProfile.objects.filter(id=captain_id)
+                for j in query_set3:
                     captain_name = j.username
 
-                query_set = UserGroup.objects.filter(id=group_id)
-                for j in query_set:
+                query_set3 = UserGroup.objects.filter(id=group_id)
+                for j in query_set3:
                     user_id = j.user_name_id
-                    query_set = UserProfile.objects.filter(id=user_id)
-                    for k in query_set:
+                    query_set1 = UserProfile.objects.filter(id=user_id)
+                    for k in query_set1:
                         members.append(k.username)
 
             return JsonResponse({"group_name": group_name,
@@ -473,15 +473,30 @@ class StudentGetsGroupInformationInProject(View):
             project_id = eval(request.body.decode()).get("project_id")
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
+
             user = UserProfile.objects.filter(student_id=student_id, password=password)
+
             if user.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
 
-            group = UserGroup.objects.filter(project_name_id= project_id, user_name_id= student_id)
+            for i in user:
+                student_id = i.id
+
+            group_id = 0
+
+            group = UserGroup.objects.filter(user_name_id = student_id)
+
             if group.count() == 0:
+                print('count', group)
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             for i in group:
-                group_id = i.id
+                project = GroupOrg.objects.filter(id= i.group_name_id)
+                for j in project:
+                    if j.project_id == int(project_id):
+                        group_id = j.id
+            if group_id == 0:
+
+                return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             query_set = GroupOrg.objects.filter(id=group_id)
             group_name = ""
             group_detail = ""
@@ -499,23 +514,23 @@ class StudentGetsGroupInformationInProject(View):
                 captain_id = i.captain_name_id
                 project_id = i.project_id
 
-                query_set = Project.objects.filter(id=project_id)
-                for j in query_set:
+                query_set3 = Project.objects.filter(id=project_id)
+                for j in query_set3:
                     project_name = j.name
                     course_id = j.course_id
-                    query_set = Course.objects.filter(id=project_id)
-                    for k in query_set:
+                    query_set1 = Course.objects.filter(id=project_id)
+                    for k in query_set1:
                         course_name = k.name
 
-                query_set = UserProfile.objects.filter(id=captain_id)
-                for j in query_set:
+                query_set3 = UserProfile.objects.filter(id=captain_id)
+                for j in query_set3:
                     captain_name = j.username
 
-                query_set = UserGroup.objects.filter(id=group_id)
-                for j in query_set:
+                query_set3 = UserGroup.objects.filter(id=group_id)
+                for j in query_set3:
                     user_id = j.user_name_id
-                    query_set = UserProfile.objects.filter(id=user_id)
-                    for k in query_set:
+                    query_set1 = UserProfile.objects.filter(id=user_id)
+                    for k in query_set1:
                         members.append(k.username)
 
             return JsonResponse({"group_name": group_name,
