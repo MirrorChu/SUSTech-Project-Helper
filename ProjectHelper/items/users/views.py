@@ -1130,23 +1130,59 @@ class StudentGetsAllTags(View):
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
 
+class StudentGetValidGroupInProject(View):
+    def post(self, request):
+        try:
+
+            project_id = eval(request.body.decode()).get("project_id")
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            if user.count() == 0:
+                return JsonResponse({"StudentGetValidGroupInProject": "fail"})
+            groups = GroupOrg.objects.filter(project_id=int(project_id))
+            project = Project.objects.filter(id=int(project_id))
+            group = {}
+            for i in project:
+                group["group_size"] = i.group_size
+            for i in groups:
+                group[i.id] = {}
+                group[i.id]["group_name"] = i.group_name
+                group[i.id]["member"] = i.member
+                group[i.id]["captain_id"] = i.captain_name_id
+                captain = UserProfile.objects.filter(student_id=i.captain_name_id)
+                for j in captain:
+                    group[i.id]["captain_name"] = j.username
+                userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
+                if userGroup.count() == 1:
+                    return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
+                if i.member == group["group_size"]:
+                    group.pop(i.id)
+            if len(group) == 0:
+                return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
+
+            return JsonResponse({"Data": group, "StudentGetValidGroupInProjectCheck": "success"})
+        except Exception as e:
+            return JsonResponse({"StudentGetValidGroupInProjectCheck": "failed"})
+
 
 class StudentGetProject(View):
     def post(self, request):
         try:
 
-            # TODO: Delete this.
-            sid = eval(request.body.decode()).get("sid")
-            pswd = eval(request.body.decode()).get("pswd")
-            course = eval(request.body.decode()).get("course")
-            project = eval(request.body.decode()).get("project")
-            if sid == '11810101' and pswd == '11810101' and course == 'CS303' and project == 'IMP':
-                data = {'description': 'This is a demo description',
-                        'inspectors': ['inspector1', 'inspector2'],
-                        'milestone': {'event1': 'datetime1', 'event2': 'datetime2'},
-                        'attachment': 'path to the attachment',
-                        'groupInfo': None}
-                return JsonResponse({'projectDetail': data})
+            # # TODO: Delete this.
+            # sid = eval(request.body.decode()).get("sid")
+            # pswd = eval(request.body.decode()).get("pswd")
+            # course = eval(request.body.decode()).get("course")
+            # project = eval(request.body.decode()).get("project")
+            # if sid == '11810101' and pswd == '11810101' and course == 'CS303' and project == 'IMP':x
+            #     data = {'description': 'This is a demo description',
+            #             'inspectors': ['inspector1', 'inspector2'],
+            #             'milestone': {'event1': 'datetime1', 'event2': 'datetime2'},
+            #             'attachment': 'path to the attachment',
+            #             'groupInfo': None}
+            #     return JsonResponse({'projectDetail': data})
 
             project_id = eval(request.body.decode()).get("project_id")
             student_id = eval(request.body.decode()).get("sid")
@@ -1155,8 +1191,8 @@ class StudentGetProject(View):
             user = UserProfile.objects.filter(student_id=student_id, password=password)
             if user.count() == 0:
                 return JsonResponse({"StudentGetProjectCheck": "fail"})
-            groups = GroupOrg.objects.filter(project_id=project_id)
-            project = Project.objects.filter(id=project_id)
+            groups = GroupOrg.objects.filter(project_id=int(project_id))
+            project = Project.objects.filter(id=int(project_id))
             group = {}
             for i in project:
                 group["group_size"] = i.group_size
