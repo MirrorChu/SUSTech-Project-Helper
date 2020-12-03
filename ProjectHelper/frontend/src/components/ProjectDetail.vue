@@ -1,22 +1,21 @@
 <template>
   <div>
-    Course Name: {{ this.$props.groupInfo.course_name }}
+    Course Name: {{ this.$props.projectDetail.course_name }}
     <br>
-    Project Name: {{ this.$props.groupInfo.project_name }}
+    Project Name: {{ this.$props.projectDetail['project_name'] }}
     <br>
-    Group Instruction: {{ this.$props.groupInfo.project_introduction }}
-    <br>
-    Group Name: {{ this.$props.groupInfo.group_name }}
-    <br>
-    Captain Name: {{ this.$props.groupInfo.captain_name }}
-    <br>
-    Members: {{ this.memberlist}}
-    <br>
+    <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
+               v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
+               v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
+    <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
   </div>
 </template>
 
 <script>
+import GroupInfo from "./GroupInfo";
+
 export default {
+  components: {GroupInfo},
   props: {
     sid: {
       type: String,
@@ -36,32 +35,26 @@ export default {
   created() {
     //Use == instead of === here.
     if (this.$props.groupInfo == null) {
-      this.status = 'You have not in a group!'
-    }
-    else if(this.$props.groupInfo.StudentGetsGroupInformationInProject === "no group") {
-      this.status = 'You have not in a group!'
-    }
-    else if(this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
-      console.log('successs')
-      this.memberlist = ''
-      for(var i=0;i<this.$props.groupInfo.members.length;i++){
-        this.memberlist = this.memberlist + this.$props.groupInfo.members[i] + '  '
+      this.status = 'You are not in a group!'
+    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === "no group") {
+      this.status = 'You are not in a group!'
+    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
+      console.log('access group info success')
+      console.log(this.$props.groupInfo['members'])
+      for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
+        this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
       }
-    }
-    else {
+    } else {
       this.status = 'unknown'
     }
   },
   data() {
     return {
-      val1: 'val1',
-      val2: 'val2',
-      val3: 'val3',
+      membersList: '',
+      status: '',
     }
   },
   name: "ProjectDetail",
-  memberlist: '',
-  status: '',
 }
 </script>
 

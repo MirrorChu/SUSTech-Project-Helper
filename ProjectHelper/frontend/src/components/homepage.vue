@@ -143,24 +143,24 @@ export default {
       const localCourses = this.courses.filter(data => !this.searchKey ||
         JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const local_project = localCourses[index]
-      // this.$axios.post('/student_gets_single_project_information/', {
-      //   sid: this.sid,
-      //   pswd: this.pswd,
-      //   project_id: local_project[0]
-      // }).then(res => {
-      //   console.log('projectdata', res.data)
-      //   this.projectDetail = res.data
-      //   // this.changeMainContent('showProjectDetail')
-      // }).catch(err => {
-      //   console.log(err)
-      // })
+
+      this.$axios.post('/student_gets_single_project_information/', {
+        sid: this.sid,
+        pswd: this.pswd,
+        project_id: local_project[0]
+      }).then(res => {
+        console.log('projectDetail', res.data)
+        this.projectDetail = res.data
+      }).catch(err => {
+        console.log(err)
+      })
 
       this.$axios.post('/student_gets_group_information_in_project/', {
         sid: this.sid,
         pswd: this.pswd,
         project_id: local_project[0]
       }).then(res => {
-        console.log('groupdata', res.data)
+        console.log('groupInfo', res.data)
         this.groupInfo = res.data
         this.changeMainContent('showProjectDetail')
       }).catch(err => {
