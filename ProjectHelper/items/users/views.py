@@ -44,8 +44,11 @@ class Login(View):
                 return JsonResponse({"LoginCheck": "failed"})
             # 如果未能查询到用户
             else:
-                return JsonResponse({"LoginCheck": "success"})
-
+                for i in user:
+                    if i.is_staff == 1:
+                        return JsonResponse({"LoginCheck": "teacher"})
+                    else:
+                        return JsonResponse({"LoginCheck": "student"})
         except Exception as e:
             return JsonResponse({"LoginCheck": "failed"})
 
