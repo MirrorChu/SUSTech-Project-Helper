@@ -473,7 +473,9 @@ class StudentGetsGroupInformationInProject(View):
             project_id = eval(request.body.decode()).get("project_id")
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
+
             user = UserProfile.objects.filter(student_id=student_id, password=password)
+
             if user.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
 
@@ -483,7 +485,9 @@ class StudentGetsGroupInformationInProject(View):
             group_id = 0
 
             group = UserGroup.objects.filter(user_name_id = student_id)
+
             if group.count() == 0:
+                print('count', group)
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             for i in group:
                 project = GroupOrg.objects.filter(id= i.group_name_id)
@@ -491,6 +495,7 @@ class StudentGetsGroupInformationInProject(View):
                     if j.project_id == int(project_id):
                         group_id = j.id
             if group_id == 0:
+
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             query_set = GroupOrg.objects.filter(id=group_id)
             group_name = ""
