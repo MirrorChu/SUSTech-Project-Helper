@@ -8,35 +8,39 @@
                v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
                v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
     <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
+    <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
+                       v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
+                       v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
   </div>
 </template>
 
 <script>
-import GroupInfo from "./GroupInfo";
+import GroupInfo from './GroupInfo'
+import CreateOrJoinGroup from './CreateOrJoinGroup'
 
 export default {
-  components: {GroupInfo},
+  components: { CreateOrJoinGroup, GroupInfo },
   props: {
     sid: {
       type: String,
-      required: true
+      required: true,
     },
     pswd: {
       type: String,
-      required: true
+      required: true,
     },
     projectDetail: {
-      required: true
+      required: true,
     },
     groupInfo: {
-      required: true
+      required: true,
     },
   },
-  created() {
+  created () {
     //Use == instead of === here.
     if (this.$props.groupInfo == null) {
       this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === "no group") {
+    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
       this.status = 'You are not in a group!'
     } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
       console.log('access group info success')
@@ -48,13 +52,13 @@ export default {
       this.status = 'unknown'
     }
   },
-  data() {
+  data () {
     return {
       membersList: '',
       status: '',
     }
   },
-  name: "ProjectDetail",
+  name: 'ProjectDetail',
 }
 </script>
 
