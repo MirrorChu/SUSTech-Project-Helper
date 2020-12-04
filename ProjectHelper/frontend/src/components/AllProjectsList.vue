@@ -62,7 +62,7 @@ export default {
       displayControl: {
         projectsList: true,
         projectDetail: false,
-        createProjectButton: this.$props.identity,
+        createProjectButton: this.$props.identity === 'teacher',
         createProjectForm: false
       },
       createProjectLiteral: 'Create New Project'
@@ -79,9 +79,8 @@ export default {
   },
   methods: {
     onClickCreateProject () {
-      this.createProjectForm = this.createProjectButton
-      this.createProjectButton = !this.createProjectButton
-      if (this.createProjectButton) {
+      this.createProjectForm = !this.createProjectForm;
+      if (!this.createProjectForm) {
         this.createProjectLiteral = 'Create New Project'
       } else {
         this.createProjectLiteral = '      Cancel      '
