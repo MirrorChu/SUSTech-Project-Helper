@@ -1340,6 +1340,8 @@ class TeacherGetCourses(View):
                     name = Course.objects.filter(id=i.course_id)
                     for j in name:
                         courses[j.id] = j.name
+            if len(courses) == 0:
+                return JsonResponse({"Data": None, "TeacherGetCoursesCheck": "no course"})
             return JsonResponse({"Data": courses, "TeacherGetCoursesCheck": "success"})
         except Exception as e:
             print(e)
