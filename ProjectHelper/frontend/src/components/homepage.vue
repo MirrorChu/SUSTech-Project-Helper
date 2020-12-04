@@ -33,9 +33,6 @@
           <el-menu-item v-if="this.showNav" @click="openCloseNav">
             <i class="el-icon-arrow-left"></i>
           </el-menu-item>
-          <!--          <el-menu-item v-if="!this.showNav" @click="openCloseNav">-->
-          <!--            <i class="el-icon-arrow-right"></i>-->
-          <!--          </el-menu-item>-->
         </el-menu>
       </el-aside>
 
@@ -45,30 +42,7 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <el-table v-if="mainContent.projects" :data="courses.filter(data =>
-          !searchKey || JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
-                  style="width: 100%" height="500">
-
-          <el-table-column fixed prop=1 label="Course" width="120"></el-table-column>
-
-          <el-table-column prop=2 label="Project" width="120"></el-table-column>
-
-          <!--          <el-table-column prop="status" label="Status" width="120"></el-table-column>-->
-
-          <el-table-column width="120" align="right">
-            <template slot="header" slot-scope="scope">
-              <el-input size="mini" v-model="searchKey" placeholder="Search"/>
-            </template>
-            <template slot-scope="scope">
-              <el-button @click="onClickDetail(scope.$index)">Detail</el-button>
-            </template>
-          </el-table-column>
-
-        </el-table>
-
-        <ProjectDetail v-if="mainContent.showProjectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
-                       v-bind:projectDetail="this.projectDetail" v-bind:groupInfo="this.groupInfo">
-        </ProjectDetail>
+        <AllProjectsList v-show="mainContent.projects" v-bind:pswd="this.pswd" v-bind:sid="this.sid"></AllProjectsList>
 
       </el-main>
 
@@ -78,15 +52,15 @@
 
 <script>
 import profile from './profile'
-// import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 import New_password from './new_password'
-import ProjectDetail from "./ProjectDetail";
+import ProjectDetail from './ProjectDetail'
+import AllProjectsList from './AllProjectsList'
 
 export default {
   name: 'homepage',
-  components: {ProjectDetail, New_password, profile},
+  components: { AllProjectsList, ProjectDetail, New_password, profile },
   props: {},
-  data() {
+  data () {
     return {
       //TODO: Data is lost after refresh.
       searchKey: '',
@@ -107,9 +81,9 @@ export default {
       courses: null
     }
   },
-  created() {
+  created () {
     console.log('/student_gets_all_projects/')
-    this.$axios.post('/student_gets_all_projects/', {sid: this.sid, pswd: this.pswd}).then(res => {
+    this.$axios.post('/student_gets_all_projects/', { sid: this.sid, pswd: this.pswd }).then(res => {
       console.log('all projects', res.data.Data)
       this.courses = res.data.Data
     }).catch(err => {
@@ -117,7 +91,7 @@ export default {
     })
   },
   methods: {
-    changeMainContent(item) {
+    changeMainContent (item) {
       for (const iter in this.mainContent) {
         if (iter === item) {
           console.log(item, iter)
@@ -127,7 +101,7 @@ export default {
         }
       }
     },
-    openCloseNav() {
+    openCloseNav () {
       this.showNav = !this.showNav
       // if (this.showNav)
       // {
@@ -139,7 +113,7 @@ export default {
       // }
     },
 
-    onClickDetail(index) {
+    onClickDetail (index) {
       const localCourses = this.courses.filter(data => !this.searchKey ||
         JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const local_project = localCourses[index]
@@ -169,27 +143,27 @@ export default {
       })
     },
 
-    onClickSettings() {
+    onClickSettings () {
       this.changeMainContent('settings')
     },
 
     //TODO: Personal profile request.
-    onClickProfile() {
+    onClickProfile () {
       this.changeMainContent('profile')
       console.log(this.sid, this.name)
     },
 
-    onClickProjects() {
+    onClickProjects () {
       this.changeMainContent('projects')
     },
 
     //TODO: New password request.
-    onClickNewPassword() {
+    onClickNewPassword () {
       // updateCookie('sid', this.sid, 1000 * 60)
     },
 
     //TODO: Logout request.
-    onClickLogout() {
+    onClickLogout () {
       console.log('logout')
       // delCookie('sid')
       this.$router.push('/')

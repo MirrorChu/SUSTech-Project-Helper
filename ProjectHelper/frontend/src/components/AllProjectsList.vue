@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <el-table
+    <el-table v-show="this.displayControl.projectsList"
       :data="projects.filter(data => !searchKey ||
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
       style="width: 100%" height="500">
@@ -9,8 +9,6 @@
       <el-table-column fixed prop=1 label="Course" width="120"></el-table-column>
 
       <el-table-column prop=2 label="Project" width="120"></el-table-column>
-
-      <!--          <el-table-column prop="status" label="Status" width="120"></el-table-column>-->
 
       <el-table-column width="120" align="right">
         <template slot="header" slot-scope="scope">
@@ -22,12 +20,19 @@
       </el-table-column>
     </el-table>
 
+    <ProjectDetail v-if="this.displayControl.projectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
+                   v-bind:groupInfo="this.groupInfo" v-bind:projectDetail="this.projectDetail"></ProjectDetail>
+
+    <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList">Projects List</el-button>
   </div>
 </template>
 
 <script>
+import ProjectDetail from './ProjectDetail'
+
 export default {
   name: 'AllProjectsList',
+  components: { ProjectDetail },
   props: {
     sid: {
       type: String,
@@ -44,18 +49,32 @@ export default {
       searchKey: '',
       projectDetail: '',
       groupInfo: '',
+      displayControl: {
+        projectsList: true,
+        projectDetail: false
+      }
     }
   },
   created () {
-    this.$axios.post('/student_gets_all_projects/', { sid: this.$props.sid, pswd: this.$props.pswd }).then(res => {
-
+    this.$axios.post('/student_gets_all_projects/',
+      { sid: this.$props.sid, pswd: this.$props.pswd }).then(res => {
+      console.log(res.data)
+      this.projects = res.data.Data
     }).catch(err => {
-
+      console.log(err)
     })
   },
   methods: {
-    onClickDetail () {
-      const localProjects = this.courses.filter(data => !this.searchKey ||
+    onClickBackToList () {
+      this.controlDisplay('projectsList')
+    },
+    controlDisplay (item) {
+      for (const iter in this.displayControl) {
+        this.displayControl[iter] = iter === item
+      }
+    },
+    onClickDetail (index) {
+      const localProjects = this.projects.filter(data => !this.searchKey ||
         JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const localProject = localProjects[index]
 
@@ -69,7 +88,6 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-
       this.$axios.post('/student_gets_group_information_in_project/', {
         sid: this.sid,
         pswd: this.pswd,
@@ -77,7 +95,7 @@ export default {
       }).then(res => {
         console.log('groupInfo', res.data)
         this.groupInfo = res.data
-        this.changeMainContent('showProjectDetail')
+        this.controlDisplay('projectDetail')
       }).catch(err => {
         this.projectDetail = null
         console.log(err)
