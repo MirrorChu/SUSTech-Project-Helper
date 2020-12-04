@@ -19,7 +19,7 @@ from django.conf import settings
 
 from items.groups.models import GroupOrg
 from items.users.models import UserProfile
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag
 from items.courses.models import Course
 from items.projects.models import Project
 
@@ -1155,6 +1155,7 @@ class StudentGetsAllTags(View):
         try:
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
+            t_id = eval(request.body.decode()).get("sid_target")
 
             user_id = 0
             tag_id = 0
@@ -1166,25 +1167,23 @@ class StudentGetsAllTags(View):
             if query_set.count() == 0:
                 return JsonResponse({"StudentGetsAllTags": "failed"})
             else:
+                query_set = UserProfile.objects.filter(username=t_id)
                 for i in query_set:
                     user_id = i.id
 
             query_set = UserTag.objects.filter(user_name_id=user_id)
             if query_set.count() == 0:
-                return JsonResponse({"StudentGetsAllTags": "failed"})
+                return JsonResponse({"StudentGetsAllTags": "no tag"})
             else:
                 for i in query_set:
-                    tag_id = i.tag_id
-                    visibility = i.visibility
+                    query_set2 = Tag.objects.filter(id=i.tag_id)
+                    query_set3 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=i.id)
+                    if i.visibility == 1:
+                        for j in query_set2:
+                            tags[i.tag_id] = {"tag_name": j.tag, "type": j.type, "likes":query_set3.count()}
 
-                query_set2 = Tag.objects.filter(id=tag_id)
-                if query_set2.count() == 0:
-                    return JsonResponse({"StudentGetsAllTags": "failed"})
-                else:
-                    for j in query_set:
-                        tags[tag_id] = {"tag_name": str(j.tag), "visibility": visibility}
 
-            return JsonResponse({"Data": tags})
+            return JsonResponse({"Data": tags,"StudentGetsAllTags": "success"})
 
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
