@@ -214,6 +214,7 @@ class Authority(BaseModel):
     end_time = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
     start_time = models.DateTimeField(default=datetime.now, verbose_name="开始日期")
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="课程")
 
     class Meta:
         verbose_name = "权限"
