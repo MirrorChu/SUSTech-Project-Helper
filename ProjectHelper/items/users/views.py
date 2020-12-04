@@ -373,7 +373,6 @@ class StudentGetsSingleProjectInformation(View):
         # 返回{项目名, 项目简介, 课程名}
 
 
-
 class StudentGetsAllGroups(View):
     def post(self, request):
         try:
@@ -470,6 +469,7 @@ class StudentGetsSingleGroupInformation(View):
             return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
 
+
 class StudentGetsGroupInformationInProject(View):
     def post(self, request):
         try:
@@ -487,19 +487,20 @@ class StudentGetsGroupInformationInProject(View):
 
             group_id = 0
 
-            group = UserGroup.objects.filter(user_name_id = student_id)
+            group = UserGroup.objects.filter(user_name_id=student_id)
 
             if group.count() == 0:
                 print('count', group)
-                return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
+                return JsonResponse(
+                    {"project_id": project_id, "StudentGetsGroupInformationInProject": "no group"})
             for i in group:
-                project = GroupOrg.objects.filter(id= i.group_name_id)
+                project = GroupOrg.objects.filter(id=i.group_name_id)
                 for j in project:
                     if j.project_id == int(project_id):
                         group_id = j.id
             if group_id == 0:
-
-                return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
+                return JsonResponse(
+                    {"project_id": project_id, "StudentGetsGroupInformationInProject": "no group"})
             query_set = GroupOrg.objects.filter(id=group_id)
             group_name = ""
             group_detail = ""
@@ -548,6 +549,7 @@ class StudentGetsGroupInformationInProject(View):
         except Exception as e:
             return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
+
 
 class StudentCreatesGroup(View):
     def post(self, request):
@@ -1138,6 +1140,7 @@ class StudentGetsAllTags(View):
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
 
+
 class StudentGetValidGroupInProject(View):
     def post(self, request):
         try:
@@ -1164,11 +1167,13 @@ class StudentGetValidGroupInProject(View):
                     group[i.id]["captain_name"] = j.username
                 userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
                 if userGroup.count() == 1:
-                    return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
+                    return JsonResponse(
+                        {"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
                 if i.member == group["group_size"]:
                     group.pop(i.id)
             if len(group) == 0:
-                return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
+                return JsonResponse(
+                    {"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
 
             return JsonResponse({"Data": group, "StudentGetValidGroupInProjectCheck": "success"})
         except Exception as e:
