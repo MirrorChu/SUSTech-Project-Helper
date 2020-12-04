@@ -31,7 +31,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     CaptainGiveCaptain, ChangePersonalData, StudentGetAllGroupsInProject, \
     ShowHeadImage, ChangeHeadImage, StudentGetAllStudentsInProject, MailUrl, \
     SendMailToInvite, StudentGetProject, StudentGetsGroupInformationInProject, \
-    StudentGetValidGroupInProject
+    StudentGetValidGroupInProject, ShowOtherPersonalData
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -67,6 +67,7 @@ urlpatterns = [
     path('student_get_project/', StudentGetProject.as_view()),
     path('student_gets_group_information_in_project/', StudentGetsGroupInformationInProject.as_view()),
     path('student_get_valid_group_in_project/', StudentGetValidGroupInProject.as_view()),
+    path('show_other_personal_data/', ShowOtherPersonalData.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
 
