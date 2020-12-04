@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 import time
+import datetime
 import json
 import sys
 import os
@@ -19,7 +20,7 @@ from django.conf import settings
 
 from items.groups.models import GroupOrg
 from items.users.models import UserProfile
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority
 from items.courses.models import Course
 from items.projects.models import Project
 
@@ -51,8 +52,8 @@ class Login(View):
                         return JsonResponse({"LoginCheck": "student"})
         except Exception as e:
             return JsonResponse({"LoginCheck": "failed"})
-        
-        
+
+
 class ShowOtherPersonalData(View):
     # 当用户按下登录按键时
     def post(self, request):
@@ -103,7 +104,7 @@ class ShowOtherPersonalData(View):
         except Exception as e:
             print('exception')
             return JsonResponse({"ShowOtherPersonalDataCheck": "failed"})
-        
+
 
 class ChangePassword(View):
     # 当用户按下登录按键时
@@ -425,7 +426,6 @@ class StudentGetsSingleProjectInformation(View):
         # 返回{项目名, 项目简介, 课程名}
 
 
-
 class StudentGetsAllGroups(View):
     def post(self, request):
         try:
@@ -522,6 +522,7 @@ class StudentGetsSingleGroupInformation(View):
             return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
 
+
 class StudentGetsGroupInformationInProject(View):
     def post(self, request):
         try:
@@ -539,18 +540,17 @@ class StudentGetsGroupInformationInProject(View):
 
             group_id = 0
 
-            group = UserGroup.objects.filter(user_name_id = student_id)
+            group = UserGroup.objects.filter(user_name_id=student_id)
 
             if group.count() == 0:
                 print('count', group)
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             for i in group:
-                project = GroupOrg.objects.filter(id= i.group_name_id)
+                project = GroupOrg.objects.filter(id=i.group_name_id)
                 for j in project:
                     if j.project_id == int(project_id):
                         group_id = j.id
             if group_id == 0:
-
                 return JsonResponse({"StudentGetsGroupInformationInProject": "no group"})
             query_set = GroupOrg.objects.filter(id=group_id)
             group_name = ""
@@ -600,6 +600,7 @@ class StudentGetsGroupInformationInProject(View):
         except Exception as e:
             return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
+
 
 class StudentCreatesGroup(View):
     def post(self, request):
@@ -1184,10 +1185,11 @@ class StudentGetsAllTags(View):
                             tags.append({"tag_id": i.tag_id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count()})
 
 
-            return JsonResponse({"Data": tags,"StudentGetsAllTags": "success"})
+            return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
 
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
+
 
 class StudentGetValidGroupInProject(View):
     def post(self, request):
@@ -1319,6 +1321,33 @@ class StudentGetProject(View):
             return JsonResponse({"StudentGetProjectCheck": "failed"})
 
 
+class TeacherGetCourses(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
+            user_id = 0
+            if user.count() == 0:
+                return JsonResponse({"TeacherGetCourses": "fail"})
+            for i in user:
+                user_id = i.id
+            courses = {}
+            course = Authority.objects.filter(user_id=user_id, type="teach")
+            if course.count() == 0:
+                return JsonResponse({"Data": None, "TeacherGetCoursesCheck": "no course"})
+            for i in course:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    name = Course.objects.filter(id=i.course_id)
+                    for j in name:
+                        courses[j.id] = j.name
+            return JsonResponse({"Data": courses, "TeacherGetCoursesCheck": "success"})
+        except Exception as e:
+            print(e)
+            return JsonResponse({"TeacherGetCoursesCheck": "failed"})
+#curl -H "Content-Type:application/json" -X POST --data "{'sid': '3012345', 'pswd': '3012345'}" http://localhost:8000/teacher_get_courses/
+
 class SendMailToInvite(View):
     def post(self, request):
         try:
@@ -1367,7 +1396,6 @@ class MailUrl(View):
         msg.attach_alternative(html_content, "text/html")
         msg.send()  # http://127.0.0.1:8000/mailurl/?r=目标邮箱 测试用例
         return HttpResponse("success")
-
 
 # class Test(View):
 #     def post(self, request):
