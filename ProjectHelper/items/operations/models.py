@@ -1,5 +1,6 @@
-from django.db import models
+from datetime import datetime
 
+from django.db import models
 from django.contrib.auth import get_user_model
 
 from items.users.models import BaseModel
@@ -81,7 +82,7 @@ class UserTag(BaseModel):
 
 class UserLikeTag(BaseModel):
     user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户名称")
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, verbose_name="标签")
+    tag = models.ForeignKey(UserTag, on_delete=models.CASCADE, verbose_name="标签")
 
     class Meta:
         verbose_name = "用户点赞的标签"
@@ -96,6 +97,7 @@ class ProjectComment(BaseModel):
     user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="评论用户的名称")
     project_name = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="被评论项目的名称")
     comments = models.CharField(max_length=200, verbose_name="评论内容")
+    floor = models.IntegerField(verbose_name="楼数", default=0)
 
     class Meta:
         verbose_name = "项目评论"
@@ -105,9 +107,30 @@ class ProjectComment(BaseModel):
         return self.project_name
 
 
+class Event(BaseModel):
+    publish_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
+    type = models.CharField(max_length=200, verbose_name="类型", default="")
+    parameter = models.CharField(max_length=200, verbose_name="参数", default="")
+    end_time = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
+    start_time = models.DateTimeField(default=datetime.now, verbose_name="开始日期")
+    detail = models.TextField(max_length=65535, verbose_name="简介", default="")
+    title = models.CharField(max_length=200, verbose_name="标题", default="")
+
+    class Meta:
+        verbose_name = "组件"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.project_id
+
+
 # 记录每个项目有什么附件
 class ProjectAttachment(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="队伍")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
     file_path = models.CharField(max_length=200, verbose_name="文件路径", default="")
 
     class Meta:
@@ -116,6 +139,88 @@ class ProjectAttachment(BaseModel):
 
     def __str__(self):
         return self.project
+
+
+class EventGrades(BaseModel):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    grade = models.IntegerField(verbose_name="成绩", default=0)
+    comment = models.TextField(verbose_name="评论", default="", max_length=65535)
+
+    class Meta:
+        verbose_name = "项目成绩"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.project
+
+
+class ProjectGrades(BaseModel):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    grade = models.IntegerField(verbose_name="成绩", default=0)
+    comment = models.TextField(verbose_name="评论", default="", max_length=65535)
+
+    class Meta:
+        verbose_name = "项目成绩"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.project
+
+
+# class ProjectDDL(BaseModel):
+#     project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
+#     ddl = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
+#     type = models.CharField(max_length=200, verbose_name="类型", default="")
+#
+#     class Meta:
+#         verbose_name = "项目截止日期"
+#         verbose_name_plural = verbose_name
+#
+#     def __str__(self):
+#         return self.project
+
+
+class ChooseEvent(BaseModel):
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
+    choice = models.CharField(max_length=200, verbose_name="选择", default="")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+
+    class Meta:
+        verbose_name = "选择组件"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.event_id
+
+
+class ParticipantEvent(BaseModel):
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
+    end_time = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
+    start_time = models.DateTimeField(default=datetime.now, verbose_name="开始日期")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+
+    class Meta:
+        verbose_name = "时间选择组件"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.event_id
+
+
+class Authority(BaseModel):
+    type = models.CharField(max_length=200, verbose_name="类型", default="")
+    end_time = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
+    start_time = models.DateTimeField(default=datetime.now, verbose_name="开始日期")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+
+    class Meta:
+        verbose_name = "权限"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.type
 
 
 class Annexation(BaseModel):
@@ -136,7 +241,6 @@ class Annexation(BaseModel):
 
     def __str__(self):
         return self.a
-
 
 # # 记录谁向另一个人发送了聊天消息
 # class UserMessage(BaseModel):

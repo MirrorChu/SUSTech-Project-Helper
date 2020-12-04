@@ -57,7 +57,7 @@ class ChangePassword(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
-            print(request.body)
+            # print(request.body)
 
             student_id = eval(request.body.decode()).get("sid")
             old_password = eval(request.body.decode()).get("old")
@@ -1318,19 +1318,19 @@ class MailUrl(View):
         return HttpResponse("success")
 
 
-class Test(View):
-    def post(self, request):
-        print(request.body)
-        student_id = "admin"
-        password = "123"
-        # get file
-        user = UserProfile.objects.filter(username=student_id, password=password)
-        if user.count() == 1:
-            return HttpResponse("yes")
-
-        return HttpResponse("no")
-
-    def get(self, request):
-        p1 = request.GET.get('p1')
-        p2 = request.GET.get('p2')
-        return HttpResponse("p1 = " + p1 + "; p2 = " + p2)
+# class Test(View):
+#     def post(self, request):
+#         print(request.body)
+#         student_id = "admin"
+#         password = "123"
+#         # get file
+#         user = UserProfile.objects.filter(username=student_id, password=password)
+#         if user.count() == 1:
+#             return HttpResponse("yes")
+#
+#         return HttpResponse("no")
+#
+#     def get(self, request):
+#         p1 = request.GET.get('p1')
+#         p2 = request.GET.get('p2')
+#         return HttpResponse("p1 = " + p1 + "; p2 = " + p2)
