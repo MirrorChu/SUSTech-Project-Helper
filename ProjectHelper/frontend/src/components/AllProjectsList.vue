@@ -2,9 +2,9 @@
   <div>
 
     <el-table v-show="this.displayControl.projectsList"
-      :data="projects.filter(data => !searchKey ||
+              :data="projects.filter(data => !searchKey ||
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
-      style="width: 100%" height="500">
+              style="width: 100%" height="500">
 
       <el-table-column fixed prop=1 label="Course" width="120"></el-table-column>
 
@@ -23,16 +23,22 @@
     <ProjectDetail v-if="this.displayControl.projectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
                    v-bind:groupInfo="this.groupInfo" v-bind:projectDetail="this.projectDetail"></ProjectDetail>
 
+    <CreateProject v-bind:pswd="this.pswd" v-bind:sid="this.sid" v-if="this.createProjectForm"></CreateProject>
+
     <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList">Projects List</el-button>
+    <el-button v-if="this.displayControl.createProjectButton" @click="onClickCreateProject">{{ createProjectLiteral }}
+    </el-button>
+
   </div>
 </template>
 
 <script>
 import ProjectDetail from './ProjectDetail'
+import CreateProject from './CreateProject'
 
 export default {
   name: 'AllProjectsList',
-  components: { ProjectDetail },
+  components: { CreateProject, ProjectDetail },
   props: {
     sid: {
       type: String,
@@ -41,7 +47,11 @@ export default {
     pswd: {
       type: String,
       required: true
-    }
+    },
+    identity: {
+      type: String,
+      required: true
+    },
   },
   data () {
     return {
@@ -51,8 +61,11 @@ export default {
       groupInfo: '',
       displayControl: {
         projectsList: true,
-        projectDetail: false
-      }
+        projectDetail: false,
+        createProjectButton: this.$props.identity,
+        createProjectForm: false
+      },
+      createProjectLiteral: 'Create New Project'
     }
   },
   created () {
@@ -65,6 +78,15 @@ export default {
     })
   },
   methods: {
+    onClickCreateProject () {
+      this.createProjectForm = this.createProjectButton
+      this.createProjectButton = !this.createProjectButton
+      if (this.createProjectButton) {
+        this.createProjectLiteral = 'Create New Project'
+      } else {
+        this.createProjectLiteral = '      Cancel      '
+      }
+    },
     onClickBackToList () {
       this.controlDisplay('projectsList')
     },

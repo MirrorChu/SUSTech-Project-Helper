@@ -25,6 +25,7 @@ export default {
       pswd: '',
       labelPosition: 'left',
       labelWidth: '100px',
+      identity: '',
     }
   },
   mounted () {
@@ -43,7 +44,8 @@ export default {
       this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res => {
         console.log(res)
         status = res.data['LoginCheck']
-        if (status === 'student' || status === 'teacher') {
+        this.identity = res.data['LoginCheck']
+        if (this.identity === 'student' || this.identity === 'teacher') {
           let token = 'Bearer ' + res.data.token
           // setCookie('sid', this.sid, 1000 * 60)
           console.log('token: ', token)
@@ -53,6 +55,7 @@ export default {
             params: {
               sid: this.sid,
               pswd: this.pswd,
+              identity: this.identity
             },
           })
         } else {
@@ -60,7 +63,6 @@ export default {
           this.pswd = ''
           alert('WRONG SID OR PASSWORD')
         }
-
       }).catch(err => {
         console.log('err', err)
         alert(err)

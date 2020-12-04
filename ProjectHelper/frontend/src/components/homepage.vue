@@ -42,7 +42,8 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <AllProjectsList v-show="mainContent.projects" v-bind:pswd="this.pswd" v-bind:sid="this.sid"></AllProjectsList>
+        <AllProjectsList v-show="mainContent.projects" v-bind:pswd="this.pswd" v-bind:sid="this.sid"
+                         v-bind:identity="this.identity"></AllProjectsList>
 
       </el-main>
 
@@ -66,6 +67,7 @@ export default {
       searchKey: '',
       sid: this.$route.params.sid,
       pswd: this.$route.params.pswd,
+      identity: this.$route.params.identity,
       name: '',
       asideWidth: '160px',
       showNav: false,
@@ -74,11 +76,11 @@ export default {
         projects: false,
         messages: false,
         settings: false,
-        showProjectDetail: false
+        showProjectDetail: false,
       },
       projectDetail: null,
       groupInfo: null,
-      courses: null
+      courses: null,
     }
   },
   created () {

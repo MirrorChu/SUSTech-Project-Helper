@@ -22,7 +22,9 @@
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/AllProjectsList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AllProjectsList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CreateProject.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CreateProject.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/login.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
