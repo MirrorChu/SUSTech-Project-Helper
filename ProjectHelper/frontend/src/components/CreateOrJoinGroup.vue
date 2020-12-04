@@ -8,10 +8,10 @@
       <el-form-item>
         <el-input v-model="createGroupName" placeholder="Group Name" clearable></el-input>
       </el-form-item>
-      <!--      <el-form-item label="Group Description">-->
-      <!--        <el-input type="textarea" :rows="2" placeholder="Group Description" v-model="this.createGroupDescription"-->
-      <!--                  clearable></el-input>-->
-      <!--      </el-form-item>-->
+      <el-form-item label="Introduction">
+        <el-input type="textarea" :rows="2" placeholder="Introduction" v-model="createIntroduction"
+                  clearable></el-input>
+      </el-form-item>
       <el-form-item>
         <el-button @click="onClickConfirmCreateGroup">Confirm Create Group</el-button>
       </el-form-item>
@@ -40,7 +40,7 @@ export default {
       showCreateGroupForm: false,
       showJoinGroupList: false,
       createGroupName: '',
-      createGroupDescription: '',
+      createIntroduction: '',
       joinGroupList: [],
     }
   },
@@ -50,14 +50,17 @@ export default {
       this.showJoinGroupList = false
       if (!this.showCreateGroupForm) {
         this.createGroupName = ''
-        this.createGroupDescription = ''
+        this.createIntroduction = ''
       }
     },
     onClickJoinGroup () {
       this.showJoinGroupList = !this.showJoinGroupList
       this.showCreateGroupForm = false
       if (!this.showJoinGroupList) {
-
+        this.createGroupName = ''
+        this.createIntroduction = ''
+      } else {
+        //  TODO: Implement this.
       }
     },
     onClickConfirmCreateGroup () {
@@ -69,10 +72,11 @@ export default {
           pswd: this.pswd,
           project_id: this.projectId,
           group_name: this.createGroupName,
+          introduction: this.createIntroduction
         }).then(res => {
-          alert(res)
+          console.log(res.data)
         }).catch(err => {
-          alert(err)
+          alert(err.data)
         })
       }
     },
