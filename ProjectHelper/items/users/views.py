@@ -201,6 +201,7 @@ class DownloadFile(View):
 
 class Test(View):
     def get(self, request):
+        print('get')
         print(request.body)
         student_id = "11811002"
         password = "123"
@@ -222,6 +223,7 @@ class Test(View):
             #                          "image": file
             #                          })
             print(request.POST)
+            # print(request.POST)
             arr = request.FILES.keys()
             print(arr)
             file_name = ''
@@ -231,6 +233,7 @@ class Test(View):
             sid = ''
             pswd = ''
             for k in request.POST:
+                print('k = ', k)
                 if str(k) == 'sid':
                     sid = str(request.POST[k])
                 else:
@@ -1323,19 +1326,21 @@ class MailUrl(View):
         return HttpResponse("success")
 
 
-class Test(View):
-    def post(self, request):
-        print(request.body)
-        student_id = "admin"
-        password = "123"
-        # get file
-        user = UserProfile.objects.filter(username=student_id, password=password)
-        if user.count() == 1:
-            return HttpResponse("yes")
-
-        return HttpResponse("no")
-
-    def get(self, request):
-        p1 = request.GET.get('p1')
-        p2 = request.GET.get('p2')
-        return HttpResponse("p1 = " + p1 + "; p2 = " + p2)
+# class Test(View):
+#     def post(self, request):
+#         print(request)
+#         print(request.POST)
+#         # print(request.body)
+#         student_id = "admin"
+#         password = "123"
+#         # get file
+#         user = UserProfile.objects.filter(username=student_id, password=password)
+#         if user.count() == 1:
+#             return HttpResponse("yes")
+#
+#         return HttpResponse("no")
+#
+#     def get(self, request):
+#         p1 = request.GET.get('p1')
+#         p2 = request.GET.get('p2')
+#         return HttpResponse("p1 = " + p1 + "; p2 = " + p2)

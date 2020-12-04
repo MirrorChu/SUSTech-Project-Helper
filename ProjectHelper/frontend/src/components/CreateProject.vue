@@ -1,4 +1,5 @@
 <!--TODO: Change API of file upload. Add data.-->
+<!--TODO: Here, file upload is necessary. Otherwise, nothing would be uploaded.-->
 <template>
   <div>
     <el-form>
@@ -20,12 +21,19 @@
       <el-form-item label="Grouping Maximum Number">
         <el-input-number :min="1" label="Max" v-model="maxNum"></el-input-number>
       </el-form-item>
+      <el-form-item label="Grouping Start">
+        <el-date-picker
+          v-model="groupingStart"
+          type="datetime"
+          placeholder="Choose Date and Time"
+          :picker-options="pickerOptions">
+        </el-date-picker>
+      </el-form-item>
       <el-form-item label="Grouping Deadline">
         <el-date-picker
           v-model="groupingDeadline"
           type="datetime"
-          placeholder="选择日期时间"
-          align="right"
+          placeholder="Choose Date and Time"
           :picker-options="pickerOptions">
         </el-date-picker>
       </el-form-item>
@@ -34,7 +42,7 @@
           class="upload-demo"
           ref="upload"
           :data="this.dataBlock"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="/api/test/"
           multiple :file-list="fileList" :auto-upload="false"
           :on-change="handleFileChange" :on-remove="handleFileRemove">
           <el-button slot="trigger" size="small" type="primary">Select File</el-button>
@@ -69,6 +77,7 @@ export default {
       newProjectDescription: '',
       minNum: 1,
       maxNum: 2,
+      groupingStart: '',
       groupingDeadline: '',
       pickerOptions: {
         shortcuts: [
@@ -106,10 +115,12 @@ export default {
         'newProjectDescription': this.newProjectDescription,
         'groupingMaximum': this.maxNum,
         'groupingMinimum': this.minNum,
+        'groupingStart': this.groupingStart.getTime(),
         'groupingDeadline': this.groupingDeadline.getTime(),
       }
       console.log('dataBlock', this.dataBlock)
-      this.submitUpload()
+      this.$refs.upload.submit()
+      // this.submitUpload()
     },
     submitUpload () {
       this.$refs.upload.submit()
