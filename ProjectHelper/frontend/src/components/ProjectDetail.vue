@@ -1,51 +1,71 @@
 <template>
   <div>
     <div v-if="this.displayControl.projectDetail">
-      Course Name: {{ this.$props.projectDetail.course_name }}
-      <br>
-      Project Name: {{ this.$props.projectDetail['project_name'] }}
-      <br>
-      <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
-                 v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
-                 v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
-      <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
-      <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
-                         v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
-                         v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
+      <div>
+        Course Name: {{ this.$props.projectDetail.course_name }}
+      </div>
+      <div>
+        Project Name: {{ this.$props.projectDetail['project_name'] }}
+      </div>
+      <div>
+        <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
+                   v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
+                   v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
+        <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
+        <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
+                           v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
+                           v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
 
-      <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-        <el-form-item label="The profile you want to view">
-          <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
-        </el-form-item>
-      </el-form>
-<!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
+        <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+          <el-form-item label="The profile you want to view">
+            <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
     </div>
 
     <div>
       <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
                        v-bind:personalprofile="this.personalprofile" v-bind:tags="this.tags">
       </PersonalProfile>
-      <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects Detail</el-button>
+      <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects
+        Detail
+      </el-button>
     </div>
+
+    <div>
+      <EventList v-bind:sid="this.$props.sid"
+                 v-bind:pswd="this.$props.pswd"
+                 v-bind:identity="this.$props.identity"
+                 v-bind:projectId="this.groupInfo.project_id">
+      </EventList>
+    </div>
+
   </div>
 </template>
 
 <script>
 import GroupInfo from './GroupInfo'
 import CreateOrJoinGroup from './CreateOrJoinGroup'
-import PersonalProfile from "./PersonalProfile";
+import PersonalProfile from './PersonalProfile'
+import EventList from './EventList'
 
 export default {
-  components: { CreateOrJoinGroup, GroupInfo, PersonalProfile },
+  components: { EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile },
   props: {
     sid: {
       type: String,
       required: true,
     },
     pswd: {
+      type: String,
+      required: true,
+    },
+    identity: {
       type: String,
       required: true,
     },
@@ -84,7 +104,8 @@ export default {
       },
       target_user: {
         sid: '',
-      }
+      },
+      eventList: [],
     }
   },
   methods: {
@@ -119,20 +140,17 @@ export default {
         console.log('PersonalProfile', res.data)
         console.log(res.data.ShowOtherPersonalDataCheck)
         console.log(res.data['ShowOtherPersonalDataCheck'])
-        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!')
-        {
+        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!') {
           this.personalprofile = res.data
           this.controlDisplay('PersonalProfile')
-        }
-        else
-        {
+        } else {
           alert('No such user!')
         }
       }).catch(err => {
         this.tags = null
         console.log(err)
       })
-    }
+    },
   },
   name: 'ProjectDetail',
 }
