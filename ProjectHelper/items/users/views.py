@@ -1179,16 +1179,47 @@ class StudentGetsAllTags(View):
             else:
                 for i in query_set:
                     query_set2 = Tag.objects.filter(id=i.tag_id)
-                    query_set3 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=i.id)
+                    query_set3 = UserLikeTag.objects.filter(tag_id=i.id)
+                    query_set4 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=i.id)
                     if i.visibility == 1:
                         for j in query_set2:
-                            tags.append({"tag_id": i.tag_id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count()})
-
+                            tags.append(
+                                {"tag_id": i.tag_id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count(),
+                                 "like": query_set4.count()})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
 
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
+
+
+class StudentLikeTag(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            t_id = eval(request.body.decode()).get("tag_target")
+
+            user_id = 0
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"StudentLikeTag": "failed"})
+            else:
+                for i in query_set:
+                    user_id = i.id
+            query_set3 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=t_id)
+            if query_set3.count() == 1:
+                query_set3.delete()
+                return JsonResponse({"StudentLikeTag": "no like"})
+            else:
+                UserLikeTag.objects.create(user_name_id=user_id, tag_id=t_id)
+                return JsonResponse({"StudentLikeTag": "like"})
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({"StudentLikeTagCheck": "failed"})
 
 
 class StudentGetValidGroupInProject(View):
@@ -1348,7 +1379,7 @@ class TeacherGetCourses(View):
         except Exception as e:
             print(e)
             return JsonResponse({"TeacherGetCoursesCheck": "failed"})
-#curl -H "Content-Type:application/json" -X POST --data "{'sid': '3012345', 'pswd': '3012345'}" http://localhost:8000/teacher_get_courses/
+
 
 class SendMailToInvite(View):
     def post(self, request):
@@ -1417,3 +1448,4 @@ class MailUrl(View):
 #         p1 = request.GET.get('p1')
 #         p2 = request.GET.get('p2')
 #         return HttpResponse("p1 = " + p1 + "; p2 = " + p2)
+# curl -H "Content-Type:application/json" -X POST --data "{'sid': '3012345', 'pswd': '3012345'}" http://localhost:8000/teacher_get_courses/
