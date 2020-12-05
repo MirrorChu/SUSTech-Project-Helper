@@ -3,6 +3,7 @@
     <div>
       <div><h1>{{ this.$props.data.title }}</h1></div>
       <div>{{ this.$props.data.introduction }}</div>
+      <div>Due: {{ new Date(this.$props.data.due) }}</div>
       <div>
         <el-select v-model="selected" :multiple="this.$props.data.selectionLimit > 1" placeholder="Please select.">
           <el-option v-for="item in this.$props.data.options" :key="item.value"

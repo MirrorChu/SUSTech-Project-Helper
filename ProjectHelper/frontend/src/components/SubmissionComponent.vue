@@ -6,6 +6,7 @@
     <div>
       {{ this.$props.data.introduction }}
     </div>
+    <div>Due: {{ new Date(this.$props.data.due) }}</div>
     <div v-if="this.$props.data.submissionType === 'text'">
       <el-input v-model="this.submissionText" clearable type="textarea" placeholder="Input your submission."></el-input>
     </div>

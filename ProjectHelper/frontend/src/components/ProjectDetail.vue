@@ -1,26 +1,30 @@
 <template>
   <div>
     <div v-if="this.displayControl.projectDetail">
-      Course Name: {{ this.$props.projectDetail.course_name }}
-      <br>
-      Project Name: {{ this.$props.projectDetail['project_name'] }}
-      <br>
-      <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
-                 v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
-                 v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
-      <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
-      <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
-                         v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
-                         v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
+      <div>
+        Course Name: {{ this.$props.projectDetail.course_name }}
+      </div>
+      <div>
+        Project Name: {{ this.$props.projectDetail['project_name'] }}
+      </div>
+      <div>
+        <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
+                   v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
+                   v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
+        <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
+        <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
+                           v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
+                           v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
 
-      <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-        <el-form-item label="The profile you want to view">
-          <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
-        </el-form-item>
-      </el-form>
+        <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+          <el-form-item label="The profile you want to view">
+            <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
       <!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
     </div>
 
@@ -33,9 +37,14 @@
       </el-button>
     </div>
 
-    <EventList v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd" v-bind:identity="this.$props.identity">
+    <div>
+      <EventList v-bind:sid="this.$props.sid"
+                 v-bind:pswd="this.$props.pswd"
+                 v-bind:identity="this.$props.identity"
+                 v-bind:projectId="this.groupInfo.project_id">
+      </EventList>
+    </div>
 
-    </EventList>
   </div>
 </template>
 

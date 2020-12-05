@@ -1,9 +1,12 @@
 <template>
   <div>
-    <h1>
+    <div>
       {{ this.$props.data.title }}
-    </h1>
-    {{ this.$props.data.content }}
+    </div>
+    <div>
+      {{ this.$props.data.introduction }}
+    </div>
+    <div>Due: {{ new Date(this.$props.data.due) }}</div>
   </div>
 </template>
 
