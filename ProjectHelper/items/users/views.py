@@ -89,6 +89,7 @@ class ShowOtherPersonalData(View):
                 x = UserProfile.objects.get(username=t_id)
 
                 return JsonResponse({"ShowOtherPersonalDataCheck": "ShowPersonalData success!",
+                                     "sid": t_id,
                                      "realname": x.real_name,
                                      "student_id": x.student_id,
                                      "gender": x.gender,
@@ -1161,7 +1162,7 @@ class StudentGetsAllTags(View):
             user_id = 0
             tag_id = 0
             visibility = 1
-            tags = {}
+            tags = []
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             query_set = UserProfile.objects.filter(username=student_id, password=password)
@@ -1181,7 +1182,8 @@ class StudentGetsAllTags(View):
                     query_set3 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=i.id)
                     if i.visibility == 1:
                         for j in query_set2:
-                            tags[i.tag_id] = {"tag_name": j.tag, "type": j.type, "likes": query_set3.count()}
+                            tags.append({"tag_id": i.tag_id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count()})
+
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
 
