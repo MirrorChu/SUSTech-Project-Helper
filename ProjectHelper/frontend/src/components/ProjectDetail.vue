@@ -33,7 +33,7 @@
       </el-button>
     </div>
 
-    <EventList>
+    <EventList v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd" v-bind:identity="this.$props.identity">
 
     </EventList>
   </div>
@@ -53,6 +53,10 @@ export default {
       required: true,
     },
     pswd: {
+      type: String,
+      required: true,
+    },
+    identity: {
       type: String,
       required: true,
     },

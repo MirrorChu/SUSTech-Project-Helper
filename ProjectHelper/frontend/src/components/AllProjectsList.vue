@@ -20,10 +20,17 @@
       </el-table-column>
     </el-table>
 
-    <ProjectDetail v-if="this.displayControl.projectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
-                   v-bind:groupInfo="this.groupInfo" v-bind:projectDetail="this.projectDetail"></ProjectDetail>
+    <ProjectDetail v-if="this.displayControl.projectDetail"
+                   v-bind:sid="this.sid"
+                   v-bind:pswd="this.pswd"
+                   v-bind:groupInfo="this.groupInfo"
+                   v-bind:projectDetail="this.projectDetail"
+                   v-bind:identity="this.$props.identity"></ProjectDetail>
 
-    <CreateProject v-bind:pswd="this.pswd" v-bind:sid="this.sid" v-if="this.createProjectForm"></CreateProject>
+    <CreateProject
+      v-bind:pswd="this.pswd"
+      v-bind:sid="this.sid"
+      v-if="this.createProjectForm"></CreateProject>
 
     <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList">Projects List</el-button>
     <el-button v-if="this.displayControl.createProjectButton" @click="onClickCreateProject">{{ createProjectLiteral }}
@@ -42,15 +49,15 @@ export default {
   props: {
     sid: {
       type: String,
-      required: true
+      required: true,
     },
     pswd: {
       type: String,
-      required: true
+      required: true,
     },
     identity: {
       type: String,
-      required: true
+      required: true,
     },
   },
   data () {
@@ -63,9 +70,9 @@ export default {
         projectsList: true,
         projectDetail: false,
         createProjectButton: this.$props.identity === 'teacher',
-        createProjectForm: false
+        createProjectForm: false,
       },
-      createProjectLiteral: 'Create New Project'
+      createProjectLiteral: 'Create New Project',
     }
   },
   created () {
@@ -79,7 +86,7 @@ export default {
   },
   methods: {
     onClickCreateProject () {
-      this.createProjectForm = !this.createProjectForm;
+      this.createProjectForm = !this.createProjectForm
       if (!this.createProjectForm) {
         this.createProjectLiteral = 'Create New Project'
       } else {
@@ -102,7 +109,7 @@ export default {
       this.$axios.post('/student_gets_single_project_information/', {
         sid: this.sid,
         pswd: this.pswd,
-        project_id: localProject[0]
+        project_id: localProject[0],
       }).then(res => {
         console.log('projectDetail', res.data)
         this.projectDetail = res.data
@@ -112,7 +119,7 @@ export default {
       this.$axios.post('/student_gets_group_information_in_project/', {
         sid: this.sid,
         pswd: this.pswd,
-        project_id: localProject[0]
+        project_id: localProject[0],
       }).then(res => {
         console.log('groupInfo', res.data)
         this.groupInfo = res.data

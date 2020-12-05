@@ -20,12 +20,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/components/AnnouncementComponent.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/SelectionComponent.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/AllProjectsList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AllProjectsList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SelectionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SelectionComponent.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +111,7 @@
       <workItem from="1607005571572" duration="238000" />
       <workItem from="1607061315267" duration="1751000" />
       <workItem from="1607065044830" duration="1382000" />
-      <workItem from="1607153640191" duration="5718000" />
+      <workItem from="1607153640191" duration="7809000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
