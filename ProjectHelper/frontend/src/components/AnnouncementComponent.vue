@@ -1,7 +1,9 @@
 <template>
   <div>
     <div>
-      {{ this.$props.data.title }}
+      <h3>
+        {{ this.$props.data.title }}
+      </h3>
     </div>
     <div>
       {{ this.$props.data.introduction }}

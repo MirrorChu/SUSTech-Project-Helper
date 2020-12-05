@@ -17,6 +17,9 @@
         <el-form-item v-else-if="eventType === 1">
           <NewSelection></NewSelection>
         </el-form-item>
+        <el-form-item v-else-if="eventType === 2">
+          <NewSubmission></NewSubmission>
+        </el-form-item>
       </el-form>
     </div>
   </div>
@@ -25,9 +28,10 @@
 <script>
 import NewAnnouncement from './NewAnnouncement'
 import NewSelection from './NewSelection'
+import NewSubmission from './NewSubmission'
 export default {
   name: 'NewEvent',
-  components: { NewSelection, NewAnnouncement },
+  components: { NewSubmission, NewSelection, NewAnnouncement },
   props: {
     sid: {
       type: String,

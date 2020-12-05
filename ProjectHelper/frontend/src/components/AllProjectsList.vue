@@ -1,6 +1,8 @@
 <template>
   <div>
 
+    <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList">Projects List</el-button>
+
     <el-table v-show="this.displayControl.projectsList"
               :data="projects.filter(data => !searchKey ||
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
@@ -32,7 +34,6 @@
       v-bind:sid="this.sid"
       v-if="this.createProjectForm"></CreateProject>
 
-    <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList">Projects List</el-button>
     <el-button v-if="this.displayControl.createProjectButton" @click="onClickCreateProject">{{ createProjectLiteral }}
     </el-button>
 
