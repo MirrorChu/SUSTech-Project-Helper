@@ -21,25 +21,32 @@
           <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
         </el-form-item>
       </el-form>
-<!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
+      <!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
     </div>
 
     <div>
       <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
                        v-bind:personalprofile="this.personalprofile" v-bind:tags="this.tags">
       </PersonalProfile>
-      <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects Detail</el-button>
+      <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects
+        Detail
+      </el-button>
     </div>
+
+    <EventList>
+
+    </EventList>
   </div>
 </template>
 
 <script>
 import GroupInfo from './GroupInfo'
 import CreateOrJoinGroup from './CreateOrJoinGroup'
-import PersonalProfile from "./PersonalProfile";
+import PersonalProfile from './PersonalProfile'
+import EventList from './EventList'
 
 export default {
-  components: { CreateOrJoinGroup, GroupInfo, PersonalProfile },
+  components: { EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile },
   props: {
     sid: {
       type: String,
@@ -84,7 +91,8 @@ export default {
       },
       target_user: {
         sid: '',
-      }
+      },
+      eventList: [],
     }
   },
   methods: {
@@ -119,20 +127,17 @@ export default {
         console.log('PersonalProfile', res.data)
         console.log(res.data.ShowOtherPersonalDataCheck)
         console.log(res.data['ShowOtherPersonalDataCheck'])
-        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!')
-        {
+        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!') {
           this.personalprofile = res.data
           this.controlDisplay('PersonalProfile')
-        }
-        else
-        {
+        } else {
           alert('No such user!')
         }
       }).catch(err => {
         this.tags = null
         console.log(err)
       })
-    }
+    },
   },
   name: 'ProjectDetail',
 }
