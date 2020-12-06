@@ -1184,7 +1184,7 @@ class StudentGetsAllTags(View):
                     if i.visibility == 1:
                         for j in query_set2:
                             tags.append(
-                                {"tag_id": i.tag_id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count(),
+                                {"tag_id": i.id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count(),
                                  "like": query_set4.count()})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
@@ -1196,6 +1196,7 @@ class StudentGetsAllTags(View):
 class StudentLikeTag(View):
     def post(self, request):
         try:
+            print(datetime.datetime.now())
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
             t_id = eval(request.body.decode()).get("tag_target")
@@ -1212,9 +1213,11 @@ class StudentLikeTag(View):
             query_set3 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=t_id)
             if query_set3.count() == 1:
                 query_set3.delete()
+                print(datetime.datetime.now())
                 return JsonResponse({"StudentLikeTag": "no like"})
             else:
                 UserLikeTag.objects.create(user_name_id=user_id, tag_id=t_id)
+                print(datetime.datetime.now())
                 return JsonResponse({"StudentLikeTag": "like"})
 
         except Exception as e:
@@ -1379,6 +1382,38 @@ class TeacherGetCourses(View):
         except Exception as e:
             print(e)
             return JsonResponse({"TeacherGetCoursesCheck": "failed"})
+
+
+class TeacherGetStudentsInCourse(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            course_id = eval(request.body.decode()).get("course")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
+            user_id = 0
+            if user.count() == 0:
+                return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
+            for i in user:
+                user_id = i.id
+            students = {}
+            course = Authority.objects.filter(user_id=user_id, type="teach",course_id= course_id)
+            if course.count() == 0:
+                return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
+            for i in course:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    student = UserCourse.objects.filter(course_name_id=course_id)
+                    for j in student:
+                        user = UserProfile.objects.filter(id=j.user_name_id)
+                        for k in user:
+                            students[k.student_id] = k.username
+                    return JsonResponse({"Data": students, "TeacherGetStudentsInCourse": "success"})
+                else:
+                    return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
+        except Exception as e:
+            print(e)
+            return JsonResponse({"TeacherGetStudentsInCourseCheck": "failed"})
 
 
 class SendMailToInvite(View):
