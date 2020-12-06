@@ -146,3 +146,16 @@ EMAIL_PORT = 465  # 具体端口见上一步，注意是否将EMAIL_USE_SSL设�
 EMAIL_HOST_USER = '11812710@mail.sustech.edu.cn'  # 你的发件用户
 EMAIL_HOST_PASSWORD = 'hV5D8488hPdhTrwE'  # 你获取到的授权码
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # 默认发件用户
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://47.103.209.183:6379",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # "PASSWORD": "www.baidu.com", ##redis配置的密码，如果没有，则删除该行
+            # "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+            # "IGNORE_EXCEPTIONS": True,
+        }
+    }
+}

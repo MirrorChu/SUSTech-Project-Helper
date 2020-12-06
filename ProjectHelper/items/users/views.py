@@ -24,6 +24,10 @@ from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLik
 from items.courses.models import Course
 from items.projects.models import Project
 
+from django_redis import get_redis_connection
+
+r = get_redis_connection()
+
 
 class Login(View):
     @method_decorator(ensure_csrf_cookie)
@@ -37,6 +41,12 @@ class Login(View):
 
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
+            if r.get(student_id) is None:
+                print('is none')
+                r.set(student_id, password, 60)
+            else:
+                print('not none')
+                print(r.get(student_id))
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             user = UserProfile.objects.filter(username=student_id, password=password)
@@ -51,6 +61,7 @@ class Login(View):
                     else:
                         return JsonResponse({"LoginCheck": "student"})
         except Exception as e:
+            print('exception', e)
             return JsonResponse({"LoginCheck": "failed"})
 
 
@@ -1184,7 +1195,8 @@ class StudentGetsAllTags(View):
                     if i.visibility == 1:
                         for j in query_set2:
                             tags.append(
-                                {"tag_id": i.id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count(),
+                                {"tag_id": i.id, "tag_name": j.tag, "type": j.type,
+                                 "likes": query_set3.count(),
                                  "like": query_set4.count()})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
@@ -1251,11 +1263,13 @@ class StudentGetValidGroupInProject(View):
                     group[i.id]["captain_name"] = j.username
                 userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
                 if userGroup.count() == 1:
-                    return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
+                    return JsonResponse(
+                        {"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
                 if i.member == group["group_size"]:
                     group.pop(i.id)
             if len(group) == 0:
-                return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
+                return JsonResponse(
+                    {"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
 
             return JsonResponse({"Data": group, "StudentGetValidGroupInProjectCheck": "success"})
         except Exception as e:
@@ -1398,7 +1412,7 @@ class TeacherGetStudentsInCourse(View):
             for i in user:
                 user_id = i.id
             students = {}
-            course = Authority.objects.filter(user_id=user_id, type="teach",course_id= course_id)
+            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
             if course.count() == 0:
                 return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
             for i in course:
