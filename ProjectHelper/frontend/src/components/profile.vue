@@ -4,93 +4,95 @@
     <!--    <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>-->
     <!--    <el-button @click="testFileDownload">test file download</el-button>-->
     <!--    <el-avatar :size="60" :src="this.avatar"></el-avatar>-->
+    <el-col :span="16">
 
-    <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
-    <el-upload v-if="this.edit"
-               class="avatar-uploader"
-               action="/api/change_head_image/"
-               :data="{sid: this.sid, pswd: this.pswd}"
-               :auto-upload="true"
-               :show-file-list="false"
-               :on-success="handleAvatarSuccess"
-               :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar">
-      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-    </el-upload>
+      <el-upload v-if="this.edit"
+                 class="avatar-uploader"
+                 action="/api/change_head_image/"
+                 :data="{sid: this.sid, pswd: this.pswd}"
+                 :auto-upload="true"
+                 :show-file-list="false"
+                 :on-success="handleAvatarSuccess"
+                 :before-upload="beforeAvatarUpload">
+        <img v-if="imageUrl" :src="imageUrl" class="avatar">
+        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+      </el-upload>
 
-    <el-form ref="form" label-position="left" label-width="80px">
+      <el-form ref="form" label-position="left" label-width="80px">
 
-      <el-form-item label="SID">
-        <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
-        </el-input>
+        <el-form-item label="SID">
+          <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
+          </el-input>
 
-        <el-row>
-          {{ this.sid }}
-        </el-row>
+          <el-row>
+            {{ this.sid }}
+          </el-row>
 
-      </el-form-item>
+        </el-form-item>
 
-      <el-form-item label="NAME">
-        <el-input v-model="this.name" v-if="false" :placeholder="this.name" clearable>
-        </el-input>
-        <el-row>
-          {{ this.name }}
-        </el-row>
-      </el-form-item>
+        <el-form-item label="NAME">
+          <el-input v-model="this.name" v-if="false" :placeholder="this.name" clearable>
+          </el-input>
+          <el-row>
+            {{ this.name }}
+          </el-row>
+        </el-form-item>
 
-      <el-form-item label="GENDER">
-        <el-input v-model="this.name" v-if="false" :placeholder="this.name" clearable>
-        </el-input>
-        <el-row>
-          {{ this.gender }}
-        </el-row>
-      </el-form-item>
+        <el-form-item label="GENDER">
+          <el-input v-model="this.name" v-if="false" :placeholder="this.name" clearable>
+          </el-input>
+          <el-row>
+            {{ this.gender }}
+          </el-row>
+        </el-form-item>
 
-      <el-form-item label="EMAIL">
-        <el-input v-model="email" v-if="this.edit" :placeholder="this.email" clearable>
-        </el-input>
+        <el-form-item label="EMAIL">
+          <el-input v-model="email" v-if="this.edit" :placeholder="this.email" clearable>
+          </el-input>
 
-        <el-row v-if="!this.edit">
-          {{ this.email }}
-        </el-row>
-      </el-form-item>
-
-
-      <el-form-item label="MOBILE">
-        <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
-        </el-input>
-
-        <el-row v-if="!this.edit">
-          {{ this.mobile }}
-        </el-row>
-      </el-form-item>
-
-      <el-form-item label="ADDR">
-        <el-input v-model="address" v-if="this.edit" :placeholder="address" clearable>
-        </el-input>
-
-        <el-row v-if="!this.edit">
-          {{ this.address }}
-        </el-row>
-      </el-form-item>
-
-      <el-button v-if="!this.edit" @click="onEditClicked()">EDIT</el-button>
-      <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
-
-    </el-form>
+          <el-row v-if="!this.edit">
+            {{ this.email }}
+          </el-row>
+        </el-form-item>
 
 
-    <!--    TODO: File upload. -->
-    <!--    <el-upload-->
-    <!--        class="upload-demo"-->
-    <!--        drag-->
-    <!--        action="/api/personaldata/"-->
-    <!--        :name="this.sid"-->
-    <!--        :multiple="true">-->
-    <!--      <i class="el-icon-upload"></i>-->
-    <!--    </el-upload>-->
+        <el-form-item label="MOBILE">
+          <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
+          </el-input>
+
+          <el-row v-if="!this.edit">
+            {{ this.mobile }}
+          </el-row>
+        </el-form-item>
+
+        <el-form-item label="ADDR">
+          <el-input v-model="address" v-if="this.edit" :placeholder="address" clearable>
+          </el-input>
+
+          <el-row v-if="!this.edit">
+            {{ this.address }}
+          </el-row>
+        </el-form-item>
+
+        <el-button v-if="!this.edit" @click="onEditClicked()" style="background-color: #FF8800; border: #FF8800;color: black;">EDIT</el-button>
+        <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
+
+      </el-form>
 
 
+      <!--    TODO: File upload. -->
+      <!--    <el-upload-->
+      <!--        class="upload-demo"-->
+      <!--        drag-->
+      <!--        action="/api/personaldata/"-->
+      <!--        :name="this.sid"-->
+      <!--        :multiple="true">-->
+      <!--      <i class="el-icon-upload"></i>-->
+      <!--    </el-upload>-->
+    </el-col>
+    <el-col :span="8">
+      <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
+    </el-col>
   </div>
   <!--  <div>-->
   <!--  </div>-->
@@ -248,6 +250,16 @@ export default {
 </script>
 
 <style>
+.el-button{
+  background-color: #FF8800;
+  border: #FF8800;
+  color: black;
+}
+.el-button:hover{
+  background-color: #FF9900;
+  border: #FF9900;
+  color: black;
+}
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;

@@ -119,9 +119,6 @@ export default {
 </script>
 
 <style>
-.el-input__inner {
-  background-color: black;
-}
 .content{
   margin: 0 auto;
   background-color:#333333;

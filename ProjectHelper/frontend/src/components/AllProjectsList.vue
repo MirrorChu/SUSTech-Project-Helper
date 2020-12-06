@@ -6,9 +6,11 @@
     <el-table v-show="this.displayControl.projectsList"
               :data="projects.filter(data => !searchKey ||
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
-              style="width: 100%" height="500">
+               height="500"
+              :header-cell-style="{background:'#000000',color:'#FF8800'}"
+              style="background-color: black;border-color:black">
 
-      <el-table-column fixed prop=1 label="Course" width="120"></el-table-column>
+      <el-table-column fixed prop=1 label="Course" width="120" ></el-table-column>
 
       <el-table-column prop=2 label="Project" width="120"></el-table-column>
 

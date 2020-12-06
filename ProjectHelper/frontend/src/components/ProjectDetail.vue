@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="this.displayControl.projectDetail">
+    <div v-if="this.displayControl.projectDetail" style="background-color: black">
       <div>
         Course Name: {{ this.$props.projectDetail.course_name }}
       </div>
