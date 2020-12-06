@@ -1,25 +1,23 @@
 <template>
-  <div>
-
-    <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList">Projects List</el-button>
-
+  <div style="background-color: #F7F8F8">
+  <el-row>
+    <el-button v-if="!this.displayControl.projectsList" @click="onClickBackToList" style="margin-top: -20px">Back to projects List</el-button>
+  </el-row>
     <el-table v-show="this.displayControl.projectsList"
               :data="projects.filter(data => !searchKey ||
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
-               height="500"
-              :header-cell-style="{background:'#000000',color:'#FF8800'}"
-              style="background-color: black;border-color:black">
+               >
 
-      <el-table-column fixed prop=1 label="Course" width="120" ></el-table-column>
+      <el-table-column fixed prop=1 label="Course" width="350" ></el-table-column>
 
-      <el-table-column prop=2 label="Project" width="120"></el-table-column>
+      <el-table-column prop=2 label="Project" width="350"></el-table-column>
 
-      <el-table-column width="120" align="right">
+      <el-table-column width="350" align="right">
         <template slot="header" slot-scope="scope">
           <el-input size="mini" v-model="searchKey" placeholder="Search"/>
         </template>
         <template slot-scope="scope">
-          <el-button @click="onClickDetail(scope.$index)">Detail</el-button>
+          <el-button @click="onClickDetail(scope.$index)">More Detail</el-button>
         </template>
       </el-table-column>
     </el-table>

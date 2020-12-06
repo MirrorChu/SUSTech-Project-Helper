@@ -27,7 +27,7 @@ export default {
 <style scoped>
 .leftBand {
   height: 100vh;
-  background-color: black;
+  background-color: #F7F8F8;
   margin: 0;
   /*padding-left: 0%;*/
 }

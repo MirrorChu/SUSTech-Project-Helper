@@ -1,30 +1,32 @@
 <template>
-  <div>
-    <div v-if="this.displayControl.projectDetail" style="background-color: black">
-      <div>
-        Course Name: {{ this.$props.projectDetail.course_name }}
-      </div>
-      <div>
-        Project Name: {{ this.$props.projectDetail['project_name'] }}
-      </div>
-      <div>
-        <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
-                   v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
-                   v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
-        <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
-        <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
-                           v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
-                           v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
+  <div style="background-color: #F7F8F8">
+    <div v-if="this.displayControl.projectDetail" >
+      <el-card class="details">
+        <div>
+          Course Name: {{ this.$props.projectDetail.course_name }}
+        </div>
+        <div>
+          Project Name: {{ this.$props.projectDetail['project_name'] }}
+        </div>
+        <div>
+          <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
+                     v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
+                     v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
+          <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
+          <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
+                             v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
+                             v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
 
-        <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-          <el-form-item label="The profile you want to view">
-            <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
+          <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+            <el-form-item label="The profile you want to view">
+              <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-card>
       <!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
     </div>
 
@@ -157,5 +159,12 @@ export default {
 </script>
 
 <style scoped>
-
+.el-card{
+  font-family: Verdana;
+  background-color: #F7F8F8;
+  border-color:whitesmoke;
+  align-content: center;
+  text-align: center;
+  line-height: 50px;
+}
 </style>

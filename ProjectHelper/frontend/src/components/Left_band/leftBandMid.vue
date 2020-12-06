@@ -1,33 +1,33 @@
 <template>
   <div class="left-mid">
-    <div class="item-margin" >
+    <div class="item-margin" style="background-color: #F7F8F8">
       <el-container direction="horizontal">
 
         <el-aside :width="asideWidth">
-          <el-menu default-active="1-4-1" class="nav" :collapse="!showNav" style="background-color: black">
+          <el-menu default-active="1-4-1" class="nav" :collapse="!showNav">
             <el-header v-if="showNav">
               Project Hub
             </el-header>
             <el-header v-if="!showNav">
               PH
             </el-header>
-            <el-menu-item @click="onClickProfile" style="color: #FF9900">
+            <el-menu-item @click="onClickProfile">
               <i class="el-icon-user"></i>
               <span slot="title">My Profile</span>
             </el-menu-item>
-            <el-menu-item @click="onClickProjects" style="color: #FF9900">
+            <el-menu-item @click="onClickProjects">
               <i class="el-icon-folder"></i>
               <span slot="title" @click="onClickProjects">My Projects</span>
             </el-menu-item>
-            <el-menu-item style="color: #FF9900">
+            <el-menu-item>
               <i class="el-icon-message" ></i>
               <span slot="title">Messages</span>
             </el-menu-item>
-            <el-menu-item style="color: #FF9900">
+            <el-menu-item>
               <i class="el-icon-setting" @click="onClickSettings"></i>
               <span slot="title" >Settings</span>
             </el-menu-item>
-            <el-menu-item @click="onClickLogout" style="color: #FF9900">
+            <el-menu-item @click="onClickLogout">
               <i class="el-icon-circle-close" @click="onClickLogout"></i>
               <span slot="title" @click="onClickLogout">Logout</span>
             </el-menu-item>
@@ -185,9 +185,9 @@ export default {
   /* background-color: rgb(102, 66, 66); */
 }
 .item-margin {
-  border-right: 3px solid #FF9900;
+  /*border-right: 3px solid #FF9900;*/
   /*padding-bottom: 15px;*/
-  background-color: black;
+  /*background-color: black;*/
   /*margin-top:  100px;*/
 }
 /*.icon-margin {*/

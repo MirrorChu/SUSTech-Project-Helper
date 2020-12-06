@@ -12,21 +12,21 @@ export default {
 .left-top {
   padding-left: 20px;
   padding-bottom: 25px;
-  height: 90px;
+  height: 25px;
   position: relative;
   /* background-color: rgb(175, 156, 156); */
 }
 .left-top img {
-  position: absolute;
+  position: fixed;
   /*bottom:130px;*/
-  top: -42px;
+  /*top: -42px;*/
   left: -5px;
   /*border-radius: 50%;*/
-  height: 160px;
-  width: 340px;
-  padding-top: 5px;
-  margin-left: -40px;
-  margin-top: 5px;
+  height: 55px;
+  width: 143px;
+  /*padding-top: 5px;*/
+  /*margin-left: -40px;*/
+  /*margin-top: 5px;*/
   /*padding-top: 30px;*/
 }
 </style>

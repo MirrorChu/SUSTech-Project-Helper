@@ -13,8 +13,8 @@
 
       <el-col :span="8" :offset="8">
         <!-- span 栅格占的列数，offset是偏移列数 -->
-        <el-card shadow="always" style="background-color:rgba(0,0,0,0.9)" >
-          <h1 style="color: white;padding-left: 86px">Member login</h1>
+        <el-card shadow="always" style="background-color:rgba(255,255,255,0.8)" >
+          <h1 style="color: black;padding-left: 86px">Member login</h1>
           <h1 style="color: #898787;font-size: 16px;padding-left: 94px">Welcome to Project Hub.</h1>
           <el-divider></el-divider>
 
@@ -44,7 +44,7 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onLoginClick()"
-                         style="background-color:#FF9900;border:#FF8800;color: black;width:170px;height: 50px">提交</el-button>
+                         style="width:170px;height: 50px;">提交</el-button>
             </el-form-item>
           </el-form>
 
@@ -121,11 +121,11 @@ export default {
 <style>
 .content{
   margin: 0 auto;
-  background-color:#333333;
+  background-color:whitesmoke;
 }
 .el-card{
   /*border: 1000px;*/
-  border-color : #333333;
+  border-color : whitesmoke;
   background-color:rgba(0,0,0,0.2)
   /*border-radius:30px;*/
   /* box-shadow: 0 2px 12px 0 rgb(243, 102, 102); */
@@ -169,9 +169,9 @@ export default {
 
   background-color: #fff;
 
-  background: url(Star-Emission0.png);
+  background: url(pic2.jpg);
 
-  background-repeat: no-repeat;
+  background-repeat:no-repeat;
 
   background-size: cover;
 

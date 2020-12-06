@@ -18,7 +18,7 @@
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
 
-      <el-form ref="form" label-position="left" label-width="80px">
+      <el-form id="form-class" ref="form" label-position="left" label-width="80px" style="color: whitesmoke;">
 
         <el-form-item label="SID">
           <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
@@ -74,7 +74,7 @@
           </el-row>
         </el-form-item>
 
-        <el-button v-if="!this.edit" @click="onEditClicked()" style="background-color: #FF8800; border: #FF8800;color: black;">EDIT</el-button>
+        <el-button v-if="!this.edit" @click="onEditClicked()" >EDIT</el-button>
         <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
 
       </el-form>
@@ -249,17 +249,9 @@ export default {
 }
 </script>
 
+
+
 <style>
-.el-button{
-  background-color: #FF8800;
-  border: #FF8800;
-  color: black;
-}
-.el-button:hover{
-  background-color: #FF9900;
-  border: #FF9900;
-  color: black;
-}
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
@@ -286,7 +278,10 @@ export default {
   height: 178px;
   display: block;
 }
-</style>
-
-<style scoped>
+.el-form-item__label{
+  font-size: medium;
+  line-height: 50px;
+  color: grey;
+  /*height: 10px;*/
+}
 </style>
