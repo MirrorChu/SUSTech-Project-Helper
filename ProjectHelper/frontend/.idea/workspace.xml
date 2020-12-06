@@ -20,8 +20,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/EditProject.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/EventGrading.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ResEvent.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ResPartition.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ResSelection.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ResSubmission.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewAnnouncement.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewAnnouncement.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewEvent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewPartition.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewSelection.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewSelection.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewSubmission.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewSubmission.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,6 +120,7 @@
       <workItem from="1607061315267" duration="1751000" />
       <workItem from="1607065044830" duration="1382000" />
       <workItem from="1607153640191" duration="14692000" />
+      <workItem from="1607236334594" duration="498000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>

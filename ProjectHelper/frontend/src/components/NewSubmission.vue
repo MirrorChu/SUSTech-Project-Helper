@@ -30,6 +30,7 @@ export default {
   name: 'NewSubmission',
   data () {
     return {
+      type: '',
       title: '',
       introduction: '',
       due: '',
@@ -39,6 +40,15 @@ export default {
   methods: {
     onClickSubmit () {
       //TODO: Implement submit.
+    },
+    toJson () {
+      const event = {}
+      event.type = this.type
+      event.title = this.title
+      event.introduction = this.introduction
+      event.due = this.due
+      event.submissionType = this.submissionType
+      return event
     },
   },
 }
