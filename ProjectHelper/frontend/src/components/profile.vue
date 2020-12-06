@@ -74,6 +74,14 @@
         </el-row>
       </el-form-item>
 
+      <el-form-item label="Tag">
+        <li v-for="item in this.tags.Data">
+          <el-badge :value="item.likes">
+            <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
+          </el-badge>
+        </li>
+      </el-form-item>
+
       <el-button v-if="!this.edit" @click="onEditClicked()">EDIT</el-button>
       <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
 
@@ -123,6 +131,7 @@ export default {
       dialogVisible: '',
       avatar: null,
       edit: false,
+      tags: '',
     }
   },
   created() {
@@ -131,6 +140,7 @@ export default {
     console.log(this.pswd)
     this.pullPersonalData()
     this.avatar = require('../assets/logo.png')
+    this.pulltagData()
     // if (this.sid === '')
     // {
     //   this.sid = this.$route.params.sid
@@ -145,7 +155,6 @@ export default {
   },
 
   methods: {
-
     pullPersonalData() {
       this.$axios.post('/show_personal_data/', {sid: this.sid, pswd: this.pswd}).then(res => {
         const data = res.data
@@ -242,6 +251,45 @@ export default {
       console.log('preview')
       this.dialogImageUrl = file.url
       this.dialogVisible = true
+    },
+    pulltagData()
+    {
+      this.$axios.post('/student_gets_all_tags/', {
+        sid: this.sid,
+        pswd: this.pswd,
+        sid_target: this.sid,
+      }).then(res => {
+        this.tags = res.data
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    onClickLike(id)
+    {
+      console.log('hello')
+      console.log(typeof id)
+      this.$axios.post('/student_like_tag/', {
+        sid: this.sid,
+        pswd: this.pswd,
+        tag_target: id,
+      }).then(res => {
+
+        if (res.data.StudentLikeTag === "no like")
+        {
+          console.log("delike success")
+        }
+        else if (res.data.StudentLikeTag === "like")
+        {
+          console.log("like success")
+        }
+        else
+        {
+          alert("failed")
+        }
+        this.pulltagData()
+      }).catch(err => {
+        console.log(err)
+      })
     },
   },
 }
