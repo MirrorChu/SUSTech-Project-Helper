@@ -66,14 +66,19 @@
           <el-form-item label="Tag">
             <li v-for="item in this.tags.Data">
               <el-badge :value="item.likes">
-                <button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</button>
+                <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
               </el-badge>
             </li>
           </el-form-item>
         </el-form>
-
       </el-dialog>
     </div>
+
+<!--    <el-collapse v-model="activeNames" @change="handleChange">-->
+<!--      <el-collapse-item v-for="item in advertisementData" title="item.title" name="item.advertisement_id">-->
+<!--        <div>{{ item.content }}</div>-->
+<!--      </el-collapse-item>-->
+<!--    </el-collapse>-->
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
@@ -114,24 +119,6 @@ export default {
       required: true,
     },
   },
-  created () {
-    //Use == instead of === here.
-    this.sid = this.$props.sid
-    this.pswd = this.$props.pswd
-    if (this.$props.groupInfo == null) {
-      this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
-      this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
-      console.log('access group info success')
-      console.log(this.$props.groupInfo['members'])
-      for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
-        this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
-      }
-    } else {
-      this.status = 'unknown'
-    }
-  },
   data () {
     return {
       membersList: '',
@@ -146,7 +133,27 @@ export default {
         sid: '',
       },
       dialogPersonalProfileVisible: false,
+      advertisementData: '',
       eventList: [],
+    }
+  },
+  created () {
+    //Use == instead of === here.
+    this.sid = this.$props.sid
+    this.pswd = this.$props.pswd
+    this.pulladvertisementData()
+    if (this.$props.groupInfo == null) {
+      this.status = 'You are not in a group!'
+    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
+      this.status = 'You are not in a group!'
+    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
+      console.log('access group info success')
+      console.log(this.$props.groupInfo['members'])
+      for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
+        this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
+      }
+    } else {
+      this.status = 'unknown'
     }
   },
   methods: {
@@ -187,7 +194,7 @@ export default {
     onClickLike(id)
     {
       console.log('hello')
-      console.log(this.sid, this.pswd, id)
+      console.log(typeof id)
       this.$axios.post('/student_like_tag/', {
         sid: this.sid,
         pswd: this.pswd,
@@ -224,6 +231,10 @@ export default {
         console.log(err)
       })
     },
+    pulladvertisementData()
+    {
+
+    }
   },
   name: 'ProjectDetail',
 }

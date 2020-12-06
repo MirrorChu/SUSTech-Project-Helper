@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>Change Password</h1>
     <el-input placeholder="old pswd" v-model="old_pswd" show-password clearable></el-input>
     <el-input placeholder="new pswd" v-model="new_pswd" show-password clearable></el-input>
     <el-input placeholder="repeat to confirm" v-model="repeat" show-password clearable></el-input>
