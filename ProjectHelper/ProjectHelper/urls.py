@@ -32,7 +32,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     ShowHeadImage, ChangeHeadImage, StudentGetAllStudentsInProject, MailUrl, \
     SendMailToInvite, StudentGetProject, StudentGetsGroupInformationInProject, \
     StudentGetValidGroupInProject, ShowOtherPersonalData, StudentGetsAllTags, TeacherGetCourses,\
-    StudentLikeTag, TeacherGetStudentsInCourse
+    StudentLikeTag, TeacherGetStudentsInCourse, TeacherCreateProject
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -73,6 +73,7 @@ urlpatterns = [
     path('teacher_get_courses/', TeacherGetCourses.as_view()),
     path('student_like_tag/', StudentLikeTag.as_view()),
     path('teacher_get_students_in_course/', TeacherGetStudentsInCourse.as_view()),
+    path('teacher_create_project/', TeacherCreateProject.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
 
@@ -80,3 +81,4 @@ urlpatterns = [
 
 ]
 # 访问函数view的实现方法可以基于类(class base view)，也可以基于函数(function base view)，而这里选择前者是因为它便于维护
+# curl -H "Content-Type:application/json" -X POST --data "{'sid': '3012345', 'pswd': '3012345'}" http://localhost:8000/teacher_get_courses/

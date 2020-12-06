@@ -235,7 +235,7 @@ class UploadFile(View):
 
 
 class DownloadFile(View):
-    def post(request):
+    def post(self, request):
         try:
             print(request.body)
 
@@ -791,6 +791,7 @@ class StudentGetAllGroupsInProject(View):
             group = {}
             for i in project:
                 group["group_size"] = i.group_size
+                group["min_group_size"] = i.min_group_size
             for i in groups:
                 group[i.id] = {}
                 group[i.id]["group_name"] = i.group_name
@@ -821,6 +822,7 @@ class StudentGetAllStudentsInProject(View):
             groupList = []
             for i in project:
                 group["group_size"] = i.group_size
+                group["min_group_size"] = i.min_group_size
                 group["course_id"] = i.course_id
             for i in groups:
                 group[i.id] = {}
@@ -1241,6 +1243,7 @@ class StudentGetValidGroupInProject(View):
             group = {}
             for i in project:
                 group["group_size"] = i.group_size
+                group["min_group_size"] = i.min_group_size
             for i in groups:
                 group[i.id] = {}
                 group[i.id]["group_name"] = i.group_name
@@ -1291,6 +1294,7 @@ class StudentGetProject(View):
             group = {}
             for i in project:
                 group["group_size"] = i.group_size
+                group["min_group_size"] = i.min_group_size
             for i in groups:
                 group[i.id] = {}
                 group[i.id]["group_name"] = i.group_name
@@ -1398,7 +1402,7 @@ class TeacherGetStudentsInCourse(View):
             for i in user:
                 user_id = i.id
             students = {}
-            course = Authority.objects.filter(user_id=user_id, type="teach",course_id= course_id)
+            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
             if course.count() == 0:
                 return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
             for i in course:
@@ -1414,6 +1418,42 @@ class TeacherGetStudentsInCourse(View):
         except Exception as e:
             print(e)
             return JsonResponse({"TeacherGetStudentsInCourseCheck": "failed"})
+
+
+class TeacherCreateProject(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            project_name = eval(request.body.decode()).get("newProjectName")
+            introduction = eval(request.body.decode()).get("newProjectDescription")
+            group_size = eval(request.body.decode()).get("groupingMaximum")
+            min_group_size = eval(request.body.decode()).get("groupingMinimum")
+            course_id = eval(request.body.decode()).get("newProjectCourse")
+            ddl = eval(request.body.decode()).get("groupingDeadline")
+            group_ddl = datetime.datetime.fromtimestamp(ddl)
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
+            user_id = 0
+            if user.count() == 0:
+                return JsonResponse({"TeacherCreateProject": "fail"})
+            for i in user:
+                user_id = i.id
+            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
+            # create group
+            if course.count() == 0:
+                return JsonResponse({"TeacherCreateProject": "has no authority"})
+            for i in course:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    Project.objects.create(name=project_name, introduction=introduction, group_size=group_size,
+                                           course_id=course_id, min_group_size=min_group_size, group_ddl=group_ddl)
+                    return JsonResponse({"TeacherCreateProject": "success"})
+                else:
+                    return JsonResponse({"TeacherCreateProject": "has no authority"})
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({"TeacherCreateProjectCheck": "failed"})
 
 
 class SendMailToInvite(View):
@@ -1483,4 +1523,3 @@ class MailUrl(View):
 #         p1 = request.GET.get('p1')
 #         p2 = request.GET.get('p2')
 #         return HttpResponse("p1 = " + p1 + "; p2 = " + p2)
-# curl -H "Content-Type:application/json" -X POST --data "{'sid': '3012345', 'pswd': '3012345'}" http://localhost:8000/teacher_get_courses/
