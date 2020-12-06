@@ -9,6 +9,7 @@
             <el-radio :label="1">Selection</el-radio>
             <el-radio :label="2">Submission</el-radio>
             <el-radio :label="3">Partition</el-radio>
+            <el-radio :label="4">Upload</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="eventType === 0">
@@ -20,6 +21,12 @@
         <el-form-item v-else-if="eventType === 2">
           <NewSubmission></NewSubmission>
         </el-form-item>
+        <el-form-item v-else-if="eventType === 3">
+          <NewPartition></NewPartition>
+        </el-form-item>
+        <el-form-item v-else-if="eventType === 4">
+          TODO
+        </el-form-item>
       </el-form>
     </div>
   </div>
@@ -29,9 +36,11 @@
 import NewAnnouncement from './NewAnnouncement'
 import NewSelection from './NewSelection'
 import NewSubmission from './NewSubmission'
+import NewPartition from './NewPartition'
+
 export default {
   name: 'NewEvent',
-  components: { NewSubmission, NewSelection, NewAnnouncement },
+  components: { NewPartition, NewSubmission, NewSelection, NewAnnouncement },
   props: {
     sid: {
       type: String,
@@ -46,7 +55,7 @@ export default {
       required: true,
     },
   },
-  data() {
+  data () {
     return {
       eventType: 1,
     }

@@ -28,10 +28,9 @@
             :key="value.key"
             :prop="'domains.' + index + '.value'">
             <el-input v-model="value.value"></el-input>
-            <el-button @click.prevent="removeDomain(value)">删除</el-button>
+            <el-button @click.prevent="removeDomain(value)">Remove</el-button>
           </el-form-item>
           <el-form-item>
-            <!--            <el-button type="primary" @click="submitForm('dynamicValidateForm')">Submit</el-button>-->
             <el-button @click="addDomain">New Option</el-button>
             <el-button @click="resetForm('dynamicValidateForm')">Reset</el-button>
           </el-form-item>
@@ -70,6 +69,7 @@ export default {
   name: 'NewSelection',
   data () {
     return {
+      type: '',
       title: '',
       introduction: '',
       due: '',
@@ -107,7 +107,7 @@ export default {
       this.$refs[formName].resetFields()
     },
     removeDomain (item) {
-      var index = this.dynamicValidateForm.domains.indexOf(item)
+      const index = this.dynamicValidateForm.domains.indexOf(item)
       if (index !== -1) {
         this.dynamicValidateForm.domains.splice(index, 1)
       }
@@ -117,6 +117,17 @@ export default {
         value: '',
         key: Date.now(),
       })
+    },
+    toJson () {
+      const event = {}
+      event.type = this.type
+      event.title = this.title
+      event.introduction = this.introduction
+      event.due = this.due
+      event.selectionType = this.selectionType
+      event.selectionLimit = this.selectionLimit
+      event.options = this.options
+      return event
     },
   },
 }
