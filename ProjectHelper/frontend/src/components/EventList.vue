@@ -14,6 +14,9 @@
         <component :is="componentObj.type" :data="componentObj.data">
 
         </component>
+        <EventGrading>
+
+        </EventGrading>
       </el-card>
     </div>
   </div>
@@ -25,10 +28,20 @@ import SelectionComponent from './SelectionComponent'
 import SubmissionComponent from './SubmissionComponent'
 import PartitionEvent from './PartitionEvent'
 import NewEvent from './NewEvent'
+import ResEvent from './ResEvent'
+import EventGrading from './EventGrading'
 
 export default {
   name: 'EventList',
-  components: { NewEvent, PartitionEvent, SubmissionComponent, SelectionComponent, AnnouncementComponent },
+  components: {
+    EventGrading,
+    ResEvent,
+    NewEvent,
+    PartitionEvent,
+    SubmissionComponent,
+    SelectionComponent,
+    AnnouncementComponent,
+  },
   props: {
     sid: {
       type: String,
@@ -61,6 +74,7 @@ export default {
         sid: this.$props.sid,
         pswd: this.$props.pswd,
         data: {
+          type: 'AnnouncementComponent',
           title: 'Demo Title',
           introduction: 'This is a demo announcement.',
           due: (new Date()).getTime(),
@@ -71,6 +85,7 @@ export default {
         sid: this.$props.sid,
         pswd: this.$props.pswd,
         data: {
+          type: 'SelectionComponent',
           title: 'Demo Selection',
           introduction: 'Choose your selection wisely.',
           due: (new Date()).getTime(),
@@ -87,6 +102,7 @@ export default {
         pswd: this.$props.pswd,
         due: (new Date()).getTime(),
         data: {
+          type: 'SubmissionComponent',
           title: 'Demo Submission',
           introduction: 'This is a demo submission.',
           submissionType: 'file',
@@ -99,6 +115,7 @@ export default {
         pswd: this.$props.pswd,
         due: (new Date()).getTime(),
         data: {
+          type: 'PartitionEvent',
           title: 'Demo Partition',
           introduction: 'This is a demo partition.',
           selectionLimit: 1,
