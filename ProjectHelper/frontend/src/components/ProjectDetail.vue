@@ -25,12 +25,11 @@
           </el-form-item>
         </el-form>
       </div>
-      <!--      <el-button @click="onClickToPersonalProfile">TesttoProfile</el-button>-->
     </div>
 
     <div>
       <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
-                       v-bind:personalprofile="this.personalprofile" v-bind:tags="this.tags">
+                       v-bind:personalprofile="this.personalprofile" >
       </PersonalProfile>
       <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects
         Detail
@@ -121,17 +120,6 @@ export default {
       this.controlDisplay('PersonalProfile')
     },
     onQueryPersonalProfile () {
-      this.$axios.post('/student_gets_all_tags/', {
-        sid: this.sid,
-        pswd: this.pswd,
-        sid_target: this.target_user.sid,
-      }).then(res => {
-        console.log('tags', res.data)
-        this.tags = res.data
-      }).catch(err => {
-        console.log(err)
-      })
-
       this.$axios.post('/show_other_personal_data/', {
         sid: this.sid,
         pswd: this.pswd,
