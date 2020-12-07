@@ -7,8 +7,8 @@ from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-import time
-import datetime
+import time, datetime
+import base64
 import json
 import sys
 import os
@@ -20,7 +20,7 @@ from django.conf import settings
 
 from items.groups.models import GroupOrg
 from items.users.models import UserProfile
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, Key, ProjectFile
 from items.courses.models import Course
 from items.projects.models import Project
 
@@ -1431,6 +1431,7 @@ class TeacherCreateProject(View):
             min_group_size = eval(request.body.decode()).get("groupingMinimum")
             course_id = eval(request.body.decode()).get("newProjectCourse")
             ddl = eval(request.body.decode()).get("groupingDeadline")
+            key = eval(request.body.decode()).get("idx")
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
             user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
@@ -1443,10 +1444,37 @@ class TeacherCreateProject(View):
             # create group
             if course.count() == 0:
                 return JsonResponse({"TeacherCreateProject": "has no authority"})
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
             for i in course:
                 if i.end_time > datetime.datetime.now() > i.start_time:
-                    Project.objects.create(name=project_name, introduction=introduction, group_size=group_size,
-                                           course_id=course_id, min_group_size=min_group_size, group_ddl=group_ddl)
+                    project = Project.objects.filter(name=project_name, introduction=introduction,
+                                                     group_size=group_size,
+                                                     course_id=course_id, min_group_size=min_group_size,
+                                                     group_ddl=group_ddl)
+                    project_id = 0
+                    if project.count() == 0:
+                        Project.objects.create(name=project_name, introduction=introduction, group_size=group_size,
+                                               course_id=course_id, min_group_size=min_group_size, group_ddl=group_ddl)
+                    else:
+                        for j in project:
+                            project_id = j.id
+                    keys = Key.objects.filter(key_word=key)
+                    if keys.count() == 0:
+                        return JsonResponse({"TeacherCreateProject": "has no key"})
+                    array = base64.b64decode(key.encode("utf-8")).decode("utf-8").split(',')
+                    if float(array[-1]) + 3600 < time.time():
+                        return JsonResponse({"TeacherCreateProject": "has no key"})
+                    if file_name != '':
+                        file = request.FILES.get(file_name)
+                        path = default_storage.save('file/' + project_name + "/" + file_name,
+                                                    ContentFile(file.read()))
+                        ProjectFile.objects.create(file_path=path, project_id=project_id)
+
                     return JsonResponse({"TeacherCreateProject": "success"})
                 else:
                     return JsonResponse({"TeacherCreateProject": "has no authority"})
@@ -1505,6 +1533,7 @@ class MailUrl(View):
         msg.send()  # http://127.0.0.1:8000/mailurl/?r=目标邮箱 测试用例
         return HttpResponse("success")
 
+
 # class Test(View):
 #     def post(self, request):
 #         print(request)
@@ -1523,3 +1552,66 @@ class MailUrl(View):
 #         p1 = request.GET.get('p1')
 #         p2 = request.GET.get('p2')
 #         return HttpResponse("p1 = " + p1 + "; p2 = " + p2)
+
+
+class SendKey(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+            course_id = eval(request.body.decode()).get("course")
+
+            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
+            user_id = 0
+            if user.count() == 0:
+                return JsonResponse({"SendKey": "fail"})
+            for i in user:
+                user_id = i.id
+            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
+            if course.count() == 0:
+                return JsonResponse({"SendKey": "fail"})
+            string = student_id + str(course_id) + "," + str(time.time())
+            key = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+            Key.objects.create(key_word=key)
+            return JsonResponse({"SendKey": key})
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({"SendKeyCheck": "failed"})
+
+
+class TestFile(View):
+    def post(self, request):
+        try:
+            print(request.POST)
+            arr = request.FILES.keys()
+            print(arr)
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            sid = ''
+            pswd = ''
+            path = ""
+
+            for k in request.POST:
+                if str(k) == 'sid':
+                    sid = str(request.POST[k])
+                else:
+                    pswd = str(request.POST[k])
+
+            print(sid, pswd)
+
+            if file_name != '':
+                file = request.FILES.get(file_name)
+                path = default_storage.save('head_images/' + sid + "/" +
+                                            time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
+                                            + "/" + file_name,
+                                            ContentFile(file.read()))  # 根据名字存图(无类型)
+                print(path)
+
+            return JsonResponse({"ChangeHeadImage": "success"})
+
+        except Exception as e:
+            print('avatar exception')
+            return JsonResponse({"ChangeHeadImage": "failed"})

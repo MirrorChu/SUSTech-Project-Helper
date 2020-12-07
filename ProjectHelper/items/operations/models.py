@@ -141,6 +141,29 @@ class ProjectAttachment(BaseModel):
         return self.project
 
 
+class Key(BaseModel):
+    key_word = models.CharField(max_length=200, verbose_name="批次识别码", default="")
+
+    class Meta:
+        verbose_name = "老师上传项目附件"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.project
+
+
+class ProjectFile(BaseModel):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
+    file_path = models.CharField(max_length=200, verbose_name="文件路径", default="")
+
+    class Meta:
+        verbose_name = "老师上传项目附件"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.project
+
+
 class EventGrades(BaseModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
