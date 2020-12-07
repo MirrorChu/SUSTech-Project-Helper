@@ -1032,19 +1032,18 @@ class AddTag(View):
             query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
                 return JsonResponse({"AddTag": "failed"})
-            else:
-                for i in query_set:
-                    tag_id = i.id
 
             # 验证是否有重复的记录
             query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
-            if query_set.count() != 0:
-                return JsonResponse({"AddTag": "failed"})
-
-            UserTag.objects.create(user_name_id=user_id, tag_id=tag_id)
-
-            return JsonResponse({"AddTag": "success"})
-
+            if query_set.count() == 0:
+                UserTag.objects.create(user_name_id=user_id, tag_id=tag_id, visibility=1)
+                return JsonResponse({"AddTag": "success"})
+            else:
+                for i in query_set:
+                    if i.visibility == 0:
+                        UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(visibility=1)
+                        return JsonResponse({"AddTag": "success"})
+            return JsonResponse({"AddTag": "failed"})
         except Exception as e:
             return JsonResponse({"AddTag": "failed"})
 
@@ -1162,8 +1161,6 @@ class StudentGetsAllTags(View):
             t_id = eval(request.body.decode()).get("sid_target")
 
             user_id = 0
-            tag_id = 0
-            visibility = 1
             tags = []
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
@@ -1175,7 +1172,7 @@ class StudentGetsAllTags(View):
                 for i in query_set:
                     user_id = i.id
 
-            query_set = UserTag.objects.filter(user_name_id=user_id)
+            query_set = UserTag.objects.filter(user_name_id=user_id, visibility=1)
             if query_set.count() == 0:
                 return JsonResponse({"StudentGetsAllTags": "no tag"})
             else:
@@ -1193,6 +1190,40 @@ class StudentGetsAllTags(View):
 
         except Exception as e:
             return JsonResponse({"StudentGetsAllTags": "failed"})
+
+
+class StudentGetsAllTagsCanAdd(View):
+    def post(self, request):
+        try:
+            student_id = eval(request.body.decode()).get("sid")
+            password = eval(request.body.decode()).get("pswd")
+
+            user_id = 0
+            rev_tags = []
+            tags = {}
+
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            if query_set.count() == 0:
+                return JsonResponse({"StudentGetsAllTagsCanAdd": "failed"})
+            else:
+                query_set = UserProfile.objects.filter(username=student_id)
+                for i in query_set:
+                    user_id = i.id
+
+            query_set = UserTag.objects.filter(user_name_id=user_id, visibility=1)
+            for i in query_set:
+                rev_tags.append(i.tag_id)
+            query_set = Tag.objects.all()
+            for i in query_set:
+                if i.id not in rev_tags:
+                    tags[i.id] = i.tag
+
+            return JsonResponse({"Data": tags, "StudentGetsAllTagsCanAdd": "success"})
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({"StudentGetsAllTagsCanAdd": "failed"})
 
 
 class StudentLikeTag(View):
