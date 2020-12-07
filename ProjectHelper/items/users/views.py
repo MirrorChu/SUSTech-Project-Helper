@@ -1089,24 +1089,12 @@ class UnshowTag(View):
             password = eval(request.body.decode()).get("pswd")
             tag_id = eval(request.body.decode()).get("tag_id")
 
-            user_id = 0
-
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             query_set = UserProfile.objects.filter(username=student_id, password=password)
             if query_set.count() == 0:
                 return JsonResponse({"UnshowTag": "failed"})
-            else:
-                for i in query_set:
-                    user_id = i.id
-
-            query_set = Tag.objects.filter(id=tag_id)
-            if query_set.count() == 0:
-                return JsonResponse({"UnshowTag": "failed"})
-            else:
-                for i in query_set:
-                    tag_id = i.id
-
-            UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(visibility=0)
+            UserTag.objects.get(id=tag_id)
+            UserTag.objects.filter(id=tag_id).update(visibility=0)
 
             return JsonResponse({"UnshowTag": "success"})
 
