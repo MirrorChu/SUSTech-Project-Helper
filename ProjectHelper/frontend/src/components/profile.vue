@@ -5,19 +5,6 @@
     <!--    <el-button @click="testFileDownload">test file download</el-button>-->
     <!--    <el-avatar :size="60" :src="this.avatar"></el-avatar>-->
     <el-col :span="16">
-
-      <el-upload v-if="this.edit"
-                 class="avatar-uploader"
-                 action="/api/change_head_image/"
-                 :data="{sid: this.sid, pswd: this.pswd}"
-                 :auto-upload="true"
-                 :show-file-list="false"
-                 :on-success="handleAvatarSuccess"
-                 :before-upload="beforeAvatarUpload">
-        <img v-if="imageUrl" :src="imageUrl" class="avatar">
-        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-      </el-upload>
-
       <el-form id="form-class" ref="form" label-position="left" label-width="80px" style="color: whitesmoke;">
 
         <el-form-item label="SID">
@@ -91,6 +78,17 @@
       <!--    </el-upload>-->
     </el-col>
     <el-col :span="8">
+      <el-upload v-if="this.edit"
+                 class="avatar-uploader"
+                 action="/api/change_head_image/"
+                 :data="{sid: this.sid, pswd: this.pswd}"
+                 :auto-upload="true"
+                 :show-file-list="false"
+                 :on-success="handleAvatarSuccess"
+                 :before-upload="beforeAvatarUpload">
+        <img v-if="imageUrl" :src="imageUrl" class="avatar">
+        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+      </el-upload>
       <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
     </el-col>
   </div>

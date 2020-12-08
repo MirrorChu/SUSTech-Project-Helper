@@ -1,11 +1,22 @@
 <template>
   <div class="left-top">
-    <img src="../../assets/img/download.png" alt="logo" />
+    <el-col :span="4"><img src="../../assets/img/download.png" alt="logo" /></el-col>
+    <el-col :span="22" style="text-align: right;font-size: 18px;position: fixed">
+      <h4>Welcome, {{11810101}}</h4>
+    </el-col>
   </div>
 </template>
 <script>
 export default {
   name: 'leftBandTop',
+  data(){
+    return{
+      sid: this.$route.params.sid,
+    }
+  },
+  mounted() {
+    console.log(this.$route.params.sid)
+  }
 }
 </script>
 <style scoped>
@@ -14,7 +25,7 @@ export default {
   padding-bottom: 25px;
   height: 25px;
   position: relative;
-  /* background-color: rgb(175, 156, 156); */
+   background-color: rgba(247,248,248,0.9);
 }
 .left-top img {
   position: fixed;

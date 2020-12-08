@@ -1,6 +1,9 @@
 <template>
   <div class="leftBand">
-    <left-band-top></left-band-top>
+    <el-row>
+      <left-band-top></left-band-top>
+    </el-row>
+<!--    <left-band-top></left-band-top>-->
     <left-band-mid></left-band-mid>
 <!--    <left-band-bot :botList="botList"></left-band-bot>-->
   </div>
@@ -31,4 +34,7 @@ export default {
   margin: 0;
   /*padding-left: 0%;*/
 }
+/*html,body {*/
+/*  height: 100%;*/
+/*}*/
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 style="color: black">Event List</h1>
+    <h1 style="color: black;text-align: center">Initiate a new event</h1>
     <div>
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"

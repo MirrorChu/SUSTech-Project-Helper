@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div><h3>New Event</h3></div>
+    <div style="text-align: center"><h3>New Event</h3></div>
     <div>
       <el-form>
-        <el-form-item label="Event Type">
+        <el-form-item label="Choose a event type here:" style="text-align: left">
           <el-radio-group v-model="eventType">
             <el-radio :label="0">Announcement</el-radio>
             <el-radio :label="1">Selection</el-radio>

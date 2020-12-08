@@ -16,9 +16,10 @@
           <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
                              v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
                              v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
-
+          <h4 style="font-size: 10px">Or before inviting...</h4>
+          <h2>Wanna get to know somebody more?</h2>
           <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-            <el-form-item label="The profile you want to view">
+            <el-form-item label="">
               <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
             </el-form-item>
             <el-form-item>

@@ -9,7 +9,7 @@
     <br>
     Members: {{ this.$props.membersList }}
     <br>
-
+    <h2>Wanna invite someone?</h2>
     <el-select v-model="toInviteList" multiple clearable placeholder="select people to invite">
       <el-option
         v-for="item in invitableList"
