@@ -1017,7 +1017,7 @@ class AddTag(View):
         try:
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
-            tag_id = eval(request.body.decode()).get("tag_id")
+            tag_id = eval(request.body.decode()).get("tag_target")
 
             user_id = 0
 
@@ -1087,7 +1087,7 @@ class UnshowTag(View):
         try:
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
-            tag_id = eval(request.body.decode()).get("tag_id")
+            tag_id = eval(request.body.decode()).get("tag_target")
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             query_set = UserProfile.objects.filter(username=student_id, password=password)
