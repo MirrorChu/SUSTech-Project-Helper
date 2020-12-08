@@ -75,11 +75,25 @@
       </el-form-item>
 
       <el-form-item label="Tag">
-        <li v-for="item in this.tags.Data">
-          <el-badge :value="item.likes">
-            <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
-          </el-badge>
-        </li>
+        <div v-if="!this.edit">
+          <div v-for="item in this.tags.Data">
+            <el-badge :value="item.likes">
+              <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
+            </el-badge>
+          </div>
+        </div>
+
+        <div v-if="this.edit">
+          <b>Have Selected:</b>
+          <div v-for="item in this.tags.Data">
+            <el-button @click="onClickDeleteTag(item.tag_id)">{{ item.tag_name }}</el-button>
+          </div>
+          <br>
+          <b>To be Selected:</b>
+          <div v-for="item in addtags.Data">
+            <el-button @click="onClickAddTag(item.tag_id, item.tag_name, item.type)">{{ item.tag_name }}</el-button>
+          </div>
+        </div>
       </el-form-item>
 
       <el-button v-if="!this.edit" @click="onEditClicked()">EDIT</el-button>
@@ -132,6 +146,7 @@ export default {
       avatar: null,
       edit: false,
       tags: '',
+      addtags: '',
     }
   },
   created() {
@@ -141,6 +156,7 @@ export default {
     this.pullPersonalData()
     this.avatar = require('../assets/logo.png')
     this.pulltagData()
+    this.pulladdtagData()
     // if (this.sid === '')
     // {
     //   this.sid = this.$route.params.sid
@@ -289,6 +305,59 @@ export default {
         this.pulltagData()
       }).catch(err => {
         console.log(err)
+      })
+    },
+    onClickDeleteTag(id)
+    {
+      this.$axios.post('/unshow_tag/', {
+        sid: this.sid,
+        pswd: this.pswd,
+        tag_target: id,
+      }).then(res => {
+        console.log(res.data)
+        if (res.data.UnshowTag === 'success')
+        {
+          let len=this.tags.Data.length;
+          let j = 0
+          for (let i=0; i<len; i++)
+          {
+            if (this.tags.Data[j].tag_id === id)
+            {
+              j = i
+              break
+            }
+          }
+          this.tags.Data.splice(j, 1)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    onClickAddTag(id, name, typee)
+    {
+      this.$axios.post('/add_tag/', {
+        sid: this.sid,
+        pswd: this.pswd,
+        tag_target: id,
+      }).then(res => {
+        console.log(res.data)
+        if (res.data.AddTag === 'success')
+        {
+          this.tags.Data.push({'tag_id': id, 'tag_name':name, 'tag_type': typee, 'like': 0, 'likes': 0})
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    pulladdtagData()
+    {
+      this.$axios.post('/student_gets_all_tags_can_add/', {
+        sid: this.sid,
+        pswd: this.pswd,
+      }).then(res => {
+        this.addtags = res.data
+      }).catch(err => {
+        console.log('err', err)
       })
     },
   },
