@@ -1,28 +1,23 @@
+import base64
+import datetime
 import os
+import time
 
-from django.shortcuts import render
-from django.views.generic.base import View
-from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.urls import reverse
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.mail import EmailMultiAlternatives
+from django.http import JsonResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-import time, datetime
-import base64
-import json
-import sys
-import os
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
-from django.conf import settings
-
-from items.groups.models import GroupOrg
-from items.users.models import UserProfile
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, Key, ProjectFile
+from django.views.generic.base import View
+from django_redis import get_redis_connection
 from items.courses.models import Course
+from items.groups.models import GroupOrg
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, Key, ProjectFile
 from items.projects.models import Project
+from items.users.models import UserProfile
+
+r = get_redis_connection()
 
 
 class Login(View):
@@ -39,18 +34,20 @@ class Login(View):
             password = eval(request.body.decode()).get("pswd")
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=student_id, password=password)
+            user = UserProfile.objects.filter(student_id=student_id, password=password)
             # 如果能查询到相应记录
             if user.count() == 0:
                 return JsonResponse({"LoginCheck": "failed"})
             # 如果未能查询到用户
             else:
+                token = Token.create_token(sid=student_id, password=password)
                 for i in user:
                     if i.is_staff == 1:
-                        return JsonResponse({"LoginCheck": "teacher"})
+                        return JsonResponse({"LoginCheck": "teacher", "Token": token})
                     else:
-                        return JsonResponse({"LoginCheck": "student"})
+                        return JsonResponse({"LoginCheck": "student", "Token": token})
         except Exception as e:
+            print(e.with_traceback())
             return JsonResponse({"LoginCheck": "failed"})
 
 
@@ -75,29 +72,23 @@ class ShowOtherPersonalData(View):
             #     path = default_storage.save('tmp/' + file_name + ".jpg",
             #                                 ContentFile(file.read()))  # 根据名字存图(无类型)
 
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
             t_id = eval(request.body.decode()).get("sid_target")
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=student_id, password=password)
-            # 如果能查询到相应记录
-            if user.count() == 0:
-                return JsonResponse({"ShowOtherPersonalDataCheck": "ShowPersonalData failed!"})
-            # 如果未能查询到用户
-            else:
-                x = UserProfile.objects.get(username=t_id)
 
-                return JsonResponse({"ShowOtherPersonalDataCheck": "ShowPersonalData success!",
-                                     "sid": t_id,
-                                     "realname": x.real_name,
-                                     "student_id": x.student_id,
-                                     "gender": x.gender,
-                                     "address": x.address,
-                                     "email": x.email,
-                                     "mobile": x.mobile,
-                                     "image": None
-                                     })
+            x = UserProfile.objects.get(student_id=t_id)
+
+            return JsonResponse({"ShowOtherPersonalDataCheck": "ShowPersonalData success!",
+                                 "sid": t_id,
+                                 "realname": x.real_name,
+                                 "student_id": x.student_id,
+                                 "gender": x.gender,
+                                 "address": x.address,
+                                 "email": x.email,
+                                 "mobile": x.mobile,
+                                 "image": None
+                                 })
 
             # return JsonResponse({"ShowPersonalData": "success"})
 
@@ -117,7 +108,7 @@ class ChangePassword(View):
             new_password = eval(request.body.decode()).get("new")
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=student_id, password=old_password)
+            user = UserProfile.objects.filter(student_id=student_id, password=old_password)
             # 如果能查询到相应记录
             if user.count() == 0:
                 return JsonResponse({"ChangePasswordCheck": "failed"})
@@ -151,27 +142,20 @@ class ShowPersonalData(View):
                 path = default_storage.save('tmp/' + file_name + ".jpg",
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
 
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=student_id, password=password)
-            # 如果能查询到相应记录
-            if user.count() == 0:
-                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData failed!"})
-            # 如果未能查询到用户
-            else:
-                x = UserProfile.objects.get(username=student_id, password=password)
+            x = UserProfile.objects.get(student_id=student_id)
 
-                return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
-                                     "realname": x.real_name,
-                                     "student_id": x.student_id,
-                                     "gender": x.gender,
-                                     "address": x.address,
-                                     "email": x.email,
-                                     "mobile": x.mobile,
-                                     "image": None
-                                     })
+            return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
+                                 "realname": x.real_name,
+                                 "student_id": x.student_id,
+                                 "gender": x.gender,
+                                 "address": x.address,
+                                 "email": x.email,
+                                 "mobile": x.mobile,
+                                 "image": None
+                                 })
 
             # return JsonResponse({"ShowPersonalData": "success"})
 
@@ -185,14 +169,14 @@ class ChangePersonalData(View):
     def post(self, request):
         try:
             print(request.body)
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             email = eval(request.body.decode()).get("email")
             gender = eval(request.body.decode()).get("gender")
             mobile = eval(request.body.decode()).get("mobile")
             address = eval(request.body.decode()).get("address")
 
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            query_set = UserProfile.objects.filter(student_id=student_id)
             if query_set.count() == 0:
                 print('fail')
                 return JsonResponse({"ChangePersonalData": "failed"})
@@ -298,7 +282,7 @@ class Test(View):
                 print(path)
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=sid, password=pswd)
+            user = UserProfile.objects.filter(student_id=sid, password=pswd)
             # 如果能查询到相应记录
             if user.count() == 0:
                 print('avatar fail')
@@ -306,7 +290,7 @@ class Test(View):
             # 如果未能查询到用户
             else:
                 print('avatar success')
-                x = UserProfile.objects.get(username=sid, password=pswd)
+                x = UserProfile.objects.get(student_id=sid, password=pswd)
 
                 return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
                                      # "realname": x.real_name,
@@ -363,8 +347,8 @@ class Test(View):
 class StudentGetsAllProjects(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
             # TODO: Delete this.
             # if student_id == '11810101' and password == '11810101':
@@ -375,7 +359,7 @@ class StudentGetsAllProjects(View):
             #     print(data)
             #     return JsonResponse({'courses': data})
 
-            user = UserProfile.objects.filter(username=student_id, password=password)
+            user = UserProfile.objects.filter(student_id=student_id)
             for i in user:
                 course = UserCourse.objects.filter(user_name_id=i.id)
             courses = []
@@ -399,11 +383,8 @@ class StudentGetsSingleProjectInformation(View):
         try:
 
             project_id = eval(request.body.decode()).get("project_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             query_set = Project.objects.filter(id=project_id)
             project_name = ""
             project_introduction = ""
@@ -429,9 +410,9 @@ class StudentGetsSingleProjectInformation(View):
 class StudentGetsAllGroups(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
-            user = UserProfile.objects.filter(username=student_id, password=password)
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
+            user = UserProfile.objects.filter(student_id=student_id)
             for i in user:
                 # 获得学生参加的所有队伍
                 group_id = UserGroup.objects.filter(user_name_id=i.id)
@@ -467,12 +448,9 @@ class StudentGetsSingleGroupInformation(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             query_set = GroupOrg.objects.filter(id=group_id)
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
 
             group_name = ""
             group_detail = ""
@@ -500,14 +478,14 @@ class StudentGetsSingleGroupInformation(View):
 
                 query_set3 = UserProfile.objects.filter(id=captain_id)
                 for j in query_set3:
-                    captain_name = j.username
+                    captain_name = j.student_id
 
                 query_set3 = UserGroup.objects.filter(id=group_id)
                 for j in query_set3:
                     user_id = j.user_name_id
                     query_set1 = UserProfile.objects.filter(id=user_id)
                     for k in query_set1:
-                        members.append(k.username)
+                        members.append(k.student_id)
 
             return JsonResponse({"group_name": group_name,
                                  "group_introduction": group_detail,
@@ -527,10 +505,10 @@ class StudentGetsGroupInformationInProject(View):
     def post(self, request):
         try:
             project_id = eval(request.body.decode()).get("project_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            user = UserProfile.objects.filter(student_id=student_id)
 
             if user.count() == 0:
                 return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
@@ -579,14 +557,14 @@ class StudentGetsGroupInformationInProject(View):
 
                 query_set3 = UserProfile.objects.filter(id=captain_id)
                 for j in query_set3:
-                    captain_name = j.username
+                    captain_name = j.student_id
 
                 query_set3 = UserGroup.objects.filter(id=group_id)
                 for j in query_set3:
                     user_id = j.user_name_id
                     query_set1 = UserProfile.objects.filter(id=user_id)
                     for k in query_set1:
-                        members.append(k.username)
+                        members.append(k.student_id)
 
             return JsonResponse({"group_name": group_name,
                                  "group_introduction": group_detail,
@@ -605,13 +583,13 @@ class StudentGetsGroupInformationInProject(View):
 class StudentCreatesGroup(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             group_name = eval(request.body.decode()).get("group_name")
             introduction = eval(request.body.decode()).get("introduction")
             project_id = eval(request.body.decode()).get("project_id")
 
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            query_set = UserProfile.objects.filter(student_id=student_id)
             captain_id = 0
             members = 1
 
@@ -641,8 +619,8 @@ class StudentCreatesGroup(View):
 class EditsGroupIntroduction(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             group_id = eval(request.body.decode()).get("group_id")
             group_introduction = eval(request.body.decode()).get("group_introduction")
 
@@ -659,8 +637,8 @@ class EditsGroupIntroduction(View):
 class EditsGroupName(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             group_id = eval(request.body.decode()).get("group_id")
             group_name = eval(request.body.decode()).get("group_name")
 
@@ -675,13 +653,13 @@ class EditsGroupName(View):
 class GroupMemberValidation(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             group_id = eval(request.body.decode()).get("group_id")
 
             user_id = 0
 
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
+            query_set = UserProfile.objects.filter(student_id=student_id)
             for i in query_set:
                 user_id = i.id
 
@@ -703,10 +681,10 @@ class StudentQuitsGroup(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            user = UserProfile.objects.filter(student_id=student_id)
             for i in user:
                 user_id = i.id
             group = GroupOrg.objects.filter(group_name_id=group_id)
@@ -724,13 +702,9 @@ class CaptainKickMember(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
-
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"CaptainKickMemberCheck": "failed"})
             group = GroupOrg.objects.filter(group_name_id=group_id)
             mem = 0
             for i in group:
@@ -746,14 +720,11 @@ class CaptainDismissGroup(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"CaptainDismissGroupCheck": "failed"})
-            GroupOrg.objects.delete(group_name_id=group_id)
-            UserGroup.objects.delete(group_name_id=group_id)
+            GroupOrg.objects.filter(group_name_id=group_id).delete()
+            UserGroup.objects.filter(group_name_id=group_id).delete()
             return JsonResponse({"CaptainDismissGroupCheck": "success"})
         except Exception as e:
             return JsonResponse({"CaptainDismissGroupCheck": "failed"})
@@ -763,13 +734,16 @@ class CaptainGiveCaptain(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
+            user = UserProfile.objects.filter(student_id=target_id)
             if user.count() == 0:
                 return JsonResponse({"CaptainGiveCaptainCheck": "fail"})
+            else:
+                for i in user:
+                    target_id = i.id
             GroupOrg.objects.filter(group_name_id=group_id).update(captain_name_id=target_id)
             return JsonResponse({"CaptainGiveCaptainCheck": "success"})
         except Exception as e:
@@ -780,12 +754,8 @@ class StudentGetAllGroupsInProject(View):
     def post(self, request):
         try:
             project_id = eval(request.body.decode()).get("project_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
-
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"StudentGetAllGroupsInProjectCheck": "fail"})
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             groups = GroupOrg.objects.filter(project_id=project_id)
             project = Project.objects.filter(id=project_id)
             group = {}
@@ -799,7 +769,7 @@ class StudentGetAllGroupsInProject(View):
                 group[i.id]["captain_id"] = i.captain_name_id
                 captain = UserProfile.objects.filter(student_id=i.captain_name_id)
                 for j in captain:
-                    group[i.id]["captain_name"] = j.username
+                    group[i.id]["captain_name"] = j.student_id
 
             return JsonResponse({"Data": group, "StudentGetAllGroupsInProjectCheck": "success"})
         except Exception as e:
@@ -810,12 +780,8 @@ class StudentGetAllStudentsInProject(View):
     def post(self, request):
         try:
             project_id = eval(request.body.decode()).get("project_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
-
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"StudentGetAllStudentsInProjectCheck": "fail"})
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             groups = GroupOrg.objects.filter(project_id=project_id)
             project = Project.objects.filter(id=project_id)
             group = {}
@@ -835,7 +801,7 @@ class StudentGetAllStudentsInProject(View):
                 studentProfile = UserProfile.objects.filter(id=i.user_name_id)
                 for j in studentProfile:
                     student[j.id] = {}
-                    student[j.id]["username"] = j.username
+                    student[j.id]["username"] = j.student_id
                     student[j.id]["has_group"] = False
                     for k in groupList:
                         judge = UserGroup.objects.filter(group_name_id=k, user_name_id=j.id)
@@ -904,7 +870,7 @@ class Image(View):
                 print(path)
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=sid, password=pswd)
+            user = UserProfile.objects.filter(student_id=sid, password=pswd)
             # 如果能查询到相应记录
             if user.count() == 0:
                 print('avatar fail')
@@ -912,7 +878,7 @@ class Image(View):
             # 如果未能查询到用户
             else:
                 print('avatar success')
-                x = UserProfile.objects.get(username=sid, password=pswd)
+                x = UserProfile.objects.get(student_id=sid, password=pswd)
 
                 # TODO: Fix image.
                 # file_path = x.image
@@ -966,7 +932,7 @@ class ChangeHeadImage(View):
                 print(path)
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(username=sid, password=pswd)
+            user = UserProfile.objects.filter(student_id=sid, password=pswd)
             # 如果能查询到相应记录
             if user.count() == 0:
                 print('avatar fail')
@@ -974,7 +940,7 @@ class ChangeHeadImage(View):
             # 如果未能查询到用户
             else:
                 print('avatar success')
-                UserProfile.objects.filter(username=sid, password=pswd).update(image=path)
+                UserProfile.objects.filter(student_id=sid, password=pswd).update(image=path)
 
                 return JsonResponse({"ChangeHeadImage": "success"})
 
@@ -987,19 +953,16 @@ class ShowHeadImage(View):
     # return path
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
             head_image_path = ""
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"ShowHeadImage": "failed"})
-            else:
-                for i in query_set:
-                    head_image_path = i.image
-                return JsonResponse({"ShowHeadImage": head_image_path})
+            query_set = UserProfile.objects.get(student_id=student_id)
+
+            head_image_path = query_set.image
+            return JsonResponse({"ShowHeadImage": head_image_path})
 
         except Exception as e:
             return JsonResponse({"ShowHeadImage": "failed"})
@@ -1015,19 +978,15 @@ class AddTag(View):
     # return path
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_target")
 
             user_id = 0
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"AddTag": "failed"})
-            else:
-                for i in query_set:
-                    user_id = i.id
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
 
             query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
@@ -1052,19 +1011,15 @@ class ShowTag(View):
     # return path
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_id")
 
             user_id = 0
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"ShowTag": "failed"})
-            else:
-                for i in query_set:
-                    user_id = i.id
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
 
             query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
@@ -1085,14 +1040,10 @@ class UnshowTag(View):
     # return path
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_target")
 
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"UnshowTag": "failed"})
             UserTag.objects.get(id=tag_id)
             UserTag.objects.filter(id=tag_id).update(visibility=0)
 
@@ -1106,19 +1057,15 @@ class GetTagVisibility(View):
     # return path
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_id")
 
             user_id = 0
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"GetTagVisibility": "failed"})
-            else:
-                for i in query_set:
-                    user_id = i.id
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
 
             query_set = Tag.objects.filter(id=tag_id)
             if query_set.count() == 0:
@@ -1127,12 +1074,8 @@ class GetTagVisibility(View):
                 for i in query_set:
                     tag_id = i.id
 
-            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
-            if query_set.count() == 0:
-                return JsonResponse({"GetTagVisibility": "failed"})
-            else:
-                for i in query_set:
-                    visibility = i.visibility
+            query_set = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
+            visibility = query_set.visibility
 
             return JsonResponse({"GetTagVisibility": visibility})
 
@@ -1144,35 +1087,29 @@ class StudentGetsAllTags(View):
     # return path
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             t_id = eval(request.body.decode()).get("sid_target")
 
             user_id = 0
             tags = []
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"StudentGetsAllTags": "failed"})
-            else:
-                query_set = UserProfile.objects.filter(username=t_id)
-                for i in query_set:
-                    user_id = i.id
+            query_set = UserProfile.objects.get(student_id=t_id)
+            user_id = query_set.id
 
             query_set = UserTag.objects.filter(user_name_id=user_id, visibility=1)
             if query_set.count() == 0:
                 return JsonResponse({"StudentGetsAllTags": "no tag"})
             else:
                 for i in query_set:
-                    query_set2 = Tag.objects.filter(id=i.tag_id)
+                    query_set2 = Tag.objects.get(id=i.tag_id)
                     query_set3 = UserLikeTag.objects.filter(tag_id=i.id)
                     query_set4 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=i.id)
                     if i.visibility == 1:
-                        for j in query_set2:
-                            tags.append(
-                                {"tag_id": i.id, "tag_name": j.tag, "type": j.type, "likes": query_set3.count(),
-                                 "like": query_set4.count()})
+                        tags.append(
+                            {"tag_id": i.id, "tag_name": query_set2.tag, "type": query_set2.type, "likes": query_set3.count(),
+                             "like": query_set4.count()})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
 
@@ -1183,22 +1120,15 @@ class StudentGetsAllTags(View):
 class StudentGetsAllTagsCanAdd(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
             user_id = 0
             rev_tags = []
             tags = {}
 
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"StudentGetsAllTagsCanAdd": "failed"})
-            else:
-                query_set = UserProfile.objects.filter(username=student_id)
-                for i in query_set:
-                    user_id = i.id
-
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
             query_set = UserTag.objects.filter(user_name_id=user_id, visibility=1)
             for i in query_set:
                 rev_tags.append(i.tag_id)
@@ -1218,27 +1148,18 @@ class StudentLikeTag(View):
     def post(self, request):
         try:
             print(datetime.datetime.now())
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             t_id = eval(request.body.decode()).get("tag_target")
 
-            user_id = 0
-
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"StudentLikeTag": "failed"})
-            else:
-                for i in query_set:
-                    user_id = i.id
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
             query_set3 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=t_id)
             if query_set3.count() == 1:
                 query_set3.delete()
-                print(datetime.datetime.now())
                 return JsonResponse({"StudentLikeTag": "no like"})
             else:
                 UserLikeTag.objects.create(user_name_id=user_id, tag_id=t_id)
-                print(datetime.datetime.now())
                 return JsonResponse({"StudentLikeTag": "like"})
 
         except Exception as e:
@@ -1251,26 +1172,21 @@ class StudentGetValidGroupInProject(View):
         try:
 
             project_id = eval(request.body.decode()).get("project_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"StudentGetValidGroupInProject": "fail"})
             groups = GroupOrg.objects.filter(project_id=int(project_id))
-            project = Project.objects.filter(id=int(project_id))
+            project = Project.objects.get(id=int(project_id))
             group = {}
-            for i in project:
-                group["group_size"] = i.group_size
-                group["min_group_size"] = i.min_group_size
+            group["group_size"] = project.group_size
+            group["min_group_size"] = project.min_group_size
             for i in groups:
                 group[i.id] = {}
                 group[i.id]["group_name"] = i.group_name
                 group[i.id]["member"] = i.member
                 group[i.id]["captain_id"] = i.captain_name_id
-                captain = UserProfile.objects.filter(student_id=i.captain_name_id)
-                for j in captain:
-                    group[i.id]["captain_name"] = j.username
+                captain = UserProfile.objects.get(student_id=i.captain_name_id)
+                group[i.id]["captain_name"] = captain.student_id
                 userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
                 if userGroup.count() == 1:
                     return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
@@ -1302,26 +1218,21 @@ class StudentGetProject(View):
             #     return JsonResponse({'projectDetail': data})
 
             project_id = eval(request.body.decode()).get("project_id")
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password)
-            if user.count() == 0:
-                return JsonResponse({"StudentGetProjectCheck": "fail"})
             groups = GroupOrg.objects.filter(project_id=int(project_id))
-            project = Project.objects.filter(id=int(project_id))
+            project = Project.objects.get(id=int(project_id))
             group = {}
-            for i in project:
-                group["group_size"] = i.group_size
-                group["min_group_size"] = i.min_group_size
+            group["group_size"] = project.group_size
+            group["min_group_size"] = project.min_group_size
             for i in groups:
                 group[i.id] = {}
                 group[i.id]["group_name"] = i.group_name
                 group[i.id]["member"] = i.member
                 group[i.id]["captain_id"] = i.captain_name_id
-                captain = UserProfile.objects.filter(student_id=i.captain_name_id)
-                for j in captain:
-                    group[i.id]["captain_name"] = j.username
+                captain = UserProfile.objects.get(student_id=i.captain_name_id)
+                group[i.id]["captain_name"] = captain.student_id
                 userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
                 if userGroup.count() == 1:
                     query_set = GroupOrg.objects.filter(id=i.id)
@@ -1352,14 +1263,14 @@ class StudentGetProject(View):
 
                         query_set = UserProfile.objects.filter(id=captain_id)
                         for k in query_set:
-                            captain_name = k.username
+                            captain_name = k.student_id
 
                         query_set = UserGroup.objects.filter(id=i.id)
                         for k in query_set:
                             user_id = k.user_name_id
                             query_set = UserProfile.objects.filter(id=user_id)
                             for k in query_set:
-                                members.append(k.username)
+                                members.append(k.student_id)
 
                     return JsonResponse({"group_name": group_name,
                                          "group_introduction": group_detail,
@@ -1381,24 +1292,19 @@ class StudentGetProject(View):
 class TeacherGetCourses(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
-            user_id = 0
-            if user.count() == 0:
-                return JsonResponse({"TeacherGetCourses": "fail"})
-            for i in user:
-                user_id = i.id
+            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            user_id = query_set.id
             courses = {}
             course = Authority.objects.filter(user_id=user_id, type="teach")
             if course.count() == 0:
                 return JsonResponse({"Data": None, "TeacherGetCoursesCheck": "no course"})
             for i in course:
                 if i.end_time > datetime.datetime.now() > i.start_time:
-                    name = Course.objects.filter(id=i.course_id)
-                    for j in name:
-                        courses[j.id] = j.name
+                    name = Course.objects.get(id=i.course_id)
+                    courses[name.id] = name.name
             if len(courses) == 0:
                 return JsonResponse({"Data": None, "TeacherGetCoursesCheck": "no course"})
             return JsonResponse({"Data": courses, "TeacherGetCoursesCheck": "success"})
@@ -1410,30 +1316,23 @@ class TeacherGetCourses(View):
 class TeacherGetStudentsInCourse(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             course_id = eval(request.body.decode()).get("course")
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
-            user_id = 0
-            if user.count() == 0:
-                return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
-            for i in user:
-                user_id = i.id
+            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            user_id = query_set.id
             students = {}
-            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
-            if course.count() == 0:
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for j in student:
+                    user = UserProfile.objects.filter(id=j.user_name_id)
+                    for k in user:
+                        students[k.student_id] = k.student_id
+                return JsonResponse({"Data": students, "TeacherGetStudentsInCourse": "success"})
+            else:
                 return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
-            for i in course:
-                if i.end_time > datetime.datetime.now() > i.start_time:
-                    student = UserCourse.objects.filter(course_name_id=course_id)
-                    for j in student:
-                        user = UserProfile.objects.filter(id=j.user_name_id)
-                        for k in user:
-                            students[k.student_id] = k.username
-                    return JsonResponse({"Data": students, "TeacherGetStudentsInCourse": "success"})
-                else:
-                    return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
         except Exception as e:
             print(e)
             return JsonResponse({"TeacherGetStudentsInCourseCheck": "failed"})
@@ -1442,8 +1341,8 @@ class TeacherGetStudentsInCourse(View):
 class TeacherCreateProject(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             project_name = eval(request.body.decode()).get("newProjectName")
             introduction = eval(request.body.decode()).get("newProjectDescription")
             group_size = eval(request.body.decode()).get("groupingMaximum")
@@ -1453,50 +1352,42 @@ class TeacherCreateProject(View):
             key = eval(request.body.decode()).get("idx")
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
-            user_id = 0
-            if user.count() == 0:
-                return JsonResponse({"TeacherCreateProject": "fail"})
-            for i in user:
-                user_id = i.id
-            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
-            # create group
-            if course.count() == 0:
-                return JsonResponse({"TeacherCreateProject": "has no authority"})
+            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            user_id = query_set.id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
 
             arr = request.FILES.keys()
             file_name = ''
             for k in arr:
                 file_name = k
 
-            for i in course:
-                if i.end_time > datetime.datetime.now() > i.start_time:
-                    project = Project.objects.filter(name=project_name, introduction=introduction,
-                                                     group_size=group_size,
-                                                     course_id=course_id, min_group_size=min_group_size,
-                                                     group_ddl=group_ddl)
-                    project_id = 0
-                    if project.count() == 0:
-                        Project.objects.create(name=project_name, introduction=introduction, group_size=group_size,
-                                               course_id=course_id, min_group_size=min_group_size, group_ddl=group_ddl)
-                    else:
-                        for j in project:
-                            project_id = j.id
-                    keys = Key.objects.filter(key_word=key)
-                    if keys.count() == 0:
-                        return JsonResponse({"TeacherCreateProject": "has no key"})
-                    array = base64.b64decode(key.encode("utf-8")).decode("utf-8").split(',')
-                    if float(array[-1]) + 3600 < time.time():
-                        return JsonResponse({"TeacherCreateProject": "has no key"})
-                    if file_name != '':
-                        file = request.FILES.get(file_name)
-                        path = default_storage.save('file/' + project_name + "/" + file_name,
-                                                    ContentFile(file.read()))
-                        ProjectFile.objects.create(file_path=path, project_id=project_id)
-
-                    return JsonResponse({"TeacherCreateProject": "success"})
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                project = Project.objects.filter(name=project_name, introduction=introduction,
+                                                 group_size=group_size,
+                                                 course_id=course_id, min_group_size=min_group_size,
+                                                 group_ddl=group_ddl)
+                project_id = 0
+                if project.count() == 0:
+                    Project.objects.create(name=project_name, introduction=introduction, group_size=group_size,
+                                           course_id=course_id, min_group_size=min_group_size, group_ddl=group_ddl)
                 else:
-                    return JsonResponse({"TeacherCreateProject": "has no authority"})
+                    for j in project:
+                        project_id = j.id
+                keys = Key.objects.filter(key_word=key)
+                if keys.count() == 0:
+                    return JsonResponse({"TeacherCreateProject": "has no key"})
+                array = base64.b64decode(key.encode("utf-8")).decode("utf-8").split(',')
+                if float(array[-1]) + 3600 < time.time():
+                    return JsonResponse({"TeacherCreateProject": "has no key"})
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    path = default_storage.save('file/' + project_name + "/" + file_name,
+                                                ContentFile(file.read()))
+                    ProjectFile.objects.create(file_path=path, project_id=project_id)
+
+                return JsonResponse({"TeacherCreateProject": "success"})
+            else:
+                return JsonResponse({"TeacherCreateProject": "has no authority"})
 
         except Exception as e:
             print(e)
@@ -1506,21 +1397,13 @@ class TeacherCreateProject(View):
 class SendMailToInvite(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             tag_id = eval(request.body.decode()).get("t_sid")
             group_id = eval(request.body.decode()).get("group_id")
 
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.filter(username=student_id, password=password)
-            if query_set.count() == 0:
-                return JsonResponse({"SendMailToInvite": "failed"})
-            query_set = UserProfile.objects.filter(username=tag_id)
-            if query_set.count() == 0:
-                return JsonResponse({"SendMailToInvite": "failed"})
-            else:
-                for i in query_set:
-                    email = i.email
+            query_set = UserProfile.objects.get(student_id=tag_id)
+            email = query_set.email
             subject = '来自自强学堂的问候'
             text_content = '这是一封重要的邮件.'
             html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
@@ -1576,20 +1459,14 @@ class MailUrl(View):
 class SendKey(View):
     def post(self, request):
         try:
-            student_id = eval(request.body.decode()).get("sid")
-            password = eval(request.body.decode()).get("pswd")
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
             course_id = eval(request.body.decode()).get("course")
 
-            user = UserProfile.objects.filter(student_id=student_id, password=password, is_staff=1)
-            user_id = 0
-            if user.count() == 0:
-                return JsonResponse({"SendKey": "fail"})
-            for i in user:
-                user_id = i.id
-            course = Authority.objects.filter(user_id=user_id, type="teach", course_id=course_id)
-            if course.count() == 0:
-                return JsonResponse({"SendKey": "fail"})
-            string = student_id + str(course_id) + "," + str(time.time())
+            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            user_id = query_set.id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            string = str(student_id) + str(course_id) + "," + str(time.time())
             key = base64.b64encode(string.encode("utf-8")).decode("utf-8")
             Key.objects.create(key_word=key)
             return JsonResponse({"SendKey": key})
@@ -1634,3 +1511,28 @@ class TestFile(View):
         except Exception as e:
             print('avatar exception')
             return JsonResponse({"ChangeHeadImage": "failed"})
+
+
+class Token:
+
+    def create_token(sid, password):
+        try:
+            token_expire = 3600
+            string = sid + "," + password + "," + str(time.time())
+            token = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+            r.set(token, sid, token_expire)
+            return token
+        except Exception as e:
+            return False
+
+    def get_sid(token):
+        try:
+            store_sid = r.get(token)
+            if store_sid == None:
+                return False
+            else:
+                r.expire(token, timeout=3600)
+                return store_sid
+        except Exception as e:
+            return False
+

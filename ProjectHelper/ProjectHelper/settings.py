@@ -85,6 +85,17 @@ WSGI_APPLICATION = 'ProjectHelper.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #         'ENGINE': 'django.db.backends.mysql',
+    #         'NAME': 'ooad',
+    #         'USER': 'root',
+    #         'PASSWORD': 'Xia12345',
+    #         'HOST': '127.0.0.1',
+    #         'TEST': {
+    #             'CHARSET': 'utf8',
+    #             'COLLATION': 'utf8_general_ci'
+    #         }
+    #     }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'project',
@@ -115,6 +126,18 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://47.103.209.183:6379",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        }
+    }
+}
 
 # 指定更改新数据库的路径
 AUTH_USER_MODEL = "users.UserProfile"
