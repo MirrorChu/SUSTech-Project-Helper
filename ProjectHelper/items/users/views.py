@@ -1125,7 +1125,7 @@ class StudentGetsAllTagsCanAdd(View):
 
             user_id = 0
             rev_tags = []
-            tags = {}
+            tags = []
 
             query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
@@ -1135,7 +1135,7 @@ class StudentGetsAllTagsCanAdd(View):
             query_set = Tag.objects.all()
             for i in query_set:
                 if i.id not in rev_tags:
-                    tags[i.id] = i.tag
+                    tags.append({'tag_id': i.id, 'tag_name': i.tag})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTagsCanAdd": "success"})
 
