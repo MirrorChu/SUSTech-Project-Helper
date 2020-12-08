@@ -33,7 +33,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     SendMailToInvite, StudentGetProject, StudentGetsGroupInformationInProject, \
     StudentGetValidGroupInProject, ShowOtherPersonalData, StudentGetsAllTags, TeacherGetCourses,\
     StudentLikeTag, TeacherGetStudentsInCourse, TeacherCreateProject, TestFile, \
-    SendKey, StudentGetsAllTagsCanAdd
+    SendKey, StudentGetsAllTagsCanAdd, UnshowTag, AddTag
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -78,6 +78,8 @@ urlpatterns = [
     path('teacher_create_project/', TeacherCreateProject.as_view()),
     path('test_file/', TestFile.as_view()),
     path('send_key/', SendKey.as_view()),
+    path('unshow_tag/', UnshowTag.as_view()),
+    path('add_tag/', AddTag.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
 
