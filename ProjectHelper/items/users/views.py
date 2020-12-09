@@ -610,7 +610,7 @@ class StudentGetsSingleGroupInformation(View):
             for i in query_set:
                 group_name = i.group_name
                 group_detail = i.detail
-                captain_id = i.captain_name_id
+                captain_id = i.captain_name_idS
                 project_id = i.project_id
 
                 query_set3 = Project.objects.filter(id=project_id)
@@ -649,7 +649,27 @@ class StudentGetsSingleGroupInformation(View):
 
 class StudentGetsGroupInformationInProject(View):
     def post(self, request):
+        """
+        TOD: Please avoid this kind of variable reuse. Extremely error-prone.
+        :param request:
+        :return:
+        """
         try:
+
+            # token = get_from_request(request, 'token')
+            # if check_token(token):
+            #     project_id = get_from_request(request, 'projectId')
+            #     sid = get_sid(token)
+            #     groups = UserGroup.objects.filter(user_name_id=sid)
+            #     if groups.count() == 0:
+            #         response_data = {'attempt': 'success'}
+            #     else:
+            #         response_data = {'attempt': 'success'}
+            #         assert groups.count() == 1
+            #         group = groups[0]
+            #
+            #     return JsonResponse(response_data)
+
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
