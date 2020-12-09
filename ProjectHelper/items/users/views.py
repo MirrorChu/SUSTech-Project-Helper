@@ -25,12 +25,28 @@ r = get_redis_connection()
 EXPIRE_TIME = 600
 
 
+def get_from_request(request, arg):
+    """
+    A encapsulation of decoding request.
+    :param request: The request from frontend.
+    :param arg: The key.
+    :return: The value of the key in request.
+    """
+    return eval(request.body.decode()).get(arg)
+
+
 def check_token(token) -> bool:
+    """
+    Check if the token exists and is not expired. If the result is true, then
+    the token is updated automatically.
+    :param token: The token from frontend.
+    :return: token exists and is not expired (user is online)
+    """
     record = r.get(token)
     logger.debug('check_token(token) token: %s, record: %s', token, record)
     if record is None:
         return False
-    r.expire(token, EXPIRE_TIME)
+    update_token(token)
     return True
 
 
@@ -50,6 +66,11 @@ def create_token(sid, password):
 
 
 def get_sid(token):
+    """
+    Get corresponding sid from token. It is assumed that the token exists and is not expired.
+    :param token: The token from frontend.
+    :return: The sid.
+    """
     try:
         stored_sid = r.get(token)
         if stored_sid is None:
@@ -165,9 +186,33 @@ class ChangePassword(View):
 
 
 class ShowPersonalData(View):
-    # 当用户按下登录按键时
     def post(self, request):
+        """
+        # TODO: Update doc.
+        POST /show_personal_data/
+        :param request: The request from frontend.
+        :return: Personal profile of a user.
+        """
         try:
+            logger.debug('%s request.body: %s', self, request.body)
+            token = get_from_request(request, 'token')
+            logger.debug('%s token %s', self, token)
+
+            if check_token(token):
+                sid = get_sid(token)
+                profile = UserProfile.objects.get(student_id=sid)
+                response_data = {'attempt': 'success',
+                                 'realName': profile.real_name,
+                                 'sid': profile.student_id,
+                                 'gender': profile.gender,
+                                 'address': profile.address,
+                                 'email': profile.email,
+                                 'mobile': profile.mobile,
+                                 'imageUrl': 'Not Implemented Feature',
+                                 }
+                return JsonResponse(response_data)
+
+            # TODO: Implement avatar feature.
             arr = request.FILES.keys()
             file_name = ''
 
@@ -179,53 +224,45 @@ class ShowPersonalData(View):
                 path = default_storage.save('tmp/' + file_name + ".jpg",
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
 
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-
-            x = UserProfile.objects.get(student_id=student_id)
-
-            return JsonResponse({"ShowPersonalDataCheck": "ShowPersonalData success!",
-                                 "realname": x.real_name,
-                                 "student_id": x.student_id,
-                                 "gender": x.gender,
-                                 "address": x.address,
-                                 "email": x.email,
-                                 "mobile": x.mobile,
-                                 "image": None
-                                 })
-
-            # return JsonResponse({"ShowPersonalData": "success"})
-
         except Exception as e:
             logger.debug('%s %s', self, e)
-            return JsonResponse({"ShowPersonalData": "failed"})
+            response_data = {'attempt': 'failure'}
+            return JsonResponse(response_data)
 
 
 class ChangePersonalData(View):
     # {student_id:string, password:string, email: string, gender: string, mobile: string, address: string}
     def post(self, request):
+        """
+        POST /change_personal_data/
+        :param request: The request from frontend.
+        :return: success/failure/offline
+        """
         try:
-            print(request.body)
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            email = eval(request.body.decode()).get("email")
-            gender = eval(request.body.decode()).get("gender")
-            mobile = eval(request.body.decode()).get("mobile")
-            address = eval(request.body.decode()).get("address")
-
-            query_set = UserProfile.objects.filter(student_id=student_id)
-            if query_set.count() == 0:
-                print('fail')
-                return JsonResponse({"ChangePersonalData": "failed"})
-            # 如果未能查询到用户
-            else:
-                print('success')
+            token = get_from_request(request, 'token')
+            if check_token(token):
+                sid = get_sid(token)
+                email = get_from_request(request, 'email')
+                gender = get_from_request(request, 'gender')
+                mobile = get_from_request(request, 'mobile')
+                address = get_from_request(request, 'address')
+                query_set = UserProfile.objects.filter(student_id=sid)
+                if query_set.count == 0:
+                    logger.debug('%s No such user.', self)
+                    response_data = {'attempt': 'failure'}
+                    return JsonResponse(response_data)
                 query_set.update(email=email, gender=gender, mobile=mobile, address=address)
-                return JsonResponse({"ChangePersonalData": "success"})
+                logger.debug('%s Personal profile of %s is changed', self, sid)
+                response_data = {'attempt': 'success'}
+                return JsonResponse(response_data)
+            else:
+                response_data = {'attempt': 'offline'}
+                return JsonResponse(response_data)
 
         except Exception as e:
-            print('ChangePersonalData', e)
-            return JsonResponse({"ChangePersonalData": "failed"})
+            logger.debug('%s %s', self, e)
+            response_data = {'attempt': 'failure'}
+            return JsonResponse(response_data)
 
 
 class UploadFile(View):
@@ -1442,7 +1479,7 @@ class StudentPublishRequest(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             type = eval(request.body.decode()).get("type")
             information = eval(request.body.decode()).get("content")
             group_id = eval(request.body.decode()).get("group_id")
@@ -1465,7 +1502,7 @@ class StudentPublishApply(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             type = eval(request.body.decode()).get("type")
             information = eval(request.body.decode()).get("content")
             project_id = eval(request.body.decode()).get("project_id")
@@ -1487,7 +1524,7 @@ class StudentGetAllAd(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             project_id = eval(request.body.decode()).get("project_id")
 
             query_set = ProjectComment.objects.filter(project_name_id=project_id)
@@ -1507,7 +1544,7 @@ class StudentGetAllAd(View):
                     ad[i.id]["group_id"] = None
                 else:
                     ad[i.id]["group_id"] = int(str[1])
-            return JsonResponse({"Data":ad, "StudentGetAllAd": "success"})
+            return JsonResponse({"Data": ad, "StudentGetAllAd": "success"})
 
         except Exception as e:
             print(e)
