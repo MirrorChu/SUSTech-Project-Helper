@@ -31,10 +31,10 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     CaptainGiveCaptain, ChangePersonalData, StudentGetAllGroupsInProject, \
     ShowHeadImage, ChangeHeadImage, StudentGetAllStudentsInProject, MailUrl, \
     SendMailToInvite, StudentGetProject, StudentGetsGroupInformationInProject, \
-    StudentGetValidGroupInProject, ShowOtherPersonalData, StudentGetsAllTags, TeacherGetCourses,\
+    StudentGetValidGroupInProject, ShowOtherPersonalData, StudentGetsAllTags, TeacherGetCourses, \
     StudentLikeTag, TeacherGetStudentsInCourse, TeacherCreateProject, TestFile, \
     SendKey, StudentGetsAllTagsCanAdd, UnshowTag, AddTag, StudentPublishRequest, \
-    StudentPublishApply, StudentGetAllAd
+    StudentPublishApply, StudentGetAllAd, GetIdentity, Logout
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -84,8 +84,9 @@ urlpatterns = [
     path('student_publish_request/', StudentPublishRequest.as_view()),
     path('student_publish_apply/', StudentPublishApply.as_view()),
     path('student_gets_all_ad/', StudentGetAllAd.as_view()),
+    path('get_identity/', GetIdentity.as_view()),
+    path('logout/', Logout.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
-
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页
 

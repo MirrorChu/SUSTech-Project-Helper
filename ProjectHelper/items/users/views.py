@@ -15,6 +15,7 @@ from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLik
     Key, ProjectFile, ProjectComment
 from items.projects.models import Project
 from items.users.models import UserProfile
+from django.core.cache import cache
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,15 @@ def get_from_request(request, arg):
     :return: The value of the key in request.
     """
     return eval(request.body.decode()).get(arg)
+
+
+def delete_token(token):
+    """
+    Delete token from redis.
+    :param token:
+    :return:
+    """
+    cache.delete_pattern(token)
 
 
 def check_token(token) -> bool:
@@ -81,6 +91,59 @@ def get_sid(token):
         return None
 
 
+class GetIdentity(View):
+    def post(self, request):
+        """
+        # TODO: Update doc.
+        POST /get_identity/
+        Get identity from token.
+        :param request: The request from frontend.
+        :return: {success, identity}/offline/failure
+        """
+        try:
+            token = get_from_request(request, 'token')
+            if check_token(token):
+                sid = get_sid(token)
+                users = UserProfile.objects.filter(student_id=sid)
+                assert len(users) == 1
+                user = users[0]
+                if user.is_staff == 1:
+                    response_data = {'attempt': 'success', 'identity': 'teacher'}
+                else:
+                    response_data = {'attempt': 'success', 'identity': 'student'}
+            else:
+                response_data = {'attempt': 'offline'}
+            return JsonResponse(response_data)
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            response_data = {'attempt': 'failure', 'identity': 'student'}
+            return JsonResponse(response_data)
+
+
+class Logout(View):
+    def post(self, request):
+        """
+        TODO: Update doc.
+        POST /logout/
+        Delete redis token and logout.
+        :param request: The request from frontend.
+        :return: success/offline/failure
+        """
+        try:
+            token = get_from_request(request, 'token')
+            if check_token(token):
+                delete_token(token)
+                response_data = {'attempt': 'success'}
+            else:
+                response_data = {'attempt': 'offline'}
+            logger.debug('%s logout %s', self, token)
+            return JsonResponse(response_data)
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            response_data = {'attempt': 'failure'}
+            return JsonResponse(response_data)
+
+
 class Login(View):
     """
         @method_decorator(ensure_csrf_cookie)
@@ -91,7 +154,7 @@ class Login(View):
     def post(self, request):
         try:
             logger.debug('%s request.body %s', self, request.body)
-            token = eval(request.body.decode()).get("token")
+            token = get_from_request(request, 'token')
             logger.debug('%s token %s', self, token)
 
             if token is not None and check_token(token):
@@ -418,39 +481,42 @@ class Test(View):
 
 class StudentGetsAllProjects(View):
     def post(self, request):
+        """
+        POST /student_gets_all_projects/
+        :param request: The request from frontend.
+        :return: {success, projects}/offline/failure
+        """
         try:
-            print('there is no token,', request.body)
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
+            token = get_from_request(request, 'token')
+            if check_token(token):
+                projects = []
+                student_id = get_sid(token)
+                user = UserProfile.objects.filter(student_id=student_id)
+                assert len(user) == 1
+                user = user[0]
+                courses = UserCourse.objects.filter(user_name_id=user.id)
 
-            # TODO: Delete this.
-            # if student_id == '11810101' and password == '11810101':
-            #     data = [{'course': 'CS301', 'project': '2.4G', 'start': '2020-12-01',
-            #              'due': '2020-12-21'},
-            #             {'course': 'CS303', 'project': 'IMP', 'start': '2020-11-15',
-            #              'due': '2020-11-30'}]
-            #     print(data)
-            #     return JsonResponse({'courses': data})
+                # Iterate over all courses one is visible to.
+                for course in courses:
+                    course_object = Course.objects.filter(id=course.course_name_id)
+                    assert len(course_object) == 1
+                    course_object = course_object[0]
+                    name = course_object.name
 
-            user = UserProfile.objects.filter(student_id=student_id)
-            course = ""
-            for i in user:
-                course = UserCourse.objects.filter(user_name_id=i.id)
-            courses = []
-            name = ""
-            projects = ""
-            for i in course:
-                courseObject = Course.objects.filter(id=i.course_name_id)
-                for j in courseObject:
-                    name = j.name
-                    projects = Project.objects.filter(course_id=j.id)
-                for k in projects:
-                    courses.append((k.id, name, k.name))
-            return JsonResponse({"Data": courses})
+                    # Get all projects one course has.
+                    new_projects = Project.objects.filter(course_id=course_object.id)
+                    for project in new_projects:
+                        projects.append((project.id, name, project.name))
+
+                response_data = {'attempt': 'success', 'projects': projects}
+                return JsonResponse(response_data)
+            else:
+                response_data = {'attempt': 'offline'}
+                return JsonResponse(response_data)
 
         except Exception as e:
-            return JsonResponse({"StudentGetsAllProjectsCheck": "failed"})
-    # 返回{课程名：{项目ID:项目名，}，}
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"StudentGetsAllProjectsCheck": "failure"})
 
 
 class StudentGetsSingleProjectInformation(View):
