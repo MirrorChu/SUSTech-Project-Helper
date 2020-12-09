@@ -96,8 +96,8 @@ class UserLikeTag(BaseModel):
 class ProjectComment(BaseModel):
     user_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="评论用户的名称")
     project_name = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="被评论项目的名称")
-    comments = models.CharField(max_length=200, verbose_name="评论内容")
-    floor = models.IntegerField(verbose_name="楼数", default=0)
+    comments = models.CharField(max_length=200, verbose_name="评论内容", default="")
+    floor = models.CharField(max_length=200, verbose_name="类型", default="")
 
     class Meta:
         verbose_name = "项目评论"

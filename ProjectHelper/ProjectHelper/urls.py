@@ -33,7 +33,8 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     SendMailToInvite, StudentGetProject, StudentGetsGroupInformationInProject, \
     StudentGetValidGroupInProject, ShowOtherPersonalData, StudentGetsAllTags, TeacherGetCourses,\
     StudentLikeTag, TeacherGetStudentsInCourse, TeacherCreateProject, TestFile, \
-    SendKey, StudentGetsAllTagsCanAdd, UnshowTag, AddTag
+    SendKey, StudentGetsAllTagsCanAdd, UnshowTag, AddTag, StudentPublishRequest, \
+    StudentPublishApply, StudentGetAllAd
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -80,6 +81,9 @@ urlpatterns = [
     path('send_key/', SendKey.as_view()),
     path('unshow_tag/', UnshowTag.as_view()),
     path('add_tag/', AddTag.as_view()),
+    path('student_publish_request/', StudentPublishRequest.as_view()),
+    path('student_publish_apply/', StudentPublishApply.as_view()),
+    path('student_gets_all_ad/', StudentGetAllAd.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
 

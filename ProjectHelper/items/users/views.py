@@ -14,7 +14,7 @@ from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
 from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, \
-    Key, ProjectFile
+    Key, ProjectFile, ProjectComment
 from items.projects.models import Project
 from items.users.models import UserProfile
 
@@ -1400,6 +1400,82 @@ class TeacherCreateProject(View):
         except Exception as e:
             print(e)
             return JsonResponse({"TeacherCreateProjectCheck": "failed"})
+
+
+class StudentPublishRequest(View):
+    def post(self, request):
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
+            type = eval(request.body.decode()).get("type")
+            information = eval(request.body.decode()).get("content")
+            group_id = eval(request.body.decode()).get("group_id")
+            project_id = eval(request.body.decode()).get("project_id")
+            title = eval(request.body.decode()).get("title")
+
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
+            floor = type + "," + str(group_id) + "," + title
+            ProjectComment.objects.create(comments=information, floor=floor,
+                                          project_name_id=project_id, user_name_id=user_id)
+
+            return JsonResponse({"StudentPublishRequest": "success"})
+
+        except Exception as e:
+            return JsonResponse({"StudentPublishRequest": "failed"})
+
+
+class StudentPublishApply(View):
+    def post(self, request):
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
+            type = eval(request.body.decode()).get("type")
+            information = eval(request.body.decode()).get("content")
+            project_id = eval(request.body.decode()).get("project_id")
+            title = eval(request.body.decode()).get("title")
+
+            query_set = UserProfile.objects.get(student_id=student_id)
+            user_id = query_set.id
+            floor = type + ",Null," + title
+            ProjectComment.objects.create(comments=information, floor=floor,
+                                          project_name_id=project_id, user_name_id=user_id)
+
+            return JsonResponse({"StudentPublishApply": "success"})
+
+        except Exception as e:
+            return JsonResponse({"StudentPublishApply": "failed"})
+
+
+class StudentGetAllAd(View):
+    def post(self, request):
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = Token.get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            query_set = ProjectComment.objects.filter(project_name_id=project_id)
+            ad = {}
+            for i in query_set:
+                str = i.floor.split(',')
+                title = ""
+                for j in range(2, len(str)):
+                    title += str[j]
+                query_set1 = UserProfile.objects.get(id=i.user_name_id)
+                ad[i.id] = {}
+                ad[i.id]["title"] = title
+                ad[i.id]["content"] = i.comments
+                ad[i.id]["type"] = str[0]
+                ad[i.id]["sid"] = query_set1.student_id
+                if str[1] == "Null":
+                    ad[i.id]["group_id"] = None
+                else:
+                    ad[i.id]["group_id"] = int(str[1])
+            return JsonResponse({"Data":ad, "StudentGetAllAd": "success"})
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({"StudentGetAllAd": "failed"})
 
 
 class SendMailToInvite(View):
