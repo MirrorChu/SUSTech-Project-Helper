@@ -7,8 +7,6 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 from django.http import JsonResponse, HttpResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic.base import View
 from django_redis import get_redis_connection
 from items.courses.models import Course
@@ -398,10 +396,12 @@ class StudentGetsAllProjects(View):
             #     return JsonResponse({'courses': data})
 
             user = UserProfile.objects.filter(student_id=student_id)
+            course = ""
             for i in user:
                 course = UserCourse.objects.filter(user_name_id=i.id)
             courses = []
             name = ""
+            projects = ""
             for i in course:
                 courseObject = Course.objects.filter(id=i.course_name_id)
                 for j in courseObject:
@@ -451,6 +451,7 @@ class StudentGetsAllGroups(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             user = UserProfile.objects.filter(student_id=student_id)
+            group_id = ""
             for i in user:
                 # 获得学生参加的所有队伍
                 group_id = UserGroup.objects.filter(user_name_id=i.id)
@@ -723,6 +724,7 @@ class StudentQuitsGroup(View):
             student_id = get_sid(token)
 
             user = UserProfile.objects.filter(student_id=student_id)
+            user_id = 0
             for i in user:
                 user_id = i.id
             group = GroupOrg.objects.filter(group_name_id=group_id)
@@ -856,25 +858,25 @@ class StudentGetAllStudentsInProject(View):
 
 
 class Image(View):
-    def post(self, request):
-        print(request.body)
-
-        file_obj = request.FILES.get('image')
-
-        print("file_obj", file_obj.name)
-
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-        file_path = os.path.join(BASE_DIR, 'static', 'head_images', file_obj.name)
-        print("file_path", file_path)
-        with open(file_path, 'wb+') as f:
-            for chunk in file_obj.chunks():
-                f.write(chunk)
-
-        message = {}
-        message['code'] = 200
-
-        return JsonResponse(message)
+    # def post(self, request):
+    #     print(request.body)
+    #
+    #     file_obj = request.FILES.get('image')
+    #
+    #     print("file_obj", file_obj.name)
+    #
+    #     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    #
+    #     file_path = os.path.join(BASE_DIR, 'static', 'head_images', file_obj.name)
+    #     print("file_path", file_path)
+    #     with open(file_path, 'wb+') as f:
+    #         for chunk in file_obj.chunks():
+    #             f.write(chunk)
+    #
+    #     message = {}
+    #     message['code'] = 200
+    #
+    #     return JsonResponse(message)
 
     def post(self, request):
         try:
@@ -1442,7 +1444,7 @@ class StudentPublishRequest(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             type = eval(request.body.decode()).get("type")
             information = eval(request.body.decode()).get("content")
             group_id = eval(request.body.decode()).get("group_id")
@@ -1465,7 +1467,7 @@ class StudentPublishApply(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             type = eval(request.body.decode()).get("type")
             information = eval(request.body.decode()).get("content")
             project_id = eval(request.body.decode()).get("project_id")
@@ -1487,7 +1489,7 @@ class StudentGetAllAd(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             project_id = eval(request.body.decode()).get("project_id")
 
             query_set = ProjectComment.objects.filter(project_name_id=project_id)
