@@ -43,8 +43,6 @@ def create_token(sid, password):
         string = sid + ',' + password + ',' + str(time.time())
         token = base64.b64encode(string.encode("utf-8")).decode("utf-8")
         r.set(token, sid, EXPIRE_TIME)
-        print('r.get(token)', r.get(token))
-        print('r.ttl(token)', r.ttl(token))
         return token
     except Exception as e:
         logger.exception('create_token(sid, password) %s', e)
@@ -103,13 +101,13 @@ class Login(View):
                 logger.debug('%s new token %s', self, token)
                 for i in user:
                     if i.is_staff == 1:
-                        print('teacher login')
+                        logger.debug('%s staff login', self)
                         return JsonResponse({'loginCheck': 'teacher', 'token': token})
                     else:
-                        print('student login')
+                        logger.debug('%s student login', self)
                         return JsonResponse({'loginCheck': 'student', 'token': token})
         except Exception as e:
-            print('Login', e)
+            logger.debug('%s %s', self, e)
             return JsonResponse({"loginCheck": "failed"})
 
 
@@ -117,23 +115,6 @@ class ShowOtherPersonalData(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
-            # file = request.FILES.get('file')
-            # print(type(file))
-            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
-            # return JsonResponse({
-            #                          "image": file
-            #                          })
-            # arr = request.FILES.keys()
-            # file_name = ''
-            #
-            # for k in arr:
-            #     file_name = k
-            #
-            # if file_name != '':
-            #     file = request.FILES.get(file_name)
-            #     path = default_storage.save('tmp/' + file_name + ".jpg",
-            #                                 ContentFile(file.read()))  # 根据名字存图(无类型)
-
             token = eval(request.body.decode()).get("token")
             t_id = eval(request.body.decode()).get("sid_target")
 
@@ -155,7 +136,7 @@ class ShowOtherPersonalData(View):
             # return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
-            print('ShowOtherPersonalData', e)
+            logger.debug('%s %s', self, e)
             return JsonResponse({"ShowOtherPersonalDataCheck": "failed"})
 
 
@@ -187,12 +168,6 @@ class ShowPersonalData(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
-            # file = request.FILES.get('file')
-            # print(type(file))
-            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
-            # return JsonResponse({
-            #                          "image": file
-            #                          })
             arr = request.FILES.keys()
             file_name = ''
 
@@ -222,7 +197,7 @@ class ShowPersonalData(View):
             # return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
-            print('ShowPersonalData', e)
+            logger.debug('%s %s', self, e)
             return JsonResponse({"ShowPersonalData": "failed"})
 
 
