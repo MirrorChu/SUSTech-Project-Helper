@@ -42,8 +42,7 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <AllProjectsList v-show="mainContent.projects" v-bind:pswd="this.pswd" v-bind:sid="this.sid"
-                         v-bind:identity="this.identity"></AllProjectsList>
+        <AllProjectsList v-show="mainContent.projects"></AllProjectsList>
 
       </el-main>
 
@@ -115,36 +114,6 @@ export default {
       // }
     },
 
-    onClickDetail (index) {
-      const localCourses = this.courses.filter(data => !this.searchKey ||
-          JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
-      const local_project = localCourses[index]
-
-      this.$axios.post('/student_gets_single_project_information/', {
-        sid: this.sid,
-        pswd: this.pswd,
-        project_id: local_project[0]
-      }).then(res => {
-        console.log('projectDetail', res.data)
-        this.projectDetail = res.data
-      }).catch(err => {
-        console.log(err)
-      })
-
-      this.$axios.post('/student_gets_group_information_in_project/', {
-        sid: this.sid,
-        pswd: this.pswd,
-        project_id: local_project[0]
-      }).then(res => {
-        console.log('groupInfo', res.data)
-        this.groupInfo = res.data
-        this.changeMainContent('showProjectDetail')
-      }).catch(err => {
-        this.projectDetail = null
-        console.log(err)
-      })
-    },
-
     onClickSettings () {
       this.changeMainContent('settings')
     },
@@ -166,9 +135,13 @@ export default {
 
     //TODO: Logout request.
     onClickLogout () {
-      console.log('logout')
-      // delCookie('sid')
-      this.$router.push('/')
+      this.$axios.post('/logout/', {}).then(res => {
+        console.log('logout', res.data)
+        localStorage.removeItem('Authorization')
+        this.$router.push('/login')
+      }).catch(err => {
+        console.log('err', err)
+      })
     },
   },
 }
