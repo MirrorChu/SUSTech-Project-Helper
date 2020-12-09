@@ -521,31 +521,34 @@ class StudentGetsAllProjects(View):
 
 class StudentGetsSingleProjectInformation(View):
     def post(self, request):
+        """
+        TODO: Update doc.
+        POST /student_gets_single_project_information/
+        :param request: The request from frontend.
+        :return:{success,projectName,projectIntroduction,courseName}/offline/failure
+        """
         try:
+            token = get_from_request(request, 'token')
+            if check_token(token):
+                project_id = get_from_request(request, 'projectId')
+                projects = Project.objects.filter(id=project_id)
+                assert len(projects) == 1
+                project = projects[0]
+                courses = Course.objects.filter(id=project.course_id)
+                assert len(courses) == 1
+                course = courses[0]
+                response_data = {'attempt': 'success',
+                                 'projectName': project.name,
+                                 'projectIntroduction': project.introduction,
+                                 'courseName': course.name}
+            else:
+                response_data = {'attempt': 'offline'}
+            return JsonResponse(response_data)
 
-            project_id = eval(request.body.decode()).get("project_id")
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            query_set = Project.objects.filter(id=project_id)
-            project_name = ""
-            project_introduction = ""
-            course_name = ""
-
-            for i in query_set:
-                project_name = i.name
-                project_introduction = i.introduction
-                course = i.course_id
-                query_set = Course.objects.filter(id=course)
-                for j in query_set:
-                    course_name = j.name
-
-            return JsonResponse(
-                {"project_name": project_name, "project_introduction": project_introduction,
-                 "course_name": course_name})
         except Exception as e:
-            return JsonResponse({"StudentGetsSingleProjectInformation": "failed"})
-
-        # 返回{项目名, 项目简介, 课程名}
+            logger.debug('%s %s', self, e)
+            response_data = {'attempt': 'failure'}
+            return JsonResponse(response_data)
 
 
 class StudentGetsAllGroups(View):
@@ -639,6 +642,7 @@ class StudentGetsSingleGroupInformation(View):
                                  "members": members,
                                  })
         except Exception as e:
+            logger.exception('%s %s', self, e)
             return JsonResponse({"StudentGetsSingleGroupInformation": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
 
@@ -718,6 +722,7 @@ class StudentGetsGroupInformationInProject(View):
                                  "members": members,
                                  })
         except Exception as e:
+            logger.exception('%s %s', self, e)
             return JsonResponse({"StudentGetsGroupInformationInProject": "failed"})
         # 返回{队伍名，队伍简介,项目id,项目名,课程id,课程名,队长学号,[队伍成员1学号,队伍成员2学号,...]}
 

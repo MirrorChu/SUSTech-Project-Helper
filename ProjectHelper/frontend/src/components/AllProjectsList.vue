@@ -101,11 +101,8 @@ export default {
       const localProject = localProjects[index]
 
       this.$axios.post('/student_gets_single_project_information/', {
-        sid: this.sid,
-        pswd: this.pswd,
-        project_id: localProject[0],
+        projectId: localProject[0],
       }).then(res => {
-        console.log('projectDetail', res.data)
         this.projectDetail = res.data
       }).catch(err => {
         console.log(err)
