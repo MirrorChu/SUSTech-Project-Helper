@@ -13,7 +13,8 @@ from django.views.generic.base import View
 from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, Key, ProjectFile
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, \
+    Key, ProjectFile
 from items.projects.models import Project
 from items.users.models import UserProfile
 
@@ -347,6 +348,7 @@ class Test(View):
 class StudentGetsAllProjects(View):
     def post(self, request):
         try:
+            print('there is no token,', request.body)
             token = eval(request.body.decode()).get("token")
             student_id = Token.get_sid(token)
 
@@ -1000,7 +1002,8 @@ class AddTag(View):
             else:
                 for i in query_set:
                     if i.visibility == 0:
-                        UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(visibility=1)
+                        UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(
+                            visibility=1)
                         return JsonResponse({"AddTag": "success"})
             return JsonResponse({"AddTag": "failed"})
         except Exception as e:
@@ -1108,7 +1111,8 @@ class StudentGetsAllTags(View):
                     query_set4 = UserLikeTag.objects.filter(user_name_id=user_id, tag_id=i.id)
                     if i.visibility == 1:
                         tags.append(
-                            {"tag_id": i.id, "tag_name": query_set2.tag, "type": query_set2.type, "likes": query_set3.count(),
+                            {"tag_id": i.id, "tag_name": query_set2.tag, "type": query_set2.type,
+                             "likes": query_set3.count(),
                              "like": query_set4.count()})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
@@ -1189,11 +1193,13 @@ class StudentGetValidGroupInProject(View):
                 group[i.id]["captain_name"] = captain.student_id
                 userGroup = UserGroup.objects.filter(group_name_id=i.id, user_name_id=student_id)
                 if userGroup.count() == 1:
-                    return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
+                    return JsonResponse(
+                        {"Data": None, "StudentGetValidGroupInProjectCheck": "already has group"})
                 if i.member == group["group_size"]:
                     group.pop(i.id)
             if len(group) == 0:
-                return JsonResponse({"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
+                return JsonResponse(
+                    {"Data": None, "StudentGetValidGroupInProjectCheck": "no group to attend"})
 
             return JsonResponse({"Data": group, "StudentGetValidGroupInProjectCheck": "success"})
         except Exception as e:
@@ -1368,8 +1374,10 @@ class TeacherCreateProject(View):
                                                  group_ddl=group_ddl)
                 project_id = 0
                 if project.count() == 0:
-                    Project.objects.create(name=project_name, introduction=introduction, group_size=group_size,
-                                           course_id=course_id, min_group_size=min_group_size, group_ddl=group_ddl)
+                    Project.objects.create(name=project_name, introduction=introduction,
+                                           group_size=group_size,
+                                           course_id=course_id, min_group_size=min_group_size,
+                                           group_ddl=group_ddl)
                 else:
                     for j in project:
                         project_id = j.id
@@ -1535,4 +1543,3 @@ class Token:
                 return store_sid
         except Exception as e:
             return False
-

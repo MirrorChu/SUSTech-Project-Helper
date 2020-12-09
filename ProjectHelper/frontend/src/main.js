@@ -31,7 +31,7 @@ Axios.interceptors.request.use(
     if (config.url === '/login' || config.url === '/') {  //如果是登录操作，则不需要携带header里面的token
     } else {
       if (localStorage.getItem('Authorization')) {
-        config.headers.Authorizatior = localStorage.getItem('Authorization')
+        config.data.token = localStorage.getItem('Authorization')
       }
     }
     return config

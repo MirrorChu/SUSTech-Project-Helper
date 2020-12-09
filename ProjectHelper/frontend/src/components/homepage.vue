@@ -85,7 +85,7 @@ export default {
   },
   created () {
     console.log('/student_gets_all_projects/')
-    this.$axios.post('/student_gets_all_projects/', { sid: this.sid, pswd: this.pswd }).then(res => {
+    this.$axios.post('/student_gets_all_projects/').then(res => {
       console.log('all projects', res.data.Data)
       this.courses = res.data.Data
     }).catch(err => {
@@ -117,7 +117,7 @@ export default {
 
     onClickDetail (index) {
       const localCourses = this.courses.filter(data => !this.searchKey ||
-        JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
+          JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const local_project = localCourses[index]
 
       this.$axios.post('/student_gets_single_project_information/', {
