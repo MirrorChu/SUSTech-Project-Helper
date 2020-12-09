@@ -25,14 +25,11 @@ new Vue({
   template: '<App/>',
 })
 
-//异步请求前在header里加入token
+//异步请求前在data里加入token
 Axios.interceptors.request.use(
   config => {
-    if (config.url === '/login' || config.url === '/') {  //如果是登录操作，则不需要携带header里面的token
-    } else {
-      if (localStorage.getItem('Authorization')) {
-        config.data.token = localStorage.getItem('Authorization')
-      }
+    if (localStorage.getItem('Authorization')) {
+      config.data.token = localStorage.getItem('Authorization')
     }
     return config
   },
@@ -60,18 +57,14 @@ Axios.interceptors.response.use(
 
 //异步请求前判断请求的连接是否需要token
 router.beforeEach((to, from, next) => {
-  if (to.path === '/' || to.path === '/login') {
-    next()
+  let token = localStorage.getItem('Authorization')
+  console.log('beforeEach')
+  console.log('我是浏览器本地缓存的token: ' + token)
+  if (token === 'null' || token === '') {
+    console.log('无token || token失效')
+    next({ path: '/login', query: { Rurl: to.fullPath } })
   } else {
-    let token = localStorage.getItem('Authorization')
-    console.log('beforeEach')
-    console.log('我是浏览器本地缓存的token: ' + token)
-    if (token === 'null' || token === '') {
-      console.log('无token || token失效')
-      next({ path: '/login', query: { Rurl: to.fullPath } })
-    } else {
-      console.log('token验证成功')
-      next()
-    }
+    console.log('token验证成功')
+    next()
   }
 })
