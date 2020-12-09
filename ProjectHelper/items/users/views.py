@@ -387,12 +387,6 @@ class Test(View):
 
     def post(self, request):
         try:
-            # file = request.FILES.get('file')
-            # print(type(file))
-            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
-            # return JsonResponse({
-            #                          "image": file
-            #                          })
             print(request.POST)
             arr = request.FILES.keys()
             print(arr)
@@ -442,41 +436,6 @@ class Test(View):
         except Exception as e:
             print('avatar exception')
             return JsonResponse({"ShowPersonalData": "failed"})
-
-    # def post(self, request):
-    #         try:
-    #             print(request.body)
-    #             student_id = "11811002"
-    #             password = "123"
-    #             # get file
-    #
-    #             file = open('test.txt', 'wb+')
-    #
-    #             file_obj = request.FILES.get('file', None)
-    #
-    #             if not file_obj:
-    #                 return JsonResponse({"ChangeHeadImage": "failed"})
-    #             else:
-    #                 print("file_obj", file_obj.name)
-    #
-    #                 # create path
-    #                 file_path = os.path.join('static', 'head_images', student_id,
-    #                                          time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), file_obj.name)
-    #
-    #                 print("file_path", file_path)
-    #
-    #                 # store file
-    #                 with open(file_path, 'wb+') as f:
-    #                     for chunk in file_obj.chunks():
-    #                         f.write(chunk)
-    #
-    #                 # update database path
-    #                 UserProfile.objects.filter(username=student_id, password=password).update(image=file_path)
-    #
-    #                 return JsonResponse({"ChangeHeadImage": "success"})
-    #
-    #         except Exception as e:
-    #             return JsonResponse({"ChangeHeadImage": "failed"})
 
 
 class StudentGetsAllProjects(View):
@@ -650,26 +609,12 @@ class StudentGetsSingleGroupInformation(View):
 class StudentGetsGroupInformationInProject(View):
     def post(self, request):
         """
-        TOD: Please avoid this kind of variable reuse. Extremely error-prone.
+        TODO: Please avoid this kind of variable reuse. Extremely error-prone.
+        TODO: Backend finishes it himself.
         :param request:
         :return:
         """
         try:
-
-            # token = get_from_request(request, 'token')
-            # if check_token(token):
-            #     project_id = get_from_request(request, 'projectId')
-            #     sid = get_sid(token)
-            #     groups = UserGroup.objects.filter(user_name_id=sid)
-            #     if groups.count() == 0:
-            #         response_data = {'attempt': 'success'}
-            #     else:
-            #         response_data = {'attempt': 'success'}
-            #         assert groups.count() == 1
-            #         group = groups[0]
-            #
-            #     return JsonResponse(response_data)
-
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)

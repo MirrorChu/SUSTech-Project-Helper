@@ -20,8 +20,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/AllProjectsList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AllProjectsList.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -114,6 +112,7 @@
       <workItem from="1607438918540" duration="276000" />
       <workItem from="1607497304683" duration="1151000" />
       <workItem from="1607516669503" duration="8857000" />
+      <workItem from="1607533400503" duration="262000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
