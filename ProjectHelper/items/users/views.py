@@ -17,19 +17,75 @@ from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLik
     Key, ProjectFile, ProjectComment
 from items.projects.models import Project
 from items.users.models import UserProfile
+import logging
+
+logger = logging.getLogger(__name__)
 
 r = get_redis_connection()
+EXPIRE_TIME = 600
+
+
+def check_token(token) -> bool:
+    record = r.get(token)
+    logger.debug('check_token(token) token: %s, record: %s', token, record)
+    if record is None:
+        return False
+    r.expire(token, EXPIRE_TIME)
+    return True
+
+
+def update_token(token) -> None:
+    r.expire(token, EXPIRE_TIME)
+
+
+def create_token(sid, password):
+    try:
+        string = sid + ',' + password + ',' + str(time.time())
+        token = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+        r.set(token, sid, EXPIRE_TIME)
+        return token
+    except Exception as e:
+        logger.exception('create_token(sid, password) %s', e)
+        return None
+
+
+def get_sid(token):
+    try:
+        stored_sid = r.get(token)
+        if stored_sid is None:
+            return None
+        else:
+            r.expire(token, EXPIRE_TIME)
+            return stored_sid.decode()
+    except Exception as e:
+        logger.exception('get_sid(token) %s', e)
+        return None
 
 
 class Login(View):
-    @method_decorator(ensure_csrf_cookie)
-    # def get(self, request, *args, **kwargs):
-    #     return render(request, "login.html")
+    """
+        @method_decorator(ensure_csrf_cookie)
+        # def get(self, request, *args, **kwargs):
+        #     return render(request, "login.html")
+    """
 
-    # 当用户按下登录按键时
     def post(self, request):
         try:
-            print(request.body)
+            logger.debug('%s request.body %s', self, request.body)
+            token = eval(request.body.decode()).get("token")
+            logger.debug('%s token %s', self, token)
+
+            if token is not None and check_token(token):
+                logger.debug('%s token login success', self)
+                sid = get_sid(token)
+                users = UserProfile.objects.filter(student_id=sid)
+                for user in users:
+                    if user.is_staff == 1:
+                        logger.debug('%s staff login', self)
+                        return JsonResponse({'loginCheck': 'teacher', 'token': token})
+                    else:
+                        logger.debug('%s student login', self)
+                        return JsonResponse({'loginCheck': 'student', 'token': token})
 
             student_id = eval(request.body.decode()).get("sid")
             password = eval(request.body.decode()).get("pswd")
@@ -41,38 +97,24 @@ class Login(View):
                 return JsonResponse({"LoginCheck": "failed"})
             # 如果未能查询到用户
             else:
-                token = Token.create_token(sid=student_id, password=password)
+                token = create_token(sid=student_id, password=password)
+                logger.debug('%s new token %s', self, token)
                 for i in user:
                     if i.is_staff == 1:
-                        return JsonResponse({"LoginCheck": "teacher", "Token": token})
+                        logger.debug('%s staff login', self)
+                        return JsonResponse({'loginCheck': 'teacher', 'token': token})
                     else:
-                        return JsonResponse({"LoginCheck": "student", "Token": token})
+                        logger.debug('%s student login', self)
+                        return JsonResponse({'loginCheck': 'student', 'token': token})
         except Exception as e:
-            print(e.with_traceback())
-            return JsonResponse({"LoginCheck": "failed"})
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"loginCheck": "failed"})
 
 
 class ShowOtherPersonalData(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
-            # file = request.FILES.get('file')
-            # print(type(file))
-            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
-            # return JsonResponse({
-            #                          "image": file
-            #                          })
-            # arr = request.FILES.keys()
-            # file_name = ''
-            #
-            # for k in arr:
-            #     file_name = k
-            #
-            # if file_name != '':
-            #     file = request.FILES.get(file_name)
-            #     path = default_storage.save('tmp/' + file_name + ".jpg",
-            #                                 ContentFile(file.read()))  # 根据名字存图(无类型)
-
             token = eval(request.body.decode()).get("token")
             t_id = eval(request.body.decode()).get("sid_target")
 
@@ -94,7 +136,7 @@ class ShowOtherPersonalData(View):
             # return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
-            print('exception')
+            logger.debug('%s %s', self, e)
             return JsonResponse({"ShowOtherPersonalDataCheck": "failed"})
 
 
@@ -126,12 +168,6 @@ class ShowPersonalData(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
-            # file = request.FILES.get('file')
-            # print(type(file))
-            # path = default_storage.save('tmp/'+str(request.FILES.get('file')), ContentFile(file.read()))  # 根据名字存图
-            # return JsonResponse({
-            #                          "image": file
-            #                          })
             arr = request.FILES.keys()
             file_name = ''
 
@@ -144,7 +180,7 @@ class ShowPersonalData(View):
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
 
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             x = UserProfile.objects.get(student_id=student_id)
 
@@ -161,7 +197,7 @@ class ShowPersonalData(View):
             # return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
-            print('exception')
+            logger.debug('%s %s', self, e)
             return JsonResponse({"ShowPersonalData": "failed"})
 
 
@@ -171,7 +207,7 @@ class ChangePersonalData(View):
         try:
             print(request.body)
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             email = eval(request.body.decode()).get("email")
             gender = eval(request.body.decode()).get("gender")
             mobile = eval(request.body.decode()).get("mobile")
@@ -188,7 +224,7 @@ class ChangePersonalData(View):
                 return JsonResponse({"ChangePersonalData": "success"})
 
         except Exception as e:
-            print('exception')
+            print('ChangePersonalData', e)
             return JsonResponse({"ChangePersonalData": "failed"})
 
 
@@ -350,7 +386,7 @@ class StudentGetsAllProjects(View):
         try:
             print('there is no token,', request.body)
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             # TODO: Delete this.
             # if student_id == '11810101' and password == '11810101':
@@ -386,7 +422,7 @@ class StudentGetsSingleProjectInformation(View):
 
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             query_set = Project.objects.filter(id=project_id)
             project_name = ""
             project_introduction = ""
@@ -413,7 +449,7 @@ class StudentGetsAllGroups(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             user = UserProfile.objects.filter(student_id=student_id)
             for i in user:
                 # 获得学生参加的所有队伍
@@ -451,7 +487,7 @@ class StudentGetsSingleGroupInformation(View):
         try:
             group_id = eval(request.body.decode()).get("group_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             query_set = GroupOrg.objects.filter(id=group_id)
 
             group_name = ""
@@ -508,7 +544,7 @@ class StudentGetsGroupInformationInProject(View):
         try:
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             user = UserProfile.objects.filter(student_id=student_id)
 
@@ -586,7 +622,7 @@ class StudentCreatesGroup(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             group_name = eval(request.body.decode()).get("group_name")
             introduction = eval(request.body.decode()).get("introduction")
             project_id = eval(request.body.decode()).get("project_id")
@@ -622,7 +658,7 @@ class EditsGroupIntroduction(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             group_id = eval(request.body.decode()).get("group_id")
             group_introduction = eval(request.body.decode()).get("group_introduction")
 
@@ -640,7 +676,7 @@ class EditsGroupName(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             group_id = eval(request.body.decode()).get("group_id")
             group_name = eval(request.body.decode()).get("group_name")
 
@@ -656,7 +692,7 @@ class GroupMemberValidation(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             group_id = eval(request.body.decode()).get("group_id")
 
             user_id = 0
@@ -684,7 +720,7 @@ class StudentQuitsGroup(View):
         try:
             group_id = eval(request.body.decode()).get("group_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             user = UserProfile.objects.filter(student_id=student_id)
             for i in user:
@@ -705,7 +741,7 @@ class CaptainKickMember(View):
         try:
             group_id = eval(request.body.decode()).get("group_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
             group = GroupOrg.objects.filter(group_name_id=group_id)
             mem = 0
@@ -723,7 +759,7 @@ class CaptainDismissGroup(View):
         try:
             group_id = eval(request.body.decode()).get("group_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             GroupOrg.objects.filter(group_name_id=group_id).delete()
             UserGroup.objects.filter(group_name_id=group_id).delete()
@@ -737,7 +773,7 @@ class CaptainGiveCaptain(View):
         try:
             group_id = eval(request.body.decode()).get("group_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
 
             user = UserProfile.objects.filter(student_id=target_id)
@@ -757,7 +793,7 @@ class StudentGetAllGroupsInProject(View):
         try:
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             groups = GroupOrg.objects.filter(project_id=project_id)
             project = Project.objects.filter(id=project_id)
             group = {}
@@ -783,7 +819,7 @@ class StudentGetAllStudentsInProject(View):
         try:
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             groups = GroupOrg.objects.filter(project_id=project_id)
             project = Project.objects.filter(id=project_id)
             group = {}
@@ -956,7 +992,7 @@ class ShowHeadImage(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             head_image_path = ""
 
@@ -981,7 +1017,7 @@ class AddTag(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_target")
 
             user_id = 0
@@ -1015,7 +1051,7 @@ class ShowTag(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_id")
 
             user_id = 0
@@ -1044,7 +1080,7 @@ class UnshowTag(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_target")
 
             UserTag.objects.get(id=tag_id)
@@ -1061,7 +1097,7 @@ class GetTagVisibility(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_id")
 
             user_id = 0
@@ -1091,7 +1127,7 @@ class StudentGetsAllTags(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             t_id = eval(request.body.decode()).get("sid_target")
 
             user_id = 0
@@ -1125,7 +1161,7 @@ class StudentGetsAllTagsCanAdd(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             user_id = 0
             rev_tags = []
@@ -1153,7 +1189,7 @@ class StudentLikeTag(View):
         try:
             print(datetime.datetime.now())
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             t_id = eval(request.body.decode()).get("tag_target")
 
             query_set = UserProfile.objects.get(student_id=student_id)
@@ -1177,7 +1213,7 @@ class StudentGetValidGroupInProject(View):
 
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             groups = GroupOrg.objects.filter(project_id=int(project_id))
             project = Project.objects.get(id=int(project_id))
@@ -1225,7 +1261,7 @@ class StudentGetProject(View):
 
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             groups = GroupOrg.objects.filter(project_id=int(project_id))
             project = Project.objects.get(id=int(project_id))
@@ -1299,7 +1335,7 @@ class TeacherGetCourses(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
             user_id = query_set.id
@@ -1323,7 +1359,7 @@ class TeacherGetStudentsInCourse(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             course_id = eval(request.body.decode()).get("course")
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
@@ -1348,7 +1384,7 @@ class TeacherCreateProject(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             project_name = eval(request.body.decode()).get("newProjectName")
             introduction = eval(request.body.decode()).get("newProjectDescription")
             group_size = eval(request.body.decode()).get("groupingMaximum")
@@ -1482,7 +1518,7 @@ class SendMailToInvite(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("t_sid")
             group_id = eval(request.body.decode()).get("group_id")
 
@@ -1544,7 +1580,7 @@ class SendKey(View):
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
-            student_id = Token.get_sid(token)
+            student_id = get_sid(token)
             course_id = eval(request.body.decode()).get("course")
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
@@ -1569,19 +1605,14 @@ class TestFile(View):
             file_name = ''
             for k in arr:
                 file_name = k
-
             sid = ''
             pswd = ''
-            path = ""
-
             for k in request.POST:
                 if str(k) == 'sid':
                     sid = str(request.POST[k])
                 else:
                     pswd = str(request.POST[k])
-
             print(sid, pswd)
-
             if file_name != '':
                 file = request.FILES.get(file_name)
                 path = default_storage.save('head_images/' + sid + "/" +
@@ -1589,33 +1620,7 @@ class TestFile(View):
                                             + "/" + file_name,
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
                 print(path)
-
             return JsonResponse({"ChangeHeadImage": "success"})
-
         except Exception as e:
-            print('avatar exception')
+            print('avatar exception', e)
             return JsonResponse({"ChangeHeadImage": "failed"})
-
-
-class Token:
-
-    def create_token(sid, password):
-        try:
-            token_expire = 3600
-            string = sid + "," + password + "," + str(time.time())
-            token = base64.b64encode(string.encode("utf-8")).decode("utf-8")
-            r.set(token, sid, token_expire)
-            return token
-        except Exception as e:
-            return False
-
-    def get_sid(token):
-        try:
-            store_sid = r.get(token)
-            if store_sid == None:
-                return False
-            else:
-                r.expire(token, timeout=3600)
-                return store_sid
-        except Exception as e:
-            return False
