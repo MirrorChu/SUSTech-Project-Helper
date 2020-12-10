@@ -29,13 +29,12 @@ export default {
   },
   beforeCreate () {
     this.$axios.post('/login/', {}).then(res => {
-      var status = res.data['loginCheck']
+      const status = res.data['loginCheck']
       if (status === 'student' || status === 'teacher') {
         this.$router.push({
           name: 'homepage',
           params: {
             sid: this.sid,
-            pswd: this.pswd,
             identity: this.identity
           },
         })

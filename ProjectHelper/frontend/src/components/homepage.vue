@@ -38,7 +38,7 @@
 
       <el-main>
 
-        <profile v-show="mainContent.profile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"></profile>
+        <profile v-show="mainContent.profile" v-bind:sid="this.sid"></profile>
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
@@ -65,7 +65,6 @@ export default {
       //TODO: Data is lost after refresh.
       searchKey: '',
       sid: this.$route.params.sid,
-      pswd: this.$route.params.pswd,
       identity: this.$route.params.identity,
       name: '',
       asideWidth: '160px',
@@ -85,8 +84,8 @@ export default {
   created () {
     console.log('/student_gets_all_projects/')
     this.$axios.post('/student_gets_all_projects/').then(res => {
-      console.log('all projects', res.data.Data)
-      this.courses = res.data.Data
+      console.log('all projects', res.data['Data'])
+      this.courses = res.data['Data']
     }).catch(err => {
       console.log(err)
     })
