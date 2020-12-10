@@ -47,8 +47,8 @@ export default {
   methods: {
     onLoginClick () {
       //TODO Login request.
-      axios.defaults.xsrfCookieName = 'csrftoken'
-      axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
+      // axios.defaults.xsrfCookieName = 'csrftoken'
+      // axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
       let status = ''
       this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res => {
         status = res.data['loginCheck']
