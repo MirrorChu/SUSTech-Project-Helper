@@ -69,10 +69,6 @@ export default {
       type: String,
       required: true,
     },
-    pswd: {
-      type: String,
-      required: true,
-    },
   },
   created () {
 
@@ -121,7 +117,7 @@ export default {
   methods: {
     onClickAdd () {
       //  TODO: Test if manuallySearchSid is valid.
-      this.selectedStudents.push({value: this.manuallySearchSid, label: this.manuallySearchSid})
+      this.allStudentInCourse.push({value: this.manuallySearchSid, label: this.manuallySearchSid})
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
@@ -143,7 +139,6 @@ export default {
     onClickConfirmCreateProject () {
       this.dataBlock = {
         'sid': this.sid,
-        'pswd': this.pswd,
         'newProjectCourse': this.newProjectCourse,
         'newProjectName': this.newProjectName,
         'newProjectDescription': this.newProjectDescription,

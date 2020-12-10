@@ -41,6 +41,9 @@ export default {
       requires: true
     }
   },
+  created() {
+
+  },
   data() {
     return {
       toInviteList: [],

@@ -10,10 +10,10 @@
       <div>
         <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
                    v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
-                   v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"></GroupInfo>
+                   v-bind:sid="this.$props.sid"></GroupInfo>
         <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
         <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
-                           v-bind:sid="this.$props.sid" v-bind:pswd="this.$props.pswd"
+                           v-bind:sid="this.$props.sid"
                            v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
 
         <el-form :inline="true" :model="target_user" class="querypersonalprofile">
@@ -28,7 +28,7 @@
     </div>
 
     <div>
-      <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
+      <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid"
                        v-bind:personalprofile="this.personalprofile" >
       </PersonalProfile>
       <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects
@@ -74,16 +74,8 @@
       </el-dialog>
     </div>
 
-<!--    <el-collapse v-model="activeNames" @change="handleChange">-->
-<!--      <el-collapse-item v-for="item in advertisementData" title="item.title" name="item.advertisement_id">-->
-<!--        <div>{{ item.content }}</div>-->
-<!--      </el-collapse-item>-->
-<!--    </el-collapse>-->
-
     <div>
       <EventList v-bind:sid="this.$props.sid"
-                 v-bind:pswd="this.$props.pswd"
-                 v-bind:identity="this.$props.identity"
                  v-bind:projectId="this.groupInfo.project_id">
       </EventList>
     </div>
@@ -101,14 +93,6 @@ export default {
   components: { EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile },
   props: {
     sid: {
-      type: String,
-      required: true,
-    },
-    pswd: {
-      type: String,
-      required: true,
-    },
-    identity: {
       type: String,
       required: true,
     },
@@ -135,12 +119,17 @@ export default {
       dialogPersonalProfileVisible: false,
       advertisementData: '',
       eventList: [],
+      identity: '',
     }
   },
   created () {
     //Use == instead of === here.
+    this.$axios.post('/get_identity/', {}).then(res => {
+      this.identity = res.data['identity']
+    }).catch(err => {
+      console.log('err', err)
+    })
     this.sid = this.$props.sid
-    this.pswd = this.$props.pswd
     this.pulladvertisementData()
     if (this.$props.groupInfo == null) {
       this.status = 'You are not in a group!'
@@ -165,15 +154,11 @@ export default {
     onClickBackToProjectDetail () {
       this.controlDisplay('projectDetail')
     },
-    onClickToPersonalProfile () {
-      this.controlDisplay('PersonalProfile')
-    },
     onQueryPersonalProfile () {
       this.pulltagData()
 
       this.$axios.post('/show_other_personal_data/', {
         sid: this.sid,
-        pswd: this.pswd,
         sid_target: this.target_user.sid,
       }).then(res => {
         console.log('PersonalProfile', res.data)
@@ -197,7 +182,6 @@ export default {
       console.log(typeof id)
       this.$axios.post('/student_like_tag/', {
         sid: this.sid,
-        pswd: this.pswd,
         tag_target: id,
       }).then(res => {
 
@@ -222,7 +206,6 @@ export default {
     {
       this.$axios.post('/student_gets_all_tags/', {
         sid: this.sid,
-        pswd: this.pswd,
         sid_target: this.target_user.sid,
       }).then(res => {
         this.tags = res.data

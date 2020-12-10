@@ -24,13 +24,10 @@
 
     <ProjectDetail v-if="this.displayControl.projectDetail"
                    v-bind:sid="this.sid"
-                   v-bind:pswd="this.pswd"
                    v-bind:groupInfo="this.groupInfo"
-                   v-bind:projectDetail="this.projectDetail"
-                   v-bind:identity="this.identity"></ProjectDetail>
+                   v-bind:projectDetail="this.projectDetail"></ProjectDetail>
 
     <CreateProject
-        v-bind:pswd="this.pswd"
         v-bind:sid="this.sid"
         v-if="this.displayControl.createProjectForm"></CreateProject>
 
@@ -62,12 +59,14 @@ export default {
       },
       createProjectLiteral: 'Create New Project',
       identity: '',
+      sid: '',
     }
   },
   created () {
     this.$axios.post('/student_gets_all_projects/', {}).then(res => {
       console.log(res.data)
-      this.projects = res.data.projects
+      this.projects = res.data['projects']
+      this.sid = res.data['sid']
     }).catch(err => {
       console.log('err', err)
     })
@@ -80,8 +79,8 @@ export default {
   },
   methods: {
     onClickCreateProject () {
-      this.createProjectForm = !this.createProjectForm
-      if (!this.createProjectForm) {
+      this.displayControl.createProjectForm = !this.displayControl.createProjectForm
+      if (!this.displayControl.createProjectForm) {
         this.createProjectLiteral = 'Create New Project'
       } else {
         this.createProjectLiteral = '      Cancel      '
@@ -109,7 +108,6 @@ export default {
       })
       this.$axios.post('/student_gets_group_information_in_project/', {
         sid: this.sid,
-        pswd: this.pswd,
         project_id: localProject[0],
       }).then(res => {
         console.log('groupInfo', res.data)

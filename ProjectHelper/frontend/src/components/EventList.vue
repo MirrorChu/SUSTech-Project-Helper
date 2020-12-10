@@ -1,10 +1,9 @@
 <template>
   <div>
     <h1>Event List</h1>
-    <div>
+    <div v-if="this.identity === 'teacher'" >
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
-                  v-bind:pswd="this.$props.pswd"
                   v-bind:projectId="this.$props.projectId">
         </NewEvent>
       </el-card>
@@ -47,14 +46,6 @@ export default {
       type: String,
       required: true,
     },
-    pswd: {
-      type: String,
-      required: true,
-    },
-    identity: {
-      type: String,
-      required: true,
-    },
     projectId: {
       type: Number,
       required: true,
@@ -65,9 +56,15 @@ export default {
       name: 'Events',
       componentsStr: '',
       componentObjs: [],
+      identity: '',
     }
   },
   created () {
+    this.$axios.post('/get_identity/', {}).then(res => {
+      this.identity = res.data['identity']
+    }).catch(err => {
+      console.log('err', err)
+    })
     this.componentObjs = [
       {
         type: 'AnnouncementComponent',

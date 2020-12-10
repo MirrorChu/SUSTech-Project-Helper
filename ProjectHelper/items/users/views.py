@@ -434,7 +434,7 @@ class Test(View):
             # return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
-            print('avatar exception')
+            logger.exception('%s %s', self, e)
             return JsonResponse({"ShowPersonalData": "failed"})
 
 
@@ -467,7 +467,7 @@ class StudentGetsAllProjects(View):
                     for project in new_projects:
                         projects.append((project.id, name, project.name))
 
-                response_data = {'attempt': 'success', 'projects': projects}
+                response_data = {'attempt': 'success', 'projects': projects, 'sid': student_id}
                 return JsonResponse(response_data)
             else:
                 response_data = {'attempt': 'offline'}
@@ -1201,11 +1201,11 @@ class StudentGetsAllTags(View):
     # return path
     def post(self, request):
         try:
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            t_id = eval(request.body.decode()).get("sid_target")
+            logger.debug('%s request.body %s', self, request.body)
+            token = get_from_request(request, 'token')
+            student_id = get_from_request(request, 'sid')
+            t_id = get_from_request(request, 'sid_target')
 
-            user_id = 0
             tags = []
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
@@ -1229,6 +1229,7 @@ class StudentGetsAllTags(View):
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
 
         except Exception as e:
+            logger.exception('%s %s', self, e)
             return JsonResponse({"StudentGetsAllTags": "failed"})
 
 
