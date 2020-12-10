@@ -56,15 +56,15 @@ Axios.interceptors.response.use(
 )
 
 //异步请求前判断请求的连接是否需要token
-router.beforeEach((to, from, next) => {
-  let token = localStorage.getItem('Authorization')
-  console.log('beforeEach')
-  console.log('我是浏览器本地缓存的token: ' + token)
-  if (token === 'null' || token === '') {
-    console.log('无token || token失效')
-    next({ path: '/login', query: { Rurl: to.fullPath } })
-  } else {
-    console.log('token验证成功')
-    next()
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   let token = localStorage.getItem('Authorization')
+//   console.log('beforeEach')
+//   console.log('我是浏览器本地缓存的token: ' + token)
+//   if (token === 'null' || token === '') {
+//     console.log('无token || token失效')
+//     next({ path: '/login', query: { Rurl: to.fullPath } })
+//   } else {
+//     console.log('token验证成功')
+//     next()
+//   }
+// })

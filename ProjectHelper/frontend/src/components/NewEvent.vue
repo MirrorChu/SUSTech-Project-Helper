@@ -46,10 +46,6 @@ export default {
       type: String,
       required: true,
     },
-    pswd: {
-      type: String,
-      required: true,
-    },
     projectId: {
       type: Number,
       required: true,

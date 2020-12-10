@@ -27,10 +27,6 @@ export default {
       type: String,
       required: true,
     },
-    pswd: {
-      type: String,
-      required: true,
-    },
     projectId: {
       required: true,
     },
@@ -69,7 +65,6 @@ export default {
       } else {
         this.$axios.post('/student_creates_group/', {
           sid: this.sid,
-          pswd: this.pswd,
           project_id: this.projectId,
           group_name: this.createGroupName,
           introduction: this.createIntroduction
