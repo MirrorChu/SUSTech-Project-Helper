@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <el-form :label-position="labelPosition" :label-width="labelWidth">
+    <el-form :label-position="labelPosition" :label-width="labelWidth" class="input-box">
       <el-form-item label="Student ID">
         <el-input v-model="sid" placeholder="SID" clearable></el-input>
       </el-form-item>
@@ -78,6 +78,18 @@ export default {
 }
 </script>
 
-<!--<style scoped>-->
+<style scoped>
+.login {
+  position: absolute;
+  width: 400px;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
-<!--</style>-->
+.input-box {
+  border: 1px solid black;
+  border-radius: 2px;
+}
+
+</style>
