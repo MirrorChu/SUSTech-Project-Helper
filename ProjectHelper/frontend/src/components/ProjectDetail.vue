@@ -2,10 +2,10 @@
   <div>
     <div v-if="this.displayControl.projectDetail">
       <div>
-        Course Name: {{ this.$props.projectDetail.course_name }}
+        Course Name: {{ this.$props.projectDetail['courseName'] }}
       </div>
       <div>
-        Project Name: {{ this.$props.projectDetail['project_name'] }}
+        Project Name: {{ this.$props.projectDetail['projectName'] }}
       </div>
       <div>
         <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"

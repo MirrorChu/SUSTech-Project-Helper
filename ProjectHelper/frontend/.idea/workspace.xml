@@ -20,17 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/courses/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/groups/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/operations/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/projects/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/users/migrations/__init__.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../xadmin/migrations/__init__.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,6 +111,8 @@
       <workItem from="1607424314665" duration="657000" />
       <workItem from="1607438918540" duration="276000" />
       <workItem from="1607497304683" duration="1151000" />
+      <workItem from="1607516669503" duration="8857000" />
+      <workItem from="1607533400503" duration="262000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>

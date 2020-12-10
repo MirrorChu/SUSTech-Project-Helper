@@ -14,7 +14,7 @@
                :show-file-list="false"
                :on-success="handleAvatarSuccess"
                :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar">
+      <img v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar">
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
 
@@ -123,18 +123,10 @@
 
 export default {
   name: 'profile',
-  props: {
-    sid: {
-      type: String,
-      required: true,
-    },
-    pswd: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
+  props: {},
+  data () {
     return {
+      sid: '',
       name: '',
       email: '',
       gender: '',
@@ -149,7 +141,7 @@ export default {
       addtags: '',
     }
   },
-  created() {
+  created () {
     console.log('profile created')
     console.log(this.sid)
     console.log(this.pswd)
@@ -163,41 +155,49 @@ export default {
     //   this.name = this.$route.params.name
     // }
   },
-  mounted() {
+  mounted () {
     console.log('profile mounted')
   },
-  destroyed() {
+  destroyed () {
     console.log('profile destroyed')
   },
 
   methods: {
-    pullPersonalData() {
-      this.$axios.post('/show_personal_data/', {sid: this.sid, pswd: this.pswd}).then(res => {
-        const data = res.data
-        console.log('res.data', data)
-        //Remote quotes.
-        console.log(data['email'])
-        this.name = data['realname']
-        this.gender = data['gender']
-        this.email = data['email']
-        this.mobile = data['mobile']
-        this.address = data['address']
+    pullPersonalData () {
+      //TODO: Get avatar from backend.
+      //TODO: Tag.
+      this.$axios.post('/show_personal_data/', {}).then(res => {
+        if (res.data['attempt'] === 'failure') {
+          this.$router.push('/login')
+        } else {
+          const data = res.data
+          this.sid = data['sid']
+          this.name = data['realName']
+          this.gender = data['gender']
+          this.email = data['email']
+          this.mobile = data['mobile']
+          this.address = data['address']
+        }
       }).catch(err => {
-        console.log(err)
+        console.log('err', err)
       })
     },
 
     //TODO: Add regex check for fields.
-    onConfirmEditClicked() {
+    onConfirmEditClicked () {
       this.$axios.post('/change_personal_data/', {
         sid: this.sid,
-        pswd: this.pswd,
         email: this.email,
         gender: this.gender,
         mobile: this.mobile,
         address: this.address,
       }).then(res => {
-        console.log('res', res)
+        const data = res.data
+        if (data['attempt'] === 'offline') {
+          this.$router.push('/')
+        } else if (data['attempt'] === 'failure') {
+          alert('Failed to edit profile!')
+        }
       }).catch(err => {
         console.log('err', err)
       })
@@ -206,11 +206,16 @@ export default {
 
       this.edit = false
     },
-    onEditClicked() {
+    onEditClicked () {
       this.edit = true
     },
 
-    saveFile(data, name) {
+    /**
+     *
+     * @param data
+     * @param name
+     */
+    saveFile (data, name) {
       try {
         data = new Blob([data])
         console.log(data)
@@ -227,8 +232,8 @@ export default {
         alert('保存文件出错')
       }
     },
-    testFileDownload() {
-      this.$axios.post('/test/', {sid: this.sid}, {responseType: 'blob'}).then(res => {
+    testFileDownload () {
+      this.$axios.post('/test/', { sid: this.sid }, { responseType: 'blob' }).then(res => {
         console.log('res', res)
         console.log(res.data.size)
         this.saveFile(res.data, '11811002.zip')
@@ -236,15 +241,15 @@ export default {
         console.log('err', err)
       })
     },
-    onClickNewPassword() {
-      this.$router.push({name: 'homepage_profile_newpassword', sid: this.$route.params.sid}).then(res => {
+    onClickNewPassword () {
+      this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res => {
         console.log(res)
       }).catch(err => {
         console.log(err)
       })
     },
 
-    handleAvatarSuccess(res, file) {
+    handleAvatarSuccess (res, file) {
       console.log('raw', file.raw)
       console.log('raws', file.raws)
       console.log('success')
@@ -252,7 +257,7 @@ export default {
       console.log(file)
       this.imageUrl = URL.createObjectURL(file.raw)
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isJPG) {
@@ -263,13 +268,12 @@ export default {
       }
       return isJPG && isLt2M
     },
-    handlePictureCardPreview(file) {
+    handlePictureCardPreview (file) {
       console.log('preview')
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
-    pulltagData()
-    {
+    pulltagData () {
       this.$axios.post('/student_gets_all_tags/', {
         sid: this.sid,
         pswd: this.pswd,
@@ -280,8 +284,7 @@ export default {
         console.log(err)
       })
     },
-    onClickLike(id)
-    {
+    onClickLike (id) {
       console.log('hello')
       console.log(typeof id)
       this.$axios.post('/student_like_tag/', {
@@ -290,39 +293,30 @@ export default {
         tag_target: id,
       }).then(res => {
 
-        if (res.data.StudentLikeTag === "no like")
-        {
-          console.log("delike success")
-        }
-        else if (res.data.StudentLikeTag === "like")
-        {
-          console.log("like success")
-        }
-        else
-        {
-          alert("failed")
+        if (res.data.StudentLikeTag === 'no like') {
+          console.log('delike success')
+        } else if (res.data.StudentLikeTag === 'like') {
+          console.log('like success')
+        } else {
+          alert('failed')
         }
         this.pulltagData()
       }).catch(err => {
         console.log(err)
       })
     },
-    onClickDeleteTag(id)
-    {
+    onClickDeleteTag (id) {
       this.$axios.post('/unshow_tag/', {
         sid: this.sid,
         pswd: this.pswd,
         tag_target: id,
       }).then(res => {
         console.log(res.data)
-        if (res.data.UnshowTag === 'success')
-        {
-          let len=this.tags.Data.length;
+        if (res.data.UnshowTag === 'success') {
+          let len = this.tags.Data.length
           let j = 0
-          for (let i=0; i<len; i++)
-          {
-            if (this.tags.Data[j].tag_id === id)
-            {
+          for (let i = 0; i < len; i++) {
+            if (this.tags.Data[j].tag_id === id) {
               j = i
               break
             }
@@ -333,24 +327,21 @@ export default {
         console.log(err)
       })
     },
-    onClickAddTag(id, name, typee)
-    {
+    onClickAddTag (id, name, typee) {
       this.$axios.post('/add_tag/', {
         sid: this.sid,
         pswd: this.pswd,
         tag_target: id,
       }).then(res => {
         console.log(res.data)
-        if (res.data.AddTag === 'success')
-        {
-          this.tags.Data.push({'tag_id': id, 'tag_name':name, 'tag_type': typee, 'like': 0, 'likes': 0})
+        if (res.data.AddTag === 'success') {
+          this.tags.Data.push({ 'tag_id': id, 'tag_name': name, 'tag_type': typee, 'like': 0, 'likes': 0 })
         }
       }).catch(err => {
         console.log(err)
       })
     },
-    pulladdtagData()
-    {
+    pulladdtagData () {
       this.$axios.post('/student_gets_all_tags_can_add/', {
         sid: this.sid,
         pswd: this.pswd,

@@ -27,12 +27,12 @@
                    v-bind:pswd="this.pswd"
                    v-bind:groupInfo="this.groupInfo"
                    v-bind:projectDetail="this.projectDetail"
-                   v-bind:identity="this.$props.identity"></ProjectDetail>
+                   v-bind:identity="this.identity"></ProjectDetail>
 
     <CreateProject
-      v-bind:pswd="this.pswd"
-      v-bind:sid="this.sid"
-      v-if="this.createProjectForm"></CreateProject>
+        v-bind:pswd="this.pswd"
+        v-bind:sid="this.sid"
+        v-if="this.displayControl.createProjectForm"></CreateProject>
 
     <el-button v-if="this.displayControl.createProjectButton" @click="onClickCreateProject">{{ createProjectLiteral }}
     </el-button>
@@ -47,20 +47,7 @@ import CreateProject from './CreateProject'
 export default {
   name: 'AllProjectsList',
   components: { CreateProject, ProjectDetail },
-  props: {
-    sid: {
-      type: String,
-      required: true,
-    },
-    pswd: {
-      type: String,
-      required: true,
-    },
-    identity: {
-      type: String,
-      required: true,
-    },
-  },
+  props: {},
   data () {
     return {
       projects: [],
@@ -70,19 +57,25 @@ export default {
       displayControl: {
         projectsList: true,
         projectDetail: false,
-        createProjectButton: this.$props.identity === 'teacher',
+        createProjectButton: false,
         createProjectForm: false,
       },
       createProjectLiteral: 'Create New Project',
+      identity: '',
     }
   },
   created () {
-    this.$axios.post('/student_gets_all_projects/',
-      { sid: this.$props.sid, pswd: this.$props.pswd }).then(res => {
+    this.$axios.post('/student_gets_all_projects/', {}).then(res => {
       console.log(res.data)
-      this.projects = res.data.Data
+      this.projects = res.data.projects
     }).catch(err => {
-      console.log(err)
+      console.log('err', err)
+    })
+    this.$axios.post('/get_identity/', {}).then(res => {
+      this.identity = res.data['identity']
+      this.displayControl.createProjectButton = (this.identity === 'teacher')
+    }).catch(err => {
+      console.log('err', err)
     })
   },
   methods: {
@@ -104,15 +97,12 @@ export default {
     },
     onClickDetail (index) {
       const localProjects = this.projects.filter(data => !this.searchKey ||
-        JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
+          JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const localProject = localProjects[index]
 
       this.$axios.post('/student_gets_single_project_information/', {
-        sid: this.sid,
-        pswd: this.pswd,
-        project_id: localProject[0],
+        projectId: localProject[0],
       }).then(res => {
-        console.log('projectDetail', res.data)
         this.projectDetail = res.data
       }).catch(err => {
         console.log(err)
