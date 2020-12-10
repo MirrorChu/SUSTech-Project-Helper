@@ -4,7 +4,7 @@
   <div>
     <el-form>
       <el-form-item label="Course">
-        <el-select v-model="this.newProjectCourse" placeholder="Course">
+        <el-select v-model="newProjectCourse" placeholder="Course">
           <el-option v-for="course in newProjectCourseList" :key="course.value" :label="course.label"
                      :value="course.value"></el-option>
         </el-select>
@@ -72,6 +72,7 @@ export default {
   },
   created () {
 
+    this.pullCoursesData()
   },
   data () {
     return {
@@ -160,6 +161,19 @@ export default {
     handleFileRemove (file) {
 
     },
+    pullCoursesData()
+    {
+      this.$axios.post('/teacher_get_courses/', {}).then(res => {
+        console.log(res.data)
+        for (const item in res.data['Data']) {
+          const newCourse = {value: res.data['Data'][item], label: res.data['Data'][item]}
+          this.newProjectCourseList.push(newCourse)
+        }
+        console.log(this.newProjectCourseList)
+      }).catch(err => {
+        console.log('err', err)
+      })
+    }
   },
 }
 </script>

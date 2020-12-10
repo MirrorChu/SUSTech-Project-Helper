@@ -29,7 +29,7 @@
 
     <div>
       <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid"
-                       v-bind:personalprofile="this.personalprofile" >
+                       v-bind:personalprofile="this.personalprofile">
       </PersonalProfile>
       <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects
         Detail
@@ -80,17 +80,22 @@
       </EventList>
     </div>
 
+    <div v-if="this.identity === 'teacher'">
+      <Grouping></Grouping>
+    </div>
+
   </div>
 </template>
 
 <script>
-import GroupInfo from './GroupInfo'
-import CreateOrJoinGroup from './CreateOrJoinGroup'
-import PersonalProfile from './PersonalProfile'
-import EventList from './EventList'
+import GroupInfo from './GroupInfo';
+import CreateOrJoinGroup from './CreateOrJoinGroup';
+import PersonalProfile from './PersonalProfile';
+import EventList from './EventList';
+import Grouping from './Grouping';
 
 export default {
-  components: { EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile },
+  components: {Grouping, EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile},
   props: {
     sid: {
       type: String,
@@ -103,7 +108,8 @@ export default {
       required: true,
     },
   },
-  data () {
+  data()
+  {
     return {
       membersList: '',
       status: '',
@@ -120,107 +126,131 @@ export default {
       advertisementData: '',
       eventList: [],
       identity: '',
-    }
+    };
   },
-  created () {
+  created()
+  {
     //Use == instead of === here.
-    this.$axios.post('/get_identity/', {}).then(res => {
-      this.identity = res.data['identity']
-    }).catch(err => {
-      console.log('err', err)
-    })
-    this.sid = this.$props.sid
-    this.pulladvertisementData()
-    if (this.$props.groupInfo == null) {
-      this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
-      this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
-      console.log('access group info success')
-      console.log(this.$props.groupInfo['members'])
-      for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
-        this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
+    this.$axios.post('/get_identity/', {}).then(res =>
+    {
+      this.identity = res.data['identity'];
+    }).catch(err =>
+    {
+      console.log('err', err);
+    });
+    this.sid = this.$props.sid;
+    this.pulladvertisementData();
+    if (this.$props.groupInfo == null)
+    {
+      this.status = 'You are not in a group!';
+    }
+    else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group')
+    {
+      this.status = 'You are not in a group!';
+    }
+    else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null)
+    {
+      console.log('access group info success');
+      console.log(this.$props.groupInfo['members']);
+      for (let i = 0; i < this.$props.groupInfo['members'].length; i++)
+      {
+        this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  ';
       }
-    } else {
-      this.status = 'unknown'
+    }
+    else
+    {
+      this.status = 'unknown';
     }
   },
   methods: {
-    controlDisplay (item) {
-      for (const iter in this.displayControl) {
-        this.displayControl[iter] = iter === item
+    controlDisplay(item)
+    {
+      for (const iter in this.displayControl)
+      {
+        this.displayControl[iter] = iter === item;
       }
     },
-    onClickBackToProjectDetail () {
-      this.controlDisplay('projectDetail')
+    onClickBackToProjectDetail()
+    {
+      this.controlDisplay('projectDetail');
     },
-    onQueryPersonalProfile () {
-      this.pulltagData()
+    onQueryPersonalProfile()
+    {
+      this.pulltagData();
 
       this.$axios.post('/show_other_personal_data/', {
         sid: this.sid,
         sid_target: this.target_user.sid,
-      }).then(res => {
-        console.log('PersonalProfile', res.data)
-        console.log(res.data.ShowOtherPersonalDataCheck)
-        console.log(res.data['ShowOtherPersonalDataCheck'])
-        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!') {
-          this.personalprofile = res.data
+      }).then(res =>
+      {
+        console.log('PersonalProfile', res.data);
+        console.log(res.data.ShowOtherPersonalDataCheck);
+        console.log(res.data['ShowOtherPersonalDataCheck']);
+        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!')
+        {
+          this.personalprofile = res.data;
           // this.controlDisplay('PersonalProfile')
-          this.dialogPersonalProfileVisible = true
-        } else {
-          alert('No such user!')
-        }
-      }).catch(err => {
-        this.tags = null
-        console.log(err)
-      })
-    },
-    onClickLike(id)
-    {
-      console.log('hello')
-      console.log(typeof id)
-      this.$axios.post('/student_like_tag/', {
-        sid: this.sid,
-        tag_target: id,
-      }).then(res => {
-
-        if (res.data.StudentLikeTag === "no like")
-        {
-          console.log("delike success")
-        }
-        else if (res.data.StudentLikeTag === "like")
-        {
-          console.log("like success")
+          this.dialogPersonalProfileVisible = true;
         }
         else
         {
-          alert("failed")
+          alert('No such user!');
         }
-        this.pulltagData()
-      }).catch(err => {
-        console.log(err)
-      })
+      }).catch(err =>
+      {
+        this.tags = null;
+        console.log(err);
+      });
+    },
+    onClickLike(id)
+    {
+      console.log('hello');
+      console.log(typeof id);
+      this.$axios.post('/student_like_tag/', {
+        sid: this.sid,
+        tag_target: id,
+      }).then(res =>
+      {
+
+        if (res.data.StudentLikeTag === 'no like')
+        {
+          console.log('delike success');
+        }
+        else if (res.data.StudentLikeTag === 'like')
+        {
+          console.log('like success');
+        }
+        else
+        {
+          alert('failed');
+        }
+        this.pulltagData();
+      }).catch(err =>
+      {
+        console.log(err);
+      });
     },
     pulltagData()
     {
       this.$axios.post('/student_gets_all_tags/', {
         sid: this.sid,
         sid_target: this.target_user.sid,
-      }).then(res => {
-        this.tags = res.data
-        console.log('now this.tags',this.tags)
-      }).catch(err => {
-        console.log(err)
-      })
+      }).then(res =>
+      {
+        this.tags = res.data;
+        console.log('now this.tags', this.tags);
+      }).catch(err =>
+      {
+        console.log(err);
+      });
     },
     pulladvertisementData()
     {
 
-    }
+    },
   },
   name: 'ProjectDetail',
-}
+};
 </script>
 
 <style scoped>
