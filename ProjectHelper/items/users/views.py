@@ -1090,34 +1090,39 @@ class TestAPI(View):
 class AddTag(View):
     # return path
     def post(self, request):
+        """
+        add tag
+        :param token: token
+                tag_target: id of operations_tag
+        :return: UserTagID: id of operations_usertag
+                Type: type of operations_tag
+        """
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_target")
 
-            user_id = 0
-
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.get(student_id=student_id)
-            user_id = query_set.id
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
 
-            query_set = Tag.objects.filter(id=tag_id)
-            if query_set.count() == 0:
-                return JsonResponse({"AddTag": "failed"})
-
+            tag = Tag.objects.get(id=tag_id)
             # 验证是否有重复的记录
-            query_set = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
-            if query_set.count() == 0:
+            user_tag = UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id)
+            if user_tag.count() == 0:
                 UserTag.objects.create(user_name_id=user_id, tag_id=tag_id, visibility=1)
-                return JsonResponse({"AddTag": "success"})
+                _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
+                return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type})
             else:
-                for i in query_set:
+                for i in user_tag:
                     if i.visibility == 0:
                         UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(
                             visibility=1)
-                        return JsonResponse({"AddTag": "success"})
+                        _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
+                        return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type})
             return JsonResponse({"AddTag": "failed"})
         except Exception as e:
+            logger.debug('%s %s', self, e)
             return JsonResponse({"AddTag": "failed"})
 
 
@@ -1223,7 +1228,7 @@ class StudentGetsAllTags(View):
                     if i.visibility == 1:
                         tags.append(
                             {"tag_id": i.id, "tag_name": query_set2.tag, "type": query_set2.type,
-                             "likes": query_set3.count(),
+                             "likes": query_set3.count(), "IDofTag": query_set2.id,
                              "like": query_set4.count()})
 
             return JsonResponse({"Data": tags, "StudentGetsAllTags": "success"})
@@ -1511,6 +1516,44 @@ class TeacherCreateProject(View):
         except Exception as e:
             print(e)
             return JsonResponse({"TeacherCreateProjectCheck": "failed"})
+
+
+class TeacherGetAuthInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all authority beside himself in the course of project
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": auths=  username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            username = user.username
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            auths = {}
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                auth = Authority.objects.filter(course_id=course_id)
+                for i in auth:
+                    auth_user = UserProfile.objects.get(id=i.user_id)
+                    if auth_user.username == username:
+                        continue
+                    elif auth_user.username in auths.keys():
+                        auths[auth_user.username].append(i.type)
+                    else:
+                        auths[auth_user.username] = [i.type]
+
+            return JsonResponse({"Data": auths, "TeacherGetAuthInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetAuthInProject": "failed"})
 
 
 class StudentPublishRequest(View):
