@@ -86,14 +86,16 @@
 
         <div v-if="this.edit">
           <b>Have Selected:</b>
-          <div v-for="item in this.tags['Data']">
-            <el-button @click="onClickDeleteTag(item.tag_id)">{{ item.tag_name }}</el-button>
-          </div>
+          <span v-for="item in this.tags['Data']">
+            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{ item.tag_name }}</el-button>
+            &nbsp
+          </span>
           <br>
           <b>To be Selected:</b>
-          <div v-for="item in addtags['Data']">
-            <el-button @click="onClickAddTag(item.tag_id, item.tag_name, item.type)">{{ item.tag_name }}</el-button>
-          </div>
+          <span v-for="item in addtags['Data']">
+            <el-button @click="onClickAddTag(item.tag_id, item.tag_name)">{{ item.tag_name }}</el-button>
+            &nbsp
+          </span>
         </div>
       </el-form-item>
 
@@ -296,14 +298,12 @@ export default {
         console.log(err)
       })
     },
-    onClickDeleteTag (id) {
+    onClickDeleteTag (id, name, id2) {
       this.$axios.post('/unshow_tag/', {
         sid: this.sid,
         tag_target: id,
       }).then(res => {
         console.log(res.data)
-
-        this.addtags['Data'].push({ 'tag_id': id, 'tag_name': name, 'tag_type': typee, 'like': 0, 'likes': 0 })
         if (res.data.UnshowTag === 'success') {
           let len = this.tags.Data.length
           let j = 0
@@ -314,33 +314,43 @@ export default {
             }
           }
           this.tags.Data.splice(j, 1)
+          this.addtags['Data'].push({ 'tag_id': id2, 'tag_name': name})
         }
       }).catch(err => {
         console.log(err)
       })
     },
-    onClickAddTag (id, name, typee) {
-      this.$axios.post('/add_tag/', {
-        sid: this.sid,
-        tag_target: id,
-      }).then(res => {
-        console.log(res.data)
-        if (res.data.AddTag === 'success') {
-          console.log(this.tags['Data'])
-          this.tags['Data'].push({ 'tag_id': id, 'tag_name': name, 'tag_type': typee, 'like': 0, 'likes': 0 })
-          let len = this.addtags.Data.length
-          let j = 0
-          for (let i = 0; i < len; i++) {
-            if (this.addtags.Data[i].tag_id === id) {
-              j = i
-              break
+    onClickAddTag (id, name) {
+      let len = this.tags.Data.length
+      if (len >= 10)
+      {
+        alert('You can not add tag anymore! or delete some first')
+      }
+      else
+      {
+        this.$axios.post('/add_tag/', {
+          sid: this.sid,
+          tag_target: id,
+        }).then(res => {
+          console.log('addtag', res.data)
+          if (res.data.AddTag === 'success') {
+            console.log(this.tags['Data'])
+            let len = this.addtags.Data.length
+            let j = 0
+            for (let i = 0; i < len; i++) {
+              if (this.addtags.Data[i].tag_id === id) {
+                j = i
+                break
+              }
             }
+            this.addtags.Data.splice(j, 1)
+            this.tags['Data'].push({ 'tag_id': res.data.UserTagID, 'tag_name': name, 'like': res.data.like, 'likes': res.data.likes})
           }
-          this.addtags.Data.splice(j, 1)
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+
     },
     pulladdtagData () {
       this.$axios.post('/student_gets_all_tags_can_add/', {

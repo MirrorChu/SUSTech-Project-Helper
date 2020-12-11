@@ -120,6 +120,7 @@ class GetIdentity(View):
             return JsonResponse(response_data)
 
 
+
 class Logout(View):
     def post(self, request):
         """
@@ -1101,7 +1102,6 @@ class AddTag(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             tag_id = eval(request.body.decode()).get("tag_target")
-
             # 通过用户名和密码确认数据库中是否有和user对应的记录
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -1112,14 +1112,16 @@ class AddTag(View):
             if user_tag.count() == 0:
                 UserTag.objects.create(user_name_id=user_id, tag_id=tag_id, visibility=1)
                 _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
-                return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type})
+                return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": 0, "likes": 0})
             else:
                 for i in user_tag:
                     if i.visibility == 0:
                         UserTag.objects.filter(user_name_id=user_id, tag_id=tag_id).update(
                             visibility=1)
                         _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
-                        return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type})
+                        users_like = UserLikeTag.objects.filter(tag_id=i.id)
+                        user_like = UserLikeTag.objects.filter(tag_id=i.id, user_name_id=user_id)
+                        return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": user_like.count(), "likes": users_like.count()})
             return JsonResponse({"AddTag": "failed"})
         except Exception as e:
             logger.debug('%s %s', self, e)
