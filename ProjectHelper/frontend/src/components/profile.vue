@@ -128,7 +128,6 @@ export default {
       imageUrl: '',
       dialogImageUrl: '',
       dialogVisible: '',
-      avatar: null,
       edit: false,
       tags: '',
       addtags: '',
@@ -138,9 +137,8 @@ export default {
   created () {
     this.pullPersonalData()
     console.log('after pull info', this.sid)
-    this.avatar = require('../assets/logo.png')
-    const token = localStorage.getItem('Authorization')
-    this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
+    // const token = localStorage.getItem('Authorization')
+    // this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
   },
 
   methods: {
@@ -151,6 +149,7 @@ export default {
         if (res.data['attempt'] === 'failure') {
           this.$router.push('/login')
         } else {
+          const token = localStorage.getItem('Authorization')
           const data = res.data
           this.sid = data['sid']
           this.name = data['realName']
@@ -158,6 +157,7 @@ export default {
           this.email = data['email']
           this.mobile = data['mobile']
           this.address = data['address']
+          this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
           this.pulltagData()
 
         }
