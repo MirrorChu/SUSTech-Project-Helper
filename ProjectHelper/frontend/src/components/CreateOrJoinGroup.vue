@@ -1,21 +1,46 @@
 <template>
   <div>
-    <el-button @click="onClickCreateGroup">Create Group</el-button>
-    <el-button @click="onClickJoinGroup">Join Group</el-button>
+    <el-button v-if="!showCreateGroupForm" @click="onClickShowCreateGroup">Create Group</el-button>
+    <el-button v-if="!showJoinGroupList" @click="onClickShowJoinGroup">Join Group</el-button>
 
     <el-form v-if="this.showCreateGroupForm">
       <h1>Create Group</h1>
-      <el-form-item>
+      <el-form-item label="Group Name">
         <el-input v-model="createGroupName" placeholder="Group Name" clearable></el-input>
       </el-form-item>
       <el-form-item label="Introduction">
-        <el-input type="textarea" :rows="2" placeholder="Introduction" v-model="createIntroduction"
+        <el-input type="textarea" :rows="3" placeholder="Introduction" v-model="createIntroduction"
                   clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="onClickConfirmCreateGroup">Confirm Create Group</el-button>
       </el-form-item>
     </el-form>
+
+    <div v-if="showJoinGroupList">
+      <el-table
+        :data="joinGroupList"
+        stripe
+        style="width: 100%">
+        <el-table-column
+          prop="group_name"
+          label="Group Name">
+        </el-table-column>
+        <el-table-column
+          prop="captain_name"
+          label="Captain Name">
+        </el-table-column>
+        <el-table-column
+          prop="namelist"
+          label="Members">
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-button @click="onClickJoinGroup(scope.row.group_id)">Apply to Join</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
@@ -41,7 +66,7 @@ export default {
     }
   },
   methods: {
-    onClickCreateGroup () {
+    onClickShowCreateGroup () {
       this.showCreateGroupForm = !this.showCreateGroupForm
       this.showJoinGroupList = false
       if (!this.showCreateGroupForm) {
@@ -49,15 +74,28 @@ export default {
         this.createIntroduction = ''
       }
     },
-    onClickJoinGroup () {
+    onClickShowJoinGroup () {
       this.showJoinGroupList = !this.showJoinGroupList
       this.showCreateGroupForm = false
       if (!this.showJoinGroupList) {
         this.createGroupName = ''
         this.createIntroduction = ''
       } else {
-        //  TODO: Implement this.
+        this.pullgroupData()
       }
+    },
+    onClickJoinGroup (group_id)
+    {
+      this.$axios.post('/send_mail_to_apply/', {
+        t_sid: this.sid,
+        group_id: group_id,
+      }).then(res =>
+      {
+        console.log('apply', res.data)
+      }).catch(err =>
+      {
+        console.log(err);
+      });
     },
     onClickConfirmCreateGroup () {
       if (this.createGroupName.length === 0) {
@@ -69,12 +107,28 @@ export default {
           group_name: this.createGroupName,
           introduction: this.createIntroduction
         }).then(res => {
-          console.log(res.data)
+          console.log('ConfirmCreateProject',res.data)
         }).catch(err => {
           alert(err.data)
         })
       }
     },
+    pullgroupData ()
+    {
+      this.$axios.post('/teacher_get_situation_in_project/', {
+        project_id: this.projectId,
+      }).then(res =>
+      {
+        console.log('sss', res.data)
+        if (res.data.TeacherGetSituationInProject === 'success')
+        {
+          this.joinGroupList = res.data.Data
+        }
+      }).catch(err =>
+      {
+        console.log(err);
+      });
+    }
   },
 }
 </script>

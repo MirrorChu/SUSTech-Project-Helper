@@ -14,7 +14,7 @@
         <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any groups!</h1>
         <CreateOrJoinGroup v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
                            v-bind:sid="this.$props.sid"
-                           v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
+                           v-bind:projectId="this.$props.projectDetail.project_id"></CreateOrJoinGroup>
 
         <el-form :inline="true" :model="target_user" class="querypersonalprofile">
           <el-form-item label="The profile you want to view">
@@ -74,23 +74,30 @@
       </el-dialog>
     </div>
 
-<!--    <el-collapse v-model="activeNames" @change="handleChange">-->
-<!--      <el-collapse-item v-for="item in advertisementData" title="item.title" name="item.advertisement_id">-->
-<!--        <div>{{ item.content }}</div>-->
-<!--      </el-collapse-item>-->
-<!--    </el-collapse>-->
+    <div>
+      <h2>Advertisement</h2>
+      <el-collapse v-show="advertisementData !== ''">
+        <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+          <div>{{ item.content }}</div>
+        </el-collapse-item>
+      </el-collapse>
+      <div v-show="advertisementData === ''">There is no advertisement! </div>
+    </div>
 
-<!--    <el-form>-->
-<!--      <el-form-item label="Title">-->
-<!--        <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="Content">-->
-<!--        <el-input type="textarea" :rows="3" placeholder="the content of advertisement" v-model="advertisement_content"></el-input>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>-->
-<!--      </el-form-item>-->
-<!--    </el-form>-->
+    <div>
+      <h2>Upload AD</h2>
+      <el-form>
+        <el-form-item label="Title">
+          <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>
+        </el-form-item>
+        <el-form-item label="Content">
+          <el-input type="textarea" :rows="3" placeholder="the content of advertisement" v-model="advertisement_content"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
@@ -266,11 +273,57 @@ export default {
     },
     pulladvertisementData()
     {
-
+      this.$axios.post('/student_gets_all_ad/', {
+        project_id: this.$props.projectDetail.project_id,
+      }).then(res =>
+      {
+        console.log('ad', res.data)
+        if (res.data.StudentGetAllAd === 'success')
+        {
+          this.advertisementData = res.data.Data;
+        }
+        else
+        {
+          this.advertisementData = ''
+        }
+      }).catch(err =>
+      {
+        console.log(err);
+      });
     },
     onClickUploadAdvertisement()
     {
-
+      if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null)
+      {
+        this.$axios.post('/student_publish_request/', {
+          project_id: this.$props.projectDetail.project_id,
+          content: this.advertisement_content,
+          title: this.advertisement_title,
+          group_id: this.$props.groupInfo.group_id,
+        }).then(res =>
+        {
+          console.log('up ad', res.data)
+          this.pulladvertisementData()
+        }).catch(err =>
+        {
+          console.log(err);
+        });
+      }
+      else
+      {
+        this.$axios.post('/student_publish_apply/', {
+          project_id: this.$props.projectDetail.project_id,
+          content: this.advertisement_content,
+          title: this.advertisement_title,
+        }).then(res =>
+        {
+          console.log('up ad', res.data)
+          this.pulladvertisementData()
+        }).catch(err =>
+        {
+          console.log(err);
+        });
+      }
     },
   },
   name: 'ProjectDetail',
