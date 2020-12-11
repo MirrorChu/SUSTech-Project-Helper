@@ -94,7 +94,7 @@
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
-                 v-bind:projectId="this.groupInfo.project_id">
+                 v-bind:projectId="this.projectDetail['projectId']">
       </EventList>
     </div>
 

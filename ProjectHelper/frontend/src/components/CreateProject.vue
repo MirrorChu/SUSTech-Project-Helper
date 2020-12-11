@@ -23,28 +23,28 @@
       </el-form-item>
       <el-form-item label="Grouping Start">
         <el-date-picker
-          v-model="groupingStart"
-          type="datetime"
-          placeholder="Choose Date and Time"
-          :picker-options="pickerOptions">
+            v-model="groupingStart"
+            type="datetime"
+            placeholder="Choose Date and Time"
+            :picker-options="pickerOptions">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="Grouping Deadline">
         <el-date-picker
-          v-model="groupingDeadline"
-          type="datetime"
-          placeholder="Choose Date and Time"
-          :picker-options="pickerOptions">
+            v-model="groupingDeadline"
+            type="datetime"
+            placeholder="Choose Date and Time"
+            :picker-options="pickerOptions">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="Attachment">
         <el-upload
-          class="upload-demo"
-          ref="upload"
-          :data="this.dataBlock"
-          action="/api/test/"
-          multiple :file-list="fileList" :auto-upload="false"
-          :on-change="handleFileChange" :on-remove="handleFileRemove">
+            class="upload-demo"
+            ref="upload"
+            :data="this.dataBlock"
+            action="/teacher_create_project/"
+            multiple :file-list="fileList" :auto-upload="false"
+            :on-change="handleFileChange" :on-remove="handleFileRemove">
           <el-button slot="trigger" size="small" type="primary">Select File</el-button>
         </el-upload>
       </el-form-item>
@@ -53,7 +53,7 @@
           <el-button @click="onClickLoadStudent">{{ loadStudentsLiteral }}</el-button>
         </div>
         <div>
-          <el-select v-model="selectedStudents" multiple  v-if="loadStudentsLiteral === 'Cancel'">
+          <el-select v-model="selectedStudents" multiple v-if="loadStudentsLiteral === 'Cancel'">
             <el-option v-for="item in allStudentInCourse"
                        :key="item.value"
                        :value="item.value"
@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     onClickAdd () {
-      this.allStudentInCourse.push({value: this.manuallySearchSid, label: this.manuallySearchSid})
+      this.allStudentInCourse.push({ value: this.manuallySearchSid, label: this.manuallySearchSid })
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
@@ -153,11 +153,11 @@ export default {
       this.showSelect = !this.showSelect
       this.allStudentInCourse = []
       if (this.showSelect) {
-        const dataGram = {course: parseInt(this.newProjectCourse)}
+        const dataGram = { course: parseInt(this.newProjectCourse) }
         this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
           console.log('res', res)
           for (const item in res.data['Data']) {
-            this.allStudentInCourse.push({label: item, value: item})
+            this.allStudentInCourse.push({ label: item, value: item })
           }
         }).catch(err => {
           console.log('err', err)
@@ -170,24 +170,37 @@ export default {
       }
     },
     onClickConfirmCreateProject () {
-      const startDate = new Date(this.groupingStart)
-      const endDate = new Date(this.groupingDeadline)
-      console.log(startDate)
-      console.log(endDate)
-      this.dataBlock = {
-        'sid': this.sid,
-        'newProjectCourse': this.newProjectCourse,
-        'newProjectName': this.newProjectName,
-        'newProjectDescription': this.newProjectDescription,
-        'groupingMaximum': this.maxNum,
-        'groupingMinimum': this.minNum,
-        'groupingStart': startDate.getTime(),
-        'groupingDeadline': endDate.getTime(),
-      }
-      this.submitUpload()
+      this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
+        const idx = res.data['SendKey']
+        const startDate = new Date(this.groupingStart)
+        const endDate = new Date(this.groupingDeadline)
+        this.dataBlock = {
+          'sid': this.sid,
+          'newProjectCourse': this.newProjectCourse,
+          'newProjectName': this.newProjectName,
+          'newProjectDescription': this.newProjectDescription,
+          'groupingMaximum': this.maxNum,
+          'groupingMinimum': this.minNum,
+          'groupingStart': startDate.getTime(),
+          'groupingDeadline': endDate.getTime(),
+          'idx': idx,
+        }
+        this.submitUpload()
+      }).catch(err => {
+        console.log(err, 'err')
+      })
     },
     submitUpload () {
-      this.$refs.upload.submit()
+      if (this.fileList.length === 0) {
+        this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
+          console.log('res', res)
+        }).catch(err => {
+          console.log('err', err)
+        })
+      }
+      else {
+        this.$refs.upload.submit()
+      }
     },
     handleFileChange () {
 
@@ -195,18 +208,18 @@ export default {
     handleFileRemove (file) {
 
     },
-    pullCoursesData() {
+    pullCoursesData () {
       this.$axios.post('/teacher_get_courses/', {}).then(res => {
         console.log(res.data)
         for (const item in res.data['Data']) {
-          const newCourse = {value: item, label: res.data['Data'][item]}
+          const newCourse = { value: item, label: res.data['Data'][item] }
           this.newProjectCourseList.push(newCourse)
         }
         console.log(this.newProjectCourseList)
       }).catch(err => {
         console.log('err', err)
       })
-    }
+    },
   },
 }
 </script>
