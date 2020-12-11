@@ -192,13 +192,11 @@ export default {
         } else if (data['attempt'] === 'failure') {
           alert('Failed to edit profile!')
         }
+        this.pullPersonalData()
+        this.edit = false
       }).catch(err => {
         console.log('err', err)
       })
-
-      this.pullPersonalData()
-
-      this.edit = false
     },
     onEditClicked () {
       this.edit = true
