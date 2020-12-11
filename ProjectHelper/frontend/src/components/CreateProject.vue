@@ -49,12 +49,24 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="Students">
-        <el-button @click="onClickLoadStudent">{{ loadStudentsLiteral }}</el-button>
-
-        <el-button @click="onClickSelectAll" v-if="this.showSelect">Select All</el-button>
-        <el-input clearable placeholer="Manually Search" v-model="this.manuallySearchSid"
-                  v-if="this.showSelect"></el-input>
-        <el-button v-model="this.showSelect" v-if="this.showSelect">Add</el-button>
+        <div>
+          <el-button @click="onClickLoadStudent">{{ loadStudentsLiteral }}</el-button>
+        </div>
+        <div>
+          <el-select v-model="selectedStudents" multiple  v-if="loadStudentsLiteral === 'Cancel'">
+            <el-option v-for="item in allStudentInCourse"
+                       :key="item.value"
+                       :value="item.value"
+                       :label="item.label">
+            </el-option>
+          </el-select>
+          <el-button @click="onClickSelectAll" v-if="this.showSelect">Select All</el-button>
+        </div>
+        <div>
+          <el-input clearable placeholer="Manually Search" v-model="manuallySearchSid"
+                    v-if="this.showSelect"></el-input>
+          <el-button v-model="this.showSelect" v-if="this.showSelect">Add</el-button>
+        </div>
       </el-form-item>
       <el-button @click="onClickConfirmCreateProject">Create</el-button>
     </el-form>
@@ -108,7 +120,7 @@ export default {
       },
       fileList: [],
       dataBlock: {},
-      loadStudentsLiteral: 'Load Students',
+      loadStudentsLiteral: 'Show Students',
       showSelect: false,
       allStudentInCourse: [],
       selectedStudents: [],
@@ -117,27 +129,51 @@ export default {
   },
   methods: {
     onClickAdd () {
-      //  TODO: Test if manuallySearchSid is valid.
       this.allStudentInCourse.push({value: this.manuallySearchSid, label: this.manuallySearchSid})
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
-        this.selectedStudents.push({ value: item, label: item })
+        let duplicate = false
+        const toSelect = this.allStudentInCourse[item]['value']
+        for (const selectedKey in this.selectedStudents) {
+          const selected = this.selectedStudents[selectedKey]
+          if (selected === toSelect) {
+            duplicate = true
+            break
+          }
+        }
+        if (duplicate) {
+          continue
+        }
+        this.selectedStudents.push(toSelect)
       }
     },
     onClickLoadStudent () {
       //  TODO: Update the list of all students in course.
       this.showSelect = !this.showSelect
+      this.allStudentInCourse = []
       if (this.showSelect) {
-
+        const dataGram = {course: parseInt(this.newProjectCourse)}
+        this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
+          console.log('res', res)
+          for (const item in res.data['Data']) {
+            this.allStudentInCourse.push({label: item, value: item})
+          }
+        }).catch(err => {
+          console.log('err', err)
+        })
       }
       if (this.showSelect) {
         this.loadStudentsLiteral = 'Cancel'
       } else {
-        this.loadStudentsLiteral = 'Load Students'
+        this.loadStudentsLiteral = 'Show Students'
       }
     },
     onClickConfirmCreateProject () {
+      const startDate = new Date(this.groupingStart)
+      const endDate = new Date(this.groupingDeadline)
+      console.log(startDate)
+      console.log(endDate)
       this.dataBlock = {
         'sid': this.sid,
         'newProjectCourse': this.newProjectCourse,
@@ -145,11 +181,9 @@ export default {
         'newProjectDescription': this.newProjectDescription,
         'groupingMaximum': this.maxNum,
         'groupingMinimum': this.minNum,
-        'groupingStart': this.groupingStart.getTime(),
-        'groupingDeadline': this.groupingDeadline.getTime(),
+        'groupingStart': startDate.getTime(),
+        'groupingDeadline': endDate.getTime(),
       }
-      console.log('dataBlock', this.dataBlock)
-      // this.$refs.upload.submit()
       this.submitUpload()
     },
     submitUpload () {
@@ -161,12 +195,11 @@ export default {
     handleFileRemove (file) {
 
     },
-    pullCoursesData()
-    {
+    pullCoursesData() {
       this.$axios.post('/teacher_get_courses/', {}).then(res => {
         console.log(res.data)
         for (const item in res.data['Data']) {
-          const newCourse = {value: res.data['Data'][item], label: res.data['Data'][item]}
+          const newCourse = {value: item, label: res.data['Data'][item]}
           this.newProjectCourseList.push(newCourse)
         }
         console.log(this.newProjectCourseList)
