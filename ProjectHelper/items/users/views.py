@@ -1559,6 +1559,85 @@ class TeacherGetAuthInProject(View):
             return JsonResponse({"TeacherGetAuthInProject": "failed"})
 
 
+class TeacherGetSituationInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all authority beside himself in the course of project
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": auths=  username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            groups = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    group_detail = {}
+                    group_detail["group_id"] = i.id
+                    group_detail["group_name"] = i.group_name
+                    captain = UserProfile.objects.get(id=i.captain_name_id)
+                    group_detail["captain_name"] = captain.username
+                    group_detail["captain_sid"] = captain.student_id
+                    group_detail["member_sid"] = [captain.username]
+                    group_detail["member_name"] = [captain.student_id]
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    string = captain.username
+                    for j in member:
+                        person = UserProfile.objects.get(id=j.user_name_id)
+                        if person.student_id == captain.student_id:
+                            continue
+                        group_detail["member_sid"].append(person.student_id)
+                        group_detail["member_name"].append(person.username)
+                        string += " " + person.username
+                    group_detail["namelist"] = string
+                    if project.group_size > member.count():
+                        group_detail["valid"] = True
+                    else:
+                        group_detail["valid"] = False
+                    groups.append(group_detail)
+            return JsonResponse({"Data": groups, "TeacherGetSituationInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSituationInProject": "failed"})
+
+
+class TeacherKickMember(View):
+    def post(self, request):
+        """
+        Teacher kick student
+        :param token:token
+                group_id: id of student's group
+                t_sid: sid of kicked student
+        :return:
+        """
+        try:
+            group_id = eval(request.body.decode()).get("group_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("t_sid")
+            user = UserProfile.objects.get(student_id=target_id)
+            # TODO:等待权限判断，能否给course_id
+            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            group = GroupOrg.objects.get(group_name_id=group_id)
+            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member-1)
+            UserGroup.objects.delete(group_name_id=group_id, user_name_id=user.id)
+            return JsonResponse({"TeacherKickMemberCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherKickMemberCheck": "failed"})
+
+
 class StudentPublishRequest(View):
     def post(self, request):
         try:
