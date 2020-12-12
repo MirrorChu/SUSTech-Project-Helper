@@ -1678,6 +1678,36 @@ class TeacherKickMember(View):
             return JsonResponse({"TeacherKickMemberCheck": "failed"})
 
 
+class TeacherAddMember(View):
+    def post(self, request):
+        """
+        Teacher add student
+        :param token:token
+                group_id: id of student's group
+                t_sid: sid of added student
+        :return:
+        """
+        try:
+            group_id = eval(request.body.decode()).get("group_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("t_sid")
+            user = UserProfile.objects.get(student_id=target_id)
+            # TODO:等待权限判断，能否给course_id
+            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            group = GroupOrg.objects.get(group_name_id=group_id)
+            project = Project.objects.get(id=group.project_id)
+            if group.member + 1 > project.group_size:
+                raise
+            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member+1)
+            UserGroup.objects.create(group_name_id=group_id, user_name_id=user.id)
+            return JsonResponse({"TeacherAddMemberCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherAddMemberCheck": "failed"})
+
+
 class StudentPublishRequest(View):
     def post(self, request):
         try:
