@@ -101,12 +101,12 @@
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
-                 v-bind:projectId="this.groupInfo.project_id">
+                 v-bind:projectId="this.$props.projectDetail.project_id">
       </EventList>
     </div>
 
     <div v-if="this.identity === 'teacher'">
-      <Grouping></Grouping>
+      <Grouping v-bind:project_id="this.$props.projectDetail.project_id"></Grouping>
     </div>
 
   </div>

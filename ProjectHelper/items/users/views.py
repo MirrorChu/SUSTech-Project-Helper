@@ -1772,6 +1772,7 @@ class TeacherGetSituationInProject(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             project = Project.objects.get(id=project_id)
+            print(user, project)
             course_id = project.course_id
             # course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
             groups = []
@@ -1784,17 +1785,17 @@ class TeacherGetSituationInProject(View):
                 captain = UserProfile.objects.get(id=i.captain_name_id)
                 group_detail["captain_name"] = captain.username
                 group_detail["captain_sid"] = captain.student_id
-                group_detail["member_sid"] = [captain.username]
-                group_detail["member_name"] = [captain.student_id]
+                group_detail["member_sid"] = [captain.student_id]
+                group_detail["member_name"] = [captain.real_name]
                 member = UserGroup.objects.filter(group_name_id=i.id)
-                string = captain.username
+                string = captain.real_name
                 for j in member:
                     person = UserProfile.objects.get(id=j.user_name_id)
                     if person.student_id == captain.student_id:
                         continue
                     group_detail["member_sid"].append(person.student_id)
-                    group_detail["member_name"].append(person.username)
-                    string += " " + person.username
+                    group_detail["member_name"].append(person.real_name)
+                    string += " " + person.real_name
                 group_detail["namelist"] = string
                 if project.group_size > member.count():
                     group_detail["valid"] = True

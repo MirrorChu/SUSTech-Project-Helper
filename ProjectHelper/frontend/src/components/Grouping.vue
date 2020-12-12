@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div>
       <el-table
         :data="groupData"
@@ -9,6 +8,10 @@
         <el-table-column
           prop="group_id"
           label="GROUP ID">
+        </el-table-column>
+        <el-table-column
+          prop="group_name"
+          label="GROUP NAME">
         </el-table-column>
         <el-table-column
           prop="captain_name"
@@ -29,35 +32,34 @@
 
     <div>
       <el-dialog title="Group Data" :visible.sync="dialogGroupDataVisible">
-        <el-form ref="form" label-position="left" label-width="80px">
+        <el-form ref="form">
           <el-form-item label="GROUP ID">
             <el-row>{{ groupInformation.group_id }}</el-row>
           </el-form-item>
-          <div v-for="(stu_sid,index) in groupInformation['member_sid']">
-            <el-form-item label="Name">
-              <el-row>{{ stu_sid+' '+groupInformation['membername'][index] }}
-                <el-button @click="onClickKick(stu_sid, groupInformation.group_id)">Kick</el-button>
-              </el-row>
-            </el-form-item>
-          </div>
-          <el-form-item>
-            <el-input v-model="sid_invite" placeholder="SID to Invite"></el-input>
-            <el-button @click="onClickInvite(groupInformation.group_id)">Invite</el-button>
+
+          <el-form-item label="Name">
+            <el-row v-for="(stu_sid,index) in groupInformation['member_sid']">
+                {{ stu_sid+' '+ groupInformation['member_name'][index] }}
+              <el-button @click="onClickKick(stu_sid, groupInformation.group_id)">Kick</el-button>
+            </el-row>
           </el-form-item>
-          <el-form-item>
-            <el-select v-model="stu_invite" multiple placeholder="">
-              <el-option
-                v-for="item in this.singleData"
-                :key="item.sid"
-                :label="item.realname"
-                :value="item.sid">
-                <span>{{  item.realname  }}&nbsp{{  item.sid  }}</span>
-              </el-option>
-            </el-select>
+
+<!--          <el-form-item>-->
+<!--            <el-input v-model="sid_invite" placeholder="SID to Invite"></el-input>-->
 <!--            <el-button @click="onClickInvite(groupInformation.group_id)">Invite</el-button>-->
-            <el-button @click="test(stu_invite)">Invite</el-button>
-          </el-form-item>
+<!--          </el-form-item>-->
         </el-form>
+
+        <el-select v-model="stu_invite" multiple placeholder="">
+        <el-option
+          v-for="item in this.singleData"
+          :key="item.sid"
+          :label="item.realname"
+          :value="item.sid">
+          <span>{{  item.realname  }}&nbsp{{  item.sid  }}</span>
+        </el-option>
+      </el-select>
+        <el-button @click="test(stu_invite, groupInformation.group_id)">Invite</el-button>
       </el-dialog>
     </div>
 
@@ -67,6 +69,11 @@
 <script>
   export default {
     name: "Grouping",
+    props: {
+      project_id: {
+        required: true,
+      },
+    },
     data() {
       return {
         groupData: '',
@@ -82,14 +89,26 @@
       this.pullSingleData()
     },
     methods: {
-      test(sth)
+      test(sth, group_id)
       {
         console.log(sth)
+        console.log(typeof sth)
+        for (const item in sth)
+        {
+          this.$axios.post('/teacher_add_member/', {
+            group_id: group_id,
+            sid_invite: sth[item],
+          }).then(res => {
+            console.log(res.data)
+          }).catch(err => {
+            console.log(err)
+          })
+        }
       },
       pullSingleData ()
       {
         this.$axios.post('/teacher_get_single_in_project/', {
-          project_id: this.project_id,
+          project_id: this.$props.project_id,
         }).then(res => {
           console.log(res.data)
           if (res.data.TeacherGetSingleInProject === 'success')
@@ -103,7 +122,7 @@
       pullGroupingData ()
       {
         this.$axios.post('/teacher_get_situation_in_project/', {
-          project_id: this.project_id,
+          project_id: this.$props.project_id,
         }).then(res => {
           console.log(res.data)
           if (res.data.TeacherGetSituationInProject === 'success')
@@ -114,24 +133,25 @@
           console.log(err)
         })
       },
-      onClickShowGroupDetail()
+      onClickShowGroupDetail(row)
       {
         this.dialogGroupDataVisible = true
+        this.groupInformation = row
       },
-      onClickInvite(group_id)
-      {
-        this.$axios.post('/', {
-          group_id: group_id,
-          sid_invite: this.sid_invite,
-        }).then(res => {
-          console.log(res.data)
-        }).catch(err => {
-          console.log(err)
-        })
-      },
+      // onClickInvite(group_id)
+      // {
+      //   this.$axios.post('/', {
+      //     group_id: group_id,
+      //     sid_invite: this.sid_invite,
+      //   }).then(res => {
+      //     console.log(res.data)
+      //   }).catch(err => {
+      //     console.log(err)
+      //   })
+      // },
       onClickKick(sid, group_id)
       {
-        this.$axios.post('/', {
+        this.$axios.post('/teacher_kick_member/', {
           group_id: group_id,
           sid_kick: sid,
         }).then(res => {
