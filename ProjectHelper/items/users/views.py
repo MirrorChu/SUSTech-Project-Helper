@@ -1833,3 +1833,42 @@ class TeacherKickMember(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherKickMemberCheck": "failed"})
+
+class TeacherGetSingleInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all students without groups
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": students= username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            students = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                array = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    array.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        array.remove(j.user_name_id)
+                for i in array:
+                    stu = UserProfile.objects.get(id=i)
+                    tmp = {'sid':stu.student_id,'realname':stu.real_name}
+                    students.append(tmp)
+            return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
