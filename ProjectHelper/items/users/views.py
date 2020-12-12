@@ -1816,9 +1816,9 @@ class StudentGetAllAd(View):
 class GetPrivilegeList(View):
     def post(self, request):
         """
-        Get event list
+        Get privilege list
         :param token:token
-                course_id: id of course
+                project_id: id of project
         :return: "Data": {'teach': 1/0, 'projectGrade': 1/0, }
         """
         try:
@@ -1827,14 +1827,49 @@ class GetPrivilegeList(View):
             student_id = get_sid(token)
             user = UserProfile.objects.get(student_id=student_id)
             privileges = {'teach': 0, 'projectGrade': 0, 'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
-                          'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'type': 0, 'groupValid': 0, 'tagEdit': 0}
+                          'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0, 'groupValid': 0, 'tagEdit': 0}
             privilege = Authority.objects.filter(user_id=user.id, course_id=course_id)
             for i in privilege:
                 privileges[i.type] = 1
-            return JsonResponse({"Data": privileges, "GetEventListCheck": "success"})
+            return JsonResponse({"Data": privileges, "GetPrivilegeListCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
-            return JsonResponse({"GetEventListCheck": "failed"})
+            return JsonResponse({"GetPrivilegeListCheck": "failed"})
+
+
+class GetAllPrivilegeList(View):
+    def post(self, request):
+        """
+        Get all privilege list
+        :param token:token
+                project_id: id of project
+        :return: "Data": [{'sid':11810101,'name':real_name, '权限1': 1/0, ........}, {}]
+        """
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            user = UserProfile.objects.get(student_id=student_id)
+            project = Project.objects.get(id=project_id)
+            users = UserCourse.objects.filter(course_name_id=project.course_id)
+            auth = Authority.objects.get(user_id=student_id, type="authEdit", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                list = []
+                for i in users:
+                    person = UserProfile.objects.get(id=i.user_name_id)
+                    privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': 0, 'projectGrade': 0,
+                                  'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
+                                  'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0, 'groupValid': 0,
+                                  'tagEdit': 0}
+                    privilege = Authority.objects.filter(user_id=user.id, course_id=project.course_id)
+                    for j in privilege:
+                        privileges[j.type] = 1
+                    list.append(privileges)
+                return JsonResponse({"Data": list, "GetAllPrivilegeListCheck": "success"})
+            return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetAllPrivilegeListCheck": "failed"})
 
 
 class GetEventList(View):
@@ -1861,6 +1896,13 @@ class GetEventList(View):
 
 class SendMailToInvite(View):
     def post(self, request):
+        """
+        Send Mail To Invite
+        :param token:token
+               t_sid: sid of the student to be invited
+               group_id: id of the invite group
+        :return:
+        """
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
@@ -1913,6 +1955,12 @@ class SendMailToInvite(View):
 
 class SendMailToApply(View):
     def post(self, request):
+        """
+        Send Mail To apply and send to captain
+        :param token:token
+               group_id: id of the apply group
+        :return:
+        """
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
