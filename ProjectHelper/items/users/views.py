@@ -1562,10 +1562,10 @@ class TeacherGetAuthInProject(View):
 class TeacherGetSituationInProject(View):
     def post(self, request):
         f"""
-        user with "teach" authority can get all authority beside himself in the course of project
+        user with "teach" authority can get all groups of project
         :param token: token
                 project_id: id of project_project
-        :return: "Data": auths=  username:[type of authority]
+        :return: "Data": groups=  group_id: 小组id, group_name: 小组名字, captain_name: 队长姓名, captain_sid: 队长id,namelist: 所有成员姓名和空格拼接的字符串, member_sid: 所有成员id的列表(队长在首最好), member_name: 所有成员姓名的列表(队长在首最好), 是否可被加入: true/false
         """
         try:
             token = eval(request.body.decode()).get("token")
@@ -1609,6 +1609,46 @@ class TeacherGetSituationInProject(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherGetSituationInProject": "failed"})
+
+
+class TeacherGetSingleInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all students without groups
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": students= username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            students = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                array = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    array.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        array.remove(j.user_name_id)
+                for i in array:
+                    stu = UserProfile.objects.get(id=i)
+                    tmp = {'sid':stu.student_id,'realname':stu.real_name}
+                    students.append(tmp)
+            return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
 
 
 class TeacherKickMember(View):
@@ -1719,41 +1759,107 @@ class SendMailToInvite(View):
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
-            tag_id = eval(request.body.decode()).get("t_sid")
+            t_sid = eval(request.body.decode()).get("t_sid")
             group_id = eval(request.body.decode()).get("group_id")
 
-            query_set = UserProfile.objects.get(student_id=tag_id)
-            email = query_set.email
-            subject = '来自自强学堂的问候'
-            text_content = '这是一封重要的邮件.'
-            html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
-            msg = EmailMultiAlternatives(subject, text_content,
-                                         student_id + '<11812710@mail.sustech.edu.cn>', [email])
+            sender = UserProfile.objects.get(student_id=student_id)
+            receiver = UserProfile.objects.get(student_id=t_sid)
+            if sender.id == receiver.id:
+                raise
+            group = GroupOrg.objects.get(id=group_id)
+            project = Project.objects.get(id=group.project_id)
+            email = receiver.email
+            string = receiver.password
+            pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+            member = UserGroup.objects.filter(group_name_id=group_id)
+            list = ""
+            for j in member:
+                person = UserProfile.objects.get(id=j.user_name_id)
+                if person.student_id == student_id:
+                    continue
+                list += person.username + " "
+            subject = 'An Invite from Group ' + group.group_name + 'in Project ' + project.name
+            text_content = 'You need to read this email with a client can read html.'
+            html_content = '''<div><includetail>
+    <div style="font:Verdana normal 14px;color:#000;">
+        <div style="position:relative;">
+            <div style="text-align: left;"><font size="4" face="幼圆">Group ''' + group.group_name + ''' in Project ''' + project.name + ''' Invite you to join!</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Group detail: ''' + group.detail + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Captain: ''' + sender.username + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Member: ''' + list + '''</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + '''&amp;r=''' + t_sid + '''&amp;t=1&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Refuse</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + '''&amp;r=''' + t_sid + '''&amp;t=2&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
+            <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
+        </div>
+    </div>
+    <!--<![endif]--></includetail>
+</div>'''
+            msg = EmailMultiAlternatives(subject, text_content, sender.username + '<11812710@mail.sustech.edu.cn>',
+                                         [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
-
             return JsonResponse({"SendMailToInvite": "success"})
 
         except Exception as e:
             return JsonResponse({"SendMailToInvite": "failed"})
 
 
+class SendMailToApply(View):
+    def post(self, request):
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            group_id = eval(request.body.decode()).get("group_id")
+
+            sender = UserProfile.objects.get(student_id=student_id)
+            group = GroupOrg.objects.get(id=group_id)
+            receiver = UserProfile.objects.get(id=group.captain_name_id)
+            if sender.id == receiver.id:
+                raise
+            project = Project.objects.get(id=group.project_id)
+            email = receiver.email
+            string = receiver.password
+            pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+            tags = UserTag.objects.filter(user_name_id=sender.id, visibility=1)
+            list = ""
+            for i in tags:
+                tag = Tag.objects.get(id=i.tag_id)
+                list += tag.tag + " "
+            subject = 'An Apply from Student ' + sender.username + 'in Project ' + project.name
+            text_content = 'You need to read this email with a client can read html.'
+            html_content = '''<div><includetail>
+    <div style="font:Verdana normal 14px;color:#000;">
+        <div style="position:relative;">
+            <div style="text-align: left;"><font size="4" face="幼圆">Student ''' + sender.username + ''' in Project ''' + project.name + ''' Want to join your group!</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Tag: ''' + list + '''</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + '''&amp;r=''' + receiver.student_id + '''&amp;t=3&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Refuse</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + '''&amp;r=''' + receiver.student_id + '''&amp;t=4&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
+            <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
+        </div>
+    </div>
+    <!--<![endif]--></includetail>
+</div>'''
+            msg = EmailMultiAlternatives(subject, text_content, sender.username + '<11812710@mail.sustech.edu.cn>',
+                                         [email])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            return JsonResponse({"SendMailToApply": "success"})
+
+        except Exception as e:
+            return JsonResponse({"SendMailToApply": "failed"})
+
+
 class MailUrl(View):
     def get(self, request):
-        # sender = request.GET.get('s')
+        sender = request.GET.get('s')
         reciver = request.GET.get('r')
-        # type = request.GET.get('t')
-        # password = request.GET.get('c')
-        # send_mail('Subject here', 'Here is the message.', 'me'+'<11812710@mail.sustech.edu.cn>',
-        #           ['11811002@mail.sustech.edu.cn'], fail_silently=False)
-        subject = '来自自强学堂的问候'
-        text_content = '这是一封重要的邮件.'
-        html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
-        msg = EmailMultiAlternatives(subject, text_content, 'me' + '<11812710@mail.sustech.edu.cn>',
-                                     [reciver])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()  # http://127.0.0.1:8000/mailurl/?r=目标邮箱 测试用例
-        return HttpResponse("success")
+        type = request.GET.get('t')
+        password = request.GET.get('c')
+        return HttpResponse('success<meta http-equiv="refresh" content="5;url=http://127.0.0.1:8000"> ')
 
 
 # class Test(View):
@@ -1824,3 +1930,14 @@ class TestFile(View):
         except Exception as e:
             print('avatar exception', e)
             return JsonResponse({"ChangeHeadImage": "failed"})
+
+
+def announceMail(sid, information):
+    user = UserProfile.objects.get(student_id=sid)
+    subject = 'An announcement from ProjectHelper'
+    text_content = '这是一封重要的邮件.'
+    html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
+    msg = EmailMultiAlternatives(subject, text_content, sid + '<11812710@mail.sustech.edu.cn>',
+                                 [user.email])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
