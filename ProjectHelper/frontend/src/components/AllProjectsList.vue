@@ -100,21 +100,23 @@ export default {
       const localProject = localProjects[index]
 
       this.$axios.post('/student_gets_single_project_information/', {
-        projectId: localProject[0],
+        'projectId': localProject[0],
       }).then(res => {
+        console.log('res', res)
         this.projectDetail = res.data
+        this.projectDetail['projectId'] = localProject[0]
+        this.$axios.post('/student_gets_group_information_in_project/', {
+          sid: this.sid,
+          project_id: localProject[0],
+        }).then(res => {
+          console.log('groupInfo', res.data)
+          this.groupInfo = res.data
+          this.controlDisplay('projectDetail')
+        }).catch(err => {
+          this.projectDetail = null
+          console.log(err)
+        })
       }).catch(err => {
-        console.log(err)
-      })
-      this.$axios.post('/student_gets_group_information_in_project/', {
-        sid: this.sid,
-        project_id: localProject[0],
-      }).then(res => {
-        console.log('groupInfo', res.data)
-        this.groupInfo = res.data
-        this.controlDisplay('projectDetail')
-      }).catch(err => {
-        this.projectDetail = null
         console.log(err)
       })
     },

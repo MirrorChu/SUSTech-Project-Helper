@@ -13,7 +13,7 @@
         <component :is="componentObj.type" :data="componentObj.data">
 
         </component>
-        <EventGrading>
+        <EventGrading v-if="identity === 'teacher'">
 
         </EventGrading>
       </el-card>
@@ -72,7 +72,7 @@ export default {
         pswd: this.$props.pswd,
         data: {
           type: 'AnnouncementComponent',
-          title: 'Demo Title',
+          title: 'Demo Announcement',
           introduction: 'This is a demo announcement.',
           due: (new Date()).getTime(),
         },

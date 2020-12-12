@@ -20,9 +20,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="088d2a69-5e4d-45e7-bc0e-c662c6b92d95" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/homepage.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/AllProjectsList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AllProjectsList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CreateProject.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CreateProject.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +74,7 @@
       <method v="2" />
     </configuration>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="false" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -118,6 +121,8 @@
       <workItem from="1607517391522" duration="643000" />
       <workItem from="1607531333715" duration="10868000" />
       <workItem from="1607569244796" duration="3448000" />
+      <workItem from="1607669472504" duration="3854000" />
+      <workItem from="1607689024859" duration="7083000" />
     </task>
     <task id="LOCAL-00001" summary="new password component">
       <created>1605769996539</created>
@@ -151,7 +156,7 @@
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="2" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
