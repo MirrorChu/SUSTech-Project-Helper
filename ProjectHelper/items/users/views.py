@@ -1088,6 +1088,34 @@ class TestAPI(View):
         return JsonResponse({"message": "get it"})
 
 
+class AddNewTag(View):
+    # return path
+    def post(self, request):
+        """
+        add new tag
+        :param token: token
+                tag_target: id of operations_tag
+        :return: UserTagID: id of operations_usertag
+                Type: type of operations_tag
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            tag_name = eval(request.body.decode()).get("tag_name")
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            user = UserProfile.objects.get(student_id=student_id)
+            # TODO：验权
+            # Authority.objects.get(user_id=user.id, type="tag")
+            tag = Tag.objects.filter(tag=tag_name)
+            if tag.count() == 1:
+                return JsonResponse({"AddNewTag": "repeat"})
+            Tag.objects.create(tag=tag_name, type="新增")
+            return JsonResponse({"AddNewTag": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"AddNewTag": "failed"})
+
+
 class AddTag(View):
     # return path
     def post(self, request):
@@ -1887,9 +1915,19 @@ class MailUrl(View):
     def get(self, request):
         sender = request.GET.get('s')
         reciver = request.GET.get('r')
-        type = request.GET.get('t')
-        password = request.GET.get('c')
-        return HttpResponse('success<meta http-equiv="refresh" content="5;url=http://127.0.0.1:8000"> ')
+        type = int(request.GET.get('t'))
+        password = str(request.GET.get('c'))
+        pswd = base64.b64decode(password.encode("utf-8")).decode("utf-8")
+        # if type == 1:
+        #
+        # elif type == 2:
+        #
+        # elif type == 3:
+        #
+        # elif type == 4:
+
+
+        return HttpResponse('wrong url<meta http-equiv="refresh" content="3;url=http://127.0.0.1:8080/#/homepage"> ')
 
 
 # class Test(View):

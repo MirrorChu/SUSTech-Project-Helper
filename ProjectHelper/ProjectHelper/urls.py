@@ -35,7 +35,8 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     StudentLikeTag, TeacherGetStudentsInCourse, TeacherCreateProject, TestFile, \
     SendKey, StudentGetsAllTagsCanAdd, UnshowTag, AddTag, StudentPublishRequest, \
     StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherKickMember, \
-    TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember
+    TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember, \
+    AddNewTag, SendMailToApply
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -68,6 +69,7 @@ urlpatterns = [
     path('show_head_image/', ShowHeadImage.as_view()),
     path('change_head_image/', ChangeHeadImage.as_view()),
     path('send_mail_to_invite/', SendMailToInvite.as_view()),
+    path('send_mail_to_apply/', SendMailToApply.as_view()),
     path('student_get_project/', StudentGetProject.as_view()),
     path('student_gets_group_information_in_project/', StudentGetsGroupInformationInProject.as_view()),
     path('student_get_valid_group_in_project/', StudentGetValidGroupInProject.as_view()),
@@ -82,6 +84,7 @@ urlpatterns = [
     path('send_key/', SendKey.as_view()),
     path('unshow_tag/', UnshowTag.as_view()),
     path('add_tag/', AddTag.as_view()),
+    path('add_new_tag/', AddNewTag.as_view()),
     path('student_publish_request/', StudentPublishRequest.as_view()),
     path('student_publish_apply/', StudentPublishApply.as_view()),
     path('student_gets_all_ad/', StudentGetAllAd.as_view()),
