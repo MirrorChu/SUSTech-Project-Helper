@@ -1,10 +1,18 @@
 <template>
   <el-form>
     <el-form-item label="Title">
-      <el-input clearable placeholder="Input your title."></el-input>
+      <el-input
+          clearable
+          v-model="title"
+          placeholder="Input your title.">
+      </el-input>
     </el-form-item>
     <el-form-item label="Introduction">
-      <el-input clearable type="textarea" placeholder="Input your content."></el-input>
+      <el-input
+          clearable
+          type="textarea"
+          v-model="introduction"
+          placeholder="Input your content."></el-input>
     </el-form-item>
     <el-form-item label="Due">
       <el-date-picker
@@ -39,6 +47,7 @@ export default {
   },
   methods: {
     onClickSubmit () {
+      console.log(this.toJson())
       //TODO: Implement submit.
     },
     toJson () {
@@ -46,7 +55,7 @@ export default {
       event.type = this.type
       event.title = this.title
       event.introduction = this.introduction
-      event.due = this.due
+      event.due = this.due.getTime()
       event.submissionType = this.submissionType
       return event
     },

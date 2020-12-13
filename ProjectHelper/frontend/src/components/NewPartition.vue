@@ -2,11 +2,20 @@
   <div>
     <el-form>
       <el-form-item label="Title">
-        <el-input clearable placeholder="Input your title."></el-input>
+        <el-input
+            clearable
+            v-model="title"
+            placeholder="Input your title.">
+        </el-input>
       </el-form-item>
       <el-form-item label="Introduction">
-        <el-input clearable type="textarea" placeholder="Input your content."></el-input>
+        <el-input
+            clearable
+            type="textarea"
+            v-model="introduction"
+            placeholder="Input your content."></el-input>
       </el-form-item>
+
       <el-form-item label="Due">
         <el-date-picker
           v-model="due"
@@ -39,6 +48,7 @@
           </el-form-item>
         </el-form>
       </el-form-item>
+
       <el-form-item v-else-if="selectionType === 1 || selectionType === '1'">
         <el-form>
           <el-form-item label="Start">
@@ -55,11 +65,18 @@
               placeholder="Due Datetime">
             </el-date-picker>
           </el-form-item>
+
           <el-form-item label="Number">
             <el-input-number v-model="timeSlotNum" :min="1" label="number"></el-input-number>
           </el-form-item>
+
+          <el-form-item label="Slot Volume">
+            <el-input-number v-model="timeSlotVolume" label="slot volume"></el-input-number>
+          </el-form-item>
+
         </el-form>
       </el-form-item>
+
       <el-form-item>
         <el-button @click="onClickSubmit">Submit</el-button>
       </el-form-item>
@@ -97,17 +114,7 @@ export default {
   },
   methods: {
     onClickSubmit () {
-      //TODO: Implement submit.
-    },
-    submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
+      console.log(this.toJson())
     },
     resetForm (formName) {
       this.$refs[formName].resetFields()
@@ -125,14 +132,37 @@ export default {
       })
     },
     toJson () {
+      const options = []
       const event = {}
-      event.type = this.type
+      if (this.selectionType === 0 || this.selectionType === '0') {
+        let idx = 0
+        while (idx < this.dynamicValidateForm.domains.length) {
+          const item = this.dynamicValidateForm.domains[idx]
+          options.push([item.value, item.volume])
+          idx += 1
+        }
+      }
+      else {
+        let startTime = this.timeSlotSelectionStart.getTime();
+        const endTime = this.timeSlotSelectionEnd.getTime();
+        const num = this.timeSlotNum;
+        const length = Math.floor((endTime - startTime) / num)
+        let idx = 0
+        while (idx < length) {
+          options.push([startTime, startTime + length - 1])
+          startTime += length
+          idx += 1
+        }
+        event.timeSlotLength = length
+        event.timeSlotVolume = this.timeSlotVolume
+      }
+      event.type = 'Selection'
       event.title = this.title
       event.introduction = this.introduction
-      event.due = this.due
+      event.due = this.due.getTime()
       event.selectionType = this.selectionType
       event.selectionLimit = this.selectionLimit
-      event.options = this.options
+      event.options = options
       return event
     },
   },

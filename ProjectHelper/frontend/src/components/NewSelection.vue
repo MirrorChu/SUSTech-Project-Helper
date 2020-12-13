@@ -1,12 +1,22 @@
 <template>
   <div>
     <el-form>
+
       <el-form-item label="Title">
-        <el-input clearable placeholder="Input your title."></el-input>
+        <el-input clearable
+                  v-model="title"
+                  placeholder="Input your title.">
+        </el-input>
       </el-form-item>
+
       <el-form-item label="Introduction">
-        <el-input clearable type="textarea" placeholder="Input your content."></el-input>
+        <el-input clearable
+                  v-model="introduction"
+                  type="textarea"
+                  placeholder="Input your content.">
+        </el-input>
       </el-form-item>
+
       <el-form-item label="Due">
         <el-date-picker
           v-model="due"
@@ -14,14 +24,17 @@
           placeholder="Due Datetime">
         </el-date-picker>
       </el-form-item>
+
       <el-form-item label="Selection Type">
         <el-radio-group v-model="selectionType">
           <el-radio label="0">Normal</el-radio>
           <el-radio label="1">Timeslot</el-radio>
         </el-radio-group>
       </el-form-item>
+
       <el-form-item v-if="selectionType === 0 || selectionType === '0'">
         <el-form :model="dynamicValidateForm" ref="dynamicValidateForm">
+
           <el-form-item
             v-for="(value, index) in dynamicValidateForm.domains"
             :label="'Option ' + index"
@@ -30,12 +43,15 @@
             <el-input v-model="value.value"></el-input>
             <el-button @click.prevent="removeDomain(value)">Remove</el-button>
           </el-form-item>
+
           <el-form-item>
             <el-button @click="addDomain">New Option</el-button>
             <el-button @click="resetForm('dynamicValidateForm')">Reset</el-button>
           </el-form-item>
+
         </el-form>
       </el-form-item>
+
       <el-form-item v-else-if="selectionType === 1 || selectionType === '1'">
         <el-form>
           <el-form-item label="Start">
@@ -45,6 +61,7 @@
               placeholder="Due Datetime">
             </el-date-picker>
           </el-form-item>
+
           <el-form-item label="End">
             <el-date-picker
               v-model="timeSlotSelectionEnd"
@@ -52,11 +69,14 @@
               placeholder="Due Datetime">
             </el-date-picker>
           </el-form-item>
+
           <el-form-item label="Number">
             <el-input-number v-model="timeSlotNum" :min="1" label="number"></el-input-number>
           </el-form-item>
+
         </el-form>
       </el-form-item>
+
       <el-form-item>
         <el-button @click="onClickSubmit">Submit</el-button>
       </el-form-item>
@@ -91,7 +111,12 @@ export default {
   },
   methods: {
     onClickSubmit () {
-      //TODO: Implement submit.
+      console.log(this.toJson())
+      this.$axios.post('/test/', {jsonObj: this.toJson()}).then(res => {
+        console.log('res', res)
+      }).catch(err => {
+        console.log('err', err)
+      })
     },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
@@ -119,14 +144,34 @@ export default {
       })
     },
     toJson () {
+      const options = []
       const event = {}
-      event.type = this.type
+      if (this.selectionType === 0 || this.selectionType === '0') {
+        let idx = 0
+        while (idx < this.dynamicValidateForm.domains.length) {
+          const item = this.dynamicValidateForm.domains[idx]
+          options.push(item.value)
+          idx += 1
+        }
+      }
+      else {
+        let startTime = this.timeSlotSelectionStart.getTime();
+        const endTime = this.timeSlotSelectionEnd.getTime();
+        const num = this.timeSlotNum;
+        const length = Math.floor((endTime - startTime) / num)
+        while (startTime < endTime) {
+          options.push([startTime, startTime + length - 1])
+          startTime += length
+        }
+        event.timeSlotLength = length
+      }
+      event.type = 'Selection'
       event.title = this.title
       event.introduction = this.introduction
-      event.due = this.due
+      event.due = this.due.getTime()
       event.selectionType = this.selectionType
       event.selectionLimit = this.selectionLimit
-      event.options = this.options
+      event.options = options
       return event
     },
   },

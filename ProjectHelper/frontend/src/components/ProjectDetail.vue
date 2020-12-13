@@ -16,14 +16,17 @@
                            v-bind:sid="this.$props.sid"
                            v-bind:projectId="this.$props.groupInfo.project_id"></CreateOrJoinGroup>
 
-        <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-          <el-form-item label="The profile you want to view">
-            <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
-          </el-form-item>
-        </el-form>
+        <div>
+          <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+            <el-form-item label="The profile you want to view">
+              <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+
       </div>
     </div>
 
