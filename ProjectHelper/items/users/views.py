@@ -399,7 +399,7 @@ class Test(View):
 
     def post(self, request):
         try:
-            logger.debug('%s %s', self, request.body)
+            logger.debug('%s request.body: %s\n', self, request.body)
             arr = request.FILES.keys()
             print(arr)
             file_name = ''

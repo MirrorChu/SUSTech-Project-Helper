@@ -2,10 +2,17 @@
   <div>
     <el-form>
       <el-form-item label="Title">
-        <el-input clearable placeholder="Input your title."></el-input>
+        <el-input clearable
+                  placeholder="Input your title."
+                  v-model="title">
+        </el-input>
       </el-form-item>
       <el-form-item label="Introduction">
-        <el-input clearable type="textarea" placeholder="Input your content."></el-input>
+        <el-input clearable
+                  type="textarea"
+                  placeholder="Input your content."
+                  v-model="introduction">
+        </el-input>
       </el-form-item>
       <el-form-item label="Due">
         <el-date-picker
@@ -15,7 +22,7 @@
         </el-date-picker>
       </el-form-item>
     </el-form>
-    <el-button>Submit</el-button>
+    <el-button @click="onClickSubmit">Submit</el-button>
   </div>
 </template>
 
@@ -24,7 +31,7 @@ export default {
   name: 'NewAnnouncement',
   data () {
     return {
-      type: '',
+      type: 'Announcement',
       title: '',
       introduction: '',
       due: '',
@@ -32,17 +39,23 @@ export default {
   },
   methods: {
     onClickSubmit () {
-      //  TODO: Implement submission.
+      console.log(this.toJson())
+      this.$axios.post('/test/', {jsonObj: this.toJson()}).then(res => {
+        console.log('res', res)
+      }).catch(err => {
+        console.log('err', err)
+      })
+    },
+    toJson () {
+      const event = {}
+      event.type = 'Announcement'
+      event.title = this.title
+      event.introduction = this.introduction
+      event.due = this.due.getTime()
+      return event
     },
   },
-  toJson () {
-    const event = {}
-    event.type = this.type
-    event.title = this.title
-    event.introduction = this.introduction
-    event.due = this.due
-    return event
-  },
+
 }
 </script>
 
