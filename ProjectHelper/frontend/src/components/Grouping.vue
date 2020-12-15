@@ -28,6 +28,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <el-button @click="semirandomgrouping"> Semi-random Grouping </el-button>
     </div>
 
     <div>
@@ -37,7 +39,11 @@
             <el-row>{{ groupInformation.group_id }}</el-row>
           </el-form-item>
 
-          <el-form-item label="Name">
+          <el-form-item label="Captain">
+            {{  groupInformation.captain_name  }}
+          </el-form-item>
+
+          <el-form-item label="Member">
             <el-row v-for="(stu_sid,index) in groupInformation['member_sid']">
                 {{ stu_sid+' '+ groupInformation['member_name'][index] }}
               <el-button @click="onClickKick(stu_sid, groupInformation.group_id)">Kick</el-button>
@@ -156,9 +162,22 @@
           sid_kick: sid,
         }).then(res => {
           console.log(res.data)
+          this.pullSingleData()
         }).catch(err => {
           console.log(err)
         })
+      },
+      semirandomgrouping()
+      {
+        // this.$axios.post('//', {
+        //   project_id: this.$props.project_id,
+        // }).then(res => {
+        //   console.log(res.data)
+        //   this.pullGroupingData()
+        //   this.pullSingleData()
+        // }).catch(err => {
+        //   console.log(err)
+        // })
       },
     },
   }

@@ -1783,7 +1783,7 @@ class TeacherGetSituationInProject(View):
                 group_detail["group_id"] = i.id
                 group_detail["group_name"] = i.group_name
                 captain = UserProfile.objects.get(id=i.captain_name_id)
-                group_detail["captain_name"] = captain.username
+                group_detail["captain_name"] = captain.real_name
                 group_detail["captain_sid"] = captain.student_id
                 group_detail["member_sid"] = [captain.student_id]
                 group_detail["member_name"] = [captain.real_name]
