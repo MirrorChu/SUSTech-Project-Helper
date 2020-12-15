@@ -64,7 +64,7 @@ export default {
   },
   created () {
     this.$axios.post('/student_gets_all_projects/', {}).then(res => {
-      console.log(res.data)
+      console.log('project', res.data)
       this.projects = res.data['projects']
       this.sid = res.data['sid']
     }).catch(err => {

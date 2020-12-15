@@ -1785,6 +1785,7 @@ class TeacherGetSituationInProject(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             project = Project.objects.get(id=project_id)
+            print(user, project)
             course_id = project.course_id
             # course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
             groups = []
@@ -1795,19 +1796,19 @@ class TeacherGetSituationInProject(View):
                 group_detail["group_id"] = i.id
                 group_detail["group_name"] = i.group_name
                 captain = UserProfile.objects.get(id=i.captain_name_id)
-                group_detail["captain_name"] = captain.username
+                group_detail["captain_name"] = captain.real_name
                 group_detail["captain_sid"] = captain.student_id
-                group_detail["member_sid"] = [captain.username]
-                group_detail["member_name"] = [captain.student_id]
+                group_detail["member_sid"] = [captain.student_id]
+                group_detail["member_name"] = [captain.real_name]
                 member = UserGroup.objects.filter(group_name_id=i.id)
-                string = captain.username
+                string = captain.real_name
                 for j in member:
                     person = UserProfile.objects.get(id=j.user_name_id)
                     if person.student_id == captain.student_id:
                         continue
                     group_detail["member_sid"].append(person.student_id)
-                    group_detail["member_name"].append(person.username)
-                    string += " " + person.username
+                    group_detail["member_name"].append(person.real_name)
+                    string += " " + person.real_name
                 group_detail["namelist"] = string
                 if project.group_size > member.count():
                     group_detail["valid"] = True
@@ -1846,3 +1847,42 @@ class TeacherKickMember(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherKickMemberCheck": "failed"})
+
+class TeacherGetSingleInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all students without groups
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": students= username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            students = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                array = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    array.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        array.remove(j.user_name_id)
+                for i in array:
+                    stu = UserProfile.objects.get(id=i)
+                    tmp = {'sid':stu.student_id,'realname':stu.real_name}
+                    students.append(tmp)
+            return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
