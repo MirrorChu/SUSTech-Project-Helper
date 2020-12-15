@@ -2,16 +2,26 @@
   <div>
     <div>
       <div><h3>{{ this.$props.data.title }}</h3></div>
-      <div>{{ this.$props.data.introduction }}</div>
-      <div>Due: {{ new Date(this.$props.data.due) }}</div>
-      <div>
-        <el-select v-model="selected" :multiple="this.$props.data.selectionLimit > 1" placeholder="Please select.">
-          <el-option v-for="item in this.$props.data.options" :key="item.value"
-                     :label="getLabelAndNumberFromItem(item)" :value="item.value">
-          </el-option>
-        </el-select>
+      <div v-if="!expand">
+        <el-button @click="onClickExpand">Expand</el-button>
       </div>
-      <el-button @click="onClickSubmit">Submit</el-button>
+
+      <div v-if="expand">
+        <div>
+          <el-button @click="onClickExpand">Close</el-button>
+        </div>
+        <div>{{ this.$props.data.introduction }}</div>
+        <div>Due: {{ new Date(this.$props.data.due) }}</div>
+        <div>
+          <el-select v-model="selected" :multiple="this.$props.data.selectionLimit > 1" placeholder="Please select.">
+            <el-option v-for="item in this.$props.data.options" :key="item.value"
+                       :label="getLabelAndNumberFromItem(item)" :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+        <el-button @click="onClickSubmit">Submit</el-button>
+      </div>
+
     </div>
   </div>
 </template>
@@ -27,6 +37,7 @@ export default {
   data () {
     return {
       selected: [],
+      expand: false,
     }
   },
   methods: {
@@ -35,6 +46,9 @@ export default {
     },
     getLabelAndNumberFromItem (item) {
       return item.label + ': ' + item.limit + ' remaining'
+    },
+    onClickExpand () {
+      this.expand = !this.expand
     },
   },
 }

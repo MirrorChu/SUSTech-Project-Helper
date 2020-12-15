@@ -1,7 +1,10 @@
 <template>
   <div>
     <div><h3>New Event</h3></div>
-    <div>
+    <div v-if="expand">
+      <div>
+        <el-button @click="onClickExpand">Close</el-button>
+      </div>
       <el-form>
         <el-form-item label="Event Type">
           <el-radio-group v-model="eventType">
@@ -29,6 +32,10 @@
         </el-form-item>
       </el-form>
     </div>
+
+    <div v-if="!expand">
+      <el-button @click="onClickExpand">Expand</el-button>
+    </div>
   </div>
 </template>
 
@@ -54,7 +61,13 @@ export default {
   data () {
     return {
       eventType: 1,
+      expand: false,
     }
+  },
+  methods: {
+    onClickExpand () {
+      this.expand = !this.expand
+    },
   },
 }
 </script>
