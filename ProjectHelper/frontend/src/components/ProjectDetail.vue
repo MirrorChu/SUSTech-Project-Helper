@@ -33,6 +33,8 @@
         </div>
 
       </div>
+
+
     </div>
 
     <div>
@@ -84,38 +86,45 @@
 
     <div>
       <h2>Advertisement</h2>
-      <el-collapse v-show="advertisementData !== ''">
-        <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
-          <div>{{ item.content }}</div>
-        </el-collapse-item>
-      </el-collapse>
-      <div v-show="advertisementData === ''">There is no advertisement!</div>
+      <el-card>
+        <el-collapse v-show="advertisementData !== ''">
+          <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+            <div>{{ item.content }}</div>
+          </el-collapse-item>
+        </el-collapse>
+        <div v-show="advertisementData === ''">There is no advertisement!</div>
+      </el-card>
+
+      <el-card  v-if="this.identity !== 'teacher'">
+        <div>
+          <h3>Upload AD</h3>
+          <el-form>
+            <el-form-item label="Title">
+              <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>
+            </el-form-item>
+            <el-form-item label="Content">
+              <el-input type="textarea" :rows="3" placeholder="the content of advertisement"
+                        v-model="advertisement_content"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-card>
     </div>
 
-    <div v-if="this.identity !== 'teacher'">
-      <h2>Upload AD</h2>
-      <el-form>
-        <el-form-item label="Title">
-          <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>
-        </el-form-item>
-        <el-form-item label="Content">
-          <el-input type="textarea" :rows="3" placeholder="the content of advertisement"
-                    v-model="advertisement_content"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>
-        </el-form-item>
-      </el-form>
+    <div v-if="this.identity === 'teacher'">
+      <el-card>
+        <Grouping></Grouping>
+
+      </el-card>
     </div>
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
                  v-bind:projectId="this.projectDetail['projectId']">
       </EventList>
-    </div>
-
-    <div v-if="this.identity === 'teacher'">
-      <Grouping></Grouping>
     </div>
 
   </div>

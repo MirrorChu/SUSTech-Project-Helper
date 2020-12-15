@@ -77,9 +77,34 @@
         </el-form>
       </el-form-item>
 
+      <el-form-item label="Select Partition">
+        <el-select v-model="selectedPartitionList"
+                   multiple placeholder="Select Partitions"
+                   @change="onSelectPartition">
+          <el-option
+              v-for="item in partitionList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Select Group">
+        <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">
+          <el-option
+              v-for="item in groupList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item>
         <el-button @click="onClickSubmit">Submit</el-button>
       </el-form-item>
+
     </el-form>
   </div>
 </template>
@@ -107,6 +132,10 @@ export default {
       timeSlotSelectionStart: '',
       timeSlotSelectionEnd: '',
       timeSlotNum: 0,
+      partitionList: [],
+      groupList: [],
+      selectedPartitionList: [],
+      selectedGroupList: [],
     }
   },
   methods: {
@@ -173,6 +202,10 @@ export default {
       event.selectionLimit = this.selectionLimit
       event.options = options
       return event
+    },
+    onSelectPartition (selected) {
+      //TODO: Partition influences selected group.
+      console.log(selected)
     },
   },
 }

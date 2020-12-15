@@ -16,9 +16,9 @@
     </el-form-item>
     <el-form-item label="Due">
       <el-date-picker
-        v-model="due"
-        type="datetime"
-        placeholder="Due Datetime">
+          v-model="due"
+          type="datetime"
+          placeholder="Due Datetime">
       </el-date-picker>
     </el-form-item>
     <el-form-item label="Submission Type">
@@ -27,6 +27,32 @@
         <el-radio label="file">File</el-radio>
       </el-radio-group>
     </el-form-item>
+
+
+    <el-form-item label="Select Partition">
+      <el-select v-model="selectedPartitionList"
+                 multiple placeholder="Select Partitions"
+                 @change="onSelectPartition">
+        <el-option
+            v-for="item in partitionList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+    </el-form-item>
+
+    <el-form-item label="Select Group">
+      <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">
+        <el-option
+            v-for="item in groupList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+    </el-form-item>
+
     <el-form-item>
       <el-button @click="onClickSubmit">Submit</el-button>
     </el-form-item>
@@ -43,6 +69,10 @@ export default {
       introduction: '',
       due: '',
       submissionType: '',
+      partitionList: [],
+      groupList: [],
+      selectedPartitionList: [],
+      selectedGroupList: [],
     }
   },
   methods: {
@@ -58,6 +88,10 @@ export default {
       event.due = this.due.getTime()
       event.submissionType = this.submissionType
       return event
+    },
+    onSelectPartition (selected) {
+      //TODO: Partition influences selected group.
+      console.log(selected)
     },
   },
 }

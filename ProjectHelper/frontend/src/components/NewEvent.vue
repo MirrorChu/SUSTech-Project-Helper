@@ -12,7 +12,7 @@
             <el-radio :label="1">Selection</el-radio>
             <el-radio :label="2">Submission</el-radio>
             <el-radio :label="3">Partition</el-radio>
-            <el-radio :label="4">Upload</el-radio>
+<!--            <el-radio :label="4">Upload</el-radio>-->
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="eventType === 0">
@@ -27,9 +27,9 @@
         <el-form-item v-else-if="eventType === 3">
           <NewPartition></NewPartition>
         </el-form-item>
-        <el-form-item v-else-if="eventType === 4">
-          TODO
-        </el-form-item>
+<!--        <el-form-item v-else-if="eventType === 4">-->
+<!--          TODO-->
+<!--        </el-form-item>-->
       </el-form>
     </div>
 

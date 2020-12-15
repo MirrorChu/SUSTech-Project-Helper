@@ -16,7 +16,8 @@
       </div>
       <div>Due: {{ new Date(this.$props.data.due) }}</div>
       <div v-if="this.$props.data.submissionType === 'text'">
-        <el-input v-model="this.submissionText" clearable type="textarea" placeholder="Input your submission."></el-input>
+        <el-input v-model="this.submissionText" clearable type="textarea"
+                  placeholder="Input your submission."></el-input>
       </div>
       <div v-if="this.$props.data.submissionType === 'file'">
         <el-upload
@@ -30,14 +31,25 @@
         </el-upload>
       </div>
       <el-button @click="onClickSubmit">Submit</el-button>
+
+      <div v-if="identity === 'teacher'">
+        <EventGrading>
+
+        </EventGrading>
+      </div>
+
     </div>
+
 
   </div>
 </template>
 
 <script>
+import EventGrading from './EventGrading'
+
 export default {
   name: 'SubmissionComponent',
+  components: { EventGrading },
   props: {
     data: {
       required: true,
@@ -48,6 +60,7 @@ export default {
       submissionText: '',
       fileList: [],
       expand: false,
+      identity: 'teacher',
     }
   },
   methods: {
