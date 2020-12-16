@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: "project_detail"
+  name: 'EditProject',
 }
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <el-form :label-position="labelPosition" :label-width="labelWidth">
+    <el-form :label-position="labelPosition" :label-width="labelWidth" class="input-box">
       <el-form-item label="Student ID">
         <el-input v-model="sid" placeholder="SID" clearable></el-input>
       </el-form-item>
@@ -14,54 +14,61 @@
   </div>
 </template>
 <script>
-import {setCookie, getCookie} from '../assets/js/cookie.js'
 import axios from 'axios'
 
 export default {
   name: 'login',
-  data() {
+  data () {
     return {
       sid: '',
       pswd: '',
       labelPosition: 'left',
       labelWidth: '100px',
+      identity: '',
     }
   },
-  mounted() {
-    /*页面挂载获取cookie，如果存在username的cookie，则跳转到主页，不需登录*/
-    // if (getCookie('sid'))
-    // {
-    //   this.$router.push('/homepage')
-    // }
+  beforeCreate () {
+    this.$axios.post('/login/', {}).then(res => {
+      const status = res.data['loginCheck']
+      if (status === 'student' || status === 'teacher') {
+        this.$router.push({
+          name: 'homepage',
+          params: {
+            sid: this.sid,
+            identity: this.identity
+          },
+        })
+      }
+    }).catch(err => {
+      console.log('err', err)
+    })
   },
   methods: {
-    onLoginClick() {
+    onLoginClick () {
       //TODO Login request.
       axios.defaults.xsrfCookieName = 'csrftoken'
       axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
-      var status = ''
-      this.$axios.post('/login/', {sid: this.sid, pswd: this.pswd}).then(res => {
-        status = res.data['LoginCheck']
-        console.log(status)
-        if (status === 'success') {
-          let token = 'Bearer ' + res.data.token
-          // setCookie('sid', this.sid, 1000 * 60)
-          console.log('token: ', token)
-          this.$store.commit('Login', {Authorization: token, sid: this.sid})
-          this.$router.push(
-            {
-              name: 'homepage',
-              params: {
-                sid: this.sid,
-                pswd: this.pswd,
-              },
-            })
+      let status = ''
+      this.$axios.post('/login/', { sid: this.sid, pswd: this.pswd }).then(res => {
+        status = res.data['loginCheck']
+        this.identity = status
+        if (this.identity === 'student' || this.identity === 'teacher') {
+          console.log('zjs: res.data.Token', res.data.token)
+          let token = res.data.token
+          this.$store.commit('Login', { Authorization: token, sid: this.sid })
+          this.$router.push({
+            name: 'homepage',
+            params: {
+              sid: this.sid,
+              pswd: this.pswd,
+              identity: this.identity
+            },
+          })
         } else {
           this.sid = ''
           this.pswd = ''
           alert('WRONG SID OR PASSWORD')
         }
-
       }).catch(err => {
         console.log('err', err)
         alert(err)
@@ -71,6 +78,18 @@ export default {
 }
 </script>
 
-<!--<style scoped>-->
+<style scoped>
+.login {
+  position: absolute;
+  width: 400px;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
-<!--</style>-->
+.input-box {
+  border: 1px solid black;
+  border-radius: 2px;
+}
+
+</style>

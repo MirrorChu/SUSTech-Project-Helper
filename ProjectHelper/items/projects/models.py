@@ -1,10 +1,14 @@
 from django.db import models
-
+from datetime import *
 from items.users.models import BaseModel
 from items.courses.models import Course
 
 
 class Project(models.Model):
+    group_ddl = models.DateTimeField(default=datetime.now, verbose_name="组队ddl")
+
+    min_group_size = models.IntegerField(verbose_name="最小组队人数", default=4)
+
     name = models.CharField(verbose_name="项目名称", default="", max_length=50)
 
     introduction = models.TextField(verbose_name="项目名称", default="", max_length=65535)

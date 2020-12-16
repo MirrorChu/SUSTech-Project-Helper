@@ -1,25 +1,21 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
-    <!--    <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>-->
-    <!--    <el-button @click="testFileDownload">test file download</el-button>-->
-    <!--    <el-avatar :size="60" :src="this.avatar"></el-avatar>-->
-
-    <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
+    <el-image v-if="!this.edit" style="width: 200px; height: 200px"
+              :src="this.avatarUrl" :datafld="avatarUrl" fit="cover"></el-image>
     <el-upload v-if="this.edit"
                class="avatar-uploader"
                action="/api/change_head_image/"
-               :data="{sid: this.sid, pswd: this.pswd}"
+               :data="{sid: this.sid}"
                :auto-upload="true"
                :show-file-list="false"
                :on-success="handleAvatarSuccess"
                :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar">
+      <img v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar">
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
 
     <el-form ref="form" label-position="left" label-width="80px">
-
       <el-form-item label="SID">
         <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
         </el-input>
@@ -74,11 +70,35 @@
         </el-row>
       </el-form-item>
 
+      <el-form-item label="Tag">
+        <div v-if="!this.edit">
+          <span v-for="item in this.tags['Data']">
+            <el-badge :value="item.likes">
+              <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
+            </el-badge>
+            &nbsp
+          </span>
+        </div>
+
+        <div v-if="this.edit">
+          <b>Have Selected:</b>
+          <span v-for="item in this.tags['Data']">
+            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{ item.tag_name }}</el-button>
+            &nbsp
+          </span>
+          <br>
+          <b>To be Selected:</b>
+          <span v-for="item in addtags['Data']">
+            <el-button @click="onClickAddTag(item.tag_id, item.tag_name)">{{ item.tag_name }}</el-button>
+            &nbsp
+          </span>
+        </div>
+      </el-form-item>
+
       <el-button v-if="!this.edit" @click="onEditClicked()">EDIT</el-button>
       <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
 
     </el-form>
-
 
     <!--    TODO: File upload. -->
     <!--    <el-upload-->
@@ -90,10 +110,7 @@
     <!--      <i class="el-icon-upload"></i>-->
     <!--    </el-upload>-->
 
-
   </div>
-  <!--  <div>-->
-  <!--  </div>-->
 </template>
 
 <script>
@@ -101,18 +118,10 @@
 
 export default {
   name: 'profile',
-  props: {
-    sid: {
-      type: String,
-      required: true,
-    },
-    pswd: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
+  props: {},
+  data () {
     return {
+      sid: '',
       name: '',
       email: '',
       gender: '',
@@ -121,105 +130,109 @@ export default {
       imageUrl: '',
       dialogImageUrl: '',
       dialogVisible: '',
-      avatar: null,
       edit: false,
+      tags: '',
+      addtags: '',
+      avatarUrl: ''
     }
   },
-  created() {
-    console.log('profile created')
-    console.log(this.sid)
-    console.log(this.pswd)
+  created () {
     this.pullPersonalData()
-    this.avatar = require('../assets/logo.png')
-    // if (this.sid === '')
-    // {
-    //   this.sid = this.$route.params.sid
-    //   this.name = this.$route.params.name
-    // }
-  },
-  mounted() {
-    console.log('profile mounted')
-  },
-  destroyed() {
-    console.log('profile destroyed')
+    console.log('after pull info', this.sid)
+    // const token = localStorage.getItem('Authorization')
+    // this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
   },
 
   methods: {
+    pullPersonalData () {
+      //TODO: Get avatar from backend.
+      //TODO: Tag.
+      this.$axios.post('/show_personal_data/', {}).then(res => {
+        if (res.data['attempt'] === 'failure') {
+          this.$router.push('/login')
+        } else {
+          const token = localStorage.getItem('Authorization')
+          const data = res.data
+          this.sid = data['sid']
+          this.name = data['realName']
+          this.gender = data['gender']
+          this.email = data['email']
+          this.mobile = data['mobile']
+          this.address = data['address']
+          this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
+          this.pulltagData()
 
-    pullPersonalData() {
-      this.$axios.post('/show_personal_data/', {sid: this.sid, pswd: this.pswd}).then(res => {
-        const data = res.data
-        console.log('res.data', data)
-        //Remote quotes.
-        console.log(data['email'])
-        this.name = data['realname']
-        this.gender = data['gender']
-        this.email = data['email']
-        this.mobile = data['mobile']
-        this.address = data['address']
+        }
       }).catch(err => {
-        console.log(err)
+        console.log('err', err)
       })
     },
 
     //TODO: Add regex check for fields.
-    onConfirmEditClicked() {
+    onConfirmEditClicked () {
       this.$axios.post('/change_personal_data/', {
         sid: this.sid,
-        pswd: this.pswd,
         email: this.email,
         gender: this.gender,
         mobile: this.mobile,
         address: this.address,
       }).then(res => {
-        console.log('res', res)
+        const data = res.data
+        if (data['attempt'] === 'offline') {
+          this.$router.push('/')
+        } else if (data['attempt'] === 'failure') {
+          alert('Failed to edit profile!')
+        }
+        this.pullPersonalData()
+        this.edit = false
       }).catch(err => {
         console.log('err', err)
       })
-
-      this.pullPersonalData()
-
-      this.edit = false
     },
-    onEditClicked() {
+    onEditClicked () {
       this.edit = true
     },
 
-    saveFile(data, name) {
-      try {
-        data = new Blob([data])
-        console.log(data)
-        console.log(name)
-
-        const blobUrl = window.URL.createObjectURL(data)
-        const a = document.createElement('a')
-        a.style.display = 'none'
-        a.download = name
-        a.href = blobUrl
-        a.click()
-        URL.revokeObjectURL(a.href)
-      } catch (e) {
-        alert('保存文件出错')
-      }
-    },
-    testFileDownload() {
-      this.$axios.post('/test/', {sid: this.sid}, {responseType: 'blob'}).then(res => {
-        console.log('res', res)
-        console.log(res.data.size)
-        this.saveFile(res.data, '11811002.zip')
-      }).catch(err => {
-        console.log('err', err)
-      })
-    },
-    onClickNewPassword() {
-      this.$router.push({name: 'homepage_profile_newpassword', sid: this.$route.params.sid}).then(res => {
+    // /**
+    //  *
+    //  * @param data
+    //  * @param name
+    //  */
+    // saveFile (data, name) {
+    //   try {
+    //     data = new Blob([data])
+    //     console.log(data)
+    //     console.log(name)
+    //
+    //     const blobUrl = window.URL.createObjectURL(data)
+    //     const a = document.createElement('a')
+    //     a.style.display = 'none'
+    //     a.download = name
+    //     a.href = blobUrl
+    //     a.click()
+    //     URL.revokeObjectURL(a.href)
+    //   } catch (e) {
+    //     alert('保存文件出错')
+    //   }
+    // },
+    // testFileDownload () {
+    //   this.$axios.post('/test/', { sid: this.sid }, { responseType: 'blob' }).then(res => {
+    //     console.log('res', res)
+    //     console.log(res.data.size)
+    //     this.saveFile(res.data, '11811002.zip')
+    //   }).catch(err => {
+    //     console.log('err', err)
+    //   })
+    // },
+    onClickNewPassword () {
+      this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res => {
         console.log(res)
       }).catch(err => {
         console.log(err)
       })
     },
 
-    handleAvatarSuccess(res, file) {
+    handleAvatarSuccess (res, file) {
       console.log('raw', file.raw)
       console.log('raws', file.raws)
       console.log('success')
@@ -227,7 +240,7 @@ export default {
       console.log(file)
       this.imageUrl = URL.createObjectURL(file.raw)
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isJPG) {
@@ -238,27 +251,121 @@ export default {
       }
       return isJPG && isLt2M
     },
-    handlePictureCardPreview(file) {
-      console.log('preview')
-      this.dialogImageUrl = file.url
-      this.dialogVisible = true
+    // handlePictureCardPreview (file) {
+    //   console.log('preview')
+    //   this.dialogImageUrl = file.url
+    //   this.dialogVisible = true
+    // },
+    pulltagData () {
+      this.$axios.post('/student_gets_all_tags/', {
+        sid: this.sid,
+        sid_target: this.sid,
+      }).then(res => {
+        this.tags = res.data
+        this.pulladdtagData()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    onClickLike (id) {
+      console.log('hello')
+      console.log(typeof id)
+      this.$axios.post('/student_like_tag/', {
+        sid: this.sid,
+        tag_target: id,
+      }).then(res => {
+
+        if (res.data.StudentLikeTag === 'no like') {
+          console.log('delike success')
+        } else if (res.data.StudentLikeTag === 'like') {
+          console.log('like success')
+        } else {
+          alert('failed')
+        }
+        this.pulltagData()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    onClickDeleteTag (id, name, id2) {
+      this.$axios.post('/unshow_tag/', {
+        sid: this.sid,
+        tag_target: id,
+      }).then(res => {
+        console.log(res.data)
+        if (res.data.UnshowTag === 'success') {
+          let len = this.tags.Data.length
+          let j = 0
+          for (let i = 0; i < len; i++) {
+            if (this.tags.Data[i].tag_id === id) {
+              j = i
+              break
+            }
+          }
+          this.tags.Data.splice(j, 1)
+          this.addtags['Data'].push({ 'tag_id': id2, 'tag_name': name})
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    onClickAddTag (id, name) {
+      let len = this.tags.Data.length
+      if (len >= 10)
+      {
+        alert('You can not add tag anymore! or delete some first')
+      }
+      else
+      {
+        this.$axios.post('/add_tag/', {
+          sid: this.sid,
+          tag_target: id,
+        }).then(res => {
+          console.log('addtag', res.data)
+          if (res.data.AddTag === 'success') {
+            console.log(this.tags['Data'])
+            let len = this.addtags.Data.length
+            let j = 0
+            for (let i = 0; i < len; i++) {
+              if (this.addtags.Data[i].tag_id === id) {
+                j = i
+                break
+              }
+            }
+            this.addtags.Data.splice(j, 1)
+            this.tags['Data'].push({ 'tag_id': res.data.UserTagID, 'tag_name': name, 'like': res.data.like, 'likes': res.data.likes})
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+
+    },
+    pulladdtagData () {
+      this.$axios.post('/student_gets_all_tags_can_add/', {
+        sid: this.sid,
+      }).then(res => {
+        this.addtags = res.data
+      }).catch(err => {
+        console.log('err', err)
+      })
     },
   },
 }
 </script>
 
 <style>
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
+/*.avatar-uploader .el-upload {*/
+/*  border: 1px dashed #d9d9d9;*/
+/*  border-radius: 6px;*/
+/*  cursor: pointer;*/
+/*  position: relative;*/
+/*  overflow: hidden;*/
+/*}*/
 
-.avatar-uploader .el-upload:hover {
-  border-color: #409EFF;
-}
+/*.avatar-uploader .el-upload:hover {*/
+/*  border-color: #409EFF;*/
+/*}*/
 
 .avatar-uploader-icon {
   font-size: 28px;

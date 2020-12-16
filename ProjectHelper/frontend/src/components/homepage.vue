@@ -33,47 +33,16 @@
           <el-menu-item v-if="this.showNav" @click="openCloseNav">
             <i class="el-icon-arrow-left"></i>
           </el-menu-item>
-          <!--          <el-menu-item v-if="!this.showNav" @click="openCloseNav">-->
-          <!--            <i class="el-icon-arrow-right"></i>-->
-          <!--          </el-menu-item>-->
         </el-menu>
       </el-aside>
 
       <el-main>
 
-        <profile v-show="mainContent.profile" v-bind:sid="this.sid" v-bind:pswd="this.pswd"></profile>
+        <profile v-show="mainContent.profile" v-bind:sid="this.sid"></profile>
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <el-table v-if="mainContent.projects" :data="tableData.filter(data =>
-          !searchKey || JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
-                  style="width: 100%" height="500">
-
-          <el-table-column fixed prop="course" label="Course" width="120"></el-table-column>
-
-          <el-table-column prop="project" label="Project" width="120"></el-table-column>
-
-          <el-table-column prop="start" label="Start" width="120"></el-table-column>
-
-          <el-table-column prop="due" label="Due" width="120"></el-table-column>
-
-          <!--          <el-table-column prop="status" label="Status" width="120"></el-table-column>-->
-
-          <el-table-column width="120" align="right">
-            <template slot="header" slot-scope="scope">
-              <el-input size="mini" v-model="searchKey" placeholder="Search"/>
-            </template>
-            <template slot-scope="scope">
-              <el-button @click="onClickDetail(scope.$index)">Detail</el-button>
-            </template>
-          </el-table-column>
-
-        </el-table>
-
-        <ProjectDetail v-if="mainContent.showProjectDetail" v-bind:sid="this.sid" v-bind:pswd="this.pswd"
-                       v-bind:projectDetail="this.projectDetail">
-
-        </ProjectDetail>
+        <AllProjectsList v-show="mainContent.projects"></AllProjectsList>
 
       </el-main>
 
@@ -83,20 +52,20 @@
 
 <script>
 import profile from './profile'
-// import { updateCookie, getCookie, delCookie } from '../assets/js/cookie.js'
 import New_password from './new_password'
-import ProjectDetail from "./ProjectDetail";
+import ProjectDetail from './ProjectDetail'
+import AllProjectsList from './AllProjectsList'
 
 export default {
   name: 'homepage',
-  components: {ProjectDetail, New_password, profile},
+  components: { AllProjectsList, ProjectDetail, New_password, profile },
   props: {},
-  data() {
+  data () {
     return {
       //TODO: Data is lost after refresh.
       searchKey: '',
       sid: this.$route.params.sid,
-      pswd: this.$route.params.pswd,
+      identity: this.$route.params.identity,
       name: '',
       asideWidth: '160px',
       showNav: false,
@@ -105,21 +74,24 @@ export default {
         projects: false,
         messages: false,
         settings: false,
-        showProjectDetail: false
+        showProjectDetail: false,
       },
       projectDetail: null,
-      tableData: null
+      groupInfo: null,
+      courses: null,
     }
   },
-  created() {
-    this.$axios.post('/student_gets_all_projects/', {sid: this.sid, pswd: this.pswd}).then(res => {
-      this.tableData = res.data.courses
+  created () {
+    console.log('/student_gets_all_projects/')
+    this.$axios.post('/student_gets_all_projects/').then(res => {
+      console.log('all projects', res.data['Data'])
+      this.courses = res.data['Data']
     }).catch(err => {
       console.log(err)
     })
   },
   methods: {
-    changeMainContent(item) {
+    changeMainContent (item) {
       for (const iter in this.mainContent) {
         if (iter === item) {
           console.log(item, iter)
@@ -129,7 +101,7 @@ export default {
         }
       }
     },
-    openCloseNav() {
+    openCloseNav () {
       this.showNav = !this.showNav
       // if (this.showNav)
       // {
@@ -141,47 +113,34 @@ export default {
       // }
     },
 
-    onClickDetail(index) {
-      const local_data = this.tableData.filter(data => !this.searchKey ||
-        JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
-      const local_project = local_data[index]
-      this.$axios.post('/student_gets_single_project_information/', {
-        sid: this.sid,
-        pswd: this.pswd,
-        course: local_project.course,
-        project: local_project.project
-      }).then(res => {
-        this.projectDetail = res.data.projectDetail
-        this.changeMainContent('showProjectDetail')
-      }).catch(err => {
-        console.log(err)
-      })
-    },
-
-    onClickSettings() {
+    onClickSettings () {
       this.changeMainContent('settings')
     },
 
     //TODO: Personal profile request.
-    onClickProfile() {
+    onClickProfile () {
       this.changeMainContent('profile')
       console.log(this.sid, this.name)
     },
 
-    onClickProjects() {
+    onClickProjects () {
       this.changeMainContent('projects')
     },
 
     //TODO: New password request.
-    onClickNewPassword() {
+    onClickNewPassword () {
       // updateCookie('sid', this.sid, 1000 * 60)
     },
 
     //TODO: Logout request.
-    onClickLogout() {
-      console.log('logout')
-      // delCookie('sid')
-      this.$router.push('/')
+    onClickLogout () {
+      this.$axios.post('/logout/', {}).then(res => {
+        console.log('logout', res.data)
+        localStorage.removeItem('Authorization')
+        this.$router.push('/login')
+      }).catch(err => {
+        console.log('err', err)
+      })
     },
   },
 }
