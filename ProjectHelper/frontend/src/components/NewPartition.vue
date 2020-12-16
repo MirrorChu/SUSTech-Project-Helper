@@ -235,8 +235,6 @@ export default {
             startTime += length
           }
         }
-        event.timeSlotLength = length
-        event.timeSlotVolume = this.timeSlotVolume
       }
       event.title = this.title
       event.introduction = this.introduction
