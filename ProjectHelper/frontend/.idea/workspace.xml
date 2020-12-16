@@ -3,8 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/AnnouncementComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AnnouncementComponent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Homepage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Homepage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ProjectList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SelectionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SelectionComponent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +56,7 @@
       <option name="presentableId" value="Default" />
       <updated>1608030063063</updated>
       <workItem from="1608030067645" duration="1996000" />
-      <workItem from="1608093415854" duration="5951000" />
+      <workItem from="1608093415854" duration="7943000" />
     </task>
     <servers />
   </component>

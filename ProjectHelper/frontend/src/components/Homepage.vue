@@ -138,7 +138,7 @@ export default {
         localStorage.removeItem('Authorization')
         this.$router.push('/login')
       }).catch(err => {
-        console.log('err', err)
+        console.log('logout err', err)
       })
     },
   },

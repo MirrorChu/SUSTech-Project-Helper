@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Event List</h1>
-    <div v-if="this.identity === 'teacher'">
+    <div v-if="this.privileges['teach'] === 1">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
                   v-bind:projectId="this.$props.projectId">
@@ -10,7 +10,7 @@
     </div>
     <div>
       <el-card v-for="(componentObj, index) in componentObjs">
-        <component :is="componentObj.type" :data="componentObj.data">
+        <component :is="componentObj.type" :data="componentObj.data" :courseId="courseId">
 
         </component>
 
@@ -48,81 +48,81 @@ export default {
       type: Number,
       required: true,
     },
+    courseId: {
+      required: true,
+    }
   },
   data () {
     return {
       name: 'Events',
       componentsStr: '',
       componentObjs: [],
-      identity: '',
       expandNewEvent: false,
+      privileges: {},
     }
   },
   created () {
-    this.$axios.post('/get_identity/', {}).then(res => {
-      this.identity = res.data['identity']
-    }).catch(err => {
-      console.log('err', err)
-    })
-    this.componentObjs = [
-      {
-        type: 'AnnouncementComponent',
-        sid: this.$props.sid,
-        pswd: this.$props.pswd,
-        data: {
+    this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+      console.log('EventList /student_gets_all_projects/', res)
+      this.privileges = res.data['Data']
+      this.componentObjs = [{
           type: 'AnnouncementComponent',
-          title: 'Demo Announcement',
-          introduction: 'This is a demo announcement.',
-          due: (new Date()).getTime(),
-        },
-      },
-      {
-        type: 'SelectionComponent',
-        sid: this.$props.sid,
-        pswd: this.$props.pswd,
-        data: {
+          sid: this.$props.sid,
+          pswd: this.$props.pswd,
+          data: {
+            type: 'AnnouncementComponent',
+            title: 'Demo Announcement',
+            introduction: 'This is a demo announcement.',
+            due: (new Date()).getTime(),
+          },
+        }, {
           type: 'SelectionComponent',
-          title: 'Demo Selection',
-          introduction: 'Choose your selection wisely.',
-          due: (new Date()).getTime(),
-          selectionLimit: 2,
-          options: [
-            { label: 'label1', value: 'value1' },
-            { label: 'label2', value: 'value2' },
-            { label: 'label3', value: 'value3' }],
-        },
-      },
-      {
-        type: 'SubmissionComponent',
-        sid: this.$props.sid,
-        pswd: this.$props.pswd,
-        due: (new Date()).getTime(),
-        data: {
+          sid: this.$props.sid,
+          pswd: this.$props.pswd,
+          data: {
+            type: 'SelectionComponent',
+            title: 'Demo Selection',
+            introduction: 'Choose your selection wisely.',
+            due: (new Date()).getTime(),
+            selectionLimit: 2,
+            options: [
+              { label: 'label1', value: 'value1' },
+              { label: 'label2', value: 'value2' },
+              { label: 'label3', value: 'value3' }],
+          },
+        }, {
           type: 'SubmissionComponent',
-          title: 'Demo Submission',
-          introduction: 'This is a demo submission.',
-          submissionType: 'file',
+          sid: this.$props.sid,
+          pswd: this.$props.pswd,
           due: (new Date()).getTime(),
-        },
-      },
-      {
-        type: 'PartitionEvent',
-        sid: this.$props.sid,
-        pswd: this.$props.pswd,
-        due: (new Date()).getTime(),
-        data: {
+          data: {
+            type: 'SubmissionComponent',
+            title: 'Demo Submission',
+            introduction: 'This is a demo submission.',
+            submissionType: 'file',
+            due: (new Date()).getTime(),
+          },
+        }, {
           type: 'PartitionEvent',
-          title: 'Demo Partition',
-          introduction: 'This is a demo partition.',
-          selectionLimit: 1,
-          options: [
-            { label: 'label1', value: 'value1', limit: 5 },
-            { label: 'label2', value: 'value2', limit: 5 },
-            { label: 'label3', value: 'value3', limit: 5 },
-          ],
+          sid: this.$props.sid,
+          pswd: this.$props.pswd,
           due: (new Date()).getTime(),
-        },
-      }]
+          data: {
+            type: 'PartitionEvent',
+            title: 'Demo Partition',
+            introduction: 'This is a demo partition.',
+            selectionLimit: 1,
+            options: [
+              { label: 'label1', value: 'value1', limit: 5 },
+              { label: 'label2', value: 'value2', limit: 5 },
+              { label: 'label3', value: 'value3', limit: 5 },
+            ],
+            due: (new Date()).getTime(),
+          },
+        }]
+    }).catch(err => {
+      console.log('EventList /student_gets_all_projects/', err)
+    })
   },
 }
 </script>

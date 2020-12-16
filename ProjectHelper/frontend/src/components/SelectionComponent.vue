@@ -45,6 +45,9 @@ export default {
     data: {
       required: true,
     },
+    courseId: {
+      required: true,
+    }
   },
   data () {
     return {

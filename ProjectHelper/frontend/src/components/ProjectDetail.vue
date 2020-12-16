@@ -12,10 +12,10 @@
           <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
                      v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
                      v-bind:sid="this.$props.sid"></GroupInfo>
-          <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any
+          <h1 v-if="!(this.$props.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
             groups!</h1>
           <CreateOrJoinGroup
-              v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
+              v-if="!(this.$props.groupInfo['StudentGetsGroupInformationInProject'] == null)"
               v-bind:sid="this.$props.sid"
               v-bind:projectId="this.$props.projectDetail.project_id"></CreateOrJoinGroup>
         </div>
@@ -123,6 +123,7 @@
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
+                 v-bind:courseId="this.courseId"
                  v-bind:projectId="this.$props.projectDetail.project_id">
       </EventList>
     </div>
@@ -171,7 +172,6 @@ export default {
       eventList: [],
       advertisement_content: '',
       advertisement_title: '',
-      // identity: '',
       privileges: {},
     }
   },
@@ -194,15 +194,9 @@ export default {
       } else {
         this.status = 'unknown'
       }
-
     }).catch(err => {
       console.log('/get_privilege_list/', err)
     })
-    // this.$axios.post('/get_identity/', {}).then(res => {
-    //   this.identity = res.data['identity']
-    // }).catch(err => {
-    //   console.log('err', err)
-    // })
 
   },
   methods: {
