@@ -1,11 +1,8 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
-    <!--    <el-link href="https://127.0.0.1:8000/test/" target="_blank">默认链接</el-link>-->
-    <!--    <el-button @click="testFileDownload">test file download</el-button>-->
-    <!--    <el-avatar :size="60" :src="this.avatar"></el-avatar>-->
-
-    <el-image v-if="!this.edit" style="width: 200px; height: 200px" :src="this.avatar" fit="cover"></el-image>
+    <el-image v-if="!this.edit" style="width: 200px; height: 200px"
+              :src="this.avatarUrl" :datafld="avatarUrl" fit="cover"></el-image>
     <el-upload v-if="this.edit"
                class="avatar-uploader"
                action="/api/change_head_image/"
@@ -19,7 +16,6 @@
     </el-upload>
 
     <el-form ref="form" label-position="left" label-width="80px">
-
       <el-form-item label="SID">
         <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
         </el-input>
@@ -104,7 +100,6 @@
 
     </el-form>
 
-
     <!--    TODO: File upload. -->
     <!--    <el-upload-->
     <!--        class="upload-demo"-->
@@ -115,10 +110,7 @@
     <!--      <i class="el-icon-upload"></i>-->
     <!--    </el-upload>-->
 
-
   </div>
-  <!--  <div>-->
-  <!--  </div>-->
 </template>
 
 <script>
@@ -138,22 +130,19 @@ export default {
       imageUrl: '',
       dialogImageUrl: '',
       dialogVisible: '',
-      avatar: null,
       edit: false,
       tags: '',
       addtags: '',
+      avatarUrl: ''
     }
   },
   created () {
     this.pullPersonalData()
     console.log('after pull info', this.sid)
-    this.avatar = require('../assets/logo.png')
-    // if (this.sid === '')
-    // {
-    //   this.sid = this.$route.params.sid
-    //   this.name = this.$route.params.name
-    // }
+    // const token = localStorage.getItem('Authorization')
+    // this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
   },
+
   methods: {
     pullPersonalData () {
       //TODO: Get avatar from backend.
@@ -162,6 +151,7 @@ export default {
         if (res.data['attempt'] === 'failure') {
           this.$router.push('/login')
         } else {
+          const token = localStorage.getItem('Authorization')
           const data = res.data
           this.sid = data['sid']
           this.name = data['realName']
@@ -169,6 +159,7 @@ export default {
           this.email = data['email']
           this.mobile = data['mobile']
           this.address = data['address']
+          this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
           this.pulltagData()
 
         }

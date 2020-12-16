@@ -1,7 +1,10 @@
 <template>
   <div>
     <div><h3>New Event</h3></div>
-    <div>
+    <div v-if="expand">
+      <div>
+        <el-button @click="onClickExpand">Close</el-button>
+      </div>
       <el-form>
         <el-form-item label="Event Type">
           <el-radio-group v-model="eventType">
@@ -9,7 +12,7 @@
             <el-radio :label="1">Selection</el-radio>
             <el-radio :label="2">Submission</el-radio>
             <el-radio :label="3">Partition</el-radio>
-            <el-radio :label="4">Upload</el-radio>
+<!--            <el-radio :label="4">Upload</el-radio>-->
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="eventType === 0">
@@ -24,10 +27,14 @@
         <el-form-item v-else-if="eventType === 3">
           <NewPartition></NewPartition>
         </el-form-item>
-        <el-form-item v-else-if="eventType === 4">
-          TODO
-        </el-form-item>
+<!--        <el-form-item v-else-if="eventType === 4">-->
+<!--          TODO-->
+<!--        </el-form-item>-->
       </el-form>
+    </div>
+
+    <div v-if="!expand">
+      <el-button @click="onClickExpand">Expand</el-button>
     </div>
   </div>
 </template>
@@ -54,7 +61,13 @@ export default {
   data () {
     return {
       eventType: 1,
+      expand: false,
     }
+  },
+  methods: {
+    onClickExpand () {
+      this.expand = !this.expand
+    },
   },
 }
 </script>

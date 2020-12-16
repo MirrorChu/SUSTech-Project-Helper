@@ -4,11 +4,17 @@
       <h3>
         {{ this.$props.data.title }}
       </h3>
+      <div v-if="!expand">
+        <el-button @click="onClickExpand">Expand</el-button>
+      </div>
     </div>
-    <div>
+    <div v-if="expand">
+      <div>
+        <el-button @click="onClickExpand">Close</el-button>
+      </div>
       {{ this.$props.data.introduction }}
+      <div>Due: {{ new Date(this.$props.data.due) }}</div>
     </div>
-    <div>Due: {{ new Date(this.$props.data.due) }}</div>
   </div>
 </template>
 
@@ -20,9 +26,17 @@ export default {
       required: true,
     },
   },
+  data () {
+    return {
+      expand: false,
+    }
+  },
   methods: {
     getResult () {
       return null
+    },
+    onClickExpand () {
+      this.expand = !this.expand
     },
   },
 }

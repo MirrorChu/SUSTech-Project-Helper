@@ -373,21 +373,32 @@ class DownloadFile(View):
 
 class Test(View):
     def get(self, request):
-        print(request.body)
-        student_id = "11811002"
-        password = "123"
-        # get file
+        logger.debug('%s request %s', self, request)
+        logger.debug('%s request.body %s', self, request.body)
+        logger.debug('%s request.GET %s', self, request.GET)
+        try:
+            token = request.GET['token']
+            sid = get_sid(token)
+            logger.debug('%s sid %s', self, sid)
+            with open('head_images/11811001/2020_11_23_07_49_55/file.jpg', 'rb') as f:
+                return HttpResponse(f.read(), content_type='image/jpeg')
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            student_id = "11811002"
+            password = "123"
+            # get file
 
-        file = open('LinuxLogo.jpg', 'wb+')
-        print(file)
-        path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
-                                    file)  # 根据名字存图(无类型)
+            file = open('LinuxLogo.jpg', 'wb+')
+            print(file)
+            path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
+                                        file)  # 根据名字存图(无类型)
 
-        return JsonResponse({"ChangeHeadImage": "success"})
+            response = HttpResponse(content_type='image/jpeg')
+            return response
 
     def post(self, request):
         try:
-            print(request.POST)
+            logger.debug('%s request.body: %s\n', self, request.body)
             arr = request.FILES.keys()
             print(arr)
             file_name = ''
@@ -499,7 +510,8 @@ class StudentGetsSingleProjectInformation(View):
                 response_data = {'attempt': 'success',
                                  'projectName': project.name,
                                  'projectIntroduction': project.introduction,
-                                 'courseName': course.name}
+                                 'courseName': course.name,
+                                 'project_id': project_id}
             else:
                 response_data = {'attempt': 'offline'}
             return JsonResponse(response_data)
@@ -685,6 +697,7 @@ class StudentGetsGroupInformationInProject(View):
                                  "course_name": course_name,
                                  "captain_name": captain_name,
                                  "members": members,
+                                 "group_id": group_id,
                                  })
         except Exception as e:
             logger.exception('%s %s', self, e)
@@ -1495,6 +1508,7 @@ class TeacherGetStudentsInCourse(View):
 class TeacherCreateProject(View):
     def post(self, request):
         try:
+            logger.debug('%s request.body %s', self, request.body)
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             project_name = eval(request.body.decode()).get("newProjectName")
@@ -1503,6 +1517,7 @@ class TeacherCreateProject(View):
             min_group_size = eval(request.body.decode()).get("groupingMinimum")
             course_id = eval(request.body.decode()).get("newProjectCourse")
             ddl = eval(request.body.decode()).get("groupingDeadline")
+            ddl = ddl // 1000
             key = eval(request.body.decode()).get("idx")
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
@@ -1546,7 +1561,7 @@ class TeacherCreateProject(View):
                 return JsonResponse({"TeacherCreateProject": "has no authority"})
 
         except Exception as e:
-            print(e)
+            logger.exception('%s %s', self, e)
             return JsonResponse({"TeacherCreateProjectCheck": "failed"})
 
 
@@ -1742,7 +1757,7 @@ class StudentPublishRequest(View):
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
-            type = eval(request.body.decode()).get("type")
+            type = 'request'
             information = eval(request.body.decode()).get("content")
             group_id = eval(request.body.decode()).get("group_id")
             project_id = eval(request.body.decode()).get("project_id")
@@ -1751,8 +1766,14 @@ class StudentPublishRequest(View):
             query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
             floor = type + "," + str(group_id) + "," + title
-            ProjectComment.objects.create(comments=information, floor=floor,
-                                          project_name_id=project_id, user_name_id=user_id)
+
+            temp = ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id)
+            if temp.count() == 0:
+                ProjectComment.objects.create(comments=information, floor=floor,
+                                              project_name_id=project_id, user_name_id=user_id)
+            else:
+                ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id).update(
+                    comments=information, floor=floor)
 
             return JsonResponse({"StudentPublishRequest": "success"})
 
@@ -1765,20 +1786,24 @@ class StudentPublishApply(View):
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
-            type = eval(request.body.decode()).get("type")
+            type = 'apply'
             information = eval(request.body.decode()).get("content")
             project_id = eval(request.body.decode()).get("project_id")
             title = eval(request.body.decode()).get("title")
-
+            print(information, project_id, title)
             query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
             floor = type + ",Null," + title
-            ProjectComment.objects.create(comments=information, floor=floor,
-                                          project_name_id=project_id, user_name_id=user_id)
-
+            temp = ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id)
+            if temp.count() == 0:
+                ProjectComment.objects.create(comments=information, floor=floor, project_name_id=project_id, user_name_id=user_id)
+            else:
+                ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id).update(comments=information, floor=floor)
+            print(project_id)
             return JsonResponse({"StudentPublishApply": "success"})
 
         except Exception as e:
+            print('error', e)
             return JsonResponse({"StudentPublishApply": "failed"})
 
 
@@ -1790,22 +1815,20 @@ class StudentGetAllAd(View):
             project_id = eval(request.body.decode()).get("project_id")
 
             query_set = ProjectComment.objects.filter(project_name_id=project_id)
-            ad = {}
+            ad = []
             for i in query_set:
                 str = i.floor.split(',')
                 title = ""
                 for j in range(2, len(str)):
                     title += str[j]
                 query_set1 = UserProfile.objects.get(id=i.user_name_id)
-                ad[i.id] = {}
-                ad[i.id]["title"] = title
-                ad[i.id]["content"] = i.comments
-                ad[i.id]["type"] = str[0]
-                ad[i.id]["sid"] = query_set1.student_id
+                temp = {'id': i.id, "title": title, "content": i.comments, "type": str[0], "sid": query_set1.student_id, 'name': query_set1.real_name, 'titlee': title+'--'+query_set1.real_name}
                 if str[1] == "Null":
-                    ad[i.id]["group_id"] = None
+                    temp["group_id"] = None
                 else:
-                    ad[i.id]["group_id"] = int(str[1])
+                    temp["group_id"] = int(str[1])
+                ad.append(temp)
+            print(project_id, ad)
             return JsonResponse({"Data": ad, "StudentGetAllAd": "success"})
 
         except Exception as e:
@@ -2115,3 +2138,121 @@ class TestFile(View):
         except Exception as e:
             print('avatar exception', e)
             return JsonResponse({"ChangeHeadImage": "failed"})
+
+class TeacherGetSituationInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all authority beside himself in the course of project
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": auths=  username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+            print(project_id)
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            print(user, project)
+            course_id = project.course_id
+            # course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            groups = []
+            # if course.end_time > datetime.datetime.now() > course.start_time:
+            group = GroupOrg.objects.filter(project_id=project_id)
+            for i in group:
+                group_detail = {}
+                group_detail["group_id"] = i.id
+                group_detail["group_name"] = i.group_name
+                captain = UserProfile.objects.get(id=i.captain_name_id)
+                group_detail["captain_name"] = captain.real_name
+                group_detail["captain_sid"] = captain.student_id
+                group_detail["member_sid"] = [captain.student_id]
+                group_detail["member_name"] = [captain.real_name]
+                member = UserGroup.objects.filter(group_name_id=i.id)
+                string = captain.real_name
+                for j in member:
+                    person = UserProfile.objects.get(id=j.user_name_id)
+                    if person.student_id == captain.student_id:
+                        continue
+                    group_detail["member_sid"].append(person.student_id)
+                    group_detail["member_name"].append(person.real_name)
+                    string += " " + person.real_name
+                group_detail["namelist"] = string
+                if project.group_size > member.count():
+                    group_detail["valid"] = True
+                else:
+                    group_detail["valid"] = False
+                groups.append(group_detail)
+            return JsonResponse({"Data": groups, "TeacherGetSituationInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSituationInProject": "failed"})
+
+
+class TeacherKickMember(View):
+    def post(self, request):
+        """
+        Teacher kick student
+        :param token:token
+                group_id: id of student's group
+                t_sid: sid of kicked student
+        :return:
+        """
+        try:
+            group_id = eval(request.body.decode()).get("group_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("t_sid")
+            user = UserProfile.objects.get(student_id=target_id)
+            # TODO:等待权限判断，能否给course_id
+            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            group = GroupOrg.objects.get(group_name_id=group_id)
+            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member-1)
+            UserGroup.objects.delete(group_name_id=group_id, user_name_id=user.id)
+            return JsonResponse({"TeacherKickMemberCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherKickMemberCheck": "failed"})
+
+class TeacherGetSingleInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all students without groups
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": students= username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            students = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                array = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    array.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        array.remove(j.user_name_id)
+                for i in array:
+                    stu = UserProfile.objects.get(id=i)
+                    tmp = {'sid':stu.student_id,'realname':stu.real_name}
+                    students.append(tmp)
+            return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
