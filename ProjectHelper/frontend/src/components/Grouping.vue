@@ -226,20 +226,22 @@
       },
       onClickCreateNewGroup()
       {
-        // this.$axios.post('/teacher_creates_group/', {
-        //   project_id: this.$props.project_id,
-        //   group_name: this.createGroupName,
-        //   captain_sid: this.captain_sid,
-        //   sid_list: this.member_select,
-        // }).then(res => {
-        //   console.log('CreateNewGroup', res.data)
-        //   this.pullGroupingData()
-        //   this.pullSingleData()
-        //   this.createGroupName = ''
-        // }).catch(err => {
-        //   console.log(err)
-        // })
-        this.dialogCreateGroupVisible = false
+        this.$axios.post('/teacher_creates_group/', {
+          project_id: this.$props.project_id,
+          group_name: this.createGroupName,
+          captain_sid: this.captain_sid,
+          sid_list: this.member_select,
+        }).then(res => {
+          console.log('CreateNewGroup', res.data)
+          this.pullGroupingData()
+          this.pullSingleData()
+          this.createGroupName = ''
+          this.captain_sid = ''
+          this.member_select = []
+          this.dialogCreateGroupVisible = false
+        }).catch(err => {
+          console.log(err)
+        })
       },
       captainselect()
       {
