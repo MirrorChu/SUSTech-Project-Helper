@@ -34,8 +34,11 @@
 </template>
 
 <script>
+import EventGrading from './EventGrading'
+
 export default {
   name: 'PartitionEvent',
+  components: { EventGrading },
   props: {
     data: {
       required: true,
@@ -50,6 +53,9 @@ export default {
       expand: false,
       identity: 'teacher',
     }
+  },
+  created () {
+
   },
   methods: {
     onClickSubmit () {

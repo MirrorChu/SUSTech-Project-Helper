@@ -25,7 +25,7 @@
           <NewSubmission></NewSubmission>
         </el-form-item>
         <el-form-item v-else-if="eventType === 3">
-          <NewPartition></NewPartition>
+          <NewPartition v-bind:projectId="projectId"></NewPartition>
         </el-form-item>
 <!--        <el-form-item v-else-if="eventType === 4">-->
 <!--          TODO-->

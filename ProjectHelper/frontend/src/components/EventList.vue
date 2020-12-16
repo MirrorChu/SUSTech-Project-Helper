@@ -59,12 +59,27 @@ export default {
       componentObjs: [],
       expandNewEvent: false,
       privileges: {},
+      eventObjList: [],
     }
   },
   created () {
+    this.courseId = this.$props.courseId
+    this.projectId = this.$props.projectId
     this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
       console.log('EventList /student_gets_all_projects/', res)
       this.privileges = res.data['Data']
+      this.$axios.post('/get_event_list/', {'project_id': this.$props.projectId}).then(res => {
+        console.log('/get_event_list/ res', res.data)
+        const eventIdTitleArray = res.data['Data']
+        for (let i = 0; i < eventIdTitleArray; i += 1) {
+          this.eventIdList.push(eventIdTitleArray[i]['id'])
+        }
+        for (const id in eventIdTitleArray) {
+          this.$axios.post('/')
+        }
+      }).catch(err => {
+        console.log('/get_event_list err', err)
+      })
       this.componentObjs = [{
           type: 'AnnouncementComponent',
           sid: this.$props.sid,
