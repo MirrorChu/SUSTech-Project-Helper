@@ -48,6 +48,9 @@
           <div>
             This is the detail of submission. It relies on v-if to distinguish between submission and seleciton.
           </div>
+          <div>
+            Please include submission datetime here.
+          </div>
         </el-form-item>
 
         <el-form-item label="Group Score">

@@ -40,9 +40,9 @@
 
         <profile v-show="mainContent.profile" v-bind:sid="this.sid"></profile>
 
-        <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
+        <NewPassword v-if="mainContent.settings" v-bind:sid="this.sid"></NewPassword>
 
-        <AllProjectsList v-show="mainContent.projects"></AllProjectsList>
+        <ProjectList v-show="mainContent.projects"></ProjectList>
 
       </el-main>
 
@@ -52,17 +52,16 @@
 
 <script>
 import profile from './profile'
-import New_password from './new_password'
+import NewPassword from './NewPassword'
 import ProjectDetail from './ProjectDetail'
-import AllProjectsList from './AllProjectsList'
+import ProjectList from './ProjectList'
 
 export default {
-  name: 'homepage',
-  components: { AllProjectsList, ProjectDetail, New_password, profile },
+  name: 'Homepage',
+  components: { ProjectList, ProjectDetail, NewPassword, profile },
   props: {},
   data () {
     return {
-      //TODO: Data is lost after refresh.
       searchKey: '',
       sid: this.$route.params.sid,
       identity: this.$route.params.identity,
@@ -139,7 +138,7 @@ export default {
         localStorage.removeItem('Authorization')
         this.$router.push('/login')
       }).catch(err => {
-        console.log('err', err)
+        console.log('logout err', err)
       })
     },
   },

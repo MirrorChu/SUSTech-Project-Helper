@@ -2,8 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ProjectHelper/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ProjectHelper/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Grouping.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Grouping.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewEvent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/NewPartition.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +30,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
     <configuration name="dev" type="js.build_tools.npm" nameIsGenerated="true">
@@ -37,6 +45,7 @@
       <method v="2" />
     </configuration>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -48,6 +57,10 @@
       <option name="presentableId" value="Default" />
       <updated>1608030063063</updated>
       <workItem from="1608030067645" duration="1996000" />
+      <workItem from="1608093415854" duration="7943000" />
+      <workItem from="1608120974938" duration="1886000" />
+      <workItem from="1608129582738" duration="3396000" />
+      <workItem from="1608133871346" duration="1204000" />
     </task>
     <servers />
   </component>
@@ -55,32 +68,15 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1607787017673">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="223" y="67" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1607787017673" />
-    <state width="760" height="208" key="GridCell.Tab.0.bottom" timestamp="1608033875011">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="760" height="208" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1608033875011" />
-    <state width="760" height="208" key="GridCell.Tab.0.center" timestamp="1608033875011">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="760" height="208" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1608033875011" />
-    <state width="760" height="208" key="GridCell.Tab.0.left" timestamp="1608033875011">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="760" height="208" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1608033875011" />
-    <state width="760" height="208" key="GridCell.Tab.0.right" timestamp="1608033875011">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="760" height="208" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1608033875011" />
-    <state x="806" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1608030554822">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="806" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1608030554822" />
   </component>
 </project>

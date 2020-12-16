@@ -10,14 +10,14 @@
         Project Name: {{ this.$props.projectDetail['projectName'] }}
       </div>
       <div>
-        <div v-if="this.identity !== 'teacher'">
+        <div v-if="this.privileges['teach'] !== 1">
           <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
                      v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
                      v-bind:sid="this.$props.sid"></GroupInfo>
-          <h1 v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)">You are not in any
+          <h1 v-if="!(this.$props.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
             groups!</h1>
           <CreateOrJoinGroup
-              v-if="!(this.$props.groupInfo.StudentGetsGroupInformationInProject == null)"
+              v-if="!(this.$props.groupInfo['StudentGetsGroupInformationInProject'] == null)"
               v-bind:sid="this.$props.sid"
               v-bind:projectId="this.$props.projectDetail.project_id"></CreateOrJoinGroup>
         </div>
@@ -97,7 +97,7 @@
         <div v-show="advertisementData === ''">There is no advertisement!</div>
       </el-card>
 
-      <el-card  v-if="this.identity !== 'teacher'">
+      <el-card  v-if="this.privileges['teach'] !== 1">
         <div>
           <h3>Upload AD</h3>
           <el-form>
@@ -116,21 +116,18 @@
       </el-card>
     </div>
 
-    <div v-if="this.identity === 'teacher'">
+    <div v-if="this.privileges['teach'] === 1">
       <el-card>
-        <Grouping></Grouping>
+        <Grouping v-bind:project_id="this.$props.projectDetail.project_id"></Grouping>
 
       </el-card>
     </div>
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
+                 v-bind:courseId="this.courseId"
                  v-bind:projectId="this.$props.projectDetail.project_id">
       </EventList>
-    </div>
-
-    <div v-if="this.identity === 'teacher'">
-      <Grouping v-bind:project_id="this.$props.projectDetail.project_id"></Grouping>
     </div>
   </div>
 </template>
@@ -155,6 +152,9 @@ export default {
     groupInfo: {
       required: true,
     },
+    courseId: {
+      required: true,
+    }
   },
   data () {
     return {
@@ -174,31 +174,32 @@ export default {
       eventList: [],
       advertisement_content: '',
       advertisement_title: '',
-      identity: '',
+      privileges: {},
     }
   },
   created () {
-    //Use == instead of === here.
-    this.$axios.post('/get_identity/', {}).then(res => {
-      this.identity = res.data['identity']
-    }).catch(err => {
-      console.log('err', err)
-    })
-    this.sid = this.$props.sid
-    this.pulladvertisementData()
-    if (this.$props.groupInfo == null) {
-      this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
-      this.status = 'You are not in a group!'
-    } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
-      console.log('access group info success')
-      console.log(this.$props.groupInfo['members'])
-      for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
-        this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
+    this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
+      console.log('/get_privilege_list/', res)
+      this.privileges = res.data['Data']
+      this.sid = this.$props.sid
+      this.pulladvertisementData()
+      if (this.$props.groupInfo == null) {
+        this.status = 'You are not in a group!'
+      } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
+        this.status = 'You are not in a group!'
+      } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
+        console.log('access group info success')
+        console.log(this.$props.groupInfo['members'])
+        for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
+          this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
+        }
+      } else {
+        this.status = 'unknown'
       }
-    } else {
-      this.status = 'unknown'
-    }
+    }).catch(err => {
+      console.log('/get_privilege_list/', err)
+    })
+
   },
   methods: {
     controlDisplay (item) {

@@ -60,9 +60,8 @@
 import { setCookie, getCookie } from '../assets/js/cookie.js'
 import axios from 'axios'
 export default {
-  name: "login",
-  data()
-  {
+  name: 'Login',
+  data () {
     return {
       nameValidateForm:
         {
@@ -77,7 +76,7 @@ export default {
       const status = res.data['loginCheck']
       if (status === 'student' || status === 'teacher') {
         this.$router.push({
-          name: 'homepage',
+          name: 'Homepage',
           params: {
             sid: this.nameValidateForm.sid,
             identity: this.nameValidateForm.identity
@@ -104,7 +103,7 @@ export default {
           console.log('token: ', token)
           this.$store.commit('Login', { Authorization: token, sid: this.nameValidateForm.sid })
           this.$router.push({
-            name: 'homepage',
+            name: 'Homepage',
             params: {
               sid: this.nameValidateForm.sid,
               pswd: this.nameValidateForm.pswd,

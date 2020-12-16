@@ -20,6 +20,13 @@
           </el-select>
         </div>
         <el-button @click="onClickSubmit">Submit</el-button>
+
+        <div v-if="identity === 'teacher'">
+          <EventGrading>
+
+          </EventGrading>
+        </div>
+
       </div>
 
     </div>
@@ -27,18 +34,28 @@
 </template>
 
 <script>
+import EventGrading from './EventGrading'
+
 export default {
   name: 'PartitionEvent',
+  components: { EventGrading },
   props: {
     data: {
       required: true,
     },
+    courseId: {
+      required: true,
+    }
   },
   data () {
     return {
       selected: [],
       expand: false,
+      identity: 'teacher',
     }
+  },
+  created () {
+
   },
   methods: {
     onClickSubmit () {

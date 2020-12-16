@@ -476,7 +476,7 @@ class StudentGetsAllProjects(View):
                     # Get all projects one course has.
                     new_projects = Project.objects.filter(course_id=course_object.id)
                     for project in new_projects:
-                        projects.append((project.id, name, project.name))
+                        projects.append((project.id, name, project.name, course_object.id))
 
                 response_data = {'attempt': 'success', 'projects': projects, 'sid': student_id}
                 return JsonResponse(response_data)
