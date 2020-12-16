@@ -25,7 +25,8 @@
     <ProjectDetail v-if="this.displayControl.projectDetail"
                    v-bind:sid="this.sid"
                    v-bind:groupInfo="this.groupInfo"
-                   v-bind:projectDetail="this.projectDetail"></ProjectDetail>
+                   v-bind:projectDetail="this.projectDetail"
+                   v-bind:courseId="this.courseId"></ProjectDetail>
 
     <CreateProject
         v-bind:sid="this.sid"
@@ -105,6 +106,7 @@ export default {
         console.log('res', res)
         this.projectDetail = res.data
         this.projectDetail['projectId'] = localProject[0]
+        this.courseId = localProject[3]
         this.$axios.post('/student_gets_group_information_in_project/', {
           sid: this.sid,
           project_id: localProject[0],
