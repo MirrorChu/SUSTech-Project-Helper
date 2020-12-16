@@ -116,7 +116,7 @@
 
     <div v-if="this.identity === 'teacher'">
       <el-card>
-        <Grouping></Grouping>
+        <Grouping v-bind:project_id="this.$props.projectDetail.project_id"></Grouping>
 
       </el-card>
     </div>
