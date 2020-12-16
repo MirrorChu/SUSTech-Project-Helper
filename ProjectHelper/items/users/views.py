@@ -374,21 +374,32 @@ class DownloadFile(View):
 
 class Test(View):
     def get(self, request):
-        print(request.body)
-        student_id = "11811002"
-        password = "123"
-        # get file
+        logger.debug('%s request %s', self, request)
+        logger.debug('%s request.body %s', self, request.body)
+        logger.debug('%s request.GET %s', self, request.GET)
+        try:
+            token = request.GET['token']
+            sid = get_sid(token)
+            logger.debug('%s sid %s', self, sid)
+            with open('head_images/11811001/2020_11_23_07_49_55/file.jpg', 'rb') as f:
+                return HttpResponse(f.read(), content_type='image/jpeg')
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            student_id = "11811002"
+            password = "123"
+            # get file
 
-        file = open('LinuxLogo.jpg', 'wb+')
-        print(file)
-        path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
-                                    file)  # 根据名字存图(无类型)
+            file = open('LinuxLogo.jpg', 'wb+')
+            print(file)
+            path = default_storage.save('static\head_images' + 'LinuxLogo' + '.jpg',
+                                        file)  # 根据名字存图(无类型)
 
-        return JsonResponse({"ChangeHeadImage": "success"})
+            response = HttpResponse(content_type='image/jpeg')
+            return response
 
     def post(self, request):
         try:
-            print(request.POST)
+            logger.debug('%s request.body: %s\n', self, request.body)
             arr = request.FILES.keys()
             print(arr)
             file_name = ''
@@ -1468,6 +1479,7 @@ class TeacherGetStudentsInCourse(View):
 class TeacherCreateProject(View):
     def post(self, request):
         try:
+            logger.debug('%s request.body %s', self, request.body)
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             project_name = eval(request.body.decode()).get("newProjectName")
@@ -1476,6 +1488,7 @@ class TeacherCreateProject(View):
             min_group_size = eval(request.body.decode()).get("groupingMinimum")
             course_id = eval(request.body.decode()).get("newProjectCourse")
             ddl = eval(request.body.decode()).get("groupingDeadline")
+            ddl = ddl // 1000
             key = eval(request.body.decode()).get("idx")
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
@@ -1519,7 +1532,7 @@ class TeacherCreateProject(View):
                 return JsonResponse({"TeacherCreateProject": "has no authority"})
 
         except Exception as e:
-            print(e)
+            logger.exception('%s %s', self, e)
             return JsonResponse({"TeacherCreateProjectCheck": "failed"})
 
 

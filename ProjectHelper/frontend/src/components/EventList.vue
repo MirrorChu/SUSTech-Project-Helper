@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Event List</h1>
-    <div v-if="this.identity === 'teacher'" >
+    <div v-if="this.identity === 'teacher'">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
                   v-bind:projectId="this.$props.projectId">
@@ -9,13 +9,11 @@
       </el-card>
     </div>
     <div>
-      <el-card v-for="componentObj in componentObjs">
+      <el-card v-for="(componentObj, index) in componentObjs">
         <component :is="componentObj.type" :data="componentObj.data">
 
         </component>
-        <EventGrading>
 
-        </EventGrading>
       </el-card>
     </div>
   </div>
@@ -57,6 +55,7 @@ export default {
       componentsStr: '',
       componentObjs: [],
       identity: '',
+      expandNewEvent: false,
     }
   },
   created () {
@@ -72,7 +71,7 @@ export default {
         pswd: this.$props.pswd,
         data: {
           type: 'AnnouncementComponent',
-          title: 'Demo Title',
+          title: 'Demo Announcement',
           introduction: 'This is a demo announcement.',
           due: (new Date()).getTime(),
         },
