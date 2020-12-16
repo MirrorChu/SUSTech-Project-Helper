@@ -34,8 +34,9 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     StudentGetValidGroupInProject, ShowOtherPersonalData, StudentGetsAllTags, TeacherGetCourses, \
     StudentLikeTag, TeacherGetStudentsInCourse, TeacherCreateProject, TestFile, \
     SendKey, StudentGetsAllTagsCanAdd, UnshowTag, AddTag, StudentPublishRequest, \
-    StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherGetSituationInProject, TeacherKickMember, \
-    TeacherGetSingleInProject
+    StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherKickMember, \
+    TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember, \
+    AddNewTag, SendMailToApply, GetPrivilegeList, GetEventList, GetAllPrivilegeList
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -68,6 +69,7 @@ urlpatterns = [
     path('show_head_image/', ShowHeadImage.as_view()),
     path('change_head_image/', ChangeHeadImage.as_view()),
     path('send_mail_to_invite/', SendMailToInvite.as_view()),
+    path('send_mail_to_apply/', SendMailToApply.as_view()),
     path('student_get_project/', StudentGetProject.as_view()),
     path('student_gets_group_information_in_project/', StudentGetsGroupInformationInProject.as_view()),
     path('student_get_valid_group_in_project/', StudentGetValidGroupInProject.as_view()),
@@ -82,14 +84,19 @@ urlpatterns = [
     path('send_key/', SendKey.as_view()),
     path('unshow_tag/', UnshowTag.as_view()),
     path('add_tag/', AddTag.as_view()),
+    path('add_new_tag/', AddNewTag.as_view()),
     path('student_publish_request/', StudentPublishRequest.as_view()),
     path('student_publish_apply/', StudentPublishApply.as_view()),
     path('student_gets_all_ad/', StudentGetAllAd.as_view()),
     path('get_identity/', GetIdentity.as_view()),
     path('logout/', Logout.as_view()),
     path('teacher_get_situation_in_project/', TeacherGetSituationInProject.as_view()),
-    path('teacher_kick_member/', TeacherKickMember.as_view()),
     path('teacher_get_single_in_project/', TeacherGetSingleInProject.as_view()),
+    path('teacher_kick_member/', TeacherKickMember.as_view()),
+    path('teacher_add_member/', TeacherAddMember.as_view()),
+    path('get_privilege_list/', GetPrivilegeList.as_view()),
+    path('get_all_privilege_list/', GetAllPrivilegeList.as_view()),
+    path('get_event_list/', GetEventList.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页

@@ -12,7 +12,7 @@ from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
 from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, \
-    Key, ProjectFile, ProjectComment
+    Key, ProjectFile, ProjectComment, Event
 from items.projects.models import Project
 from items.users.models import UserProfile
 from django.core.cache import cache
@@ -118,7 +118,6 @@ class GetIdentity(View):
             logger.exception('%s %s', self, e)
             response_data = {'attempt': 'failure', 'identity': 'student'}
             return JsonResponse(response_data)
-
 
 
 class Logout(View):
@@ -1101,6 +1100,34 @@ class TestAPI(View):
         return JsonResponse({"message": "get it"})
 
 
+class AddNewTag(View):
+    # return path
+    def post(self, request):
+        """
+        add new tag
+        :param token: token
+                tag_target: id of operations_tag
+        :return: UserTagID: id of operations_usertag
+                Type: type of operations_tag
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            tag_name = eval(request.body.decode()).get("tag_name")
+            # 通过用户名和密码确认数据库中是否有和user对应的记录
+            user = UserProfile.objects.get(student_id=student_id)
+            # TODO：验权
+            # Authority.objects.get(user_id=user.id, type="tag")
+            tag = Tag.objects.filter(tag=tag_name)
+            if tag.count() == 1:
+                return JsonResponse({"AddNewTag": "repeat"})
+            Tag.objects.create(tag=tag_name, type="新增")
+            return JsonResponse({"AddNewTag": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"AddNewTag": "failed"})
+
+
 class AddTag(View):
     # return path
     def post(self, request):
@@ -1125,7 +1152,8 @@ class AddTag(View):
             if user_tag.count() == 0:
                 UserTag.objects.create(user_name_id=user_id, tag_id=tag_id, visibility=1)
                 _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
-                return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": 0, "likes": 0})
+                return JsonResponse(
+                    {"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": 0, "likes": 0})
             else:
                 for i in user_tag:
                     if i.visibility == 0:
@@ -1134,7 +1162,8 @@ class AddTag(View):
                         _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
                         users_like = UserLikeTag.objects.filter(tag_id=i.id)
                         user_like = UserLikeTag.objects.filter(tag_id=i.id, user_name_id=user_id)
-                        return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": user_like.count(), "likes": users_like.count()})
+                        return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type,
+                                             "like": user_like.count(), "likes": users_like.count()})
             return JsonResponse({"AddTag": "failed"})
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -1574,6 +1603,155 @@ class TeacherGetAuthInProject(View):
             return JsonResponse({"TeacherGetAuthInProject": "failed"})
 
 
+class TeacherGetSituationInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all groups of project
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": groups=  group_id: 小组id, group_name: 小组名字, captain_name: 队长姓名, captain_sid: 队长id,namelist: 所有成员姓名和空格拼接的字符串, member_sid: 所有成员id的列表(队长在首最好), member_name: 所有成员姓名的列表(队长在首最好), 是否可被加入: true/false
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            groups = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    group_detail = {}
+                    group_detail["group_id"] = i.id
+                    group_detail["group_name"] = i.group_name
+                    captain = UserProfile.objects.get(id=i.captain_name_id)
+                    group_detail["captain_name"] = captain.username
+                    group_detail["captain_sid"] = captain.student_id
+                    group_detail["member_sid"] = [captain.username]
+                    group_detail["member_name"] = [captain.student_id]
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    string = captain.username
+                    for j in member:
+                        person = UserProfile.objects.get(id=j.user_name_id)
+                        if person.student_id == captain.student_id:
+                            continue
+                        group_detail["member_sid"].append(person.student_id)
+                        group_detail["member_name"].append(person.username)
+                        string += " " + person.username
+                    group_detail["namelist"] = string
+                    if project.group_size > member.count():
+                        group_detail["valid"] = True
+                    else:
+                        group_detail["valid"] = False
+                    groups.append(group_detail)
+            return JsonResponse({"Data": groups, "TeacherGetSituationInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSituationInProject": "failed"})
+
+
+class TeacherGetSingleInProject(View):
+    def post(self, request):
+        f"""
+        user with "teach" authority can get all students without groups
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": students= username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            students = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                array = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    array.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        array.remove(j.user_name_id)
+                for i in array:
+                    stu = UserProfile.objects.get(id=i)
+                    tmp = {'sid': stu.student_id, 'realname': stu.real_name}
+                    students.append(tmp)
+            return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
+
+
+class TeacherKickMember(View):
+    def post(self, request):
+        """
+        Teacher kick student
+        :param token:token
+                group_id: id of student's group
+                t_sid: sid of kicked student
+        :return:
+        """
+        try:
+            group_id = eval(request.body.decode()).get("group_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("t_sid")
+            user = UserProfile.objects.get(student_id=target_id)
+            # TODO:等待权限判断，能否给course_id
+            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            group = GroupOrg.objects.get(group_name_id=group_id)
+            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member - 1)
+            UserGroup.objects.delete(group_name_id=group_id, user_name_id=user.id)
+            return JsonResponse({"TeacherKickMemberCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherKickMemberCheck": "failed"})
+
+
+class TeacherAddMember(View):
+    def post(self, request):
+        """
+        Teacher add student
+        :param token:token
+                group_id: id of student's group
+                t_sid: sid of added student
+        :return:
+        """
+        try:
+            group_id = eval(request.body.decode()).get("group_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("t_sid")
+            user = UserProfile.objects.get(student_id=target_id)
+            # TODO:等待权限判断，能否给course_id
+            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            group = GroupOrg.objects.get(group_name_id=group_id)
+            project = Project.objects.get(id=group.project_id)
+            if group.member + 1 > project.group_size:
+                raise
+            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member + 1)
+            UserGroup.objects.create(group_name_id=group_id, user_name_id=user.id)
+            return JsonResponse({"TeacherAddMemberCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherAddMemberCheck": "failed"})
+
+
 class StudentPublishRequest(View):
     def post(self, request):
         try:
@@ -1658,46 +1836,238 @@ class StudentGetAllAd(View):
             return JsonResponse({"StudentGetAllAd": "failed"})
 
 
+class GetPrivilegeList(View):
+    def post(self, request):
+        """
+        Get privilege list
+        :param token:token
+                project_id: id of project
+        :return: "Data": {'teach': 1/0, 'projectGrade': 1/0, }
+        """
+        try:
+            course_id = eval(request.body.decode()).get("course_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            user = UserProfile.objects.get(student_id=student_id)
+            privileges = {'teach': 0, 'projectGrade': 0, 'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
+                          'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0, 'groupValid': 0, 'tagEdit': 0}
+            privilege = Authority.objects.filter(user_id=user.id, course_id=course_id)
+            for i in privilege:
+                privileges[i.type] = 1
+            return JsonResponse({"Data": privileges, "GetPrivilegeListCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetPrivilegeListCheck": "failed"})
+
+
+class GetAllPrivilegeList(View):
+    def post(self, request):
+        """
+        Get all privilege list
+        :param token:token
+                project_id: id of project
+        :return: "Data": [{'sid':11810101,'name':real_name, '权限1': 1/0, ........}, {}]
+        """
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            user = UserProfile.objects.get(student_id=student_id)
+            project = Project.objects.get(id=project_id)
+            users = UserCourse.objects.filter(course_name_id=project.course_id)
+            auth = Authority.objects.get(user_id=student_id, type="authEdit", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                list = []
+                for i in users:
+                    person = UserProfile.objects.get(id=i.user_name_id)
+                    privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': 0, 'projectGrade': 0,
+                                  'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
+                                  'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0, 'groupValid': 0,
+                                  'tagEdit': 0}
+                    privilege = Authority.objects.filter(user_id=user.id, course_id=project.course_id)
+                    for j in privilege:
+                        privileges[j.type] = 1
+                    list.append(privileges)
+                return JsonResponse({"Data": list, "GetAllPrivilegeListCheck": "success"})
+            return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetAllPrivilegeListCheck": "failed"})
+
+
+class GetEventList(View):
+    def post(self, request):
+        """
+        Get event list
+        :param token:token
+                project_id: id of project
+        :return: "Data": [{'id': 1, 'title': 'EventName', }, {}]
+        """
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            events = []
+            event = Event.objects.filter(project_id=project_id)
+            for i in event:
+                events.append({'id': i.id, 'title': i.title})
+            return JsonResponse({"Data": events, "GetEventListCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetEventListCheck": "failed"})
+
+
 class SendMailToInvite(View):
     def post(self, request):
+        """
+        Send Mail To Invite
+        :param token:token
+               t_sid: sid of the student to be invited
+               group_id: id of the invite group
+        :return:
+        """
         try:
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
-            tag_id = eval(request.body.decode()).get("t_sid")
+            t_sid = eval(request.body.decode()).get("t_sid")
             group_id = eval(request.body.decode()).get("group_id")
 
-            query_set = UserProfile.objects.get(student_id=tag_id)
-            email = query_set.email
-            subject = '来自自强学堂的问候'
-            text_content = '这是一封重要的邮件.'
-            html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
-            msg = EmailMultiAlternatives(subject, text_content,
-                                         student_id + '<11812710@mail.sustech.edu.cn>', [email])
+            sender = UserProfile.objects.get(student_id=student_id)
+            receiver = UserProfile.objects.get(student_id=t_sid)
+            if sender.id == receiver.id:
+                raise
+            group = GroupOrg.objects.get(id=group_id)
+            project = Project.objects.get(id=group.project_id)
+            email = receiver.email
+            string = receiver.password
+            pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+            member = UserGroup.objects.filter(group_name_id=group_id)
+            list = ""
+            for j in member:
+                person = UserProfile.objects.get(id=j.user_name_id)
+                if person.student_id == student_id:
+                    continue
+                list += person.username + " "
+            subject = 'An Invite from Group ' + group.group_name + 'in Project ' + project.name
+            text_content = 'You need to read this email with a client can read html.'
+            html_content = '''<div><includetail>
+    <div style="font:Verdana normal 14px;color:#000;">
+        <div style="position:relative;">
+            <div style="text-align: left;"><font size="4" face="幼圆">Group ''' + group.group_name + ''' in Project ''' + project.name + ''' Invite you to join!</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Group detail: ''' + group.detail + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Captain: ''' + sender.username + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Member: ''' + list + '''</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + group_id + '''&amp;r=''' + t_sid + '''&amp;t=1&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Refuse</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + group_id + '''&amp;r=''' + t_sid + '''&amp;t=2&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
+            <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
+        </div>
+    </div>
+    <!--<![endif]--></includetail>
+</div>'''
+            msg = EmailMultiAlternatives(subject, text_content, sender.username + '<11812710@mail.sustech.edu.cn>',
+                                         [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
-
             return JsonResponse({"SendMailToInvite": "success"})
 
         except Exception as e:
             return JsonResponse({"SendMailToInvite": "failed"})
 
 
+class SendMailToApply(View):
+    def post(self, request):
+        """
+        Send Mail To apply and send to captain
+        :param token:token
+               group_id: id of the apply group
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            group_id = eval(request.body.decode()).get("group_id")
+
+            sender = UserProfile.objects.get(student_id=student_id)
+            group = GroupOrg.objects.get(id=group_id)
+            receiver = UserProfile.objects.get(id=group.captain_name_id)
+            if sender.id == receiver.id:
+                raise
+            project = Project.objects.get(id=group.project_id)
+            email = receiver.email
+            string = receiver.password
+            pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
+            tags = UserTag.objects.filter(user_name_id=sender.id, visibility=1)
+            list = ""
+            for i in tags:
+                tag = Tag.objects.get(id=i.tag_id)
+                list += tag.tag + " "
+            subject = 'An Apply from Student ' + sender.username + 'in Project ' + project.name
+            text_content = 'You need to read this email with a client can read html.'
+            html_content = '''<div><includetail>
+    <div style="font:Verdana normal 14px;color:#000;">
+        <div style="position:relative;">
+            <div style="text-align: left;"><font size="4" face="幼圆">Student ''' + sender.username + ''' in Project ''' + project.name + ''' Want to join your group!</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Tag: ''' + list + '''</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + ''',''' + group_id + '''&amp;r=''' + receiver.student_id + '''&amp;t=3&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆">Refuse</font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + ''',''' + group_id + '''&amp;r=''' + receiver.student_id + '''&amp;t=4&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
+            <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
+        </div>
+    </div>
+    <!--<![endif]--></includetail>
+</div>'''
+            msg = EmailMultiAlternatives(subject, text_content, sender.username + '<11812710@mail.sustech.edu.cn>',
+                                         [email])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            return JsonResponse({"SendMailToApply": "success"})
+
+        except Exception as e:
+            return JsonResponse({"SendMailToApply": "failed"})
+
+
 class MailUrl(View):
     def get(self, request):
-        # sender = request.GET.get('s')
-        reciver = request.GET.get('r')
-        # type = request.GET.get('t')
-        # password = request.GET.get('c')
-        # send_mail('Subject here', 'Here is the message.', 'me'+'<11812710@mail.sustech.edu.cn>',
-        #           ['11811002@mail.sustech.edu.cn'], fail_silently=False)
-        subject = '来自自强学堂的问候'
-        text_content = '这是一封重要的邮件.'
-        html_content = '''<p>这是一封<strong>重要的</strong>邮件.</p>'''
-        msg = EmailMultiAlternatives(subject, text_content, 'me' + '<11812710@mail.sustech.edu.cn>',
-                                     [reciver])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()  # http://127.0.0.1:8000/mailurl/?r=目标邮箱 测试用例
-        return HttpResponse("success")
+        sender = str(request.GET.get('s'))
+        reciver = str(request.GET.get('r'))
+        type = int(request.GET.get('t'))
+        password = str(request.GET.get('c'))
+        pswd = base64.b64decode(password.encode("utf-8")).decode("utf-8")
+        if type == 1:
+            user = UserProfile.objects.get(student_id=reciver, password=pswd)
+            group = GroupOrg.objects.get(id=int(sender))
+            project = Project.objects.get(id=group.project_id)
+            if group.member + 1 > project.group_size:
+                return HttpResponse('Sorry, the group has been full!<meta http-equiv="refresh" '
+                                    'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
+            GroupOrg.objects.filter(id=int(sender)).update(member=group.member + 1)
+            UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
+            return HttpResponse('You apply the Invite!<meta http-equiv="refresh" '
+                                'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
+        elif type == 2:
+            return HttpResponse('You refuse the Invite!<meta http-equiv="refresh" '
+                                'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
+        elif type == 3:
+            array = sender.split(',')
+            UserProfile.objects.get(student_id=reciver, password=pswd)
+            user = UserProfile.objects.get(student_id=int(array[0]))
+            group = GroupOrg.objects.get(id=int(array[1]))
+            project = Project.objects.get(id=group.project_id)
+            if group.member + 1 > project.group_size:
+                return HttpResponse('Sorry, the group has been full!<meta http-equiv="refresh" '
+                                    'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
+            GroupOrg.objects.filter(id=int(sender)).update(member=group.member + 1)
+            UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
+            return HttpResponse('You apply the Apply!<meta http-equiv="refresh" '
+                                'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
+        elif type == 4:
+            return HttpResponse('You refuse the Apply!<meta http-equiv="refresh" '
+                                'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
+
+        return HttpResponse('wrong url<meta http-equiv="refresh" content="5;url=http://127.0.0.1:8080/#/homepage"> ')
 
 
 # class Test(View):
