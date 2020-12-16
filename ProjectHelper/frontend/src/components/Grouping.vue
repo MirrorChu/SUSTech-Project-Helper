@@ -82,7 +82,7 @@
     },
     data() {
       return {
-        groupData: '',
+        groupData: [],
         dialogGroupDataVisible: false,
         groupInformation: '',
         sid_invite: '',
@@ -92,7 +92,6 @@
     },
     created() {
       this.pullGroupingData()
-      this.pullSingleData()
     },
     methods: {
       test(sth, group_id)
@@ -116,10 +115,10 @@
         this.$axios.post('/teacher_get_single_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          console.log(res.data)
-          if (res.data.TeacherGetSingleInProject === 'success')
+          console.log('pullSingleData', res.data)
+          if (res.data['TeacherGetSingleInProject'] === 'success')
           {
-            this.singleData = res.data.Data
+            this.singleData = res.data['Data']
           }
         }).catch(err => {
           console.log(err)
@@ -130,11 +129,13 @@
         this.$axios.post('/teacher_get_situation_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          console.log(res.data)
-          if (res.data.TeacherGetSituationInProject === 'success')
+          console.log('pullGroupingData', res.data)
+          if (res.data['TeacherGetSituationInProject'] === 'success')
           {
-            this.groupData = res.data.Data
+            this.groupData = res.data['Data']
+            console.log('groupData', res.data['Data'])
           }
+          this.pullSingleData()
         }).catch(err => {
           console.log(err)
         })
