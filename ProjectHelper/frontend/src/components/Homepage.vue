@@ -40,7 +40,7 @@
 
         <profile v-show="mainContent.profile" v-bind:sid="this.sid"></profile>
 
-        <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
+        <NewPassword v-if="mainContent.settings" v-bind:sid="this.sid"></NewPassword>
 
         <ProjectList v-show="mainContent.projects"></ProjectList>
 
@@ -52,17 +52,16 @@
 
 <script>
 import profile from './profile'
-import New_password from './new_password'
+import NewPassword from './NewPassword'
 import ProjectDetail from './ProjectDetail'
 import ProjectList from './ProjectList'
 
 export default {
   name: 'Homepage',
-  components: { ProjectList, ProjectDetail, New_password, profile },
+  components: { ProjectList, ProjectDetail, NewPassword, profile },
   props: {},
   data () {
     return {
-      //TODO: Data is lost after refresh.
       searchKey: '',
       sid: this.$route.params.sid,
       identity: this.$route.params.identity,

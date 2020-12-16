@@ -57,7 +57,7 @@ export default {
           let token = res.data.token
           this.$store.commit('Login', { Authorization: token, sid: this.sid })
           this.$router.push({
-            name: 'homepage',
+            name: 'Homepage',
             params: {
               sid: this.sid,
               pswd: this.pswd,

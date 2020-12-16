@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: 'new_password',
+  name: 'NewPassword',
   props: {
     sid: {
       type: String,
