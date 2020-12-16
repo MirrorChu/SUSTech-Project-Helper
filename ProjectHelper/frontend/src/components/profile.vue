@@ -1,6 +1,10 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
   <div id="profile">
+    <el-card>
+      <h1>Personal Profile</h1>
+      <el-divider></el-divider>
+    </el-card>
     <el-image v-if="!this.edit" style="width: 200px; height: 200px"
               :src="this.avatarUrl" :datafld="avatarUrl" fit="cover"></el-image>
     <el-upload v-if="this.edit"

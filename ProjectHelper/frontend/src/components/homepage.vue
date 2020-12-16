@@ -150,4 +150,13 @@ export default {
 .nav:not(.el-menu--collapse) {
   min-height: 400px;
 }
+.el-aside{
+  position: fixed;
+  width: 100%;
+  top: 150px;
+}
+.el-main{
+  margin-left: 160px;
+}
+
 </style>

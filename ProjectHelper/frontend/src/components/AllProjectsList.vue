@@ -8,11 +8,11 @@
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
               style="width: 100%" height="500">
 
-      <el-table-column fixed prop=1 label="Course" width="120"></el-table-column>
+      <el-table-column fixed prop=1 label="Course" width="350"></el-table-column>
 
-      <el-table-column prop=2 label="Project" width="120"></el-table-column>
+      <el-table-column prop=2 label="Project" width="350"></el-table-column>
 
-      <el-table-column width="120" align="right">
+      <el-table-column width="350" align="right">
         <template slot="header" slot-scope="scope">
           <el-input size="mini" v-model="searchKey" placeholder="Search"/>
         </template>

@@ -1,6 +1,6 @@
 <template>
   <div>
-
+  <h2>Group Info</h2>
     Group Introduction: {{ this.$props.groupInfo.group_introduction }}
     <br>
     Group Name: {{ this.$props.groupInfo.group_name }}
@@ -9,7 +9,8 @@
     <br>
     Members: {{ this.$props.membersList }}
     <br>
-
+    <el-divider></el-divider>
+    <h2>Wanna invite someone?</h2>
     <el-select v-model="toInviteList" multiple clearable placeholder="select people to invite">
       <el-option
         v-for="item in invitableList"
@@ -19,7 +20,7 @@
       </el-option>
     </el-select>
     <el-button @click="onClickInvite">invite</el-button>
-
+    <el-divider></el-divider>
   </div>
 </template>
 

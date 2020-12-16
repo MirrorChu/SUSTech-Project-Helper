@@ -1,6 +1,8 @@
 <template>
-  <div>
+  <div class="project_detail">
     <div v-if="this.displayControl.projectDetail">
+      <el-card class="details">
+        <h2>Project Info</h2>
       <div>
         Course Name: {{ this.$props.projectDetail['courseName'] }}
       </div>
@@ -33,7 +35,7 @@
         </div>
 
       </div>
-
+      </el-card>
 
     </div>
 
@@ -306,5 +308,16 @@ export default {
 </script>
 
 <style scoped>
+.project_detail{
+  background-color: #F7F8F8;
+}
+.details{
+  font-family: Verdana;
+  background-color: #F7F8F8;
+  border-color:whitesmoke;
+  align-content: center;
+  text-align: center;
+  line-height: 50px;
+}
 
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Event List</h1>
+    <h1 style="color:#003371;text-align: center">Event List</h1>
     <div v-if="this.identity === 'teacher'">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
@@ -128,5 +128,20 @@ export default {
 </script>
 
 <style scoped>
-
+.el-card{
+  font-family: Verdana;
+  background-color: #F7F8F8;
+  border-color:whitesmoke;
+  /*align-content:space-around;*/
+  text-align: -webkit-left;
+  line-height: 30px;
+}
+.el-card:hover{
+  font-family: Verdana;
+  background-color: #fffbf0;
+  border-color:whitesmoke;
+  /*align-content:space-around;*/
+  text-align: -webkit-left;
+  line-height: 30px;
+}
 </style>

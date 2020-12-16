@@ -4,7 +4,7 @@
     <el-button v-if="!showJoinGroupList" @click="onClickShowJoinGroup">Join Group</el-button>
 
     <el-form v-if="this.showCreateGroupForm">
-      <h1>Create Group</h1>
+      <h3 style="color:#003371">Create Group</h3>
       <el-form-item label="Group Name">
         <el-input v-model="createGroupName" placeholder="Group Name" clearable></el-input>
       </el-form-item>
@@ -16,7 +16,7 @@
         <el-button @click="onClickConfirmCreateGroup">Confirm Create Group</el-button>
       </el-form-item>
     </el-form>
-
+    <el-divider></el-divider>
     <div v-if="showJoinGroupList">
       <el-table
         :data="joinGroupList"
