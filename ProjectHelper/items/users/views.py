@@ -1704,9 +1704,11 @@ class StudentPublishApply(View):
             floor = type + ",Null," + title
             temp = ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id)
             if temp.count() == 0:
-                ProjectComment.objects.create(comments=information, floor=floor, project_name_id=project_id, user_name_id=user_id)
+                ProjectComment.objects.create(comments=information, floor=floor, project_name_id=project_id,
+                                              user_name_id=user_id)
             else:
-                ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id).update(comments=information, floor=floor)
+                ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id).update(
+                    comments=information, floor=floor)
             print(project_id)
             return JsonResponse({"StudentPublishApply": "success"})
 
@@ -1730,7 +1732,8 @@ class StudentGetAllAd(View):
                 for j in range(2, len(str)):
                     title += str[j]
                 query_set1 = UserProfile.objects.get(id=i.user_name_id)
-                temp = {'id': i.id, "title": title, "content": i.comments, "type": str[0], "sid": query_set1.student_id, 'name': query_set1.real_name, 'titlee': title+'--'+query_set1.real_name}
+                temp = {'id': i.id, "title": title, "content": i.comments, "type": str[0], "sid": query_set1.student_id,
+                        'name': query_set1.real_name, 'titlee': title + '--' + query_set1.real_name}
                 if str[1] == "Null":
                     temp["group_id"] = None
                 else:
@@ -2047,6 +2050,7 @@ class TestFile(View):
             print('avatar exception', e)
             return JsonResponse({"ChangeHeadImage": "failed"})
 
+
 class TeacherGetSituationInProject(View):
     def post(self, request):
         f"""
@@ -2100,35 +2104,9 @@ class TeacherGetSituationInProject(View):
             return JsonResponse({"TeacherGetSituationInProject": "failed"})
 
 
-class TeacherKickMember(View):
-    def post(self, request):
-        """
-        Teacher kick student
-        :param token:token
-                group_id: id of student's group
-                t_sid: sid of kicked student
-        :return:
-        """
-        try:
-            group_id = eval(request.body.decode()).get("group_id")
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            target_id = eval(request.body.decode()).get("t_sid")
-            user = UserProfile.objects.get(student_id=target_id)
-            # TODO:等待权限判断，能否给course_id
-            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
-            # if auth.end_time > datetime.datetime.now() > auth.start_time:
-            group = GroupOrg.objects.get(group_name_id=group_id)
-            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member-1)
-            UserGroup.objects.delete(group_name_id=group_id, user_name_id=user.id)
-            return JsonResponse({"TeacherKickMemberCheck": "success"})
-        except Exception as e:
-            logger.debug('%s %s', self, e)
-            return JsonResponse({"TeacherKickMemberCheck": "failed"})
-
 class TeacherGetSingleInProject(View):
     def post(self, request):
-        f"""
+        """
         user with "teach" authority can get all students without groups
         :param token: token
                 project_id: id of project_project
@@ -2157,9 +2135,59 @@ class TeacherGetSingleInProject(View):
                         array.remove(j.user_name_id)
                 for i in array:
                     stu = UserProfile.objects.get(id=i)
-                    tmp = {'sid':stu.student_id,'realname':stu.real_name}
+                    tmp = {'sid': stu.student_id, 'realname': stu.real_name}
                     students.append(tmp)
             return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
+
+
+class CreateEvent(View):
+    def post(self, request):
+        """
+        user with "eventEdit" authority can create event
+        :param token: token
+                project_id: id of project_project
+                event_title: title of event
+                event_type: type of event
+                event_detail: "partitionType":"normal","title":"Demo New Partition","introduction":"",
+                    "due":ddl,"selectionLimit":1,"options":[["opt1",1],...]
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+            event_type = eval(request.body.decode()).get("event_type")
+            event_title = eval(request.body.decode()).get("event_title")
+            event_detail = eval(request.body.decode()).get("event_detail")
+            ddl = datetime.datetime.fromtimestamp(event_detail['due'] // 1000)
+            now = datetime.datetime.now()
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
+            if ddl <= datetime.datetime.now():
+                return JsonResponse({"CreateEvent": "wrong ddl"})
+            if course.end_time > now > course.start_time:
+                detail = event_detail['introduction']
+                parameter = '&*partitionType&*' + event_detail['partitionType'] \
+                            + '&*selectionType&*' + event_detail['selectionType'] \
+                            + '&*selectionLimit&*' + event_detail['selectionLimit'] \
+                            + '&*options&*' + str(len(event_detail['options'])) + '&*'
+                for i in event_detail['options']:
+                    if event_detail['partitionType'] == 'timeSlot':
+                        parameter += '*&' + i[0] + '*&' + i[1] + '*&' + i[2]
+                    else:
+                        parameter += '*&' + i[0] + '*&' + i[1]
+                Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl, detail=detail,
+                                     title=event_title, project_id=project_id, publish_user_id=student_id)
+                return JsonResponse({"CreateEvent": "success"})
+            return JsonResponse({"CreateEvent": "no auth"})
 
         except Exception as e:
             logger.debug('%s %s', self, e)

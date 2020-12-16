@@ -111,7 +111,7 @@ class Event(BaseModel):
     publish_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
     project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
     type = models.CharField(max_length=200, verbose_name="类型", default="")
-    parameter = models.CharField(max_length=200, verbose_name="参数", default="")
+    parameter = models.TextField(max_length=65535, verbose_name="参数", default="")
     end_time = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
     start_time = models.DateTimeField(default=datetime.now, verbose_name="开始日期")
     detail = models.TextField(max_length=65535, verbose_name="简介", default="")
@@ -179,8 +179,8 @@ class EventGrades(BaseModel):
 
 
 class ProjectGrades(BaseModel):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="项目")
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
+    group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="队伍")
     grade = models.IntegerField(verbose_name="成绩", default=0)
     comment = models.TextField(verbose_name="评论", default="", max_length=65535)
 
