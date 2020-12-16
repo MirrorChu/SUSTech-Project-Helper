@@ -126,10 +126,6 @@
                  v-bind:projectId="this.$props.projectDetail.project_id">
       </EventList>
     </div>
-
-    <div v-if="this.identity === 'teacher'">
-      <Grouping v-bind:project_id="this.$props.projectDetail.project_id"></Grouping>
-    </div>
   </div>
 </template>
 
@@ -176,7 +172,6 @@ export default {
     }
   },
   created () {
-    //Use == instead of === here.
     this.$axios.post('/get_identity/', {}).then(res => {
       this.identity = res.data['identity']
     }).catch(err => {

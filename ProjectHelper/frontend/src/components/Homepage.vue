@@ -42,7 +42,7 @@
 
         <new_password v-if="mainContent.settings" v-bind:sid="this.sid"></new_password>
 
-        <AllProjectsList v-show="mainContent.projects"></AllProjectsList>
+        <ProjectList v-show="mainContent.projects"></ProjectList>
 
       </el-main>
 
@@ -54,11 +54,11 @@
 import profile from './profile'
 import New_password from './new_password'
 import ProjectDetail from './ProjectDetail'
-import AllProjectsList from './AllProjectsList'
+import ProjectList from './ProjectList'
 
 export default {
-  name: 'homepage',
-  components: { AllProjectsList, ProjectDetail, New_password, profile },
+  name: 'Homepage',
+  components: { ProjectList, ProjectDetail, New_password, profile },
   props: {},
   data () {
     return {

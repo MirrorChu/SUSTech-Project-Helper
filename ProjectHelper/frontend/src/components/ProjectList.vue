@@ -42,7 +42,7 @@ import ProjectDetail from './ProjectDetail'
 import CreateProject from './CreateProject'
 
 export default {
-  name: 'AllProjectsList',
+  name: 'ProjectList',
   components: { CreateProject, ProjectDetail },
   props: {},
   data () {

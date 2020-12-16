@@ -23,14 +23,24 @@
         </el-select>
       </div>
       <el-button @click="onClickSubmit">Submit</el-button>
+
+      <div v-if="identity === 'teacher'">
+        <EventGrading>
+
+        </EventGrading>
+      </div>
+
     </div>
 
   </div>
 </template>
 
 <script>
+import EventGrading from './EventGrading'
+
 export default {
   name: 'SelectionComponent',
+  components: {EventGrading},
   props: {
     data: {
       required: true,
@@ -40,6 +50,7 @@ export default {
     return {
       selected: [],
       expand: false,
+      identity: 'teacher',
     }
   },
   methods: {

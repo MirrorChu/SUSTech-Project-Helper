@@ -17,7 +17,7 @@
 import axios from 'axios'
 
 export default {
-  name: 'login',
+  name: 'Login',
   data () {
     return {
       sid: '',
@@ -32,7 +32,7 @@ export default {
       const status = res.data['loginCheck']
       if (status === 'student' || status === 'teacher') {
         this.$router.push({
-          name: 'homepage',
+          name: 'Homepage',
           params: {
             sid: this.sid,
             identity: this.identity
