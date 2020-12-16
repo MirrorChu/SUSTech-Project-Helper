@@ -13,7 +13,7 @@ class GroupOrg(models.Model):
     # 队长是队伍的创始人，只有队长会收到申请，并且决定是否接受
     captain_name = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="队长名称")
 
-    members = models.IntegerField(verbose_name="成员上限")
+    members = models.IntegerField(verbose_name="成员人数")
 
     detail = models.TextField(verbose_name="队伍详情")
 
