@@ -10,6 +10,8 @@ class GlobalSettings(object):
     # 设置底部角标题的内容
     site_footer = "SUSTech-Project-Helper"
 
+    menu_style = "accordion"
+
 
 # 设置装饰主题
 class BaseSettings(object):

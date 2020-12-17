@@ -9,10 +9,24 @@
       </el-card>
     </div>
     <div>
-      <el-card v-for="(componentObj, index) in componentObjs">
-        <component :is="componentObj.type" :data="componentObj.data" :courseId="courseId">
+      <el-card v-for="(componentObj) in componentObjs">
 
-        </component>
+<!--        <h2>{{componentObj['data']['title']}}</h2>-->
+
+<!--        <el-button-->
+<!--            @click="onClickExpandComponent(componentObj['id'])">-->
+<!--          {{ visible[componentObj['id']] ? 'Close' : 'Expand' }}-->
+<!--        </el-button>-->
+
+<!--        <div v-if="visible[componentObj['id']]">-->
+        <div>
+          <component :is="componentObj.type"
+                     :data="componentObj.data"
+                     :courseId="courseId"
+                     :eventTitle="componentObj['data']['title']"
+                     :eventId="componentObj['id']">
+          </component>
+        </div>
 
       </el-card>
     </div>
@@ -60,91 +74,125 @@ export default {
       expandNewEvent: false,
       privileges: {},
       eventObjList: [],
+      visible: {},
     }
   },
   created () {
     this.courseId = this.$props.courseId
     this.projectId = this.$props.projectId
     this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
-      console.log('EventList /student_gets_all_projects/', res)
       this.privileges = res.data['Data']
       this.$axios.post('/get_event_list/', {'project_id': this.$props.projectId}).then(res => {
-        console.log('/get_event_list/ res', res.data)
-        const eventIdTitleArray = res.data['Data']
-        for (let i = 0; i < eventIdTitleArray; i += 1) {
-          this.eventIdList.push(eventIdTitleArray[i]['id'])
+        console.log('event list', res)
+        const tempEventArray = res.data['Data']
+        this.componentObjs = []
+        for (let i = 0; i < tempEventArray.length; i += 1) {
+          const eventEle = tempEventArray[i]
+          const eventObj = {}
+          const typeStr = eventEle['event_type']
+          if (typeStr === 'partition') {
+            eventObj['type'] = 'PartitionEvent'
+            // eventObj['data'] = {}
+            // eventObj['data']['type'] = 'PartitionEvent'
+            // eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit']
+            // eventObj['partitionType'] = eventEle['event_detail']['partitionType']
+            // eventObj['data']['options'] = []
+            // for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+            //   const option = eventEle['event_detail']['options'][j]
+            //   eventObj['data']['options'].push({'label': option[0], 'value': option[0], 'limit': option[1]})
+            // }
+          }
+          eventObj['data'] = {}
+          eventObj['data']['title'] = eventEle['event_title']
+          // eventObj['data']['introduction'] = eventEle['introduction']
+          // eventObj['data']['due'] = eventEle['event_detail']['due']
+          // eventObj['publisher'] = eventEle['publisher']
+          eventObj['id'] = eventEle['id']
+          this.componentObjs.push(eventObj)
+          this.visible[eventObj['id']] = false
         }
-        for (const id in eventIdTitleArray) {
-          this.$axios.post('/')
-        }
+        console.log(this.componentObjs)
       }).catch(err => {
         console.log('/get_event_list err', err)
       })
-      this.componentObjs = [{
-          type: 'AnnouncementComponent',
-          sid: this.$props.sid,
-          pswd: this.$props.pswd,
-          data: {
-            type: 'AnnouncementComponent',
-            title: 'Demo Announcement',
-            introduction: 'This is a demo announcement.',
-            due: (new Date()).getTime(),
-          },
-        }, {
-          type: 'SelectionComponent',
-          sid: this.$props.sid,
-          pswd: this.$props.pswd,
-          data: {
-            type: 'SelectionComponent',
-            title: 'Demo Selection',
-            introduction: 'Choose your selection wisely.',
-            due: (new Date()).getTime(),
-            selectionLimit: 2,
-            options: [
-              { label: 'label1', value: 'value1' },
-              { label: 'label2', value: 'value2' },
-              { label: 'label3', value: 'value3' }],
-          },
-        }, {
-          type: 'SubmissionComponent',
-          sid: this.$props.sid,
-          pswd: this.$props.pswd,
-          due: (new Date()).getTime(),
-          data: {
-            type: 'SubmissionComponent',
-            title: 'Demo Submission',
-            introduction: 'This is a demo submission.',
-            submissionType: 'file',
-            due: (new Date()).getTime(),
-          },
-        }, {
-          type: 'PartitionEvent',
-          sid: this.$props.sid,
-          pswd: this.$props.pswd,
-          due: (new Date()).getTime(),
-          data: {
-            type: 'PartitionEvent',
-            title: 'Demo Partition',
-            introduction: 'This is a demo partition.',
-            selectionLimit: 1,
-            options: [
-              { label: 'label1', value: 'value1', limit: 5 },
-              { label: 'label2', value: 'value2', limit: 5 },
-              { label: 'label3', value: 'value3', limit: 5 },
-            ],
-            due: (new Date()).getTime(),
-          },
-        }]
+
+      ////  ===***--- DO NOT DELETE THIS ---***=== ////
+      // this.componentObjs = [
+      //   {
+      //     type: 'AnnouncementComponent',
+      //     sid: this.$props.sid,
+      //     pswd: this.$props.pswd,
+      //     data:
+      //     {
+      //       type: 'AnnouncementComponent',
+      //       title: 'Demo Announcement',
+      //       introduction: 'This is a demo announcement.',
+      //       due: (new Date()).getTime(),
+      //     },
+      //   },
+      //   {
+      //     type: 'SelectionComponent',
+      //     sid: this.$props.sid,
+      //     pswd: this.$props.pswd,
+      //     data: {
+      //       type: 'SelectionComponent',
+      //       title: 'Demo Selection',
+      //       introduction: 'Choose your selection wisely.',
+      //       due: (new Date()).getTime(),
+      //       selectionLimit: 2,
+      //       options: [
+      //         { label: 'label1', value: 'value1' },
+      //         { label: 'label2', value: 'value2' },
+      //         { label: 'label3', value: 'value3' }],
+      //     },
+      //   },
+      //   {
+      //     type: 'SubmissionComponent',
+      //     sid: this.$props.sid,
+      //     pswd: this.$props.pswd,
+      //     due: (new Date()).getTime(),
+      //     data: {
+      //       type: 'SubmissionComponent',
+      //       title: 'Demo Submission',
+      //       introduction: 'This is a demo submission.',
+      //       submissionType: 'file',
+      //       due: (new Date()).getTime(),
+      //     },
+      //   },
+      //   {
+      //     type: 'PartitionEvent',
+      //     sid: this.$props.sid,
+      //     pswd: this.$props.pswd,
+      //     due: (new Date()).getTime(),
+      //     data: {
+      //       type: 'PartitionEvent',
+      //       title: 'Demo Partition',
+      //       introduction: 'This is a demo partition.',
+      //       selectionLimit: 1,
+      //       options: [
+      //         { label: 'label1', value: 'value1', limit: 5 },
+      //         { label: 'label2', value: 'value2', limit: 5 },
+      //         { label: 'label3', value: 'value3', limit: 5 },
+      //       ],
+      //       due: (new Date()).getTime(),
+      //     },
+      //   }]
     }).catch(err => {
       console.log('EventList /student_gets_all_projects/', err)
     })
   },
+  methods: {
+    // onClickExpandComponent(id) {
+    //   this.visible[id] = !this.visible[id];
+    //   console.log(this.visible[id])
+    // },
+  }
 }
 </script>
 
 <style scoped>
 .el-card{
-  font-family: Verdana;
+  font-family: Verdana,serif;
   background-color: #F7F8F8;
   border-color:whitesmoke;
   /*align-content:space-around;*/
@@ -152,7 +200,7 @@ export default {
   line-height: 30px;
 }
 .el-card:hover{
-  font-family: Verdana;
+  font-family: Verdana,serif;
   background-color: #fffbf0;
   border-color:whitesmoke;
   /*align-content:space-around;*/

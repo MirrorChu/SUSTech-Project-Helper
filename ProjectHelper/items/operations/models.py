@@ -145,7 +145,7 @@ class Key(BaseModel):
     key_word = models.CharField(max_length=200, verbose_name="批次识别码", default="")
 
     class Meta:
-        verbose_name = "老师上传项目附件"
+        verbose_name = "老师上传项目附件key"
         verbose_name_plural = verbose_name
 
     def __str__(self):
@@ -185,7 +185,7 @@ class ProjectGrades(BaseModel):
     comment = models.TextField(verbose_name="评论", default="", max_length=65535)
 
     class Meta:
-        verbose_name = "项目成绩"
+        verbose_name = "小组项目成绩"
         verbose_name_plural = verbose_name
 
     def __str__(self):
@@ -207,7 +207,7 @@ class ProjectGrades(BaseModel):
 
 class ChooseEvent(BaseModel):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
-    choice = models.CharField(max_length=200, verbose_name="选择", default="")
+    choice = models.TextField(max_length=65535, verbose_name="选择", default="")
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
 
     class Meta:

@@ -30,6 +30,7 @@
       </el-table>
 
       <el-button @click="semirandomgrouping"> Semi-random Grouping </el-button>
+      <el-button @click="showCreateGroupDialog"> Create New Group for Students </el-button>
     </div>
 
     <div>
@@ -69,6 +70,43 @@
       </el-dialog>
     </div>
 
+    <div>
+      <el-dialog title="Create New Group for Studnets" :visible.sync="dialogCreateGroupVisible">
+        <el-form ref="form">
+          <el-form-item label="GROUP NAME">
+            <el-input v-model="createGroupName" placeholder="Group Name" clearable></el-input>
+          </el-form-item>
+
+          <el-form-item label="Captain">
+            <el-select v-model="captain_sid" clearable placeholder="" @change="captainselect">
+              <el-option
+                v-for="item in this.singleData"
+                :key="item.sid"
+                :label="item.realname"
+                :value="item.sid">
+                <span>{{  item.realname  }}&nbsp{{  item.sid  }}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="Member">
+            <el-select v-model="member_select" multiple placeholder="">
+              <el-option
+                v-for="item in this.singleDataCopy"
+                :key="item.sid"
+                :label="item.realname"
+                :value="item.sid">
+                <span>{{  item.realname  }}&nbsp{{  item.sid  }}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+
+        <el-button @click="onClickCreateNewGroup()">Create</el-button>
+
+      </el-dialog>
+    </div>
+
   </div>
 </template>
 
@@ -84,10 +122,15 @@
       return {
         groupData: [],
         dialogGroupDataVisible: false,
+        dialogCreateGroupVisible: false,
         groupInformation: '',
         sid_invite: '',
         singleData: '',
+        singleDataCopy: '',
         stu_invite: '',
+        createGroupName: '',
+        captain_sid: '',
+        member_select: [],
       }
     },
     created() {
@@ -96,8 +139,6 @@
     methods: {
       test(sth, group_id)
       {
-        console.log(sth)
-        console.log(typeof sth)
         for (const item in sth)
         {
           this.$axios.post('/teacher_add_member/', {
@@ -115,10 +156,11 @@
         this.$axios.post('/teacher_get_single_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          console.log('pullSingleData', res.data)
+          // console.log('pullSingleData', res.data)
           if (res.data['TeacherGetSingleInProject'] === 'success')
           {
             this.singleData = res.data['Data']
+            this.singleDataCopy = this.singleData
           }
         }).catch(err => {
           console.log(err)
@@ -129,7 +171,7 @@
         this.$axios.post('/teacher_get_situation_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          console.log('pullGroupingData', res.data)
+          // console.log('pullGroupingData', res.data)
           if (res.data['TeacherGetSituationInProject'] === 'success')
           {
             this.groupData = res.data['Data']
@@ -173,12 +215,50 @@
         // this.$axios.post('//', {
         //   project_id: this.$props.project_id,
         // }).then(res => {
-        //   console.log(res.data)
+        //   console.log('semirandomgrouping', res.data)
         //   this.pullGroupingData()
         //   this.pullSingleData()
         // }).catch(err => {
         //   console.log(err)
         // })
+      },
+      onClickCreateNewGroup()
+      {
+        this.$axios.post('/teacher_creates_group/', {
+          project_id: this.$props.project_id,
+          group_name: this.createGroupName,
+          captain_sid: this.captain_sid,
+          sid_list: this.member_select,
+        }).then(res => {
+          console.log('CreateNewGroup', res.data)
+          this.pullGroupingData()
+          this.pullSingleData()
+          this.createGroupName = ''
+          this.captain_sid = ''
+          this.member_select = []
+          this.dialogCreateGroupVisible = false
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      captainselect()
+      {
+        this.singleDataCopy = this.singleData
+          let j = -1
+          for(let i = 0; i < this.singleData.length; i++)
+          {
+            if (this.singleData[i].sid === this.captain_sid)
+            {
+              j = i
+              break
+            }
+          }
+          if (j !== -1)
+            this.singleDataCopy.splice(j, 1)
+      },
+      showCreateGroupDialog()
+      {
+        this.dialogCreateGroupVisible = true
       },
     },
   }

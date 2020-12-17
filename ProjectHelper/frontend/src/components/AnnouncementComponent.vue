@@ -27,11 +27,15 @@ export default {
     },
     courseId: {
       required: true,
+    },
+    eventId: {
+      required: true,
     }
   },
   data () {
     return {
       expand: false,
+      eventDetail: {},
     }
   },
   methods: {

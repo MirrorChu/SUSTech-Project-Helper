@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/ProjectHelper.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ProjectHelper/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ProjectHelper/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewEvent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewPartition.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +22,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="nodejs_package_manager_path" value="yarn" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
@@ -61,6 +54,9 @@
       <workItem from="1608120974938" duration="1886000" />
       <workItem from="1608129582738" duration="3396000" />
       <workItem from="1608133871346" duration="1204000" />
+      <workItem from="1608181011235" duration="2231000" />
+      <workItem from="1608193079487" duration="1258000" />
+      <workItem from="1608206549479" duration="16725000" />
     </task>
     <servers />
   </component>

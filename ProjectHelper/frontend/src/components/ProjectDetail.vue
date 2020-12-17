@@ -3,25 +3,46 @@
     <div v-if="this.displayControl.projectDetail">
       <el-card class="details">
         <h2>Project Info</h2>
-      <div>
-        Course Name: {{ this.$props.projectDetail['courseName'] }}
-      </div>
-      <div>
-        Project Name: {{ this.$props.projectDetail['projectName'] }}
-      </div>
-      <div>
-        <div v-if="this.privileges['teach'] !== 1">
-          <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
-                     v-bind:group-info="this.$props.groupInfo" v-bind:members-list="this.membersList"
-                     v-bind:sid="this.$props.sid"></GroupInfo>
-          <h1 v-if="!(this.$props.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
-            groups!</h1>
-          <CreateOrJoinGroup
-              v-if="!(this.$props.groupInfo['StudentGetsGroupInformationInProject'] == null)"
-              v-bind:sid="this.$props.sid"
-              v-bind:projectId="this.$props.projectDetail.project_id"></CreateOrJoinGroup>
+
+        <div>
+          Course Name: {{ this.projectDetail['courseName'] }}
         </div>
 
+        <div v-if="!this.edit">
+
+          <div>
+            Project Name: {{ this.projectDetail['projectName'] }}
+          </div>
+          <div>
+            Project Introduction: {{this.projectDetail['projectIntroduction']}}
+          </div>
+        </div>
+        <el-form v-else>
+          <el-form-item label="Project Name">
+            <el-input v-model="this.projectDetail['projectName']"></el-input>
+          </el-form-item>
+
+          <el-form-item label="Project Introduction">
+            <el-input v-model="this.projectDetail['projectIntroduction']"></el-input>
+          </el-form-item>
+        </el-form>
+
+      <div>
+        <div v-if="this.privileges['teach'] !== 1">
+          <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
+                     v-bind:group-info="this.groupInfo" v-bind:members-list="this.membersList"
+                     v-bind:sid="this.sid"></GroupInfo>
+          <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
+            groups!</h1>
+          <CreateOrJoinGroup
+              v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
+              v-bind:sid="this.sid"
+              v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
+        </div>
+
+        <div v-if="this.privileges['teach'] === 1">
+          <el-button @click="onClickEdit">{{editLiteral}}</el-button>
+        </div>
 
         <div>
           <el-form :inline="true" :model="target_user" class="querypersonalprofile">
@@ -41,7 +62,7 @@
 
     <div>
       <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid"
-                       v-bind:personalprofile="this.personalprofile">
+                       v-bind:personalprofile="this.personalProfile">
       </PersonalProfile>
       <el-button v-if="this.displayControl.PersonalProfile" @click="onClickBackToProjectDetail">Back to Projects
         Detail
@@ -52,31 +73,31 @@
       <el-dialog title="Profile" :visible.sync="dialogPersonalProfileVisible">
         <el-form ref="form" label-position="left" label-width="80px">
           <el-form-item label="SID">
-            <el-row>{{ this.personalprofile.sid }}</el-row>
+            <el-row>{{ this.personalProfile.sid }}</el-row>
           </el-form-item>
 
           <el-form-item label="Name">
-            <el-row>{{ this.personalprofile.realname }}</el-row>
+            <el-row>{{ this.personalProfile['realname'] }}</el-row>
           </el-form-item>
 
           <el-form-item label="Gender">
-            <el-row>{{ this.personalprofile.gender }}</el-row>
+            <el-row>{{ this.personalProfile.gender }}</el-row>
           </el-form-item>
 
           <el-form-item label="E-Mail">
-            <el-row>{{ this.personalprofile.email }}</el-row>
+            <el-row>{{ this.personalProfile.email }}</el-row>
           </el-form-item>
 
           <el-form-item label="Mobile">
-            <el-row>{{ this.personalprofile.mobile }}</el-row>
+            <el-row>{{ this.personalProfile.mobile }}</el-row>
           </el-form-item>
 
           <el-form-item label="Address">
-            <el-row>{{ this.personalprofile.address }}</el-row>
+            <el-row>{{ this.personalProfile.address }}</el-row>
           </el-form-item>
 
           <el-form-item label="Tag">
-            <li v-for="item in this.tags.Data">
+            <li v-for="item in this.tags['Data']">
               <el-badge :value="item.likes">
                 <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
               </el-badge>
@@ -86,14 +107,22 @@
       </el-dialog>
     </div>
 
-    <div>
+<!--    <div>-->
+<!--      <el-button @click="showAd = !showAd">{{showAd ? 'Close' : 'Show Advertisements'}}</el-button>-->
+<!--    </div>-->
+    <div v-if="showAd">
       <h2>Advertisement</h2>
-      <el-card>
-        <el-collapse v-show="advertisementData !== ''">
+
+      <el-card v-if="advertisementData !== []">
+
+        <el-collapse v-if="advertisementData !== []">
           <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+
             <div>{{ item.content }}</div>
+
           </el-collapse-item>
         </el-collapse>
+
         <div v-show="advertisementData === ''">There is no advertisement!</div>
       </el-card>
 
@@ -114,19 +143,20 @@
           </el-form>
         </div>
       </el-card>
+
     </div>
 
     <div v-if="this.privileges['teach'] === 1">
       <el-card>
-        <Grouping v-bind:project_id="this.$props.projectDetail.project_id"></Grouping>
+        <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
 
       </el-card>
     </div>
 
     <div>
       <EventList v-bind:sid="this.$props.sid"
-                 v-bind:courseId="this.courseId"
-                 v-bind:projectId="this.$props.projectDetail.project_id">
+                 v-bind:courseId="this.$props.courseId"
+                 v-bind:projectId="this.$props.projectId">
       </EventList>
     </div>
   </div>
@@ -146,13 +176,12 @@ export default {
       type: String,
       required: true,
     },
-    projectDetail: {
-      required: true,
-    },
-    groupInfo: {
-      required: true,
-    },
     courseId: {
+      type: Number,
+      required: true,
+    },
+    projectId: {
+      type: Number,
       required: true,
     }
   },
@@ -160,7 +189,7 @@ export default {
     return {
       membersList: '',
       status: '',
-      personalprofile: '',
+      personalProfile: '',
       tags: '',
       displayControl: {
         projectDetail: true,
@@ -170,38 +199,60 @@ export default {
         sid: '',
       },
       dialogPersonalProfileVisible: false,
-      advertisementData: '',
+      advertisementData: [],
       eventList: [],
       advertisement_content: '',
       advertisement_title: '',
       privileges: {},
+      edit: false,
+      editLiteral: 'Edit',
+      projectDetail: {},
+      groupInfo: '',
+      showAd: true
     }
   },
   created () {
-    this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
-      console.log('/get_privilege_list/', res)
-      this.privileges = res.data['Data']
-      this.sid = this.$props.sid
-      this.pulladvertisementData()
-      if (this.$props.groupInfo == null) {
-        this.status = 'You are not in a group!'
-      } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject === 'no group') {
-        this.status = 'You are not in a group!'
-      } else if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
-        console.log('access group info success')
-        console.log(this.$props.groupInfo['members'])
-        for (let i = 0; i < this.$props.groupInfo['members'].length; i++) {
-          this.membersList = this.membersList + this.$props.groupInfo['members'][i] + '  '
-        }
-      } else {
-        this.status = 'unknown'
-      }
-    }).catch(err => {
-      console.log('/get_privilege_list/', err)
-    })
+    this.$axios.post('/student_gets_single_project_information/', {'projectId': this.$props.projectId}).then( res => {
+      this.projectDetail = res.data
+      this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).then(res => {
+        this.groupInfo = res.data
+        this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
+          this.privileges = res.data['Data']
+          this.sid = this.$props.sid
+          this.pullAdvertisementData()
 
+          if (this.groupInfo == null) {
+            this.status = 'You are not in a group!'
+          } else if (this.groupInfo['StudentGetsGroupInformationInProject'] === 'no group') {
+            this.status = 'You are not in a group!'
+          } else if (this.groupInfo['StudentGetsGroupInformationInProject'] == null) {
+            for (let i = 0; i < this.groupInfo['members'].length; i++) {
+              this.membersList = this.membersList + this.groupInfo['members'][i] + '  '
+            }
+          } else {
+            this.status = 'unknown'
+          }
+        }).catch(err => {
+          console.log('/get_privilege_list/', err)
+        })
+      }).catch(err => {
+        console.log(err)
+      })
+    }).catch(err => {
+      console.log(err)
+    })
   },
+
   methods: {
+    onClickEdit() {
+      this.edit = !this.edit
+      if (this.edit) {
+        this.editLiteral = 'Cancel'
+      }
+      else {
+        this.editLiteral = 'Edit'
+      }
+    },
     controlDisplay (item) {
       for (const iter in this.displayControl) {
         this.displayControl[iter] = iter === item
@@ -211,17 +262,14 @@ export default {
       this.controlDisplay('projectDetail')
     },
     onQueryPersonalProfile () {
-      this.pulltagData()
+      this.pullTagData()
 
       this.$axios.post('/show_other_personal_data/', {
         sid: this.sid,
         sid_target: this.target_user.sid,
       }).then(res => {
-        console.log('PersonalProfile', res.data)
-        console.log(res.data.ShowOtherPersonalDataCheck)
-        console.log(res.data['ShowOtherPersonalDataCheck'])
-        if (res.data.ShowOtherPersonalDataCheck === 'ShowPersonalData success!') {
-          this.personalprofile = res.data
+        if (res.data['ShowOtherPersonalDataCheck'] === 'ShowPersonalData success!') {
+          this.personalProfile = res.data
           // this.controlDisplay('PersonalProfile')
           this.dialogPersonalProfileVisible = true
         } else {
@@ -233,26 +281,24 @@ export default {
       })
     },
     onClickLike (id) {
-      console.log('hello')
-      console.log(typeof id)
       this.$axios.post('/student_like_tag/', {
         sid: this.sid,
         tag_target: id,
       }).then(res => {
 
-        if (res.data.StudentLikeTag === 'no like') {
+        if (res.data['StudentLikeTag'] === 'no like') {
           console.log('delike success')
-        } else if (res.data.StudentLikeTag === 'like') {
+        } else if (res.data['StudentLikeTag'] === 'like') {
           console.log('like success')
         } else {
           alert('failed')
         }
-        this.pulltagData()
+        this.pullTagData()
       }).catch(err => {
         console.log(err)
       })
     },
-    pulltagData () {
+    pullTagData () {
       this.$axios.post('/student_gets_all_tags/', {
         sid: this.sid,
         sid_target: this.target_user.sid,
@@ -263,13 +309,12 @@ export default {
         console.log(err)
       })
     },
-    pulladvertisementData () {
+    pullAdvertisementData () {
       this.$axios.post('/student_gets_all_ad/', {
-        project_id: this.$props.projectDetail.project_id,
+        'project_id': this.$props.projectId
       }).then(res => {
-        console.log('ad', res.data)
-        if (res.data.StudentGetAllAd === 'success') {
-          this.advertisementData = res.data.Data
+        if (res.data['StudentGetAllAd'] === 'success') {
+          this.advertisementData = res.data['Data']
         } else {
           this.advertisementData = ''
         }
@@ -278,15 +323,14 @@ export default {
       })
     },
     onClickUploadAdvertisement () {
-      if (this.$props.groupInfo.StudentGetsGroupInformationInProject == null) {
+      if (this.groupInfo['StudentGetsGroupInformationInProject'] == null) {
         this.$axios.post('/student_publish_request/', {
-          project_id: this.$props.projectDetail.project_id,
+          project_id: this.projectDetail.project_id,
           content: this.advertisement_content,
           title: this.advertisement_title,
-          group_id: this.$props.groupInfo.group_id,
+          group_id: this.groupInfo.group_id,
         }).then(res => {
-          console.log('up ad', res.data)
-          this.pulladvertisementData()
+          this.pullAdvertisementData()
         }).catch(err => {
           console.log(err)
         })
@@ -297,7 +341,7 @@ export default {
           title: this.advertisement_title,
         }).then(res => {
           console.log('up ad', res.data)
-          this.pulladvertisementData()
+          this.pullAdvertisementData()
         }).catch(err => {
           console.log(err)
         })
@@ -313,7 +357,7 @@ export default {
   background-color: #F7F8F8;
 }
 .details{
-  font-family: Verdana;
+  font-family: Verdana,serif;
   background-color: #F7F8F8;
   border-color:whitesmoke;
   align-content: center;

@@ -81,19 +81,12 @@ export default {
     }
   },
   created () {
-    console.log('/student_gets_all_projects/')
-    this.$axios.post('/student_gets_all_projects/').then(res => {
-      console.log('all projects', res.data['Data'])
-      this.courses = res.data['Data']
-    }).catch(err => {
-      console.log(err)
-    })
+
   },
   methods: {
     changeMainContent (item) {
       for (const iter in this.mainContent) {
         if (iter === item) {
-          console.log(item, iter)
           this.mainContent[iter] = !this.mainContent[iter]
         } else {
           this.mainContent[iter] = false
@@ -119,7 +112,6 @@ export default {
     //TODO: Personal profile request.
     onClickProfile () {
       this.changeMainContent('profile')
-      console.log(this.sid, this.name)
     },
 
     onClickProjects () {
@@ -134,7 +126,6 @@ export default {
     //TODO: Logout request.
     onClickLogout () {
       this.$axios.post('/logout/', {}).then(res => {
-        console.log('logout', res.data)
         localStorage.removeItem('Authorization')
         this.$router.push('/login')
       }).catch(err => {
