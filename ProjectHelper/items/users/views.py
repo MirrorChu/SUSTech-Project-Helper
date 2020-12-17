@@ -1554,8 +1554,8 @@ class TeacherCreateProject(View):
                 keys = Key.objects.filter(key_word=key)
                 if keys.count() == 0:
                     return JsonResponse({"TeacherCreateProject": "has no key"})
-                array = base64.b64decode(key.encode("utf-8")).decode("utf-8").split(',')
-                if float(array[-1]) + 3600 < time.time():
+                array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
+                if float(array['time']) + 3600 < time.time():
                     return JsonResponse({"TeacherCreateProject": "has no key"})
                 if file_name != '':
                     file = request.FILES.get(file_name)
@@ -2031,7 +2031,8 @@ class SendKey(View):
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
             user_id = query_set.id
             course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
-            string = str(student_id) + str(course_id) + "," + str(time.time())
+            data = {'student_id': student_id, 'course_id': course_id, 'time': time.time()}
+            string = json.dumps(data)
             key = base64.b64encode(string.encode("utf-8")).decode("utf-8")
             Key.objects.create(key_word=key)
             return JsonResponse({"SendKey": key})
@@ -2206,22 +2207,45 @@ class CreateEvent(View):
                 return JsonResponse({"CreateEvent": "wrong ddl"})
             if course.end_time > now > course.start_time:
                 detail = event_detail['introduction']
-                parameter = '&*partitionType&*' + event_detail['partitionType'] \
-                            + '&*selectionType&*' + event_detail['selectionType'] \
-                            + '&*selectionLimit&*' + str(event_detail['selectionLimit']) \
-                            + '&*options&*' + str(len(event_detail['options'])) + '&*'
-                for i in event_detail['options']:
-                    if event_detail['partitionType'] == 'timeSlot':
-                        parameter += '*&' + i[0] + '*&' + i[1] + '*&' + i[2]
-                    else:
-                        parameter += '*&' + i[0] + '*&' + i[1]
-                Event.objects.create(type=event_type, parameter=parameter, start_time=now,
-                                     end_time=ddl, detail=detail,
-                                     title=event_title, project_id=project_id,
-                                     publish_user_id=student_id)
+                parameter = json.dumps(event_detail)
+                Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl, detail=detail,
+                                     title=event_title, project_id=project_id, publish_user_id=student_id)
                 return JsonResponse({"CreateEvent": "success"})
             return JsonResponse({"CreateEvent": "no auth"})
 
         except Exception as e:
             logger.debug('%s %s', self, e)
-            return JsonResponse({"TeacherGetSingleInProject": "failed"})
+            return JsonResponse({"CreateEvent": "failed"})
+
+
+class GetEventDetail(View):
+    def post(self, request):
+        """
+        user with "eventVisible" authority can get event detail
+        :param token: token
+                event_id: id of event
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+
+            event = Event.objects.get(id=event_id)
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventVisible", course_id=course_id)
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                events = {'event_type': event.type, 'event_title': event.title, 'event_detail': event.parameter,
+                          'introduction': event.detail}
+                publisher = UserProfile.objects.get(id=event.publish_user_id)
+                events['publisher'] = publisher.student_id
+
+                return JsonResponse({"Data": events, "GetEventDetail": "success"})
+            return JsonResponse({"GetEventDetail": "no auth"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetEventDetail": "failed"})
