@@ -2185,4 +2185,37 @@ class CreateEvent(View):
 
         except Exception as e:
             logger.debug('%s %s', self, e)
-            return JsonResponse({"TeacherGetSingleInProject": "failed"})
+            return JsonResponse({"CreateEvent": "failed"})
+
+
+class GetEventDetail(View):
+    def post(self, request):
+        """
+        user with "eventVisible" authority can get event detail
+        :param token: token
+                event_id: id of event
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+
+            event = Event.objects.get(id=event_id)
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventVisible", course_id=course_id)
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                events = {'event_type': event.type, 'event_title': event.title, 'event_detail': event.parameter,
+                          'introduction': event.detail}
+                publisher = UserProfile.objects.get(id=event.publish_user_id)
+                events['publisher'] = publisher.student_id
+
+                return JsonResponse({"Data": events, "GetEventDetail": "success"})
+            return JsonResponse({"GetEventDetail": "no auth"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetEventDetail": "failed"})
