@@ -139,8 +139,6 @@
     methods: {
       test(sth, group_id)
       {
-        console.log(sth)
-        console.log(typeof sth)
         for (const item in sth)
         {
           this.$axios.post('/teacher_add_member/', {
@@ -158,7 +156,7 @@
         this.$axios.post('/teacher_get_single_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          console.log('pullSingleData', res.data)
+          // console.log('pullSingleData', res.data)
           if (res.data['TeacherGetSingleInProject'] === 'success')
           {
             this.singleData = res.data['Data']
@@ -173,7 +171,7 @@
         this.$axios.post('/teacher_get_situation_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          console.log('pullGroupingData', res.data)
+          // console.log('pullGroupingData', res.data)
           if (res.data['TeacherGetSituationInProject'] === 'success')
           {
             this.groupData = res.data['Data']

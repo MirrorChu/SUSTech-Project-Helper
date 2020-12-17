@@ -97,6 +97,9 @@ export default {
       //TODO: Partition influences selected group.
       console.log(selected)
     },
+    getAllPartitions() {
+
+    },
   },
 
 }

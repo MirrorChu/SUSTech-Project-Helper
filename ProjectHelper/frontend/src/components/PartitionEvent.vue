@@ -21,10 +21,15 @@
         </div>
         <el-button @click="onClickSubmit">Submit</el-button>
 
-        <div v-if="identity === 'teacher'">
-          <EventGrading>
+        <div v-if="privileges['teach'] === 1">
+          <div>
+            <el-button @click="onClickDeleteEvent">Delete Event</el-button>
+          </div>
 
-          </EventGrading>
+          <div>
+            <EventGrading></EventGrading>
+          </div>
+
         </div>
 
       </div>
@@ -45,6 +50,9 @@ export default {
     },
     courseId: {
       required: true,
+    },
+    eventId: {
+      required: true,
     }
   },
   data () {
@@ -52,12 +60,21 @@ export default {
       selected: [],
       expand: false,
       identity: 'teacher',
+      privileges: {},
+      eventDetail: {},
     }
   },
   created () {
-
+    this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+      this.privileges = res.data['Data']
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
+    onClickDeleteEvent() {
+      // this.$axios.post('/delete_event/', {'event_id': })
+    },
     onClickSubmit () {
       //  TODO: Implement submission.
     },

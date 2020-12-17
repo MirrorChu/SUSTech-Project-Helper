@@ -66,7 +66,6 @@ export default {
   },
   created () {
     this.$axios.post('/student_gets_all_projects/', {}).then(res => {
-      console.log('project', res.data)
       this.projects = res.data['projects']
       this.sid = res.data['sid']
       this.$axios.post('/get_identity/', {}).then(res => {
@@ -104,7 +103,6 @@ export default {
 
       this.projectId = localProject[0]
       this.courseId = localProject[3]
-      console.log(this.projectId, this.courseId, this.sid)
 
       this.controlDisplay('projectDetail')
 

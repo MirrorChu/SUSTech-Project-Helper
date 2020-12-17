@@ -47,6 +47,9 @@ export default {
     },
     courseId: {
       required: true,
+    },
+    eventId: {
+      required: true,
     }
   },
   data () {
@@ -54,6 +57,7 @@ export default {
       selected: [],
       expand: false,
       identity: 'teacher',
+      eventDetail: {},
     }
   },
   methods: {

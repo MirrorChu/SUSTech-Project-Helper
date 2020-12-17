@@ -212,13 +212,11 @@ export default {
     }
   },
   created () {
-    console.log('props', this.$props)
     this.$axios.post('/student_gets_single_project_information/', {'projectId': this.$props.projectId}).then( res => {
       this.projectDetail = res.data
       this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).then(res => {
         this.groupInfo = res.data
         this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
-          console.log('/get_privilege_list/', res)
           this.privileges = res.data['Data']
           this.sid = this.$props.sid
           this.pullAdvertisementData()
@@ -228,8 +226,6 @@ export default {
           } else if (this.groupInfo['StudentGetsGroupInformationInProject'] === 'no group') {
             this.status = 'You are not in a group!'
           } else if (this.groupInfo['StudentGetsGroupInformationInProject'] == null) {
-            console.log('access group info success')
-            console.log(this.groupInfo['members'])
             for (let i = 0; i < this.groupInfo['members'].length; i++) {
               this.membersList = this.membersList + this.groupInfo['members'][i] + '  '
             }
@@ -272,9 +268,6 @@ export default {
         sid: this.sid,
         sid_target: this.target_user.sid,
       }).then(res => {
-        console.log('PersonalProfile', res.data)
-        console.log(res.data['ShowOtherPersonalDataCheck'])
-        console.log(res.data['ShowOtherPersonalDataCheck'])
         if (res.data['ShowOtherPersonalDataCheck'] === 'ShowPersonalData success!') {
           this.personalProfile = res.data
           // this.controlDisplay('PersonalProfile')
@@ -288,8 +281,6 @@ export default {
       })
     },
     onClickLike (id) {
-      console.log('hello')
-      console.log(typeof id)
       this.$axios.post('/student_like_tag/', {
         sid: this.sid,
         tag_target: id,
@@ -339,7 +330,6 @@ export default {
           title: this.advertisement_title,
           group_id: this.groupInfo.group_id,
         }).then(res => {
-          console.log('up ad', res.data)
           this.pullAdvertisementData()
         }).catch(err => {
           console.log(err)
