@@ -1840,38 +1840,10 @@ class GetEventList(View):
             project = Project.objects.get(id=project_id)
             course_id = project.course_id
             event = Event.objects.filter(project_id=project_id)
-            auth = Authority.objects.filter(user_id=user_id, type="eventEdit", course_id=course_id)
-
             events = []
             for i in event:
                 publisher = UserProfile.objects.get(id=i.publish_user_id)
-                data = {'id': i.id, 'event_type': i.type, 'event_title': i.title,
-                        'event_detail': json.loads(i.parameter), 'introduction': i.detail,
-                        'publisher': publisher.student_id}
-                if auth.count() != 0:
-                    for k in auth:
-                        if k.end_time > datetime.datetime.now() > k.start_time:
-                            data['data'] = []
-                            if i.type == "choose":
-                                choices = ChooseEvent.objects.filter(event_id_id=i.id)
-                                for j in choices:
-                                    student = UserProfile.objects.get(id=j.user_id)
-                                    data['data'].append({'choice': j.choice, 'student_id': student.student_id,
-                                                         'student_name': student.real_name})
-                            elif i.type == "attachment":
-                                choices = ProjectAttachment.objects.filter(event_id=i.id)
-                                for j in choices:
-                                    group = GroupOrg.objects.get(id=j.group_id)
-                                    data['data'].append({'path': j.file_path, 'group_id': j.group_id,
-                                                         'group_name': group.name})
-                            elif i.type == "partition":
-                                choices = ParticipantEvent.objects.filter(event_id_id=i.id)
-                                for j in choices:
-                                    student = UserProfile.objects.get(id=j.user_id)
-                                    data['data'].append({'start_time': j.start_time, 'end_time': j.end_time,
-                                                         'student_id': student.student_id,
-                                                         'student_name': student.real_name})
-                            break
+                data = {'id': i.id, 'event_type': i.type, 'event_title': i.title, 'publisher': publisher.real_name}
                 events.append(data)
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
