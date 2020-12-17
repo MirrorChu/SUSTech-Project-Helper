@@ -68,15 +68,16 @@ export default {
       console.log('project', res.data)
       this.projects = res.data['projects']
       this.sid = res.data['sid']
+      this.$axios.post('/get_identity/', {}).then(res => {
+        this.identity = res.data['identity']
+        this.displayControl.createProjectButton = (this.identity === 'teacher')
+      }).catch(err => {
+        console.log('err', err)
+      })
     }).catch(err => {
       console.log('err', err)
     })
-    this.$axios.post('/get_identity/', {}).then(res => {
-      this.identity = res.data['identity']
-      this.displayControl.createProjectButton = (this.identity === 'teacher')
-    }).catch(err => {
-      console.log('err', err)
-    })
+
   },
   methods: {
     onClickCreateProject () {
