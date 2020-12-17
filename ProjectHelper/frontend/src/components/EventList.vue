@@ -66,18 +66,16 @@ export default {
     this.courseId = this.$props.courseId
     this.projectId = this.$props.projectId
     this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
-      console.log('EventList /student_gets_all_projects/', res)
       this.privileges = res.data['Data']
       this.$axios.post('/get_event_list/', {'project_id': this.$props.projectId}).then(res => {
-        console.log('/get_event_list/ res', res.data)
-        const eventIdTitleArray = res.data['Data']
-        for (let i = 0; i < eventIdTitleArray.length; i += 1) {
-          this.$axios.post('/get_event_detail/', {event_id: eventIdTitleArray[i]['id']}).then(res => {
-            console.log('/get_event_detail/ res', i, res)
-          }).catch(err => {
-            console.log('/get_event_detail/ err', err)
-          })
-        }
+        console.log('event list', res)
+        // const eventIdTitleArray = res.data['Data']
+        // for (let i = 0; i < eventIdTitleArray.length; i += 1) {
+        //   this.$axios.post('/get_event_detail/', {event_id: eventIdTitleArray[i]['id']}).then(res => {
+        //   }).catch(err => {
+        //     console.log('/get_event_detail/ err', err)
+        //   })
+        // }
       }).catch(err => {
         console.log('/get_event_list err', err)
       })

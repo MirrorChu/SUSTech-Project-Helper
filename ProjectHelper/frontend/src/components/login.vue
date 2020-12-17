@@ -97,10 +97,8 @@ export default {
         status = res.data['loginCheck']
         this.nameValidateForm.identity = status
         if (this.nameValidateForm.identity === 'student' || this.nameValidateForm.identity === 'teacher') {
-          console.log('zjs: res.data.Token', res.data.token)
           let token = res.data.token
           // setCookie('sid', this.sid, 1000 * 60)
-          console.log('token: ', token)
           this.$store.commit('Login', { Authorization: token, sid: this.nameValidateForm.sid })
           this.$router.push({
             name: 'Homepage',

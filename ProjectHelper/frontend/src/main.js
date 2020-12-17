@@ -40,7 +40,7 @@ Axios.interceptors.request.use(
 //异步请求后，判断token是否过期
 Axios.interceptors.response.use(
   response => {
-    console.log('token有效')
+    // console.log('token有效')
     return response
   },
   error => {
@@ -48,7 +48,7 @@ Axios.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           localStorage.removeItem('Authorization')
-          console.log('token删除了')
+          // console.log('token删除了')
           this.$router.push('/')
       }
     }
