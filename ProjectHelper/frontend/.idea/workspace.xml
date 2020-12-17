@@ -4,6 +4,7 @@
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ProjectList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectList.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +58,7 @@
       <workItem from="1608133871346" duration="1204000" />
       <workItem from="1608181011235" duration="2231000" />
       <workItem from="1608193079487" duration="1258000" />
+      <workItem from="1608206549479" duration="4515000" />
     </task>
     <servers />
   </component>
@@ -64,6 +66,15 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

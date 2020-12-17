@@ -24,8 +24,7 @@
 
     <ProjectDetail v-if="this.displayControl.projectDetail"
                    v-bind:sid="this.sid"
-                   v-bind:groupInfo="this.groupInfo"
-                   v-bind:projectDetail="this.projectDetail"
+                   v-bind:projectId="this.projectId"
                    v-bind:courseId="this.courseId"></ProjectDetail>
 
     <CreateProject
@@ -61,6 +60,8 @@ export default {
       createProjectLiteral: 'Create New Project',
       identity: '',
       sid: '',
+      projectId: '',
+      courseId: '',
     }
   },
   created () {
@@ -101,27 +102,35 @@ export default {
           JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const localProject = localProjects[index]
 
-      this.$axios.post('/student_gets_single_project_information/', {
-        'projectId': localProject[0],
-      }).then(res => {
-        console.log('res', res)
-        this.projectDetail = res.data
-        this.projectDetail['projectId'] = localProject[0]
-        this.courseId = localProject[3]
-        this.$axios.post('/student_gets_group_information_in_project/', {
-          sid: this.sid,
-          project_id: localProject[0],
-        }).then(res => {
-          console.log('groupInfo', res.data)
-          this.groupInfo = res.data
-          this.controlDisplay('projectDetail')
-        }).catch(err => {
-          this.projectDetail = null
-          console.log(err)
-        })
-      }).catch(err => {
-        console.log(err)
-      })
+      this.projectId = localProject[0]
+      this.courseId = localProject[3]
+      console.log(this.projectId, this.courseId, this.sid)
+
+      this.controlDisplay('projectDetail')
+
+
+      // this.$axios.post('/student_gets_single_project_information/', {
+      //   'projectId': localProject[0],
+      // }).then(res => {
+      //   console.log('res', res)
+      //   this.projectDetail = res.data
+      //   this.projectDetail['projectId'] = localProject[0]
+      //   this.courseId = localProject[3]
+      //   this.$axios.post('/student_gets_group_information_in_project/', {
+      //     sid: this.sid,
+      //     project_id: localProject[0],
+      //   }).then(res => {
+      //     console.log('groupInfo', res.data)
+      //     this.groupInfo = res.data
+      //   }).catch(err => {
+      //     this.projectDetail = null
+      //     console.log(err)
+      //   })
+      // }).catch(err => {
+      //   console.log(err)
+      // })
+
+
     },
   },
 }
