@@ -1819,13 +1819,23 @@ class GetEventList(View):
             project_id = eval(request.body.decode()).get("project_id")
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
-            events = []
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
             event = Event.objects.filter(project_id=project_id)
+            auth = Authority.objects.filter(user_id=user_id, type="eventEdit", course_id=course_id)
+
+            events = []
             for i in event:
                 publisher = UserProfile.objects.get(id=i.publish_user_id)
-                events.append({'id': i.id, 'event_type': event.type, 'event_title': event.title,
-                               'event_detail': json.loads(event.parameter), 'introduction': event.detail,
-                               'publisher': publisher.student_id})
+                data = {'id': i.id, 'event_type': event.type, 'event_title': event.title,
+                        'event_detail': json.loads(event.parameter), 'introduction': event.detail,
+                        'publisher': publisher.student_id}
+                if auth.count() != 0:
+                    if auth.end_time > datetime.datetime.now() > auth.start_time:
+                        data['data'] = []  # 教师获得学生选择
+                events.append(data)
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
