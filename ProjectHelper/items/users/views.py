@@ -2310,7 +2310,7 @@ class SubmitEvent(View):
         :return:
         """
         try:
-
+            logger.debug('%s request.body %s', self, request.body)
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             event_id = eval(request.body.decode()).get("event_id")
@@ -2333,9 +2333,6 @@ class SubmitEvent(View):
                     if len(data) > parameter['selectionLimit']:
                         return JsonResponse({"SubmitEvent": "choose too much"})
                     for i in data:
-                        for j in data:
-                            if i == j:
-                                raise
                         if parameter['partitionType'] == 'timeSlot':
                             if parameter['options'][i][2] == 0:
                                 raise
