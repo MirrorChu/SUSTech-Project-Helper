@@ -1813,7 +1813,7 @@ class GetEventList(View):
         Get event list
         :param token:token
                 project_id: id of project
-        :return: "Data": [{'id': 1, 'title': 'EventName', }, {}]
+        :return: "Data": [{same as get event detail}, {}]
         """
         try:
             project_id = eval(request.body.decode()).get("project_id")
@@ -1822,7 +1822,10 @@ class GetEventList(View):
             events = []
             event = Event.objects.filter(project_id=project_id)
             for i in event:
-                events.append({'id': i.id, 'title': i.title})
+                publisher = UserProfile.objects.get(id=i.publish_user_id)
+                events.append({'id': i.id, 'event_type': event.type, 'event_title': event.title,
+                               'event_detail': json.loads(event.parameter), 'introduction': event.detail,
+                               'publisher': publisher.student_id})
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
