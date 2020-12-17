@@ -2209,7 +2209,7 @@ class CreateEvent(View):
                 detail = event_detail['introduction']
                 parameter = json.dumps(event_detail)
                 Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl, detail=detail,
-                                     title=event_title, project_id=project_id, publish_user_id=student_id)
+                                     title=event_title, project_id=project_id, publish_user_id=user_id)
                 return JsonResponse({"CreateEvent": "success"})
             return JsonResponse({"CreateEvent": "no auth"})
 
@@ -2238,8 +2238,8 @@ class GetEventDetail(View):
             course_id = project.course_id
             course = Authority.objects.get(user_id=user_id, type="eventVisible", course_id=course_id)
             if course.end_time > datetime.datetime.now() > course.start_time:
-                events = {'event_type': event.type, 'event_title': event.title, 'event_detail': event.parameter,
-                          'introduction': event.detail}
+                events = {'event_type': event.type, 'event_title': event.title,
+                          'event_detail': json.loads(event.parameter), 'introduction': event.detail}
                 publisher = UserProfile.objects.get(id=event.publish_user_id)
                 events['publisher'] = publisher.student_id
 
