@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/AnnouncementComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/AnnouncementComponent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Grouping.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Grouping.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SelectionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SelectionComponent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" afterDir="false" />
-    </list>
+    <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -62,7 +54,7 @@
       <workItem from="1608133871346" duration="1204000" />
       <workItem from="1608181011235" duration="2231000" />
       <workItem from="1608193079487" duration="1258000" />
-      <workItem from="1608206549479" duration="8564000" />
+      <workItem from="1608206549479" duration="9031000" />
     </task>
     <servers />
   </component>

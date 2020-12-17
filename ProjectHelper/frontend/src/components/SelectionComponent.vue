@@ -57,6 +57,7 @@ export default {
       selected: [],
       expand: false,
       identity: 'teacher',
+      eventDetail: {},
     }
   },
   methods: {

@@ -67,6 +67,7 @@ export default {
       fileList: [],
       expand: false,
       identity: 'teacher',
+      eventDetail: {},
     }
   },
   methods: {
