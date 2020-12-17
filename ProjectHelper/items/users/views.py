@@ -51,6 +51,8 @@ def check_token(token) -> bool:
     :param token: The token from frontend.
     :return: token exists and is not expired (user is online)
     """
+    if token is None:
+        return False
     record = r.get(token)
     logger.debug('check_token(token) token: %s, record: %s', token, record)
     if record is None:
