@@ -823,7 +823,7 @@ class StudentQuitsGroup(View):
             for i in group:
                 mem = i.member - 1
             GroupOrg.objects.filter(group_name_id=group_id).update(member=mem)
-            UserGroup.objects.delete(group_name_id=group_id, user_name_id=user_id)
+            UserGroup.objects.filter(group_name_id=group_id, user_name_id=user_id).delete()
             return JsonResponse({"StudentQuitGroupCheck": "success"})
         except Exception as e:
             return JsonResponse({"StudentQuitGroupCheck": "failed"})
@@ -841,7 +841,7 @@ class CaptainKickMember(View):
             for i in group:
                 mem = i.member - 1
             GroupOrg.objects.filter(group_name_id=group_id).update(member=mem)
-            UserGroup.objects.delete(group_name_id=group_id, user_name_id=target_id)
+            UserGroup.objects.filter(group_name_id=group_id, user_name_id=target_id).delete()
             return JsonResponse({"CaptainKickMemberCheck": "success"})
         except Exception as e:
             return JsonResponse({"CaptainKickMemberCheck": "failed"})
@@ -1630,7 +1630,7 @@ class TeacherKickMember(View):
             # if auth.end_time > datetime.datetime.now() > auth.start_time:
             group = GroupOrg.objects.get(group_name_id=group_id)
             GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member - 1)
-            UserGroup.objects.delete(group_name_id=group_id, user_name_id=user.id)
+            UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
             return JsonResponse({"TeacherKickMemberCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -2287,12 +2287,12 @@ class DeleteEvent(View):
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if course.end_time > now > course.start_time:
                 if event.type == "choose":
-                    ChooseEvent.objects.delete(event_id_id=event.id)
+                    ChooseEvent.objects.filter(event_id_id=event.id).delete()
                 elif event.type == "attachment":
-                    ProjectAttachment.objects.delete(event_id=event.id)
+                    ProjectAttachment.objects.filter(event_id=event.id).delete()
                 elif event.type == "partition":
-                    ParticipantEvent.objects.delete(event_id_id=event.id)
-                Event.objects.delete(id=event_id)
+                    ParticipantEvent.objects.filter(event_id_id=event.id).delete()
+                Event.objects.filter(id=event_id).delete()
                 return JsonResponse({"DeleteEvent": "success"})
             return JsonResponse({"DeleteEvent": "failed"})
 
