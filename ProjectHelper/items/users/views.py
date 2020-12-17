@@ -2199,6 +2199,46 @@ class TeacherGetSingleInProject(View):
             return JsonResponse({"TeacherGetSingleInProject": "failed"})
 
 
+class TeacherCreateGroup(View):
+    def post(self, request):
+        """
+        user with "teach" authority can get all students without groups
+        :param token: token
+                project_id: id of project_project
+        :return: "Data": students= username:[type of authority]
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            students = []
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                array = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    array.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        array.remove(j.user_name_id)
+                for i in array:
+                    stu = UserProfile.objects.get(id=i)
+                    tmp = {'sid': stu.student_id, 'realname': stu.real_name}
+                    students.append(tmp)
+            return JsonResponse({"Data": students, "TeacherGetSingleInProject": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherGetSingleInProject": "failed"})
+
+
 class CreateEvent(View):
     def post(self, request):
         """
@@ -2252,6 +2292,43 @@ class CreateEvent(View):
             return JsonResponse({"CreateEvent": "failed"})
 
 
+class DeleteEvent(View):
+    def post(self, request):
+        """
+        user with "eventEdit" authority can delete event
+        :param token: token
+                event_id: id of event
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+            now = datetime.datetime.now()
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
+            if course.end_time > now > course.start_time:
+                if event.type == "choose":
+                    ChooseEvent.objects.delete(event_id_id=event.id)
+                elif event.type == "attachment":
+                    ProjectAttachment.objects.delete(event_id=event.id)
+                elif event.type == "partition":
+                    ParticipantEvent.objects.delete(event_id_id=event.id)
+                Event.objects.delete(id=event_id)
+                return JsonResponse({"DeleteEvent": "success"})
+            return JsonResponse({"DeleteEvent": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"DeleteEvent": "failed"})
+
+
 class GetEventDetail(View):
     def post(self, request):
         """
@@ -2271,12 +2348,37 @@ class GetEventDetail(View):
             project = Project.objects.get(id=event.project_id)
             course_id = project.course_id
             course = Authority.objects.get(user_id=user_id, type="eventVisible", course_id=course_id)
-            if course.end_time > datetime.datetime.now() > course.start_time:
-                events = {'event_type': event.type, 'event_title': event.title,
-                          'event_detail': json.loads(event.parameter), 'introduction': event.detail}
-                publisher = UserProfile.objects.get(id=event.publish_user_id)
-                events['publisher'] = publisher.student_id
+            auth = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
 
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                publisher = UserProfile.objects.get(id=event.publish_user_id)
+                events = {'event_type': event.type, 'event_title': event.title,
+                          'event_detail': json.loads(event.parameter), 'introduction': event.detail,
+                          'publisher': publisher.student_id}
+                if auth.count() != 0:
+                    for k in auth:
+                        if k.end_time > datetime.datetime.now() > k.start_time:
+                            events['data'] = []
+                            if event.type == "choose":
+                                choices = ChooseEvent.objects.filter(event_id_id=event.id)
+                                for j in choices:
+                                    student = UserProfile.objects.get(id=j.user_id)
+                                    events['data'].append({'choice': j.choice, 'student_id': student.student_id,
+                                                           'student_name': student.real_name})
+                            elif event.type == "attachment":
+                                choices = ProjectAttachment.objects.filter(event_id=event.id)
+                                for j in choices:
+                                    group = GroupOrg.objects.get(id=j.group_id)
+                                    events['data'].append({'path': j.file_path, 'group_id': j.group_id,
+                                                           'group_name': group.name})
+                            elif event.type == "partition":
+                                choices = ParticipantEvent.objects.filter(event_id_id=event.id)
+                                for j in choices:
+                                    student = UserProfile.objects.get(id=j.user_id)
+                                    events['data'].append({'start_time': j.start_time, 'end_time': j.end_time,
+                                                           'student_id': student.student_id,
+                                                           'student_name': student.real_name})
+                            break
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
 
