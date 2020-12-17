@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <div><h3>{{ this.$props.data.title }}</h3></div>
+      <div><h3>{{ this.$props.eventTitle }}</h3></div>
       <div v-if="!expand">
         <el-button @click="onClickExpand">Expand</el-button>
       </div>
@@ -10,11 +10,13 @@
         <div>
           <el-button @click="onClickExpand">Close</el-button>
         </div>
-        <div>{{ this.$props.data.introduction }}</div>
+        <div>{{ this.eventObj.data.introduction }}</div>
         <div>Due: {{ new Date(this.$props.data.due) }}</div>
         <div>
-          <el-select v-model="selected" :multiple="this.$props.data.selectionLimit > 1" placeholder="Please select.">
-            <el-option v-for="item in this.$props.data.options" :key="item.value"
+          <el-select v-model="selected"
+                     :multiple="this.eventObj.data.selectionLimit > 1"
+                     placeholder="Please select.">
+            <el-option v-for="item in this.eventObj.data.options" :key="item.value"
                        :label="getLabelAndNumberFromItem(item)" :value="item.value">
             </el-option>
           </el-select>
@@ -53,6 +55,9 @@ export default {
     },
     eventId: {
       required: true,
+    },
+    eventTitle: {
+      required: true,
     }
   },
   data () {
@@ -61,19 +66,50 @@ export default {
       expand: false,
       identity: 'teacher',
       privileges: {},
-      eventDetail: {},
+      eventObj: {},
     }
   },
   created () {
-    this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
-      this.privileges = res.data['Data']
+    this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+      console.log('event detail', res.data)
+      const eventEle = res.data['Data']
+
+      const typeStr = eventEle['event_type']
+      if (typeStr === 'partition') {
+        this.eventObj['type'] = 'PartitionEvent'
+        this.eventObj['data'] = {}
+        this.eventObj['data']['type'] = 'PartitionEvent'
+        this.eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit']
+        this.eventObj['partitionType'] = eventEle['event_detail']['partitionType']
+        this.eventObj['data']['options'] = []
+        for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+          const option = eventEle['event_detail']['options'][j]
+          this.eventObj['data']['options'].push({'label': option[0], 'value': option[0], 'limit': option[1]})
+        }
+      }
+      this.eventObj['data']['title'] = eventEle['event_title']
+      this.eventObj['data']['introduction'] = eventEle['introduction']
+      this.eventObj['data']['due'] = eventEle['event_detail']['due']
+      this.eventObj['publisher'] = eventEle['publisher']
+      this.eventObj['id'] = this.$props.eventId
+
+      this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+        this.privileges = res.data['Data']
+      }).catch(err => {
+        console.log(err)
+      })
     }).catch(err => {
       console.log(err)
     })
   },
   methods: {
     onClickDeleteEvent() {
-      // this.$axios.post('/delete_event/', {'event_id': })
+      this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
+        console.log(res.data)
+        alert(res.data)
+      }).catch(err => {
+        console.log(err)
+      })
     },
     onClickSubmit () {
       //  TODO: Implement submission.
