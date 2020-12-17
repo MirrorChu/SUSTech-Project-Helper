@@ -207,7 +207,7 @@ class ProjectGrades(BaseModel):
 
 class ChooseEvent(BaseModel):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
-    choice = models.CharField(max_length=200, verbose_name="选择", default="")
+    choice = models.TextField(max_length=65535, verbose_name="选择", default="")
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
 
     class Meta:
