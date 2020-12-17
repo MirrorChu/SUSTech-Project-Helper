@@ -2252,6 +2252,43 @@ class CreateEvent(View):
             return JsonResponse({"CreateEvent": "failed"})
 
 
+class DeleteEvent(View):
+    def post(self, request):
+        """
+        user with "eventEdit" authority can delete event
+        :param token: token
+                event_id: id of event
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+            now = datetime.datetime.now()
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
+            if course.end_time > now > course.start_time:
+                if event.type == "choose":
+                    ChooseEvent.objects.delete(event_id_id=event.id)
+                elif event.type == "attachment":
+                    ProjectAttachment.objects.delete(event_id=event.id)
+                elif event.type == "partition":
+                    ParticipantEvent.objects.delete(event_id_id=event.id)
+                Event.objects.delete(id=event_id)
+                return JsonResponse({"DeleteEvent": "success"})
+            return JsonResponse({"DeleteEvent": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"DeleteEvent": "failed"})
+
+
 class GetEventDetail(View):
     def post(self, request):
         """
