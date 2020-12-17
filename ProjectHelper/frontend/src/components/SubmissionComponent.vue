@@ -56,6 +56,9 @@ export default {
     },
     courseId: {
       required: true,
+    },
+    eventId: {
+      required: true,
     }
   },
   data () {
