@@ -2301,6 +2301,67 @@ class DeleteEvent(View):
             return JsonResponse({"DeleteEvent": "failed"})
 
 
+class SubmitEvent(View):
+    def post(self, request):
+        """
+        user with "eventValid" authority can submit event
+        :param token: token
+                event_id: id of event
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+            now = datetime.datetime.now()
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventValid", course_id=course_id)
+            if course.end_time > now > course.start_time:
+                if event.type == "choose":
+                    pass
+                elif event.type == "attachment":
+                    pass
+                elif event.type == "partition":
+                    data = eval(request.body.decode()).get("selected")
+                    parameter = json.loads(event.parameter)
+                    if len(data) > parameter['selectionLimit']:
+                        return JsonResponse({"SubmitEvent": "choose too much"})
+                    for i in data:
+                        for j in data:
+                            if i == j:
+                                raise
+                        if parameter['partitionType'] == 'timeSlot':
+                            if parameter['options'][i][2] == 0:
+                                raise
+                        else:
+                            if parameter['options'][i][1] == 0:
+                                raise
+                    ParticipantEvent.objects.filter(event_id_id=event_id, user_id=user_id).delete()
+                    for i in data:
+                        if parameter['partitionType'] == 'timeSlot':
+                            start_time = datetime.datetime.fromtimestamp(parameter['options'][i][0] // 1000)
+                            end_time = datetime.datetime.fromtimestamp(parameter['options'][i][1] // 1000)
+                            ParticipantEvent.objects.create(event_id_id=event_id, user_id=user_id,
+                                                            start_time=start_time, end_time=end_time)
+                            parameter['options'][i][2] -= 1
+                        else:
+                            choice = parameter['options'][i][0]
+                            ChooseEvent.objects.create(event_id_id=event_id, user_id=user_id, choice=choice)
+                            parameter['options'][i][1] -= 1
+                return JsonResponse({"SubmitEvent": "success"})
+            return JsonResponse({"SubmitEvent": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"SubmitEvent": "failed"})
+
+
 class GetEventDetail(View):
     def post(self, request):
         """
