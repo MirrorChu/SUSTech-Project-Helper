@@ -71,8 +71,12 @@ export default {
       this.$axios.post('/get_event_list/', {'project_id': this.$props.projectId}).then(res => {
         console.log('/get_event_list/ res', res.data)
         const eventIdTitleArray = res.data['Data']
-        for (let i = 0; i < eventIdTitleArray; i += 1) {
-          this.eventObjList.push(eventIdTitleArray[i]['id'])
+        for (let i = 0; i < eventIdTitleArray.length; i += 1) {
+          this.$axios.post('/get_event_detail/', {event_id: eventIdTitleArray[i]['id']}).then(res => {
+            console.log('/get_event_detail/ res', i, res)
+          }).catch(err => {
+            console.log('/get_event_detail/ err', err)
+          })
         }
       }).catch(err => {
         console.log('/get_event_list err', err)
