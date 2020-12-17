@@ -12,7 +12,7 @@ from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
 from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, \
-    Key, ProjectFile, ProjectComment, Event
+    Key, ProjectFile, ProjectComment, Event, ChooseEvent, ParticipantEvent, ProjectAttachment
 from items.projects.models import Project
 from items.users.models import UserProfile
 from django.core.cache import cache
@@ -1834,7 +1834,26 @@ class GetEventList(View):
                         'publisher': publisher.student_id}
                 if auth.count() != 0:
                     if auth.end_time > datetime.datetime.now() > auth.start_time:
-                        data['data'] = []  # 教师获得学生选择
+                        data['data'] = []
+                        if i.type == "choose":
+                            choices = ChooseEvent.objects.filter(event_id_id=i.id)
+                            for j in choices:
+                                student = UserProfile.objects.get(id=j.user_id)
+                                data['data'].append({'choice': j.choice, 'student_id': student.student_id,
+                                                     'student_name': student.real_name})
+                        elif i.type == "attachment":
+                            choices = ProjectAttachment.objects.filter(event_id=i.id)
+                            for j in choices:
+                                group = GroupOrg.objects.get(id=j.group_id)
+                                data['data'].append({'path': j.file_path, 'group_id': j.group_id,
+                                                     'group_name': group.name})
+                        elif i.type == "partition":
+                            choices = ParticipantEvent.objects.filter(event_id_id=i.id)
+                            for j in choices:
+                                student = UserProfile.objects.get(id=j.user_id)
+                                data['data'].append({'start_time': j.start_time, 'end_time': j.end_time,
+                                                     'student_id': student.student_id,
+                                                     'student_name': student.real_name})
                 events.append(data)
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
