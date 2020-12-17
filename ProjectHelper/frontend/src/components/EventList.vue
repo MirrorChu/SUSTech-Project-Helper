@@ -10,7 +10,11 @@
     </div>
     <div>
       <el-card v-for="(componentObj) in componentObjs">
-        <component :is="componentObj.type" :data="componentObj.data" :courseId="courseId" :eventId="componentObj['id']">
+        <component :is="componentObj.type"
+                   :data="componentObj.data"
+                   :courseId="courseId"
+                   :eventTitle="componentObj['data']['title']"
+                   :eventId="componentObj['id']">
 
         </component>
 
@@ -77,20 +81,21 @@ export default {
           const typeStr = eventEle['event_type']
           if (typeStr === 'partition') {
             eventObj['type'] = 'PartitionEvent'
-            eventObj['data'] = {}
-            eventObj['data']['type'] = 'PartitionEvent'
-            eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit']
-            eventObj['partitionType'] = eventEle['event_detail']['partitionType']
-            eventObj['data']['options'] = []
-            for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-              const option = eventEle['event_detail']['options'][j]
-              eventObj['data']['options'].push({'label': option[0], 'value': option[0], 'limit': option[1]})
-            }
+            // eventObj['data'] = {}
+            // eventObj['data']['type'] = 'PartitionEvent'
+            // eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit']
+            // eventObj['partitionType'] = eventEle['event_detail']['partitionType']
+            // eventObj['data']['options'] = []
+            // for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+            //   const option = eventEle['event_detail']['options'][j]
+            //   eventObj['data']['options'].push({'label': option[0], 'value': option[0], 'limit': option[1]})
+            // }
           }
+          eventObj['data'] = {}
           eventObj['data']['title'] = eventEle['event_title']
-          eventObj['data']['introduction'] = eventEle['introduction']
-          eventObj['data']['due'] = eventEle['event_detail']['due']
-          eventObj['publisher'] = eventEle['publisher']
+          // eventObj['data']['introduction'] = eventEle['introduction']
+          // eventObj['data']['due'] = eventEle['event_detail']['due']
+          // eventObj['publisher'] = eventEle['publisher']
           eventObj['id'] = eventEle['id']
           this.componentObjs.push(eventObj)
         }
