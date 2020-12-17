@@ -1829,8 +1829,8 @@ class GetEventList(View):
             events = []
             for i in event:
                 publisher = UserProfile.objects.get(id=i.publish_user_id)
-                data = {'id': i.id, 'event_type': event.type, 'event_title': event.title,
-                        'event_detail': json.loads(event.parameter), 'introduction': event.detail,
+                data = {'id': i.id, 'event_type': i.type, 'event_title': i.title,
+                        'event_detail': json.loads(i.parameter), 'introduction': i.detail,
                         'publisher': publisher.student_id}
                 if auth.count() != 0:
                     if auth.end_time > datetime.datetime.now() > auth.start_time:
