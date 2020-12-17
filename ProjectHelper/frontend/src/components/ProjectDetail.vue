@@ -3,12 +3,28 @@
     <div v-if="this.displayControl.projectDetail">
       <el-card class="details">
         <h2>Project Info</h2>
-      <div>
-        Course Name: {{ this.$props.projectDetail['courseName'] }}
-      </div>
-      <div>
-        Project Name: {{ this.$props.projectDetail['projectName'] }}
-      </div>
+
+        <div v-if="!this.edit">
+          <div>
+            Course Name: {{ this.$props.projectDetail['courseName'] }}
+          </div>
+          <div>
+            Project Name: {{ this.$props.projectDetail['projectName'] }}
+          </div>
+          <div>
+            Project Introduction: {{this.$props.projectDetail['projectIntroduction']}}
+          </div>
+        </div>
+        <el-form v-else>
+          <el-form-item label="Project Name">
+            <el-input v-model="this.$props.projectDetail['projectName']"></el-input>
+          </el-form-item>
+
+          <el-form-item label="Project Introduction">
+            <el-input v-model="this.$props.projectDetail['projectIntroduction']"></el-input>
+          </el-form-item>
+        </el-form>
+
       <div>
         <div v-if="this.privileges['teach'] !== 1">
           <GroupInfo v-if="this.$props.groupInfo.StudentGetsGroupInformationInProject == null"
@@ -32,6 +48,10 @@
               <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
             </el-form-item>
           </el-form>
+        </div>
+
+        <div>
+          <el-button @click="onClickEdit">{{editLiteral}}</el-button>
         </div>
 
       </div>
@@ -175,6 +195,8 @@ export default {
       advertisement_content: '',
       advertisement_title: '',
       privileges: {},
+      edit: false,
+      editLiteral: 'Edit',
     }
   },
   created () {
@@ -202,6 +224,15 @@ export default {
 
   },
   methods: {
+    onClickEdit() {
+      this.edit = !this.edit
+      if (this.edit) {
+        this.editLiteral = 'Cancel'
+      }
+      else {
+        this.editLiteral = 'Edit'
+      }
+    },
     controlDisplay (item) {
       for (const iter in this.displayControl) {
         this.displayControl[iter] = iter === item
