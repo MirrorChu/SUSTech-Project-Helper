@@ -117,6 +117,10 @@
         </el-form>
       </el-form-item>
 
+      <el-form-item label="# of choices">
+        <el-input-number v-model="selectionLimit"></el-input-number>
+      </el-form-item>
+
       <el-form-item>
         <el-button @click="onClickSubmit">Submit</el-button>
       </el-form-item>

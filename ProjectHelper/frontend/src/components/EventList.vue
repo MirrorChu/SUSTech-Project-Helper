@@ -10,13 +10,23 @@
     </div>
     <div>
       <el-card v-for="(componentObj) in componentObjs">
-        <component :is="componentObj.type"
-                   :data="componentObj.data"
-                   :courseId="courseId"
-                   :eventTitle="componentObj['data']['title']"
-                   :eventId="componentObj['id']">
 
-        </component>
+<!--        <h2>{{componentObj['data']['title']}}</h2>-->
+
+<!--        <el-button-->
+<!--            @click="onClickExpandComponent(componentObj['id'])">-->
+<!--          {{ visible[componentObj['id']] ? 'Close' : 'Expand' }}-->
+<!--        </el-button>-->
+
+<!--        <div v-if="visible[componentObj['id']]">-->
+        <div>
+          <component :is="componentObj.type"
+                     :data="componentObj.data"
+                     :courseId="courseId"
+                     :eventTitle="componentObj['data']['title']"
+                     :eventId="componentObj['id']">
+          </component>
+        </div>
 
       </el-card>
     </div>
@@ -64,6 +74,7 @@ export default {
       expandNewEvent: false,
       privileges: {},
       eventObjList: [],
+      visible: {},
     }
   },
   created () {
@@ -98,6 +109,7 @@ export default {
           // eventObj['publisher'] = eventEle['publisher']
           eventObj['id'] = eventEle['id']
           this.componentObjs.push(eventObj)
+          this.visible[eventObj['id']] = false
         }
         console.log(this.componentObjs)
       }).catch(err => {
@@ -169,12 +181,18 @@ export default {
       console.log('EventList /student_gets_all_projects/', err)
     })
   },
+  methods: {
+    // onClickExpandComponent(id) {
+    //   this.visible[id] = !this.visible[id];
+    //   console.log(this.visible[id])
+    // },
+  }
 }
 </script>
 
 <style scoped>
 .el-card{
-  font-family: Verdana;
+  font-family: Verdana,serif;
   background-color: #F7F8F8;
   border-color:whitesmoke;
   /*align-content:space-around;*/
@@ -182,7 +200,7 @@ export default {
   line-height: 30px;
 }
 .el-card:hover{
-  font-family: Verdana;
+  font-family: Verdana,serif;
   background-color: #fffbf0;
   border-color:whitesmoke;
   /*align-content:space-around;*/

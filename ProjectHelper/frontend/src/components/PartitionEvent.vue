@@ -12,9 +12,11 @@
         </div>
         <div>{{ this.eventObj.data.introduction }}</div>
         <div>Due: {{ new Date(this.$props.data.due) }}</div>
+        <div>Limit of Selections: {{this.eventObj.data.selectionLimit}}</div>
         <div>
           <el-select v-model="selected"
                      :multiple="this.eventObj.data.selectionLimit > 1"
+                     :multiple-limit="this.eventObj.data.selectionLimit"
                      placeholder="Please select.">
             <el-option v-for="item in this.eventObj.data.options" :key="item.value"
                        :label="getLabelAndNumberFromItem(item)" :value="item.value">
@@ -71,9 +73,7 @@ export default {
   },
   created () {
     this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
-      console.log('event detail', res.data)
       const eventEle = res.data['Data']
-
       const typeStr = eventEle['event_type']
       if (typeStr === 'partition') {
         this.eventObj['type'] = 'PartitionEvent'
@@ -81,10 +81,19 @@ export default {
         this.eventObj['data']['type'] = 'PartitionEvent'
         this.eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit']
         this.eventObj['partitionType'] = eventEle['event_detail']['partitionType']
+        this.eventObj['data']['partitionType'] = eventEle['event_detail']['partitionType']
         this.eventObj['data']['options'] = []
-        for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-          const option = eventEle['event_detail']['options'][j]
-          this.eventObj['data']['options'].push({'label': option[0], 'value': option[0], 'limit': option[1]})
+        if (this.eventObj['data']['partitionType'] === 'normal') {
+          for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+            const option = eventEle['event_detail']['options'][j]
+            this.eventObj['data']['options'].push({'label': option[0], 'value': j, 'limit': option[1]})
+          }
+        }
+        else {
+          for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+            const option = eventEle['event_detail']['options'][j]
+            this.eventObj['data']['options'].push(this.generateTimeSlotPartitionOptions(option))
+          }
         }
       }
       this.eventObj['data']['title'] = eventEle['event_title']
@@ -103,16 +112,27 @@ export default {
     })
   },
   methods: {
+    generateTimeSlotPartitionOptions(option) {
+      const label = new Date(option[0]) + ' to ' + new Date(option[1])
+      const value = label
+      const limit = option[2]
+      return {'label': label, 'value': value, 'limit': limit}
+    },
     onClickDeleteEvent() {
       this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
-        console.log(res.data)
-        alert(res.data)
+        alert('Delete Event ' + res.data['DeleteEvent'])
       }).catch(err => {
         console.log(err)
       })
     },
     onClickSubmit () {
       //  TODO: Implement submission.
+      const selected = this.selected
+      this.$axios.post('/submit_event/', {'event_id': this.$props.eventId, 'selected': selected}).then(res => {
+        console.log(res)
+      }).catch(err => {
+        console.log(err)
+      })
     },
     getLabelAndNumberFromItem (item) {
       return item.label + ': ' + item.limit + ' remaining'
