@@ -51,6 +51,8 @@ def check_token(token) -> bool:
     :param token: The token from frontend.
     :return: token exists and is not expired (user is online)
     """
+    if token is None:
+        return False
     record = r.get(token)
     logger.debug('check_token(token) token: %s, record: %s', token, record)
     if record is None:
@@ -101,6 +103,7 @@ class GetIdentity(View):
         :param request: The request from frontend.
         :return: {success, identity}/offline/failure
         """
+        logger.debug('%s request.body %s', self, request.body)
         try:
             token = get_from_request(request, 'token')
             if check_token(token):
@@ -458,6 +461,7 @@ class StudentGetsAllProjects(View):
         :return: {success, projects}/offline/failure
         """
         try:
+            logger.debug('%s request.body %s', self, request.body)
             token = get_from_request(request, 'token')
             if check_token(token):
                 projects = []
@@ -1154,7 +1158,8 @@ class AddTag(View):
                 UserTag.objects.create(user_name_id=user_id, tag_id=tag_id, visibility=1)
                 _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
                 return JsonResponse(
-                    {"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": 0, "likes": 0})
+                    {"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type, "like": 0,
+                     "likes": 0})
             else:
                 for i in user_tag:
                     if i.visibility == 0:
@@ -1163,8 +1168,9 @@ class AddTag(View):
                         _user_tag = UserTag.objects.get(user_name_id=user_id, tag_id=tag_id)
                         users_like = UserLikeTag.objects.filter(tag_id=i.id)
                         user_like = UserLikeTag.objects.filter(tag_id=i.id, user_name_id=user_id)
-                        return JsonResponse({"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type,
-                                             "like": user_like.count(), "likes": users_like.count()})
+                        return JsonResponse(
+                            {"AddTag": "success", "UserTagID": _user_tag.id, "Type": tag.type,
+                             "like": user_like.count(), "likes": users_like.count()})
             return JsonResponse({"AddTag": "failed"})
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -1681,7 +1687,8 @@ class StudentPublishRequest(View):
                 ProjectComment.objects.create(comments=information, floor=floor,
                                               project_name_id=project_id, user_name_id=user_id)
             else:
-                ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id).update(
+                ProjectComment.objects.filter(project_name_id=project_id,
+                                              user_name_id=user_id).update(
                     comments=information, floor=floor)
 
             return JsonResponse({"StudentPublishRequest": "success"})
@@ -1705,10 +1712,12 @@ class StudentPublishApply(View):
             floor = type + ",Null," + title
             temp = ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id)
             if temp.count() == 0:
-                ProjectComment.objects.create(comments=information, floor=floor, project_name_id=project_id,
+                ProjectComment.objects.create(comments=information, floor=floor,
+                                              project_name_id=project_id,
                                               user_name_id=user_id)
             else:
-                ProjectComment.objects.filter(project_name_id=project_id, user_name_id=user_id).update(
+                ProjectComment.objects.filter(project_name_id=project_id,
+                                              user_name_id=user_id).update(
                     comments=information, floor=floor)
             print(project_id)
             return JsonResponse({"StudentPublishApply": "success"})
@@ -1733,7 +1742,8 @@ class StudentGetAllAd(View):
                 for j in range(2, len(str)):
                     title += str[j]
                 query_set1 = UserProfile.objects.get(id=i.user_name_id)
-                temp = {'id': i.id, "title": title, "content": i.comments, "type": str[0], "sid": query_set1.student_id,
+                temp = {'id': i.id, "title": title, "content": i.comments, "type": str[0],
+                        "sid": query_set1.student_id,
                         'name': query_set1.real_name, 'titlee': title + '--' + query_set1.real_name}
                 if str[1] == "Null":
                     temp["group_id"] = None
@@ -1761,8 +1771,10 @@ class GetPrivilegeList(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             user = UserProfile.objects.get(student_id=student_id)
-            privileges = {'teach': 0, 'projectGrade': 0, 'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
-                          'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0, 'groupValid': 0, 'tagEdit': 0}
+            privileges = {'teach': 0, 'projectGrade': 0, 'projectEdit': 0, 'eventValid': 0,
+                          'eventVisible': 0,
+                          'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0,
+                          'groupValid': 0, 'tagEdit': 0}
             privilege = Authority.objects.filter(user_id=user.id, course_id=course_id)
             for i in privilege:
                 privileges[i.type] = 1
@@ -1787,16 +1799,20 @@ class GetAllPrivilegeList(View):
             user = UserProfile.objects.get(student_id=student_id)
             project = Project.objects.get(id=project_id)
             users = UserCourse.objects.filter(course_name_id=project.course_id)
-            auth = Authority.objects.get(user_id=student_id, type="authEdit", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=student_id, type="authEdit",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 list = []
                 for i in users:
                     person = UserProfile.objects.get(id=i.user_name_id)
-                    privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': 0, 'projectGrade': 0,
+                    privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': 0,
+                                  'projectGrade': 0,
                                   'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
-                                  'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0, 'groupValid': 0,
+                                  'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0,
+                                  'groupValid': 0,
                                   'tagEdit': 0}
-                    privilege = Authority.objects.filter(user_id=user.id, course_id=project.course_id)
+                    privilege = Authority.objects.filter(user_id=user.id,
+                                                         course_id=project.course_id)
                     for j in privilege:
                         privileges[j.type] = 1
                     list.append(privileges)
@@ -1878,7 +1894,8 @@ class SendMailToInvite(View):
     </div>
     <!--<![endif]--></includetail>
 </div>'''
-            msg = EmailMultiAlternatives(subject, text_content, sender.username + '<11812710@mail.sustech.edu.cn>',
+            msg = EmailMultiAlternatives(subject, text_content,
+                                         sender.username + '<11812710@mail.sustech.edu.cn>',
                                          [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
@@ -1931,7 +1948,8 @@ class SendMailToApply(View):
     </div>
     <!--<![endif]--></includetail>
 </div>'''
-            msg = EmailMultiAlternatives(subject, text_content, sender.username + '<11812710@mail.sustech.edu.cn>',
+            msg = EmailMultiAlternatives(subject, text_content,
+                                         sender.username + '<11812710@mail.sustech.edu.cn>',
                                          [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
@@ -1979,7 +1997,8 @@ class MailUrl(View):
             return HttpResponse('You refuse the Apply!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
 
-        return HttpResponse('wrong url<meta http-equiv="refresh" content="5;url=http://127.0.0.1:8080/#/homepage"> ')
+        return HttpResponse(
+            'wrong url<meta http-equiv="refresh" content="5;url=http://127.0.0.1:8080/#/homepage"> ')
 
 
 # class Test(View):
@@ -2149,6 +2168,7 @@ class TeacherGetSingleInProject(View):
 class CreateEvent(View):
     def post(self, request):
         """
+        fixme
         user with "eventEdit" authority can create event
         :param token: token
                 project_id: id of project_project
@@ -2159,6 +2179,16 @@ class CreateEvent(View):
         :return:
         """
         try:
+            logger.debug('%s request.body %s', self, request.body)
+
+            # Convert between string and json.
+            json_obj_str = str(request.body, 'ascii')
+            print(json_obj_str)
+            json_obj = json.loads(json_obj_str)
+            print(json_obj)
+            json_obj_str = json.dumps(json_obj)
+            print(json_obj_str)
+
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             project_id = eval(request.body.decode()).get("project_id")

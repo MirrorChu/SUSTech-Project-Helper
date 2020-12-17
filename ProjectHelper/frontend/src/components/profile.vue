@@ -114,6 +114,12 @@
     <!--      <i class="el-icon-upload"></i>-->
     <!--    </el-upload>-->
 
+<!--    <div>-->
+<!--      <h3>Add Tag Library</h3>-->
+<!--      <el-input v-model="addingtag"></el-input>-->
+<!--      <el-button @click="onClickAddTagLibrary">ADD</el-button>-->
+<!--    </div>-->
+
   </div>
 </template>
 
@@ -137,7 +143,8 @@ export default {
       edit: false,
       tags: '',
       addtags: '',
-      avatarUrl: ''
+      avatarUrl: '',
+      addingtag: '',
     }
   },
   created () {
@@ -354,6 +361,17 @@ export default {
         console.log('err', err)
       })
     },
+    onClickAddTagLibrary()
+    {
+      this.$axios.post('/add_new_tag/', {
+        tag_name: this.addingtag,
+      }).then(res => {
+        console.log(res.data)
+        this.addingtag = ''
+      }).catch(err => {
+        console.log('err', err)
+      })
+    }
   },
 }
 </script>
