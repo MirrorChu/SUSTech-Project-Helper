@@ -157,12 +157,6 @@ export default {
     },
   },
   methods: {
-    //Why is this not working?
-    onClickPartitionType () {
-      console.log('onClickPartitionType')
-      this.dynamicValidateForm.domains = []
-      this.dynamicValidateFormTimeSlot.domains = []
-    },
     onClickSubmit () {
       const event = this.toJson()
       console.log(event)
@@ -241,6 +235,7 @@ export default {
       event.due = this.due.getTime()
       event.selectionLimit = this.selectionLimit
       event.options = options
+      event.selectionType = this.selectionType
       return event
     },
   },

@@ -72,10 +72,7 @@ export default {
         console.log('/get_event_list/ res', res.data)
         const eventIdTitleArray = res.data['Data']
         for (let i = 0; i < eventIdTitleArray; i += 1) {
-          this.eventIdList.push(eventIdTitleArray[i]['id'])
-        }
-        for (const id in eventIdTitleArray) {
-          this.$axios.post('/')
+          this.eventObjList.push(eventIdTitleArray[i]['id'])
         }
       }).catch(err => {
         console.log('/get_event_list err', err)

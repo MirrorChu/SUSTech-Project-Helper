@@ -81,13 +81,7 @@ export default {
     }
   },
   created () {
-    console.log('/student_gets_all_projects/')
-    this.$axios.post('/student_gets_all_projects/').then(res => {
-      console.log('all projects', res.data['Data'])
-      this.courses = res.data['Data']
-    }).catch(err => {
-      console.log(err)
-    })
+
   },
   methods: {
     changeMainContent (item) {
