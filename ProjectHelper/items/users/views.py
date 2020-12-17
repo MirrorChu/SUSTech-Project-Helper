@@ -2333,6 +2333,8 @@ class SubmitEvent(View):
                     if len(data) > parameter['selectionLimit']:
                         return JsonResponse({"SubmitEvent": "choose too much"})
                     for i in data:
+                        if len(data) != len(set(data)):
+                            raise
                         if parameter['partitionType'] == 'timeSlot':
                             if parameter['options'][i][2] == 0:
                                 raise
