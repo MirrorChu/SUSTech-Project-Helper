@@ -1082,7 +1082,6 @@ class ShowHeadImage(View):
             logger.debug('%s %s', self, e)
             return JsonResponse({"Image": "failed"})
 
-
     def post(self, request):
         try:
             token = eval(request.body.decode()).get("token")
@@ -1626,13 +1625,24 @@ class TeacherKickMember(View):
             student_id = get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
             user = UserProfile.objects.get(student_id=target_id)
-            # TODO:等待权限判断，能否给course_id
-            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
-            # if auth.end_time > datetime.datetime.now() > auth.start_time:
-            group = GroupOrg.objects.get(group_name_id=group_id)
-            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member - 1)
-            UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
-            return JsonResponse({"TeacherKickMemberCheck": "success"})
+            group = GroupOrg.objects.get(id=group_id)
+            project = Project.objects.get(id=group.project_id)
+            course = Course.objects.get(id=project.course_id)
+            auth = Authority.objects.get(user_id=student_id, type="group", course_id=course.id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                if group.member == 1:
+                    GroupOrg.objects.filter(id=group_id).delete()
+                else:
+                    GroupOrg.objects.filter(id=group_id).update(member=group.member - 1)
+                if user.id == group.captain_name_id:
+                    member = UserGroup.objects.filter(group_name_id=group_id)
+                    for i in member:
+                        if i.user_name_id != user.id:
+                            GroupOrg.objects.filter(id=group_id).update(captain_name_id=i.user_name_id)
+                            break
+                UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
+                return JsonResponse({"TeacherKickMemberCheck": "success"})
+            return JsonResponse({"TeacherKickMemberCheck": "no auth"})
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherKickMemberCheck": "failed"})
@@ -2388,9 +2398,11 @@ class GetEventDetail(View):
                 events = {'event_type': event.type, 'event_title': event.title,
                           'event_detail': json.loads(event.parameter), 'introduction': event.detail,
                           'publisher': publisher.student_id}
+                isStudent = True
                 if auth.count() != 0:
                     for k in auth:
                         if k.end_time > datetime.datetime.now() > k.start_time:
+                            isStudent = False
                             events['data'] = []
                             if event.type == "choose":
                                 choices = ChooseEvent.objects.filter(event_id_id=event.id)
@@ -2412,6 +2424,27 @@ class GetEventDetail(View):
                                                            'student_id': student.student_id,
                                                            'student_name': student.real_name})
                             break
+                    if isStudent:
+                        if event.type == "choose":
+                            choices = ChooseEvent.objects.filter(event_id_id=event.id)
+                            for j in choices:
+                                student = UserProfile.objects.get(id=j.user_id)
+                                events['data'] = {'choice': j.choice, 'student_id': student.student_id,
+                                                  'student_name': student.real_name}
+                        elif event.type == "attachment":
+                            choices = ProjectAttachment.objects.filter(event_id=event.id)
+                            for j in choices:
+                                group = GroupOrg.objects.get(id=j.group_id)
+                                events['data'] = {'path': j.file_path, 'group_id': j.group_id,
+                                                  'group_name': group.name}
+                        elif event.type == "partition":
+                            choices = ParticipantEvent.objects.filter(event_id_id=event.id)
+                            for j in choices:
+                                student = UserProfile.objects.get(id=j.user_id)
+                                events['data'] = {'start_time': j.start_time, 'end_time': j.end_time,
+                                                  'student_id': student.student_id,
+                                                  'student_name': student.real_name}
+
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
 
