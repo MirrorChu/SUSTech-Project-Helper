@@ -37,7 +37,8 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherKickMember, \
     TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember, \
     AddNewTag, SendMailToApply, GetPrivilegeList, GetEventList, GetAllPrivilegeList, \
-    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition, ChangeEvent
+    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition, ChangeEvent, \
+    ChangePrivilege
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -96,6 +97,7 @@ urlpatterns = [
     path('teacher_kick_member/', TeacherKickMember.as_view()),
     path('teacher_add_member/', TeacherAddMember.as_view()),
     path('get_privilege_list/', GetPrivilegeList.as_view()),
+    path('change_privilege/', ChangePrivilege.as_view()),
     path('get_all_privilege_list/', GetAllPrivilegeList.as_view()),
     path('get_event_list/', GetEventList.as_view()),
     path('create_event/', CreateEvent.as_view()),

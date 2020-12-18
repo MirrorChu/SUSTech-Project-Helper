@@ -1520,16 +1520,28 @@ class TeacherCreateProject(View):
     def post(self, request):
         try:
             logger.debug('%s request.body %s', self, request.body)
+            ddl = 0
             token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            project_name = eval(request.body.decode()).get("newProjectName")
-            introduction = eval(request.body.decode()).get("newProjectDescription")
-            group_size = eval(request.body.decode()).get("groupingMaximum")
-            min_group_size = eval(request.body.decode()).get("groupingMinimum")
-            course_id = eval(request.body.decode()).get("newProjectCourse")
-            ddl = eval(request.body.decode()).get("groupingDeadline")
+            if token == None:
+                token = eval(request.header.decode()).get("token")
+                student_id = get_sid(token)
+                project_name = eval(request.header.decode()).get("newProjectName")
+                introduction = eval(request.header.decode()).get("newProjectDescription")
+                group_size = eval(request.header.decode()).get("groupingMaximum")
+                min_group_size = eval(request.header.decode()).get("groupingMinimum")
+                course_id = eval(request.header.decode()).get("newProjectCourse")
+                ddl = eval(request.header.decode()).get("groupingDeadline")
+                key = eval(request.header.decode()).get("idx")
+            else:
+                student_id = get_sid(token)
+                project_name = eval(request.body.decode()).get("newProjectName")
+                introduction = eval(request.body.decode()).get("newProjectDescription")
+                group_size = eval(request.body.decode()).get("groupingMaximum")
+                min_group_size = eval(request.body.decode()).get("groupingMinimum")
+                course_id = eval(request.body.decode()).get("newProjectCourse")
+                ddl = eval(request.body.decode()).get("groupingDeadline")
+                key = eval(request.body.decode()).get("idx")
             ddl = ddl // 1000
-            key = eval(request.body.decode()).get("idx")
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
@@ -1799,6 +1811,48 @@ class GetPrivilegeList(View):
             return JsonResponse({"GetPrivilegeListCheck": "failed"})
 
 
+class ChangePrivilege(View):
+    def post(self, request):
+        """
+        user with 'authEdit' Change privilege
+        :param token:token
+                project_id: id of project
+        :return:
+        """
+        try:
+            project_id = eval(request.body.decode()).get("project_id")
+            token = eval(request.body.decode()).get("token")
+            t_sid = eval(request.body.decode()).get("t_sid")
+            auths = eval(request.body.decode()).get("dict")
+            student_id = get_sid(token)
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            t_user = UserProfile.objects.get(student_id=t_sid)
+            t_user_id = t_user.id
+            project = Project.objects.get(id=project_id)
+            auth = Authority.objects.get(user_id=user_id, type="authEdit",
+                                         course_id=project.course_id)
+            t_auth = Authority.objects.filter(user_id=t_user_id, type="teach",
+                                              course_id=project.course_id)
+            if t_auth.end_time > datetime.datetime.now() > t_auth.start_time:
+                return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                for i in auths:
+                    privilege = Authority.objects.filter(user_id=t_user_id, type=i,
+                                                         course_id=project.course_id)
+                    if (privilege.count() == 1 and auths[i] == 1) or (privilege.count() == 0 and auths[i] == 0):
+                        continue
+                    else:
+                        Authority.objects.create(type=i, user_id=t_user_id, course_id=project.course_id,
+                                                 start_time=datetime.datetime.now(),
+                                                 end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                return JsonResponse({"ChangePrivilegeCheck": "success"})
+            return JsonResponse({"ChangePrivilegeCheck": "you have no auth"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"ChangePrivilegeCheck": "failed"})
+
+
 class GetAllPrivilegeList(View):
     def post(self, request):
         """
@@ -1812,9 +1866,10 @@ class GetAllPrivilegeList(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
             project = Project.objects.get(id=project_id)
             users = UserCourse.objects.filter(course_name_id=project.course_id)
-            auth = Authority.objects.get(user_id=student_id, type="authEdit",
+            auth = Authority.objects.get(user_id=user_id, type="authEdit",
                                          course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 list = []
@@ -2188,7 +2243,7 @@ class TeacherGetSingleInProject(View):
 
 
 class TeacherCreateGroup(View):
-    def post(self, request):
+    def post(self, request):  # todo
         """
         user with "group" authority can group certain student
         :param token: token
@@ -2253,12 +2308,21 @@ class CreateEvent(View):
             print(json_obj_str)
 
             token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            project_id = eval(request.body.decode()).get("project_id")
-            event_type = eval(request.body.decode()).get("event_type")
-            event_title = eval(request.body.decode()).get("event_title")
-            event_detail = eval(request.body.decode()).get("event_detail")
-            key = eval(request.body.decode()).get("key")
+            if token == None:
+                token = eval(request.header.decode()).get("token")
+                student_id = get_sid(token)
+                project_id = eval(request.header.decode()).get("project_id")
+                event_type = eval(request.header.decode()).get("event_type")
+                event_title = eval(request.header.decode()).get("event_title")
+                event_detail = eval(request.header.decode()).get("event_detail")
+                key = eval(request.header.decode()).get("key")
+            else:
+                student_id = get_sid(token)
+                project_id = eval(request.body.decode()).get("project_id")
+                event_type = eval(request.body.decode()).get("event_type")
+                event_title = eval(request.body.decode()).get("event_title")
+                event_detail = eval(request.body.decode()).get("event_detail")
+                key = eval(request.body.decode()).get("key")
             ddl = datetime.datetime.fromtimestamp(event_detail['due'] // 1000)
             now = datetime.datetime.now()
 
