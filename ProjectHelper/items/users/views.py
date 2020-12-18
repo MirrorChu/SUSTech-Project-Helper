@@ -2258,8 +2258,14 @@ class CreateEvent(View):
             event_type = eval(request.body.decode()).get("event_type")
             event_title = eval(request.body.decode()).get("event_title")
             event_detail = eval(request.body.decode()).get("event_detail")
+            key = eval(request.body.decode()).get("key")
             ddl = datetime.datetime.fromtimestamp(event_detail['due'] // 1000)
             now = datetime.datetime.now()
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -2273,6 +2279,17 @@ class CreateEvent(View):
                 parameter = json.dumps(event_detail)
                 Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl, detail=detail,
                                      title=event_title, project_id=project_id, publish_user_id=user_id)
+                keys = Key.objects.filter(key_word=key)
+                if keys.count() == 0:
+                    return JsonResponse({"TeacherCreateProject": "has no key"})
+                array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
+                if float(array['time']) + 3600 < time.time():
+                    return JsonResponse({"TeacherCreateProject": "has no key"})
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    path = default_storage.save('file/' + project.name + "/" + file_name,
+                                                ContentFile(file.read()))
+                    ProjectFile.objects.create(file_path=path, project_id=project_id)
                 return JsonResponse({"CreateEvent": "success"})
             return JsonResponse({"CreateEvent": "no auth"})
 
