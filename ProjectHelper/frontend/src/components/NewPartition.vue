@@ -140,7 +140,7 @@ export default {
       due: '',
       selectionLimit: 1,
       options: [],
-      selectionType: 0,
+      selectionType: "0",
       newOption: '',
       dynamicValidateForm: {
         domains: [],

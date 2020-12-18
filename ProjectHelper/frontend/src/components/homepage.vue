@@ -38,7 +38,7 @@
 
       <el-main>
 
-        <profile v-show="mainContent.profile" v-bind:sid="this.sid"></profile>
+        <profile v-if="mainContent.profile" v-bind:sid="this.sid"></profile>
 
         <NewPassword v-if="mainContent.settings" v-bind:sid="this.sid"></NewPassword>
 

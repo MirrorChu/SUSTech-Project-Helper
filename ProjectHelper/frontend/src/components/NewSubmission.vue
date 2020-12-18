@@ -68,7 +68,7 @@ export default {
       title: '',
       introduction: '',
       due: '',
-      submissionType: '',
+      submissionType: 'file',
       partitionList: [],
       groupList: [],
       selectedPartitionList: [],
