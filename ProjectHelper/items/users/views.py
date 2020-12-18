@@ -2394,8 +2394,8 @@ class GetEventDetail(View):
         :return:
         """
         try:
-            # token = eval(request.body.decode()).get("token")
-            student_id ='3012345'# get_sid(token)
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
             event_id = eval(request.body.decode()).get("event_id")
 
             event = Event.objects.get(id=event_id)
@@ -2422,7 +2422,7 @@ class GetEventDetail(View):
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
                                     events['data'].append({'choice': j.choice, 'group_id': j.group_id,
-                                                           'group_name': group.name})
+                                                           'group_name': group.group_name})
                             elif event.type == "attachment":
                                 choices = ProjectAttachment.objects.filter(event_id=event.id)
                                 for j in choices:
@@ -2442,7 +2442,8 @@ class GetEventDetail(View):
                         events['data'] = {}
                         for j in choices:
                             group = GroupOrg.objects.get(id=j.group_id)
-                            events['data'] = {'choice': j.choice, 'group_id': j.group_id, 'group_name': group.group_name}
+                            events['data'] = {'choice': j.choice, 'group_id': j.group_id,
+                                              'group_name': group.group_name}
                     elif event.type == "attachment":
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
