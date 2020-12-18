@@ -2394,8 +2394,8 @@ class GetEventDetail(View):
         :return:
         """
         try:
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
+            # token = eval(request.body.decode()).get("token")
+            student_id ='3012345'# get_sid(token)
             event_id = eval(request.body.decode()).get("event_id")
 
             event = Event.objects.get(id=event_id)
@@ -2417,7 +2417,7 @@ class GetEventDetail(View):
                         if k.end_time > datetime.datetime.now() > k.start_time:
                             isStudent = False
                             events['data'] = []
-                            if event.type == "choose":
+                            if event.type == "partition" and events['event_detail']['partitionType'] == 'normal':
                                 choices = ChooseEvent.objects.filter(event_id_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
@@ -2428,33 +2428,35 @@ class GetEventDetail(View):
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
                                     events['data'].append({'path': j.file_path, 'group_id': j.group_id,
-                                                           'group_name': group.name})
-                            elif event.type == "partition":
+                                                           'group_name': group.group_name})
+                            elif event.type == "partition" and events['event_detail']['partitionType'] == 'timeSlot':
                                 choices = ParticipantEvent.objects.filter(event_id_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
                                     events['data'].append({'start_time': j.start_time, 'end_time': j.end_time,
-                                                           'group_id': j.group_id, 'group_name': group.name})
+                                                           'group_id': j.group_id, 'group_name': group.group_name})
                             break
-                    if isStudent:
-                        if event.type == "choose":
-                            choices = ChooseEvent.objects.filter(event_id_id=event.id)
-                            for j in choices:
-                                group = GroupOrg.objects.get(id=j.group_id)
-                                events['data'] = {'choice': j.choice, 'group_id': j.group_id, 'group_name': group.name}
-                        elif event.type == "attachment":
-                            choices = ProjectAttachment.objects.filter(event_id=event.id)
-                            for j in choices:
-                                group = GroupOrg.objects.get(id=j.group_id)
-                                events['data'] = {'path': j.file_path, 'group_id': j.group_id,
-                                                  'group_name': group.name}
-                        elif event.type == "partition":
-                            choices = ParticipantEvent.objects.filter(event_id_id=event.id)
-                            for j in choices:
-                                group = GroupOrg.objects.get(id=j.group_id)
-                                events['data'] = {'start_time': j.start_time, 'end_time': j.end_time,
-                                                  'group_id': j.group_id, 'group_name': group.name}
-
+                if isStudent:
+                    if event.type == "partition" and events['event_detail']['partitionType'] == 'normal':
+                        choices = ChooseEvent.objects.filter(event_id_id=event.id)
+                        events['data'] = {}
+                        for j in choices:
+                            group = GroupOrg.objects.get(id=j.group_id)
+                            events['data'] = {'choice': j.choice, 'group_id': j.group_id, 'group_name': group.group_name}
+                    elif event.type == "attachment":
+                        choices = ProjectAttachment.objects.filter(event_id=event.id)
+                        events['data'] = {}
+                        for j in choices:
+                            group = GroupOrg.objects.get(id=j.group_id)
+                            events['data'] = {'path': j.file_path, 'group_id': j.group_id,
+                                              'group_name': group.group_name}
+                    elif event.type == "partition" and events['event_detail']['partitionType'] == 'timeSlot':
+                        choices = ParticipantEvent.objects.filter(event_id_id=event.id)
+                        events['data'] = {}
+                        for j in choices:
+                            group = GroupOrg.objects.get(id=j.group_id)
+                            events['data'] = {'start_time': j.start_time, 'end_time': j.end_time,
+                                              'group_id': j.group_id, 'group_name': group.group_name}
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
 
@@ -2497,7 +2499,7 @@ class GetAllPartition(View):
                             for j in choices:
                                 group = GroupOrg.objects.get(id=j.group_id)
                                 choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
-                                                                                   'group_name': group.name})
+                                                                                   'group_name': group.group_name})
                         else:
                             choices = ParticipantEvent.objects.filter(event_id_id=i.id)
                             choice = {}
@@ -2507,7 +2509,7 @@ class GetAllPartition(View):
                             for j in choices:
                                 group = GroupOrg.objects.get(id=j.group_id)
                                 choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
-                                                                                   'group_name': group.name})
+                                                                                   'group_name': group.group_name})
                         event['data'] = choice
                     partitions.append(event)
 
