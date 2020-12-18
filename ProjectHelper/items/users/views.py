@@ -1035,6 +1035,8 @@ class Image(View):
 class ChangeHeadImage(View):
     def post(self, request):
         try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
             print(request.POST)
             arr = request.FILES.keys()
             print(arr)
@@ -1042,17 +1044,8 @@ class ChangeHeadImage(View):
             for k in arr:
                 file_name = k
 
-            sid = ''
-            pswd = ''
             path = " "
 
-            for k in request.POST:
-                if str(k) == 'sid':
-                    sid = str(request.POST[k])
-                else:
-                    pswd = str(request.POST[k])
-
-            print(sid, pswd)
 
             if file_name != '':
                 file = request.FILES.get(file_name)
@@ -1063,7 +1056,7 @@ class ChangeHeadImage(View):
                 print(path)
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(student_id=sid, password=pswd)
+            user = UserProfile.objects.filter(student_id=student_id)
             # 如果能查询到相应记录
             if user.count() == 0:
                 print('avatar fail')
@@ -1071,7 +1064,7 @@ class ChangeHeadImage(View):
             # 如果未能查询到用户
             else:
                 print('avatar success')
-                UserProfile.objects.filter(student_id=sid, password=pswd).update(image=path)
+                UserProfile.objects.filter(student_id=student_id).update(image=path)
 
                 return JsonResponse({"ChangeHeadImage": "success"})
 
