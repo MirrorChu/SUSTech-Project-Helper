@@ -18,8 +18,8 @@
                      :multiple="this.eventObj.data.selectionLimit > 1"
                      :multiple-limit="this.eventObj.data.selectionLimit"
                      placeholder="Please select.">
-            <el-option v-for="item in this.eventObj.data.options" :key="item.value"
-                       :label="getLabelAndNumberFromItem(item)" :value="item.value">
+            <el-option v-for="(item, index) in this.eventObj.data.options" :key="item.value"
+                       :label="getLabelAndNumberFromItem(item)" :value="index">
             </el-option>
           </el-select>
         </div>
@@ -74,6 +74,7 @@ export default {
   created () {
     this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
       const eventEle = res.data['Data']
+      console.log('get event detail', eventEle)
       const typeStr = eventEle['event_type']
       if (typeStr === 'partition') {
         this.eventObj['type'] = 'PartitionEvent'
