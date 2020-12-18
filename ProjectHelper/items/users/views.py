@@ -950,25 +950,20 @@ class StudentGetAllStudentsInProject(View):
 
 
 class Image(View):
-    # def post(self, request):
-    #     print(request.body)
-    #
-    #     file_obj = request.FILES.get('image')
-    #
-    #     print("file_obj", file_obj.name)
-    #
-    #     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    #
-    #     file_path = os.path.join(BASE_DIR, 'static', 'head_images', file_obj.name)
-    #     print("file_path", file_path)
-    #     with open(file_path, 'wb+') as f:
-    #         for chunk in file_obj.chunks():
-    #             f.write(chunk)
-    #
-    #     message = {}
-    #     message['code'] = 200
-    #
-    #     return JsonResponse(message)
+    def get(self, request):
+        logger.debug('%s request %s', self, request)
+        logger.debug('%s request.body %s', self, request.body)
+        logger.debug('%s request.GET %s', self, request.GET)
+        try:
+            token = request.GET['token']
+            sid = get_sid(token)
+            user = UserProfile.objects.get(student_id=sid)
+            logger.debug('%s sid %s', self, sid)
+            with open(user.image, 'rb') as f:
+                return HttpResponse(f.read(), content_type='image/jpeg')
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"Image": "failed"})
 
     def post(self, request):
         try:
@@ -1074,7 +1069,7 @@ class ChangeHeadImage(View):
             return JsonResponse({"ChangeHeadImage": "failed"})
 
 class ShowHeadImage(View):
-    # return path
+
     def get(self, request):
         logger.debug('%s request %s', self, request)
         logger.debug('%s request.body %s', self, request.body)
