@@ -118,7 +118,7 @@ export default {
       title: '',
       introduction: '',
       due: '',
-      selectionType: 0,
+      selectionType: "0",
       selectionLimit: 1,
       options: [],
       newOption: '',
