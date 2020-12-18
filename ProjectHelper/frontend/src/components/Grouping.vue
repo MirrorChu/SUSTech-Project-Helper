@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div id="single">
+      <li v-for="item in this.singleData">{{item.sid+' '+item.realname}}&nbsp</li>
+    </div>
+
     <div>
       <el-table
         :data="groupData"
@@ -46,27 +50,27 @@
 
           <el-form-item label="Member">
             <el-row v-for="(stu_sid,index) in groupInformation['member_sid']">
-                {{ stu_sid+' '+ groupInformation['member_name'][index] }}
+              {{ stu_sid+' '+ groupInformation['member_name'][index] }}
               <el-button @click="onClickKick(stu_sid, groupInformation.group_id)">Kick</el-button>
             </el-row>
           </el-form-item>
 
-<!--          <el-form-item>-->
-<!--            <el-input v-model="sid_invite" placeholder="SID to Invite"></el-input>-->
-<!--            <el-button @click="onClickInvite(groupInformation.group_id)">Invite</el-button>-->
-<!--          </el-form-item>-->
+          <!--          <el-form-item>-->
+          <!--            <el-input v-model="sid_invite" placeholder="SID to Invite"></el-input>-->
+          <!--            <el-button @click="onClickInvite(groupInformation.group_id)">Invite</el-button>-->
+          <!--          </el-form-item>-->
         </el-form>
 
         <el-select v-model="stu_invite" multiple placeholder="">
-        <el-option
-          v-for="item in this.singleData"
-          :key="item.sid"
-          :label="item.realname"
-          :value="item.sid">
-          <span>{{  item.realname  }}&nbsp{{  item.sid  }}</span>
-        </el-option>
-      </el-select>
-        <el-button @click="test(stu_invite, groupInformation.group_id)">Invite</el-button>
+          <el-option
+            v-for="item in this.singleData"
+            :key="item.sid"
+            :label="item.realname"
+            :value="item.sid">
+            <span>{{  item.realname  }}&nbsp{{  item.sid  }}</span>
+          </el-option>
+        </el-select>
+        <el-button @click="test(groupInformation.group_id)">Invite</el-button>
       </el-dialog>
     </div>
 
@@ -137,13 +141,13 @@
       this.pullGroupingData()
     },
     methods: {
-      test(sth, group_id)
+      test(group_id)
       {
-        for (const item in sth)
+        for (const index in this.stu_invite)
         {
           this.$axios.post('/teacher_add_member/', {
             group_id: group_id,
-            sid_invite: sth[item],
+            sid_invite: this.stu_invite[index],
           }).then(res => {
             console.log(res.data)
           }).catch(err => {
@@ -156,7 +160,7 @@
         this.$axios.post('/teacher_get_single_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          // console.log('pullSingleData', res.data)
+          console.log('pullSingleData', res.data)
           if (res.data['TeacherGetSingleInProject'] === 'success')
           {
             this.singleData = res.data['Data']
@@ -171,7 +175,7 @@
         this.$axios.post('/teacher_get_situation_in_project/', {
           project_id: this.$props.project_id,
         }).then(res => {
-          // console.log('pullGroupingData', res.data)
+          console.log('pullGroupingData', res.data)
           if (res.data['TeacherGetSituationInProject'] === 'success')
           {
             this.groupData = res.data['Data']
@@ -244,17 +248,17 @@
       captainselect()
       {
         this.singleDataCopy = this.singleData
-          let j = -1
-          for(let i = 0; i < this.singleData.length; i++)
+        let j = -1
+        for(let i = 0; i < this.singleData.length; i++)
+        {
+          if (this.singleData[i].sid === this.captain_sid)
           {
-            if (this.singleData[i].sid === this.captain_sid)
-            {
-              j = i
-              break
-            }
+            j = i
+            break
           }
-          if (j !== -1)
-            this.singleDataCopy.splice(j, 1)
+        }
+        if (j !== -1)
+          this.singleDataCopy.splice(j, 1)
       },
       showCreateGroupDialog()
       {
@@ -265,5 +269,8 @@
 </script>
 
 <style scoped>
-
+  #single{
+    display: flex;
+    justify-content: flex-start;
+  }
 </style>

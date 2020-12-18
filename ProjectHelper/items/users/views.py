@@ -375,7 +375,7 @@ class DownloadFile(View):
             return JsonResponse({"DownloadFile": "failed"})
 
 
-class Test(View):
+class Test(View):  # Fucking avatar
     def get(self, request):
         logger.debug('%s request %s', self, request)
         logger.debug('%s request.body %s', self, request.body)
@@ -386,6 +386,7 @@ class Test(View):
             logger.debug('%s sid %s', self, sid)
             with open('head_images/11811001/2020_11_23_07_49_55/file.jpg', 'rb') as f:
                 return HttpResponse(f.read(), content_type='image/jpeg')
+
         except Exception as e:
             logger.debug('%s %s', self, e)
             student_id = "11811002"
@@ -1041,9 +1042,10 @@ class ChangeHeadImage(View):
 
             path = " "
 
+
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('head_images/' + sid + "/" +
+                path = default_storage.save('head_images/' + student_id + "/" +
                                             time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
                                             + "/" + file_name + ".jpg",
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
@@ -1068,35 +1070,38 @@ class ChangeHeadImage(View):
 
 
 class ShowHeadImage(View):
+
     def get(self, request):
         logger.debug('%s request %s', self, request)
         logger.debug('%s request.body %s', self, request.body)
         logger.debug('%s request.GET %s', self, request.GET)
         try:
-            token = eval(request.body.decode()).get("token")
+            token = request.GET['token']
             student_id = get_sid(token)
             user = UserProfile.objects.get(student_id=student_id)
-            with open(user.image, 'rb') as f:
+
+            logger.debug('%s before open')
+            with open(str(user.image), 'rb') as f:
+                logger.debug('%s opened', self)
                 return HttpResponse(f.read(), content_type='image/jpeg')
         except Exception as e:
-            logger.debug('%s %s', self, e)
-            return JsonResponse({"Image": "failed"})
-
-    def post(self, request):
-        try:
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-
-            head_image_path = ""
-
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.get(student_id=student_id)
-
-            head_image_path = query_set.image
-            return JsonResponse({"ShowHeadImage": head_image_path})
-
-        except Exception as e:
+            logger.debug('%s error %s', self, e)
             return JsonResponse({"ShowHeadImage": "failed"})
+    # def post(self, request):
+    #     try:
+    #         token = eval(request.body.decode()).get("token")
+    #         student_id = get_sid(token)
+    #
+    #         head_image_path = ""
+    #
+    #         # 通过用户名和密码确认数据库中是否有和user对应的记录
+    #         query_set = UserProfile.objects.get(student_id=student_id)
+    #
+    #         head_image_path = query_set.image
+    #         return JsonResponse({"ShowHeadImage": head_image_path})
+    #
+    #     except Exception as e:
+    #         return JsonResponse({"ShowHeadImage": "failed"})
 
 
 class TestAPI(View):
@@ -2068,6 +2073,7 @@ class TestFile(View):
             file_name = ''
             for k in arr:
                 file_name = k
+                print(file_name)
             sid = ''
             pswd = ''
             for k in request.POST:
