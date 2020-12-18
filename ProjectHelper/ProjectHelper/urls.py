@@ -37,7 +37,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherKickMember, \
     TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember, \
     AddNewTag, SendMailToApply, GetPrivilegeList, GetEventList, GetAllPrivilegeList, \
-    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent
+    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -102,6 +102,7 @@ urlpatterns = [
     path('delete_event/', DeleteEvent.as_view()),
     path('submit_event/', SubmitEvent.as_view()),
     path('get_event_detail/', GetEventDetail.as_view()),
+    path('get_all_partition/', GetAllPartition.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页

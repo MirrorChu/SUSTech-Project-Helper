@@ -208,7 +208,7 @@ class ProjectGrades(BaseModel):
 class ChooseEvent(BaseModel):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
     choice = models.TextField(max_length=65535, verbose_name="选择", default="")
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="队伍")
 
     class Meta:
         verbose_name = "选择组件"
@@ -222,7 +222,7 @@ class ParticipantEvent(BaseModel):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
     end_time = models.DateTimeField(default=datetime.now, verbose_name="截止日期")
     start_time = models.DateTimeField(default=datetime.now, verbose_name="开始日期")
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
+    group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="队伍")
 
     class Meta:
         verbose_name = "时间选择组件"
