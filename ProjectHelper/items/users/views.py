@@ -375,7 +375,7 @@ class DownloadFile(View):
             return JsonResponse({"DownloadFile": "failed"})
 
 
-class Test(View):
+class Test(View):  # Fucking avatar
     def get(self, request):
         logger.debug('%s request %s', self, request)
         logger.debug('%s request.body %s', self, request.body)
@@ -386,6 +386,7 @@ class Test(View):
             logger.debug('%s sid %s', self, sid)
             with open('head_images/11811001/2020_11_23_07_49_55/file.jpg', 'rb') as f:
                 return HttpResponse(f.read(), content_type='image/jpeg')
+
         except Exception as e:
             logger.debug('%s %s', self, e)
             student_id = "11811002"
@@ -1035,6 +1036,8 @@ class Image(View):
 class ChangeHeadImage(View):
     def post(self, request):
         try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
             print(request.POST)
             arr = request.FILES.keys()
             print(arr)
@@ -1042,28 +1045,19 @@ class ChangeHeadImage(View):
             for k in arr:
                 file_name = k
 
-            sid = ''
-            pswd = ''
             path = " "
 
-            for k in request.POST:
-                if str(k) == 'sid':
-                    sid = str(request.POST[k])
-                else:
-                    pswd = str(request.POST[k])
-
-            print(sid, pswd)
 
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('head_images/' + sid + "/" +
+                path = default_storage.save('head_images/' + student_id + "/" +
                                             time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
                                             + "/" + file_name + ".jpg",
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
                 print(path)
 
             # 通过用户名和密码确认数据库中是否有和user对应的记录
-            user = UserProfile.objects.filter(student_id=sid, password=pswd)
+            user = UserProfile.objects.filter(student_id=student_id)
             # 如果能查询到相应记录
             if user.count() == 0:
                 print('avatar fail')
@@ -1071,7 +1065,7 @@ class ChangeHeadImage(View):
             # 如果未能查询到用户
             else:
                 print('avatar success')
-                UserProfile.objects.filter(student_id=sid, password=pswd).update(image=path)
+                UserProfile.objects.filter(student_id=student_id).update(image=path)
 
                 return JsonResponse({"ChangeHeadImage": "success"})
 
@@ -1079,24 +1073,39 @@ class ChangeHeadImage(View):
             print('avatar exception')
             return JsonResponse({"ChangeHeadImage": "failed"})
 
-
 class ShowHeadImage(View):
     # return path
-    def post(self, request):
+    def get(self, request):
+        logger.debug('%s request %s', self, request)
+        logger.debug('%s request.body %s', self, request.body)
+        logger.debug('%s request.GET %s', self, request.GET)
         try:
-            token = eval(request.body.decode()).get("token")
+            token = request.GET['token']
             student_id = get_sid(token)
+            user = UserProfile.objects.get(student_id=student_id)
 
-            head_image_path = ""
-
-            # 通过用户名和密码确认数据库中是否有和user对应的记录
-            query_set = UserProfile.objects.get(student_id=student_id)
-
-            head_image_path = query_set.image
-            return JsonResponse({"ShowHeadImage": head_image_path})
-
+            logger.debug('%s before open')
+            with open(str(user.image), 'rb') as f:
+                logger.debug('%s opened', self)
+                return HttpResponse(f.read(), content_type='image/jpeg')
         except Exception as e:
+            logger.debug('%s error %s', self, e)
             return JsonResponse({"ShowHeadImage": "failed"})
+    # def post(self, request):
+    #     try:
+    #         token = eval(request.body.decode()).get("token")
+    #         student_id = get_sid(token)
+    #
+    #         head_image_path = ""
+    #
+    #         # 通过用户名和密码确认数据库中是否有和user对应的记录
+    #         query_set = UserProfile.objects.get(student_id=student_id)
+    #
+    #         head_image_path = query_set.image
+    #         return JsonResponse({"ShowHeadImage": head_image_path})
+    #
+    #     except Exception as e:
+    #         return JsonResponse({"ShowHeadImage": "failed"})
 
 
 class TestAPI(View):
@@ -1620,6 +1629,7 @@ class TeacherKickMember(View):
         :return:
         """
         try:
+            # TODO: 判断学生是否为队长， 是则转移权限
             group_id = eval(request.body.decode()).get("group_id")
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
@@ -2057,6 +2067,7 @@ class TestFile(View):
             file_name = ''
             for k in arr:
                 file_name = k
+                print(file_name)
             sid = ''
             pswd = ''
             for k in request.POST:

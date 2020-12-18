@@ -15,7 +15,7 @@
                :show-file-list="false"
                :on-success="handleAvatarSuccess"
                :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar">
+      <el-image v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar"></el-image>
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
 
@@ -114,11 +114,11 @@
     <!--      <i class="el-icon-upload"></i>-->
     <!--    </el-upload>-->
 
-<!--    <div>-->
-<!--      <h3>Add Tag Library</h3>-->
-<!--      <el-input v-model="addingtag"></el-input>-->
-<!--      <el-button @click="onClickAddTagLibrary">ADD</el-button>-->
-<!--    </div>-->
+    <div>
+      <h3>Add Tag Library</h3>
+      <el-input v-model="addingtag"></el-input>
+      <el-button @click="onClickAddTagLibrary">ADD</el-button>
+    </div>
 
   </div>
 </template>
@@ -149,20 +149,17 @@ export default {
   },
   created () {
     this.pullPersonalData()
-    console.log('after pull info', this.sid)
-    // const token = localStorage.getItem('Authorization')
-    // this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
   },
-
   methods: {
     pullPersonalData () {
       //TODO: Get avatar from backend.
-      //TODO: Tag.
       this.$axios.post('/show_personal_data/', {}).then(res => {
         if (res.data['attempt'] === 'failure') {
           this.$router.push('/login')
         } else {
           const token = localStorage.getItem('Authorization')
+          this.token = token
+          this.avatarUrl = 'http://127.0.0.1:8000/show_head_image?' + 'token=' + this.token  // request avatar
           const data = res.data
           this.sid = data['sid']
           this.name = data['realName']
@@ -170,15 +167,13 @@ export default {
           this.email = data['email']
           this.mobile = data['mobile']
           this.address = data['address']
-          this.avatarUrl = 'http://127.0.0.1:8000/test?' + 'token=' + token
+          console.log('after pull info', this.sid)
           this.pulltagData()
-
         }
       }).catch(err => {
         console.log('err', err)
       })
     },
-
     //TODO: Add regex check for fields.
     onConfirmEditClicked () {
       this.$axios.post('/change_personal_data/', {
@@ -203,7 +198,6 @@ export default {
     onEditClicked () {
       this.edit = true
     },
-
     // /**
     //  *
     //  * @param data
@@ -242,14 +236,14 @@ export default {
         console.log(err)
       })
     },
-
     handleAvatarSuccess (res, file) {
       console.log('raw', file.raw)
       console.log('raws', file.raws)
       console.log('success')
       console.log(res)
       console.log(file)
-      this.imageUrl = URL.createObjectURL(file.raw)
+      // this.imageUrl = URL.createObjectURL(file.raw)
+      this.imageUrl = ''
     },
     beforeAvatarUpload (file) {
       const isJPG = file.type === 'image/jpeg'
