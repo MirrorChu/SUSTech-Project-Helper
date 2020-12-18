@@ -41,10 +41,12 @@
         <el-upload
             class="upload-demo"
             ref="upload"
-            :data="this.dataBlock"
-            action="/teacher_create_project/"
-            multiple :file-list="fileList" :auto-upload="false"
-            :on-change="handleFileChange" :on-remove="handleFileRemove">
+            :headers="dataBlock"
+            action="http://127.0.0.1:8080/api/teacher_create_project/"
+            multiple
+            :file-list="fileList"
+            :auto-upload="false"
+            :on-change="handleFileChange">
           <el-button slot="trigger" size="small" type="primary">Select File</el-button>
         </el-upload>
       </el-form-item>
@@ -83,7 +85,6 @@ export default {
     },
   },
   created () {
-
     this.pullCoursesData()
   },
   data () {
@@ -125,6 +126,7 @@ export default {
       allStudentInCourse: [],
       selectedStudents: [],
       manuallySearchSid: '',
+      fileCount: 0,
     }
   },
   methods: {
@@ -192,6 +194,7 @@ export default {
     },
     submitUpload () {
       if (this.fileList.length === 0) {
+        console.log('create project without files')
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
           console.log('res', res)
         }).catch(err => {
@@ -199,14 +202,16 @@ export default {
         })
       }
       else {
+        this.dataBlock['token'] = localStorage.getItem('Authorization')
+        console.log('create project with files')
         this.$refs.upload.submit()
       }
     },
-    handleFileChange () {
-
+    handleFileChange (file, fileList) {
+      this.fileList = fileList
     },
-    handleFileRemove (file) {
-
+    handleFileRemove () {
+      this.fileCount -= 1
     },
     pullCoursesData () {
       this.$axios.post('/teacher_get_courses/', {}).then(res => {

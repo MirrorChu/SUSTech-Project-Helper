@@ -1520,7 +1520,9 @@ class TeacherGetStudentsInCourse(View):
 class TeacherCreateProject(View):
     def post(self, request):
         try:
+            logger.debug('%s request.header %s', self, request.headers)
             logger.debug('%s request.body %s', self, request.body)
+            logger.debug('%s ======== ', self)
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             project_name = eval(request.body.decode()).get("newProjectName")

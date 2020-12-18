@@ -10,13 +10,13 @@
           :data="groupList"
           style="width: 100%">
         <el-table-column
-            prop="groupId"
+            prop="group_id"
             label="Group ID"
             width="180">
         </el-table-column>
         <el-table-column
-            prop="memberList"
-            label="Members"
+            prop="group_name"
+            label="Group Name"
             width="180">
         </el-table-column>
         <el-table-column label="Detail">
@@ -85,15 +85,20 @@
 <script>
 export default {
   name: 'EventGrading',
+  props: {
+    submissionDetail: {
+      required: true,
+    },
+  },
   data () {
     return {
       pageSize: 1,
-      groupList: [
-        { groupId: 1, memberList: ['11810101', '11810102'] },
-        { groupId: 2, memberList: ['11810103', '11810104', '11810105'] },
-      ],
+      groupList: [],
       idx: -1,
     }
+  },
+  created () {
+    this.groupList = this.$props.submissionDetail
   },
   methods: {
     onClickDetail (scope) {
