@@ -2271,14 +2271,28 @@ class CreateEvent(View):
             user_id = user.id
             project = Project.objects.get(id=project_id)
             course_id = project.course_id
+            user_group = UserGroup.objects.filter(user_name_id=user_id)
+            group = None
+            for i in user_group:
+                group = GroupOrg.objects.get(id=i.group_name_id)
+                if group.project_id == project.id:
+                    break
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if ddl <= datetime.datetime.now():
                 return JsonResponse({"CreateEvent": "wrong ddl"})
             if course.end_time > now > course.start_time:
                 detail = event_detail['introduction']
                 parameter = json.dumps(event_detail)
-                Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl, detail=detail,
-                                     title=event_title, project_id=project_id, publish_user_id=user_id)
+                tmp = Event.objects.filter(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                                           detail=detail, title=event_title, project_id=project_id,
+                                           publish_user_id=user_id)
+                if tmp.count() == 0:
+                    Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                                         detail=detail, title=event_title, project_id=project_id,
+                                         publish_user_id=user_id)
+                tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                                        detail=detail, title=event_title, project_id=project_id,
+                                        publish_user_id=user_id)
                 keys = Key.objects.filter(key_word=key)
                 if keys.count() == 0:
                     return JsonResponse({"TeacherCreateProject": "has no key"})
@@ -2289,7 +2303,8 @@ class CreateEvent(View):
                     file = request.FILES.get(file_name)
                     path = default_storage.save('file/' + project.name + "/" + file_name,
                                                 ContentFile(file.read()))
-                    ProjectFile.objects.create(file_path=path, project_id=project_id)
+                    ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
+                                                     group_id=group.id, user_id=user_id)
                 return JsonResponse({"CreateEvent": "success"})
             return JsonResponse({"CreateEvent": "no auth"})
 
