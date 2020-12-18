@@ -2353,6 +2353,8 @@ class SubmitEvent(View):
                 elif event.type == "partition":
                     data = eval(request.body.decode()).get("selected")
                     parameter = json.loads(event.parameter)
+                    if not isinstance(data, list):
+                        data = [data]
                     if len(data) > parameter['selectionLimit']:
                         return JsonResponse({"SubmitEvent": "choose too much"})
                     for i in data:
