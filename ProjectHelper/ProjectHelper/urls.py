@@ -37,7 +37,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherKickMember, \
     TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember, \
     AddNewTag, SendMailToApply, GetPrivilegeList, GetEventList, GetAllPrivilegeList, \
-    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition
+    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition, ChangeEvent
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -101,6 +101,7 @@ urlpatterns = [
     path('create_event/', CreateEvent.as_view()),
     path('delete_event/', DeleteEvent.as_view()),
     path('submit_event/', SubmitEvent.as_view()),
+    path('change_event/', ChangeEvent.as_view()),
     path('get_event_detail/', GetEventDetail.as_view()),
     path('get_all_partition/', GetAllPartition.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),

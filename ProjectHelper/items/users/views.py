@@ -1042,7 +1042,6 @@ class ChangeHeadImage(View):
 
             path = " "
 
-
             if file_name != '':
                 file = request.FILES.get(file_name)
                 path = default_storage.save('head_images/' + student_id + "/" +
@@ -2191,10 +2190,11 @@ class TeacherGetSingleInProject(View):
 class TeacherCreateGroup(View):
     def post(self, request):
         """
-        user with "teach" authority can get all students without groups
+        user with "group" authority can group certain student
         :param token: token
                 project_id: id of project_project
-        :return: "Data": students= username:[type of authority]
+                member: ['11810101',...]
+        :return:
         """
         try:
             token = eval(request.body.decode()).get("token")
@@ -2281,6 +2281,45 @@ class CreateEvent(View):
             return JsonResponse({"CreateEvent": "failed"})
 
 
+class ChangeEvent(View):
+    def post(self, request):
+        """
+        user with "eventEdit" authority can change event
+        :param token: token
+                event_id: id of event
+                title: new title
+                introduction: new introduction
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+            title = eval(request.body.decode()).get("title")
+            introduction = eval(request.body.decode()).get("introduction")
+            now = datetime.datetime.now()
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
+            if course.end_time > now > course.start_time:
+                parameter = json.loads(event.parameter)
+                parameter['title'] = title
+                parameter['introduction'] = introduction
+                string = json.dumps(parameter)
+                Event.objects.filter(id=event_id).update(detail=introduction, title=title, parameter=string)
+                return JsonResponse({"ChangeEvent": "success"})
+            return JsonResponse({"ChangeEvent": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"ChangeEvent": "failed"})
+
+
 class DeleteEvent(View):
     def post(self, request):
         """
@@ -2303,12 +2342,10 @@ class DeleteEvent(View):
             course_id = project.course_id
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if course.end_time > now > course.start_time:
-                if event.type == "choose":
+                if event.type == "partition":
                     ChooseEvent.objects.filter(event_id_id=event.id).delete()
                 elif event.type == "attachment":
                     ProjectAttachment.objects.filter(event_id=event.id).delete()
-                elif event.type == "partition":
-                    ParticipantEvent.objects.filter(event_id_id=event.id).delete()
                 Event.objects.filter(id=event_id).delete()
                 return JsonResponse({"DeleteEvent": "success"})
             return JsonResponse({"DeleteEvent": "failed"})
@@ -2366,13 +2403,10 @@ class SubmitEvent(View):
                         else:
                             if parameter['options'][i][1] == 0:
                                 raise
-                    ParticipantEvent.objects.filter(event_id_id=event_id, group_id=group.id).delete()
+                    ChooseEvent.objects.filter(event_id_id=event_id, group_id=group.id).delete()
                     for i in data:
                         if parameter['partitionType'] == 'timeSlot':
-                            start_time = datetime.datetime.fromtimestamp(parameter['options'][i][0] // 1000)
-                            end_time = datetime.datetime.fromtimestamp(parameter['options'][i][1] // 1000)
-                            ParticipantEvent.objects.create(event_id_id=event_id, group_id=group.id,
-                                                            start_time=start_time, end_time=end_time)
+                            ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id, choice=i)
                             parameter['options'][i][2] -= 1
                         else:
                             ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id, choice=i)
@@ -2421,8 +2455,10 @@ class GetEventDetail(View):
                                 choices = ChooseEvent.objects.filter(event_id_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
-                                    events['data'].append({'choice': j.choice, 'group_id': j.group_id,
-                                                           'group_name': group.group_name})
+                                    events['data'].append({'index': int(j.choice), 'group_id': j.group_id,
+                                                           'group_name': group.group_name,
+                                                           'choice': events['event_detail']['options'][int(j.choice)][
+                                                               0]})
                             elif event.type == "attachment":
                                 choices = ProjectAttachment.objects.filter(event_id=event.id)
                                 for j in choices:
@@ -2430,11 +2466,14 @@ class GetEventDetail(View):
                                     events['data'].append({'path': j.file_path, 'group_id': j.group_id,
                                                            'group_name': group.group_name})
                             elif event.type == "partition" and events['event_detail']['partitionType'] == 'timeSlot':
-                                choices = ParticipantEvent.objects.filter(event_id_id=event.id)
+                                choices = ChooseEvent.objects.filter(event_id_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
-                                    events['data'].append({'start_time': j.start_time, 'end_time': j.end_time,
-                                                           'group_id': j.group_id, 'group_name': group.group_name})
+                                    events['data'].append(
+                                        {'choice': [events['event_detail']['options'][int(j.choice)][0],
+                                                    events['event_detail']['options'][int(j.choice)][1]],
+                                         'group_id': j.group_id, 'group_name': group.group_name,
+                                         'index': int(j.choice)})
                             break
                 if isStudent:
                     if event.type == "partition" and events['event_detail']['partitionType'] == 'normal':
@@ -2442,8 +2481,9 @@ class GetEventDetail(View):
                         events['data'] = {}
                         for j in choices:
                             group = GroupOrg.objects.get(id=j.group_id)
-                            events['data'] = {'choice': j.choice, 'group_id': j.group_id,
-                                              'group_name': group.group_name}
+                            events['data'] = {'index': int(j.choice), 'group_id': j.group_id,
+                                              'group_name': group.group_name,
+                                              'choice': events['event_detail']['options'][int(j.choice)][0]}
                     elif event.type == "attachment":
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
@@ -2452,12 +2492,14 @@ class GetEventDetail(View):
                             events['data'] = {'path': j.file_path, 'group_id': j.group_id,
                                               'group_name': group.group_name}
                     elif event.type == "partition" and events['event_detail']['partitionType'] == 'timeSlot':
-                        choices = ParticipantEvent.objects.filter(event_id_id=event.id)
+                        choices = ChooseEvent.objects.filter(event_id_id=event.id)
                         events['data'] = {}
                         for j in choices:
                             group = GroupOrg.objects.get(id=j.group_id)
-                            events['data'] = {'start_time': j.start_time, 'end_time': j.end_time,
-                                              'group_id': j.group_id, 'group_name': group.group_name}
+                            events['data'] = {'choice': [events['event_detail']['options'][int(j.choice)][0],
+                                                         events['event_detail']['options'][int(j.choice)][1]],
+                                              'group_id': j.group_id, 'group_name': group.group_name,
+                                              'index': int(j.choice)}
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
 
@@ -2492,25 +2534,18 @@ class GetAllPartition(View):
                     if i.type == "partition":
                         event = {'id': i.id, 'event_title': i.title}
                         event_detail = json.loads(i.parameter)
-                        if event_detail['partitionType'] == 'normal':
-                            choices = ChooseEvent.objects.filter(event_id_id=i.id)
-                            choice = {}
-                            for j in range(len(event_detail['options'])):
+                        choices = ChooseEvent.objects.filter(event_id_id=i.id)
+                        choice = {}
+                        for j in range(len(event_detail['options'])):
+                            if event_detail['partitionType'] == 'normal':
                                 choice[event_detail['options'][j][0]] = []
-                            for j in choices:
-                                group = GroupOrg.objects.get(id=j.group_id)
-                                choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
-                                                                                   'group_name': group.group_name})
-                        else:
-                            choices = ParticipantEvent.objects.filter(event_id_id=i.id)
-                            choice = {}
-                            for j in range(len(event_detail['options'])):
+                            else:
                                 string = event_detail['options'][j][0] + '-' + event_detail['options'][j][1]
                                 choice[string] = []
-                            for j in choices:
-                                group = GroupOrg.objects.get(id=j.group_id)
-                                choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
-                                                                                   'group_name': group.group_name})
+                        for j in choices:
+                            group = GroupOrg.objects.get(id=j.group_id)
+                            choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
+                                                                               'group_name': group.group_name})
                         event['data'] = choice
                     partitions.append(event)
 
