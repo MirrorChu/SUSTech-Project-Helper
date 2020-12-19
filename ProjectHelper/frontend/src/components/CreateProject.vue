@@ -41,7 +41,7 @@
         <el-upload
             class="upload-demo"
             ref="upload"
-            :headers="dataBlock"
+            :headers="this.dataBlock"
             action="http://127.0.0.1:8080/api/teacher_create_project/"
             multiple
             :file-list="fileList"
@@ -173,6 +173,7 @@ export default {
     },
     onClickConfirmCreateProject () {
       this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
+        console.log(res)
         const idx = res.data['SendKey']
         const startDate = new Date(this.groupingStart)
         const endDate = new Date(this.groupingDeadline)
@@ -196,14 +197,14 @@ export default {
       if (this.fileList.length === 0) {
         console.log('create project without files')
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
-          console.log('res', res)
+          console.log(res)
         }).catch(err => {
           console.log('err', err)
         })
       }
       else {
         this.dataBlock['token'] = localStorage.getItem('Authorization')
-        console.log('create project with files')
+        console.log('create project with files', this.dataBlock)
         this.$refs.upload.submit()
       }
     },

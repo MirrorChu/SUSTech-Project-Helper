@@ -1522,18 +1522,23 @@ class TeacherCreateProject(View):
             logger.debug('%s request.header %s', self, request.headers)
             logger.debug('%s request.body %s', self, request.body)
             ddl = 0
-            token = eval(request.body.decode()).get("token")
-            if token == None:
-                token = eval(request.header.decode()).get("token")
+            headersLiteral = str(request.headers).replace('\'', '\"')
+            headers = json.loads(headersLiteral)
+            print(headers.keys())
+            if 'Token' in headers.keys():
+                print('in')
+                token = headers['Token']
                 student_id = get_sid(token)
-                project_name = eval(request.header.decode()).get("newProjectName")
-                introduction = eval(request.header.decode()).get("newProjectDescription")
-                group_size = eval(request.header.decode()).get("groupingMaximum")
-                min_group_size = eval(request.header.decode()).get("groupingMinimum")
-                course_id = eval(request.header.decode()).get("newProjectCourse")
-                ddl = eval(request.header.decode()).get("groupingDeadline")
-                key = eval(request.header.decode()).get("idx")
+                project_name = headers['Newprojectname']
+                introduction = headers['Newprojectdescription']
+                group_size = headers['Groupingmaximum']
+                min_group_size = headers['Groupingminimum']
+                course_id = headers['Newprojectcourse']
+                ddl = headers['Groupingdeadline']
+                key = headers['Idx']
             else:
+                print('not in')
+                token = get_from_request(request, 'token')
                 student_id = get_sid(token)
                 project_name = eval(request.body.decode()).get("newProjectName")
                 introduction = eval(request.body.decode()).get("newProjectDescription")
@@ -1542,7 +1547,7 @@ class TeacherCreateProject(View):
                 course_id = eval(request.body.decode()).get("newProjectCourse")
                 ddl = eval(request.body.decode()).get("groupingDeadline")
                 key = eval(request.body.decode()).get("idx")
-            ddl = ddl // 1000
+            ddl = int(ddl) // 1000
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)

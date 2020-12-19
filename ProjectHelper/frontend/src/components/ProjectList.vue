@@ -71,21 +71,23 @@ export default {
     }
   },
   created () {
-    this.$axios.post('/student_gets_all_projects/', {}).then(res => {
-      this.projects = res.data['projects']
-      this.sid = res.data['sid']
-      this.$axios.post('/get_identity/', {}).then(res => {
-        this.identity = res.data['identity']
-        this.displayControl.createProjectButton = (this.identity === 'teacher')
+    this.loadProjects()
+  },
+  methods: {
+    loadProjects() {
+      this.$axios.post('/student_gets_all_projects/', {}).then(res => {
+        this.projects = res.data['projects']
+        this.sid = res.data['sid']
+        this.$axios.post('/get_identity/', {}).then(res => {
+          this.identity = res.data['identity']
+          this.displayControl.createProjectButton = (this.identity === 'teacher')
+        }).catch(err => {
+          console.log('err', err)
+        })
       }).catch(err => {
         console.log('err', err)
       })
-    }).catch(err => {
-      console.log('err', err)
-    })
-
-  },
-  methods: {
+    },
     onClickDeleteProject (index) {
       const localProjects = this.projects.filter(data => !this.searchKey ||
           JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
@@ -93,10 +95,10 @@ export default {
       this.projectId = localProject[0]
       this.$axios.post('/delete_project/', {'project_id': this.projectId}).then(res => {
         console.log(res)
+        this.loadProjects()
       }).catch(err => {
         console.log('err', err)
       })
-      console.log('conClickDeleteProject', index)
     },
     onClickCreateProject () {
       this.displayControl.createProjectForm = !this.displayControl.createProjectForm
