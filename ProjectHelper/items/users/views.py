@@ -2551,6 +2551,7 @@ class GetEventDetail(View):
                             events['data'] = []
                             groups = {}
                             if event.type == "partition" and events['event_detail']['partitionType'] == 'normal':
+                                events['partitionType'] = 'normal'
                                 choices = ChooseEvent.objects.filter(event_id_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
@@ -2569,6 +2570,7 @@ class GetEventDetail(View):
                                     events['data'].append({'path': j.file_path, 'group_id': j.group_id,
                                                            'group_name': group.group_name})
                             elif event.type == "partition" and events['event_detail']['partitionType'] == 'timeSlot':
+                                events['partitionType'] = 'timeSlot'
                                 choices = ChooseEvent.objects.filter(event_id_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
