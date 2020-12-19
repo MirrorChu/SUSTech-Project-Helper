@@ -59,7 +59,9 @@
           </div>
 
           <div>
-            <EventGrading v-bind:submissionDetail="submissionDetail"></EventGrading>
+            <EventGrading
+                v-bind:event-detail="eventDetail"
+                v-bind:submissionDetail="submissionDetail"></EventGrading>
           </div>
 
         </div>
@@ -100,6 +102,7 @@ export default {
       submissionDetail: [],
       edit: false,
       token: '',
+      eventDetail: {},
     }
   },
   created () {
@@ -108,6 +111,7 @@ export default {
     this.$axios.post('/get_event_detail/', { 'event_id': this.$props.eventId }).then(res => {
       console.log(res.data)
       this.submissionDetail = res.data['Data']['data']
+      this.eventDetail = res.data
       const eventEle = res.data['Data']
       const typeStr = eventEle['event_type']
       if (typeStr === 'partition') {

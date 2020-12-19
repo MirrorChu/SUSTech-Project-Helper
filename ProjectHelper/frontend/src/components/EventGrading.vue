@@ -45,8 +45,8 @@
 
       <el-form>
         <el-form-item label="Submission Detail">
-          <div>
-            This is the detail of submission. It relies on v-if to distinguish between submission and seleciton.
+          <div v-if="eventDetail['Data']['event_type'] === 'partition'">
+            {{eventDetail['Data']['data']}}
           </div>
           <div>
             Please include submission datetime here.
@@ -90,17 +90,24 @@ export default {
     submissionDetail: {
       required: true,
     },
-  },
+    eventDetail: {
+      required: true
+      ,
+    },
+  }
+  ,
   data () {
     return {
       pageSize: 1,
       groupList: [],
       idx: -1,
     }
-  },
+  }
+  ,
   created () {
     this.groupList = this.$props.submissionDetail
-  },
+  }
+  ,
   methods: {
     onClickDetail (scope) {
       this.idx = scope.$index
@@ -117,8 +124,10 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-    },
-  },
+    }
+    ,
+  }
+  ,
 }
 </script>
 

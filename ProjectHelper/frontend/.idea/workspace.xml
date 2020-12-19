@@ -3,14 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/GroupInfo.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/GroupInfo.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewEvent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewPartition.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewSubmission.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewSubmission.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/EventGrading.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventGrading.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../items/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../items/users/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
