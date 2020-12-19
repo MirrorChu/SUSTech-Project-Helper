@@ -10,13 +10,13 @@
           :data="groupList"
           style="width: 100%">
         <el-table-column
-            prop="groupId"
+            prop="group_id"
             label="Group ID"
             width="180">
         </el-table-column>
         <el-table-column
-            prop="memberList"
-            label="Members"
+            prop="group_name"
+            label="Group Name"
             width="180">
         </el-table-column>
         <el-table-column label="Detail">
@@ -57,7 +57,8 @@
           <el-input></el-input>
         </el-form-item>
 
-        <el-form-item v-if="idx >= 0" v-for="item in groupList[idx]['memberList']" :label="item + ' Score'">
+        <el-form-item v-if="idx >= 0" v-for="item in groupList[idx]['memberList']"
+                      :label="idx === 0 ? 'Captain ' + item + ' Score' : item + ' Score'">
           <el-input>
           </el-input>
         </el-form-item>
@@ -85,20 +86,36 @@
 <script>
 export default {
   name: 'EventGrading',
+  props: {
+    submissionDetail: {
+      required: true,
+    },
+  },
   data () {
     return {
       pageSize: 1,
-      groupList: [
-        { groupId: 1, memberList: ['11810101', '11810102'] },
-        { groupId: 2, memberList: ['11810103', '11810104', '11810105'] },
-      ],
+      groupList: [],
       idx: -1,
     }
+  },
+  created () {
+    this.groupList = this.$props.submissionDetail
   },
   methods: {
     onClickDetail (scope) {
       this.idx = scope.$index
-      console.log(scope.$index)
+      const memberList = []
+      this.$axios.post('/student_gets_single_group_information/', {}).then(res => {
+        console.log(scope.$index)
+        console.log(res)
+        memberList.push(res.data['captain_sid'])
+        for (let i = 0; i < res.data['members'].length; i += 1) {
+          memberList.push(res.data['Data']['members'][i])
+        }
+        this.groupList[this.idx]['memberList'] = memberList
+      }).catch(err => {
+        console.log(err)
+      })
     },
   },
 }

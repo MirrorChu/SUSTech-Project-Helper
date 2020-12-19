@@ -10,7 +10,7 @@
         <div>
           <el-button @click="onClickExpand">Close</el-button>
         </div>
-        <div>{{ this.eventObj.data.introduction }}</div>
+        <div>{{ this.eventObj['data']['introduction'] }}</div>
         <div>Due: {{ new Date(this.$props.data.due) }}</div>
         <div>Limit of Selections: {{this.eventObj.data.selectionLimit}}</div>
         <div>
@@ -31,7 +31,7 @@
           </div>
 
           <div>
-            <EventGrading></EventGrading>
+            <EventGrading v-bind:submissionDetail="submissionDetail"></EventGrading>
           </div>
 
         </div>
@@ -69,12 +69,14 @@ export default {
       identity: 'teacher',
       privileges: {},
       eventObj: {},
+      submissionDetail: [],
     }
   },
   created () {
     this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+      console.log('get event detail', res.data)
+      this.submissionDetail = res.data['Data']['data']
       const eventEle = res.data['Data']
-      console.log('get event detail', eventEle)
       const typeStr = eventEle['event_type']
       if (typeStr === 'partition') {
         this.eventObj['type'] = 'PartitionEvent'

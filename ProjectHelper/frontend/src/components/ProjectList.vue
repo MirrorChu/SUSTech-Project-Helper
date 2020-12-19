@@ -8,18 +8,23 @@
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
               style="width: 100%" height="500">
 
+      <!--      sortable is not supported-->
       <el-table-column fixed prop=1 label="Course" width="350"></el-table-column>
-
+      
+      <!--      sortable is not supported-->
       <el-table-column prop=2 label="Project" width="350"></el-table-column>
 
-      <el-table-column width="350" align="right">
+      <el-table-column width="200" align="right">
         <template slot="header" slot-scope="scope">
           <el-input size="mini" v-model="searchKey" placeholder="Search"/>
         </template>
         <template slot-scope="scope">
           <el-button @click="onClickDetail(scope.$index)">Detail</el-button>
+          <el-button v-if="identity === 'teacher'" @click="onClickDeleteProject(scope.$index)">Delete</el-button>
         </template>
       </el-table-column>
+
+
     </el-table>
 
     <ProjectDetail v-if="this.displayControl.projectDetail"
@@ -62,6 +67,7 @@ export default {
       sid: '',
       projectId: '',
       courseId: '',
+      privileges: {},
     }
   },
   created () {
@@ -80,6 +86,9 @@ export default {
 
   },
   methods: {
+    onClickDeleteProject (index) {
+      console.log('conClickDeleteProject', index)
+    },
     onClickCreateProject () {
       this.displayControl.createProjectForm = !this.displayControl.createProjectForm
       if (!this.displayControl.createProjectForm) {
@@ -106,7 +115,6 @@ export default {
 
       this.controlDisplay('projectDetail')
 
-
       // this.$axios.post('/student_gets_single_project_information/', {
       //   'projectId': localProject[0],
       // }).then(res => {
@@ -127,7 +135,6 @@ export default {
       // }).catch(err => {
       //   console.log(err)
       // })
-
 
     },
   },
