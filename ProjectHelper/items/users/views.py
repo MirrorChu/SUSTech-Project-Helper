@@ -2651,3 +2651,33 @@ class GetAllPartition(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"GetEventDetail": "failed"})
+
+
+class DeleteProject(View):
+    def post(self, request):
+        """
+        user with "projectEdit" authority can delete event
+        :param token: token
+                project_id: id of project
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+            now = datetime.datetime.now()
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+            auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=course_id)
+            if auth.end_time > now > auth.start_time:
+                Project.objects.filter(id=project_id).update(course_id=9999)
+                return JsonResponse({"DeleteProject": "success"})
+            return JsonResponse({"DeleteProject": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"DeleteProject": "failed"})
