@@ -46,7 +46,7 @@
       <el-form>
         <el-form-item label="Submission Detail">
           <div v-if="eventDetail['Data']['event_type'] === 'partition'">
-            {{eventDetail['Data']['data']}}
+            {{ eventDetail }}
           </div>
           <div>
             Please include submission datetime here.
@@ -112,13 +112,14 @@ export default {
     onClickDetail (scope) {
       this.idx = scope.$index
       const memberList = []
-      this.$axios.post('/student_gets_single_group_information/', {}).then(res => {
+      this.$axios.post('/student_gets_single_group_information/',
+          { 'group_id': this.$props.eventDetail['Data']['data'][0]['group_id'] }).then(res => {
         console.log('/student_gets_single_group_information/', res.data)
         console.log(scope.$index)
         console.log(res)
         memberList.push(res.data['captain_sid'])
         for (let i = 0; i < res.data['members'].length; i += 1) {
-          memberList.push(res.data['Data']['members'][i])
+          memberList.push(res.data['members'][i])
         }
         this.groupList[this.idx]['memberList'] = memberList
       }).catch(err => {
