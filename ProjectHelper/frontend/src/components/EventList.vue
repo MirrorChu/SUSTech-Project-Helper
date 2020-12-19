@@ -4,6 +4,7 @@
     <div v-if="this.privileges['teach'] === 1">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
+                  v-bind:course-id="this.$props.courseId"
                   v-bind:projectId="this.$props.projectId">
         </NewEvent>
       </el-card>
@@ -11,18 +12,19 @@
     <div>
       <el-card v-for="(componentObj) in componentObjs">
 
-<!--        <h2>{{componentObj['data']['title']}}</h2>-->
+        <!--        <h2>{{componentObj['data']['title']}}</h2>-->
 
-<!--        <el-button-->
-<!--            @click="onClickExpandComponent(componentObj['id'])">-->
-<!--          {{ visible[componentObj['id']] ? 'Close' : 'Expand' }}-->
-<!--        </el-button>-->
+        <!--        <el-button-->
+        <!--            @click="onClickExpandComponent(componentObj['id'])">-->
+        <!--          {{ visible[componentObj['id']] ? 'Close' : 'Expand' }}-->
+        <!--        </el-button>-->
 
-<!--        <div v-if="visible[componentObj['id']]">-->
+        <!--        <div v-if="visible[componentObj['id']]">-->
         <div>
           <component :is="componentObj.type"
                      :data="componentObj.data"
                      :courseId="courseId"
+                     :projectId="projectId"
                      :eventTitle="componentObj['data']['title']"
                      :eventId="componentObj['id']">
           </component>
@@ -63,8 +65,9 @@ export default {
       required: true,
     },
     courseId: {
+      type: Number,
       required: true,
-    }
+    },
   },
   data () {
     return {
@@ -80,9 +83,9 @@ export default {
   created () {
     this.courseId = this.$props.courseId
     this.projectId = this.$props.projectId
-    this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+    this.$axios.post('/get_privilege_list/', { 'course_id': this.$props.courseId }).then(res => {
       this.privileges = res.data['Data']
-      this.$axios.post('/get_event_list/', {'project_id': this.$props.projectId}).then(res => {
+      this.$axios.post('/get_event_list/', { 'project_id': this.$props.projectId }).then(res => {
         console.log('event list', res)
         const tempEventArray = res.data['Data']
         this.componentObjs = []
@@ -186,23 +189,24 @@ export default {
     //   this.visible[id] = !this.visible[id];
     //   console.log(this.visible[id])
     // },
-  }
+  },
 }
 </script>
 
 <style scoped>
-.el-card{
-  font-family: Verdana,serif;
+.el-card {
+  font-family: Verdana, serif;
   background-color: #F7F8F8;
-  border-color:whitesmoke;
+  border-color: whitesmoke;
   /*align-content:space-around;*/
   text-align: -webkit-left;
   line-height: 30px;
 }
-.el-card:hover{
-  font-family: Verdana,serif;
+
+.el-card:hover {
+  font-family: Verdana, serif;
   background-color: #fffbf0;
-  border-color:whitesmoke;
+  border-color: whitesmoke;
   /*align-content:space-around;*/
   text-align: -webkit-left;
   line-height: 30px;
