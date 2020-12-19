@@ -10,7 +10,7 @@
 
       <!--      sortable is not supported-->
       <el-table-column fixed prop=1 label="Course" width="350"></el-table-column>
-      
+
       <!--      sortable is not supported-->
       <el-table-column prop=2 label="Project" width="350"></el-table-column>
 
@@ -87,6 +87,15 @@ export default {
   },
   methods: {
     onClickDeleteProject (index) {
+      const localProjects = this.projects.filter(data => !this.searchKey ||
+          JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
+      const localProject = localProjects[index]
+      this.projectId = localProject[0]
+      this.$axios.post('/delete_project/', {'project_id': this.projectId}).then(res => {
+        console.log(res)
+      }).catch(err => {
+        console.log('err', err)
+      })
       console.log('conClickDeleteProject', index)
     },
     onClickCreateProject () {

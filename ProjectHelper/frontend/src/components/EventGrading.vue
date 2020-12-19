@@ -106,6 +106,7 @@ export default {
       this.idx = scope.$index
       const memberList = []
       this.$axios.post('/student_gets_single_group_information/', {}).then(res => {
+        console.log('/student_gets_single_group_information/', res.data)
         console.log(scope.$index)
         console.log(res)
         memberList.push(res.data['captain_sid'])
