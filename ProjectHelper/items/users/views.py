@@ -570,8 +570,8 @@ class StudentGetsSingleGroupInformation(View):
     def post(self, request):
         try:
             group_id = eval(request.body.decode()).get("group_id")
-            # token = eval(request.body.decode()).get("token")
-            # student_id = get_sid(token)
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
             query_set = GroupOrg.objects.filter(id=group_id)
 
             group_name = ""
