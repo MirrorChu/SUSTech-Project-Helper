@@ -7,12 +7,39 @@
       </div>
 
       <div v-if="expand">
+        <div><el-button @click="onClickExpand">Close</el-button></div>
         <div>
-          <el-button @click="onClickExpand">Close</el-button>
+          <el-button @click="edit = !edit">{{edit ? 'Close' : 'Edit'}}</el-button>
         </div>
-        <div>{{ this.eventObj['data']['introduction'] }}</div>
-        <div>Due: {{ new Date(this.$props.data.due) }}</div>
-        <div>Limit of Selections: {{this.eventObj.data.selectionLimit}}</div>
+        <div v-if="!edit">
+          <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
+          <div>Due: {{ new Date(this.$props.data.due) }}</div>
+          <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
+        </div>
+        <div v-else>
+          <el-form>
+            <el-form-item label="Introduction">
+              <el-input v-model="eventObj['data']['introduction']"></el-input>
+            </el-form-item>
+          </el-form>
+
+          <el-form label="Limit of Selections">
+            <el-input-number v-model="eventObj.data.selectionLimit"></el-input-number>
+          </el-form>
+
+          <el-form label="Upload File">
+            <el-upload
+                drag
+                action="/api/test"
+                :headers="{'token': token, 'event_id': this.$props.eventId}"
+                multiple>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
+            </el-upload>
+          </el-form>
+        </div>
+
+
         <div>
           <el-select v-model="selected"
                      :multiple="this.eventObj.data.selectionLimit > 1"
@@ -23,6 +50,7 @@
             </el-option>
           </el-select>
         </div>
+
         <el-button @click="onClickSubmit">Submit</el-button>
 
         <div v-if="privileges['teach'] === 1">
@@ -60,7 +88,7 @@ export default {
     },
     eventTitle: {
       required: true,
-    }
+    },
   },
   data () {
     return {
@@ -70,11 +98,15 @@ export default {
       privileges: {},
       eventObj: {},
       submissionDetail: [],
+      edit: false,
+      token: '',
     }
   },
   created () {
-    this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
-      console.log('get event detail', res.data)
+    this.token = localStorage.getItem('Authorization')
+    this.edit = false
+    this.$axios.post('/get_event_detail/', { 'event_id': this.$props.eventId }).then(res => {
+      console.log(res.data)
       this.submissionDetail = res.data['Data']['data']
       const eventEle = res.data['Data']
       const typeStr = eventEle['event_type']
@@ -89,10 +121,9 @@ export default {
         if (this.eventObj['data']['partitionType'] === 'normal') {
           for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
             const option = eventEle['event_detail']['options'][j]
-            this.eventObj['data']['options'].push({'label': option[0], 'value': j, 'limit': option[1]})
+            this.eventObj['data']['options'].push({ 'label': option[0], 'value': j, 'limit': option[1] })
           }
-        }
-        else {
+        } else {
           for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
             const option = eventEle['event_detail']['options'][j]
             this.eventObj['data']['options'].push(this.generateTimeSlotPartitionOptions(option))
@@ -105,7 +136,7 @@ export default {
       this.eventObj['publisher'] = eventEle['publisher']
       this.eventObj['id'] = this.$props.eventId
 
-      this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+      this.$axios.post('/get_privilege_list/', { 'course_id': this.$props.courseId }).then(res => {
         this.privileges = res.data['Data']
       }).catch(err => {
         console.log(err)
@@ -115,14 +146,14 @@ export default {
     })
   },
   methods: {
-    generateTimeSlotPartitionOptions(option) {
+    generateTimeSlotPartitionOptions (option) {
       const label = new Date(option[0]) + ' to ' + new Date(option[1])
       const value = label
       const limit = option[2]
-      return {'label': label, 'value': value, 'limit': limit}
+      return { 'label': label, 'value': value, 'limit': limit }
     },
-    onClickDeleteEvent() {
-      this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
+    onClickDeleteEvent () {
+      this.$axios.post('/delete_event/', { 'event_id': this.eventObj['id'] }).then(res => {
         alert('Delete Event ' + res.data['DeleteEvent'])
       }).catch(err => {
         console.log(err)
@@ -131,7 +162,7 @@ export default {
     onClickSubmit () {
       //  TODO: Implement submission.
       const selected = this.selected
-      this.$axios.post('/submit_event/', {'event_id': this.$props.eventId, 'selected': selected}).then(res => {
+      this.$axios.post('/submit_event/', { 'event_id': this.$props.eventId, 'selected': selected }).then(res => {
         console.log(res)
       }).catch(err => {
         console.log(err)

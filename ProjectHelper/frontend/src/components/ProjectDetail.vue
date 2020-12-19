@@ -19,18 +19,31 @@
         </div>
         <el-form v-else>
           <el-form-item label="Project Name">
-            <el-input v-model="this.projectDetail['projectName']"></el-input>
+            <el-input v-model="projectDetail['projectName']"></el-input>
           </el-form-item>
 
           <el-form-item label="Project Introduction">
-            <el-input v-model="this.projectDetail['projectIntroduction']"></el-input>
+            <el-input v-model="projectDetail['projectIntroduction']" textarea></el-input>
+          </el-form-item>
+
+          <el-form-item label="Upload File">
+            <el-upload
+                drag
+                action="/api/test"
+                :headers="{'token': token, 'project_id': this.$props.projectId}"
+                multiple>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
+            </el-upload>
           </el-form-item>
         </el-form>
 
       <div>
         <div v-if="this.privileges['teach'] !== 1">
           <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
-                     v-bind:group-info="this.groupInfo" v-bind:members-list="this.membersList"
+                     v-bind:group-info="this.groupInfo"
+                     v-bind:members-list="this.membersList"
+                     v-bind:project-id="this.projectId"
                      v-bind:sid="this.sid"></GroupInfo>
           <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
             groups!</h1>
@@ -187,6 +200,7 @@ export default {
   },
   data () {
     return {
+      token: '',
       membersList: '',
       status: '',
       personalProfile: '',
@@ -212,6 +226,7 @@ export default {
     }
   },
   created () {
+    this.token = localStorage.getItem('Authorization')
     this.$axios.post('/student_gets_single_project_information/', {'projectId': this.$props.projectId}).then( res => {
       this.projectDetail = res.data
       this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).then(res => {
@@ -330,6 +345,7 @@ export default {
           title: this.advertisement_title,
           group_id: this.groupInfo.group_id,
         }).then(res => {
+          console.log(res)
           this.pullAdvertisementData()
         }).catch(err => {
           console.log(err)
