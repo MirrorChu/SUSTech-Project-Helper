@@ -167,7 +167,7 @@ class ProjectFile(BaseModel):
 class EventGrades(BaseModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, verbose_name="用户")
-    grade = models.IntegerField(verbose_name="成绩", default=0)
+    grade = models.FloatField(verbose_name="成绩", default=0)
     comment = models.TextField(verbose_name="评论", default="", max_length=65535)
 
     class Meta:
@@ -181,7 +181,7 @@ class EventGrades(BaseModel):
 class ProjectGrades(BaseModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name="组件")
     group = models.ForeignKey(GroupOrg, on_delete=models.CASCADE, verbose_name="队伍")
-    grade = models.IntegerField(verbose_name="成绩", default=0)
+    grade = models.FloatField(verbose_name="成绩", default=0)
     comment = models.TextField(verbose_name="评论", default="", max_length=65535)
 
     class Meta:
