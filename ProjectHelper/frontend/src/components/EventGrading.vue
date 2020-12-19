@@ -57,7 +57,8 @@
           <el-input></el-input>
         </el-form-item>
 
-        <el-form-item v-if="idx >= 0" v-for="item in groupList[idx]['memberList']" :label="item + ' Score'">
+        <el-form-item v-if="idx >= 0" v-for="item in groupList[idx]['memberList']"
+                      :label="idx === 0 ? 'Captain ' + item + ' Score' : item + ' Score'">
           <el-input>
           </el-input>
         </el-form-item>
@@ -103,7 +104,18 @@ export default {
   methods: {
     onClickDetail (scope) {
       this.idx = scope.$index
-      console.log(scope.$index)
+      const memberList = []
+      this.$axios.post('/student_gets_single_group_information/', {}).then(res => {
+        console.log(scope.$index)
+        console.log(res)
+        memberList.push(res.data['captain_sid'])
+        for (let i = 0; i < res.data['members'].length; i += 1) {
+          memberList.push(res.data['Data']['members'][i])
+        }
+        this.groupList[this.idx]['memberList'] = memberList
+      }).catch(err => {
+        console.log(err)
+      })
     },
   },
 }
