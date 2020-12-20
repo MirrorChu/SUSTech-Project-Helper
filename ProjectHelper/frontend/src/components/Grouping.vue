@@ -75,7 +75,7 @@
     </div>
 
     <div>
-      <el-dialog title="Create New Group for Studnets" :visible.sync="dialogCreateGroupVisible">
+      <el-dialog title="Create New Group for Studnets" :visible.sync="dialogCreateGroupVisible" @close='closeDialog'>
         <el-form ref="form">
           <el-form-item label="GROUP NAME">
             <el-input v-model="createGroupName" placeholder="Group Name" clearable></el-input>
@@ -84,7 +84,7 @@
           <el-form-item label="Captain">
             <el-select v-model="captain_sid" clearable placeholder="" @change="captainselect">
               <el-option
-                v-for="item in this.singleData"
+                v-for="item in this.singleDataCopy1"
                 :key="item.sid"
                 :label="item.realname"
                 :value="item.sid">
@@ -94,9 +94,9 @@
           </el-form-item>
 
           <el-form-item label="Member">
-            <el-select v-model="member_select" multiple placeholder="">
+            <el-select v-model="member_select" multiple placeholder="" @change="memberselect">
               <el-option
-                v-for="item in this.singleDataCopy"
+                v-for="item in this.singleDataCopy2"
                 :key="item.sid"
                 :label="item.realname"
                 :value="item.sid">
@@ -130,7 +130,8 @@
         groupInformation: '',
         sid_invite: '',
         singleData: '',
-        singleDataCopy: '',
+        singleDataCopy1: '',
+        singleDataCopy2: '',
         stu_invite: '',
         createGroupName: '',
         captain_sid: '',
@@ -164,7 +165,8 @@
           if (res.data['TeacherGetSingleInProject'] === 'success')
           {
             this.singleData = res.data['Data']
-            this.singleDataCopy = this.singleData
+            this.singleDataCopy1 = this.singleData.slice(0)
+            this.singleDataCopy2 = this.singleData.slice(0)
           }
         }).catch(err => {
           console.log(err)
@@ -236,7 +238,6 @@
         }).then(res => {
           console.log('CreateNewGroup', res.data)
           this.pullGroupingData()
-          this.pullSingleData()
           this.createGroupName = ''
           this.captain_sid = ''
           this.member_select = []
@@ -247,22 +248,44 @@
       },
       captainselect()
       {
-        this.singleDataCopy = this.singleData
+        this.singleDataCopy2 = this.singleData.slice(0)
         let j = -1
-        for(let i = 0; i < this.singleData.length; i++)
+        for(let i = 0; i < this.singleDataCopy2.length; i++)
         {
-          if (this.singleData[i].sid === this.captain_sid)
+          if (this.singleDataCopy2[i].sid === this.captain_sid)
           {
             j = i
             break
           }
         }
         if (j !== -1)
-          this.singleDataCopy.splice(j, 1)
+          this.singleDataCopy2.splice(j, 1)
       },
       showCreateGroupDialog()
       {
         this.dialogCreateGroupVisible = true
+      },
+      memberselect()
+      {
+        this.singleDataCopy1 = this.singleData.slice(0)
+        for (let k = 0; k < this.member_select.length; k++)
+        {
+          let j = -1
+          for(let i = 0; i < this.singleDataCopy1.length; i++)
+          {
+            if (this.singleDataCopy1[i].sid === this.member_select[k])
+            {
+              j = i
+              break
+            }
+          }
+          if (j !== -1)
+            this.singleDataCopy1.splice(j, 1)
+        }
+      },
+      closeDialog()
+      {
+        this.pullSingleData()
       },
     },
   }
