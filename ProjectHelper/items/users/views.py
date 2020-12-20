@@ -11,8 +11,8 @@ from django.views.generic.base import View
 from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, \
-    Key, ProjectFile, ProjectComment, Event, ChooseEvent, ParticipantEvent, ProjectAttachment
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, ProjectGrades, \
+    Key, ProjectFile, ProjectComment, Event, ChooseEvent, ParticipantEvent, ProjectAttachment, EventGrades
 from items.projects.models import Project
 from items.users.models import UserProfile
 from django.core.cache import cache
@@ -2762,3 +2762,74 @@ class ChangeProject(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"ChangeProject": "failed"})
+
+
+class MarkEvent(View):
+    def post(self, request):
+        """
+        user with "eventGrade" authority can mark event
+        :param token: token
+                event_id: id of event
+                
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+            comment = eval(request.body.decode()).get("comment")
+            score = eval(request.body.decode()).get("score")
+            now = datetime.datetime.now()
+            event = Event.objects.get(id=event_id)
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=course_id)
+            if auth.end_time > now > auth.start_time:
+                num = 0
+                for i in score:
+                    student = UserProfile.objects.get(student_id=i)
+                    tmp = EventGrades.objects.filter(event_id=event_id, user_id=student.id)
+                    if tmp.count() == 0:
+                        EventGrades.objects.create(grade=score[i], comment=comment, event_id=event_id,
+                                                   user_id=student.id)
+                    else:
+                        EventGrades.objects.filter(event_id=event_id, user_id=student.id).update(grade=score[i],
+                                                                                                 comment=comment)
+                    num += score[i]
+                # tmp1 = ProjectGrades.filter()
+
+                return JsonResponse({"MarkEvent": "success"})
+            return JsonResponse({"MarkEvent": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"MarkEvent": "failed"})
+
+
+class IsTeacher(View):
+    def post(self, request):
+        """
+        :param token: token
+
+        :return: 1/0 yes/no
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            auth = Authority.objects.filter(user_id=user_id, type="teach")
+            if auth.count() != 0:
+                for i in auth:
+                    if i.end_time > datetime.datetime.now() > i.start_time:
+                        return JsonResponse({"IsTeacher": 1})
+            return JsonResponse({"IsTeacher": 0})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"IsTeacher": "failed"})
