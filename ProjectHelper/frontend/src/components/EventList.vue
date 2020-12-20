@@ -116,7 +116,7 @@ export default {
         }
         console.log(this.componentObjs)
       }).catch(err => {
-        console.log('/get_event_list err', err)
+        console.log(err)
       })
 
       ////  ===***--- DO NOT DELETE THIS ---***=== ////

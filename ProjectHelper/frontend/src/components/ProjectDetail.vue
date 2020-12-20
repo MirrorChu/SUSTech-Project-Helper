@@ -23,7 +23,7 @@
           </el-form-item>
 
           <el-form-item label="Project Introduction">
-            <el-input v-model="projectDetail['projectIntroduction']" textarea></el-input>
+            <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
           </el-form-item>
 
           <el-form-item label="Upload File">

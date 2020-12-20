@@ -7,13 +7,15 @@
       </div>
 
       <div v-if="expand">
-        <div><el-button @click="onClickExpand">Close</el-button></div>
         <div>
-          <el-button @click="edit = !edit">{{edit ? 'Close' : 'Edit'}}</el-button>
+          <el-button @click="onClickExpand">Close</el-button>
+        </div>
+        <div v-if="privileges['teach']">
+          <el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button>
         </div>
         <div v-if="!edit">
           <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
-          <div>Due: {{ new Date(this.$props.data.due) }}</div>
+          <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
           <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
         </div>
         <div v-else>
@@ -51,7 +53,15 @@
           </el-select>
         </div>
 
-        <el-button @click="onClickSubmit">Submit</el-button>
+        <div v-if="privileges['teach'] === 0">
+          <div v-if="eventDetail['Data']['data']['choice']">
+            <h3>Selected Options</h3>
+            <div v-for="item in eventDetail['Data']['data']['choice']">
+              {{ generateTimeSlotChoiceLiteral(item) }}
+            </div>
+          </div>
+          <el-button @click="onClickSubmit">Submit</el-button>
+        </div>
 
         <div v-if="privileges['teach'] === 1">
           <div>
@@ -60,7 +70,7 @@
 
           <div>
             <EventGrading
-                v-bind:event-detail="eventDetail"
+                v-bind:eventDetail="eventDetail"
                 v-bind:submissionDetail="submissionDetail"></EventGrading>
           </div>
 
@@ -109,7 +119,7 @@ export default {
     this.token = localStorage.getItem('Authorization')
     this.edit = false
     this.$axios.post('/get_event_detail/', { 'event_id': this.$props.eventId }).then(res => {
-      console.log(res.data)
+      console.log(res)
       this.submissionDetail = res.data['Data']['data']
       this.eventDetail = res.data
       const eventEle = res.data['Data']
@@ -178,6 +188,11 @@ export default {
     onClickExpand () {
       this.expand = !this.expand
     },
+    generateTimeSlotChoiceLiteral(choice) {
+      if (choice.length === 2) {
+        return new Date(choice[0]) + ' to ' + new Date(choice[1])
+      }
+    }
   },
 }
 </script>
