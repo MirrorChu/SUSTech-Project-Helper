@@ -65,16 +65,16 @@
         </el-form-item>
 
         <el-form-item label="Group Score">
-          <el-input></el-input>
+          <el-input-number v-model="groupScore"></el-input-number>
         </el-form-item>
 
         <el-form-item v-for="(value, key) in memberLiterals"
                       :label="value">
-          <el-input v-model="memberScores[key]"></el-input>
+          <el-input-number v-model="memberScores[key]"></el-input-number>
         </el-form-item>
 
         <el-form-item label="Feedback">
-          <el-input type="textarea"></el-input>
+          <el-input type="textarea" v-model="feedback"></el-input>
         </el-form-item>
 
       </el-form>
@@ -95,6 +95,10 @@ export default {
     eventDetail: {
       required: true,
     },
+    eventId: {
+      type: Number,
+      required: true,
+    },
   }
   ,
   data () {
@@ -107,6 +111,7 @@ export default {
       memberScores: {},
       memberLiterals: {},
       feedback: '',
+      groupId: 0,
     }
   }
   ,
@@ -135,7 +140,10 @@ export default {
     onClickGrade () {
       const dataBlock = {
         'comment': this.feedback,
-        'score': this.memberScores
+        'score': this.memberScores,
+        'group_score': this.groupScore,
+        'group_id': this.groupId,
+        'event_id': this.$props.eventId,
       }
       this.$axios.post('/mark_event/', dataBlock).then(res => {
         console.log(res)

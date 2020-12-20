@@ -71,6 +71,7 @@
           <div>
             <EventGrading
                 v-bind:eventDetail="eventDetail"
+                v-bind:eventId="this.$props.eventId"
                 v-bind:submissionDetail="submissionDetail"></EventGrading>
           </div>
 
