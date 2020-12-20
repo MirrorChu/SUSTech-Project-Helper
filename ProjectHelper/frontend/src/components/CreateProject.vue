@@ -41,6 +41,7 @@
         <el-upload
             class="upload-demo"
             ref="upload"
+            :data="this.datas"
             :headers="this.dataBlock"
             action="http://127.0.0.1:8080/api/teacher_create_project/"
             multiple
@@ -90,6 +91,7 @@ export default {
   data () {
     return {
       newProjectCourse: '',
+
       newProjectCourseList: [],
       newProjectName: '',
       newProjectDescription: '',
@@ -127,6 +129,7 @@ export default {
       selectedStudents: [],
       manuallySearchSid: '',
       fileCount: 0,
+      datas: {'data':'udhudhiugheriughudrhgudshrgrhgujhdrfujghdfrh'},
     }
   },
   methods: {
@@ -171,6 +174,28 @@ export default {
         this.loadStudentsLiteral = 'Show Students'
       }
     },
+    // onClickConfirmCreateProject () {
+    //   this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
+    //     console.log(res)
+    //     const idx = res.data['SendKey']
+    //     const startDate = new Date(this.groupingStart)
+    //     const endDate = new Date(this.groupingDeadline)
+    //     this.dataBlock = {
+    //       'sid': this.sid,
+    //       'newProjectCourse': this.newProjectCourse,
+    //       'newProjectName': this.newProjectName,
+    //       'newProjectDescription': this.newProjectDescription,
+    //       'groupingMaximum': this.maxNum,
+    //       'groupingMinimum': this.minNum,
+    //       'groupingStart': startDate.getTime(),
+    //       'groupingDeadline': endDate.getTime(),
+    //       'idx': idx,
+    //     }
+    //     this.submitUpload()
+    //   }).catch(err => {
+    //     console.log(err, 'err')
+    //   })
+    // },
     onClickConfirmCreateProject () {
       this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
         console.log(res)
@@ -194,6 +219,7 @@ export default {
       })
     },
     submitUpload () {
+      this.datas = {'data':'udhudhiugheriughudrhgudshrgrhgujhdrfujghdfrh'}
       if (this.fileList.length === 0) {
         console.log('create project without files')
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
