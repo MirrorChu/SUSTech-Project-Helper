@@ -2460,13 +2460,13 @@ class CreateEvent(View):
             if course.end_time > now > course.start_time:
                 detail = event_detail['introduction']
                 parameter = json.dumps(event_detail)
-                tmp = Event.objects.filter(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
-                                           detail=detail, title=event_title, project_id=project_id,
-                                           publish_user_id=user_id)
-                if tmp.count() == 0:
-                    Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
-                                         detail=detail, title=event_title, project_id=project_id,
-                                         publish_user_id=user_id)
+                # tmp = Event.objects.filter(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                #                            detail=detail, title=event_title, project_id=project_id,
+                #                            publish_user_id=user_id)
+                # if tmp.count() == 0:
+                Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                                     detail=detail, title=event_title, project_id=project_id,
+                                     publish_user_id=user_id)
                 tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
                                         detail=detail, title=event_title, project_id=project_id,
                                         publish_user_id=user_id)
@@ -2477,7 +2477,7 @@ class CreateEvent(View):
                 #                                 ContentFile(file.read()))
                 #     ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
                 #                                      group_id=group.id, user_id=user_id)
-                return JsonResponse({"CreateEvent": "success"})
+                return JsonResponse({"CreateEvent": "success", "Event_id": tmp.id})
             return JsonResponse({"CreateEvent": "no auth"})
 
         except Exception as e:
