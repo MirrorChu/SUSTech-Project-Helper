@@ -11,15 +11,6 @@
     </div>
     <div>
       <el-card v-for="(componentObj) in componentObjs">
-
-        <!--        <h2>{{componentObj['data']['title']}}</h2>-->
-
-        <!--        <el-button-->
-        <!--            @click="onClickExpandComponent(componentObj['id'])">-->
-        <!--          {{ visible[componentObj['id']] ? 'Close' : 'Expand' }}-->
-        <!--        </el-button>-->
-
-        <!--        <div v-if="visible[componentObj['id']]">-->
         <div>
           <component :is="componentObj.type"
                      :data="componentObj.data"
@@ -95,15 +86,9 @@ export default {
           const typeStr = eventEle['event_type']
           if (typeStr === 'partition') {
             eventObj['type'] = 'PartitionEvent'
-            // eventObj['data'] = {}
-            // eventObj['data']['type'] = 'PartitionEvent'
-            // eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit']
-            // eventObj['partitionType'] = eventEle['event_detail']['partitionType']
-            // eventObj['data']['options'] = []
-            // for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-            //   const option = eventEle['event_detail']['options'][j]
-            //   eventObj['data']['options'].push({'label': option[0], 'value': option[0], 'limit': option[1]})
-            // }
+          }
+          else if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
+            eventObj['type'] = 'SubmissionComponent'
           }
           eventObj['data'] = {}
           eventObj['data']['title'] = eventEle['event_title']

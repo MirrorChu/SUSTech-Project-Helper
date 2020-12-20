@@ -72,7 +72,8 @@
             <EventGrading
                 v-bind:eventDetail="eventDetail"
                 v-bind:eventId="this.$props.eventId"
-                v-bind:submissionDetail="submissionDetail"></EventGrading>
+                v-bind:submissionDetail="submissionDetail">
+            </EventGrading>
           </div>
 
         </div>
@@ -107,7 +108,6 @@ export default {
     return {
       selected: [],
       expand: false,
-      identity: 'teacher',
       privileges: {},
       eventObj: {},
       submissionDetail: [],

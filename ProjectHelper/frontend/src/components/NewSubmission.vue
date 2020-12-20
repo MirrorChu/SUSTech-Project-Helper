@@ -90,13 +90,12 @@ export default {
       this.$axios.post('/send_key/', {'course': this.courseId}).then(res => {
         console.log(res)
         const event = this.toJson()
-        console.log(event)
         const data = {}
         data.project_id = this.$props.projectId
         data.event_title = event.title
         data.event_type = event.eventType
         data.event_detail = event
-        console.log('NewSubmission onClickSubmit data', data)
+        data.key = res.data['SendKey']
         this.$axios.post('/create_event/', data).then(res => {
           console.log(res)
         }).catch(err => {
@@ -111,11 +110,10 @@ export default {
       event.title = this.title
       event.introduction = this.introduction
       event.due = this.due.getTime()
-      event.eventType = 'submission'
+      event.eventType = 'SubmissionEvent'
       event.submissionType = this.submissionType
       // event.selectedPartitionList = this.selectedPartitionList
       event.selectedGroupList = this.selectedGroupList
-
       return event
     },
     onSelectPartition (selected) {

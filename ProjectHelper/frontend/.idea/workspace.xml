@@ -2,15 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/components/Grouping.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Grouping.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/NewPartition.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewPassword.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPassword.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/NewSubmission.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewSubmission.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ProjectList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/profile.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/project_detail.vue" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +63,7 @@
       <workItem from="1608193079487" duration="1258000" />
       <workItem from="1608206549479" duration="16725000" />
       <workItem from="1608269636150" duration="582000" />
-      <workItem from="1608394815734" duration="9390000" />
+      <workItem from="1608394815734" duration="11153000" />
     </task>
     <servers />
   </component>
