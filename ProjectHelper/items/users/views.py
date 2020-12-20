@@ -1535,7 +1535,7 @@ class TeacherCreateProject(View):
                 introduction = request.POST.get('newProjectDescription')
                 group_size = int(request.POST.get('groupingMaximum'))
                 min_group_size = int(request.POST.get('groupingMinimum'))
-                course_id = int(request.POST.get('newProjectNCourse'))
+                course_id = int(request.POST.get('newProjectCourse'))
                 ddl = int(request.POST.get('groupingDeadline'))
                 key = request.POST.get('idx')
             else:
