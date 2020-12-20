@@ -2717,8 +2717,13 @@ class GetAllPartition(View):
                                 choice[string] = []
                         for j in choices:
                             group = GroupOrg.objects.get(id=j.group_id)
-                            choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
-                                                                               'group_name': group.group_name})
+                            if event_detail['partitionType'] == 'normal':
+                                choice[event_detail['options'][int(j.choice)][0]].append({'group_id': group.id,
+                                                                                          'group_name': group.group_name})
+                            else:
+                                string = str(event_detail['options'][int(j.choice)][0]) + '-' + str(
+                                             event_detail['options'][int(j.choice)][1])
+                                choice[string].append({'group_id': group.id, 'group_name': group.group_name})
                         event['data'] = choice
                     partitions.append(event)
 
