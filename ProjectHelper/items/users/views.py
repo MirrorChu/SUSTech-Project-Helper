@@ -1560,7 +1560,7 @@ class TeacherCreateProject(View):
             key = eval(request.body.decode()).get("idx")
             ddl = int(ddl) // 1000
             group_ddl = datetime.datetime.fromtimestamp(ddl)
-            students = selected.split(',')
+            students = selected
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
             user_id = query_set.id
