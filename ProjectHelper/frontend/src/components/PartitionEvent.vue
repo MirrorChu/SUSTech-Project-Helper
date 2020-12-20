@@ -23,24 +23,24 @@
             <el-form-item label="Introduction">
               <el-input v-model="eventObj['data']['introduction']"></el-input>
             </el-form-item>
+
+            <el-form-item label="Limit of Selections">
+              <el-input-number v-model="eventObj.data.selectionLimit"></el-input-number>
+            </el-form-item>
+
+            <el-form-item label="Upload File">
+              <el-upload
+                  drag
+                  action="/api/test"
+                  :headers="{'token': token, 'event_id': this.$props.eventId}"
+                  multiple>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
+              </el-upload>
+            </el-form-item>
           </el-form>
 
-          <el-form label="Limit of Selections">
-            <el-input-number v-model="eventObj.data.selectionLimit"></el-input-number>
-          </el-form>
-
-          <el-form label="Upload File">
-            <el-upload
-                drag
-                action="/api/test"
-                :headers="{'token': token, 'event_id': this.$props.eventId}"
-                multiple>
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
-            </el-upload>
-          </el-form>
         </div>
-
 
         <div>
           <el-select v-model="selected"
@@ -189,11 +189,11 @@ export default {
     onClickExpand () {
       this.expand = !this.expand
     },
-    generateTimeSlotChoiceLiteral(choice) {
+    generateTimeSlotChoiceLiteral (choice) {
       if (choice.length === 2) {
         return new Date(choice[0]) + ' to ' + new Date(choice[1])
       }
-    }
+    },
   },
 }
 </script>

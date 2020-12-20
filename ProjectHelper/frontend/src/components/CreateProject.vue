@@ -221,7 +221,6 @@ export default {
     submitUpload () {
       this.datas = {'data':'udhudhiugheriughudrhgudshrgrhgujhdrfujghdfrh'}
       if (this.fileList.length === 0) {
-        console.log('create project without files')
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
           console.log(res)
         }).catch(err => {

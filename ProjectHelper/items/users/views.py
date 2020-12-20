@@ -2641,7 +2641,7 @@ class GetEventDetail(View):
                                         groups[group.id]['submitTime'] = j.add_time
                                 for j in groups:
                                     events['data'].append(groups[j])
-                            elif event.type == "attachment":
+                            elif event.type == "submission":
                                 choices = ProjectAttachment.objects.filter(event_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)

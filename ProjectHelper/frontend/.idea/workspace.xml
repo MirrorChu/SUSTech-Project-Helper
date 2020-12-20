@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/EventList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/EventList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewPartition.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewPartition.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NewSubmission.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NewSubmission.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/CreateProject.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/CreateProject.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/PartitionEvent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/PartitionEvent.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/SubmissionComponent.vue" afterDir="false" />
     </list>

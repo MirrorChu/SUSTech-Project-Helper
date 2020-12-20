@@ -11,26 +11,23 @@
       <div>
         <el-button @click="onClickExpand">Close</el-button>
       </div>
-      <div>
-        {{ this.$props.data.introduction }}
+
+      <div v-if="privileges['teach']">
+        <el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button>
+
+        <div v-if="edit">
+          <el-form>
+            <el-form-item label="Introduction">
+              <el-input type="textarea" v-model="this.eventObj['data']['introduction']"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
       </div>
-      <div>Due: {{ new Date(this.$props.data.due) }}</div>
-      <div v-if="this.$props.data.submissionType === 'text'">
-        <el-input v-model="this.submissionText" clearable type="textarea"
-                  placeholder="Input your submission."></el-input>
+
+      <div v-if="!edit">
+        <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
+        <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
       </div>
-      <div v-if="this.$props.data.submissionType === 'file'">
-        <el-upload
-            class="upload-demo"
-            ref="upload"
-            :data="{sid: this.$props.sid, pswd: this.$props.pswd}"
-            action="/api/test/"
-            multiple :file-list="fileList" :auto-upload="false"
-            :on-change="handleFileChange" :on-remove="handleFileRemove">
-          <el-button slot="trigger" size="small" type="primary">Select File</el-button>
-        </el-upload>
-      </div>
-      <el-button @click="onClickSubmit">Submit</el-button>
 
       <div v-if="privileges['teach'] === 1">
         <div>
@@ -45,6 +42,15 @@
           </EventGrading>
         </div>
 
+      </div>
+      <div v-else>
+        <el-upload
+            drag
+            action="https://jsonplaceholder.typicode.com/posts/"
+            multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">Drag files here, or <em>click to upload</em>.</div>
+        </el-upload>
       </div>
 
     </div>
@@ -91,7 +97,7 @@ export default {
       this.eventDetail = res.data
       const eventEle = res.data['Data']
       const typeStr = eventEle['event_type']
-      if (typeStr === 'submission') {
+      if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
         this.eventObj['type'] = 'SubmissionComponent'
         this.eventObj['data'] = {}
         this.eventObj['data']['type'] = 'SubmissionComponent'
