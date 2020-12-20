@@ -2572,6 +2572,7 @@ class GetEventDetail(View):
                                             events['event_detail']['options'][int(j.choice)][0],
                                             events['event_detail']['options'][int(j.choice)][1]))
                                         groups[group.id]['index'].append(int(j.choice))
+                                        groups[group.id]['submitTime'] = j.add_time
                                 elif events['event_detail']['partitionType'] == 'timeSlot':
                                     events['partitionType'] = 'timeSlot'
                                     for j in choices:
@@ -2580,6 +2581,7 @@ class GetEventDetail(View):
                                              events['event_detail']['options'][int(j.choice)][1],
                                              events['event_detail']['options'][int(j.choice)][2]))
                                         groups[group.id]['index'].append(int(j.choice))
+                                        groups[group.id]['submitTime'] = j.add_time
                                 for j in groups:
                                     events['data'].append(groups[j])
                             elif event.type == "attachment":
@@ -2603,7 +2605,7 @@ class GetEventDetail(View):
                             for j in choices:
                                 events['data'] = {'choice': [events['event_detail']['options'][int(j.choice)][0]],
                                                   'group_id': j.group_id, 'group_name': group.group_name,
-                                                  'index': [int(j.choice)]}
+                                                  'index': [int(j.choice)], 'submitTime': j.add_time}
                         else:
                             for j in choices:
                                 events['data'] = {'choice': [],
@@ -2613,6 +2615,7 @@ class GetEventDetail(View):
                             for j in choices:
                                 events['data']['choice'].append(events['event_detail']['options'][int(j.choice)][1])
                                 events['data']['index'].append(int(j.choice))
+                                events['data']['submitTime'] = j.add_time
                     elif event.type == "attachment":
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
@@ -2627,7 +2630,7 @@ class GetEventDetail(View):
                                 events['data'] = {'choice': [(events['event_detail']['options'][int(j.choice)][0],
                                                               events['event_detail']['options'][int(j.choice)][1])],
                                                   'group_id': j.group_id, 'group_name': group.group_name,
-                                                  'index': [int(j.choice)]}
+                                                  'index': [int(j.choice)], 'submitTime': j.add_time}
                         else:
                             for j in choices:
                                 events['data'] = {'choice': [],
@@ -2638,6 +2641,7 @@ class GetEventDetail(View):
                                 events['data']['choice'].append((events['event_detail']['options'][int(j.choice)][0],
                                                                  events['event_detail']['options'][int(j.choice)][1]))
                                 events['data']['index'].append(int(j.choice))
+                                events['data']['submitTime'] = j.add_time
 
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
