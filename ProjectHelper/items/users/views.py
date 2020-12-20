@@ -1596,7 +1596,7 @@ class TeacherCreateProject(View):
                 project_id = project.id
                 for i in students:
                     student = UserProfile.objects.get(student_id=i)
-                return JsonResponse({"TeacherCreateProject": "success", 'Project_id': project_id})
+                return JsonResponse({"TeacherCreateProject": "success", 'project_id': project_id})
             return JsonResponse({"TeacherCreateProject": "has no authority"})
             # if file_name != '':
             #     file = request.FILES.get(file_name)
