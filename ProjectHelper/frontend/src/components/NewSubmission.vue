@@ -116,27 +116,6 @@ export default {
       // event.selectedPartitionList = this.selectedPartitionList
       event.selectedGroupList = this.selectedGroupList
 
-      // if (this.selectionType === 0 || this.selectionType === '0') {
-      //   event.partitionType = 'normal'
-      //   for (let idx = 0; idx < this.dynamicValidateForm.domains.length; idx += 1) {
-      //     const item = this.dynamicValidateForm.domains[idx]
-      //     options.push([item.value, item.volume])
-      //   }
-      // } else {
-      //   event.partitionType = 'timeSlot'
-      //   const domains = this.dynamicValidateFormTimeSlot.domains
-      //   for (let i = 0; i < domains.length; i += 1) {
-      //     let startTime = domains[i].timeSlotSelectionStart.getTime()
-      //     const endTime = domains[i].timeSlotSelectionEnd.getTime()
-      //     const num = domains[i].timeSlotNum
-      //     const length = Math.floor((endTime - startTime) / num)
-      //     for (let idx = 0; idx < num; idx += 1) {
-      //       options.push([startTime, startTime + length - 1, num])
-      //       startTime += length
-      //     }
-      //   }
-      // }
-
       return event
     },
     onSelectPartition (selected) {

@@ -120,9 +120,6 @@
       </el-dialog>
     </div>
 
-<!--    <div>-->
-<!--      <el-button @click="showAd = !showAd">{{showAd ? 'Close' : 'Show Advertisements'}}</el-button>-->
-<!--    </div>-->
     <div v-if="showAd">
       <h2>Advertisement</h2>
 

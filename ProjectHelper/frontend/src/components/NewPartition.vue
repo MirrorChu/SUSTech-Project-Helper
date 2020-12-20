@@ -85,30 +85,6 @@
 
           </el-form-item>
 
-          <!--          <el-form-item label="Start">-->
-          <!--            <el-date-picker-->
-          <!--                v-model="timeSlotSelectionStart"-->
-          <!--                type="datetime"-->
-          <!--                placeholder="Due Datetime">-->
-          <!--            </el-date-picker>-->
-          <!--          </el-form-item>-->
-
-          <!--          <el-form-item label="End">-->
-          <!--            <el-date-picker-->
-          <!--                v-model="timeSlotSelectionEnd"-->
-          <!--                type="datetime"-->
-          <!--                placeholder="Due Datetime">-->
-          <!--            </el-date-picker>-->
-          <!--          </el-form-item>-->
-
-          <!--          <el-form-item label="Number">-->
-          <!--            <el-input-number v-model="timeSlotNum" :min="1" label="number"></el-input-number>-->
-          <!--          </el-form-item>-->
-
-          <!--          <el-form-item label="Slot Volume">-->
-          <!--            <el-input-number v-model="timeSlotVolume" label="slot volume"></el-input-number>-->
-          <!--          </el-form-item>-->
-
           <el-form-item>
             <el-button @click="addDomain">New Option</el-button>
             <el-button @click="resetForm">Reset</el-button>

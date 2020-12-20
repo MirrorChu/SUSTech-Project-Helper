@@ -55,10 +55,6 @@
             </el-row>
           </el-form-item>
 
-          <!--          <el-form-item>-->
-          <!--            <el-input v-model="sid_invite" placeholder="SID to Invite"></el-input>-->
-          <!--            <el-button @click="onClickInvite(groupInformation.group_id)">Invite</el-button>-->
-          <!--          </el-form-item>-->
         </el-form>
 
         <el-select v-model="stu_invite" multiple placeholder="">
@@ -184,17 +180,6 @@ export default {
       this.dialogGroupDataVisible = true
       this.groupInformation = row
     },
-    // onClickInvite(group_id)
-    // {
-    //   this.$axios.post('/', {
-    //     group_id: group_id,
-    //     sid_invite: this.sid_invite,
-    //   }).then(res => {
-    //     console.log(res.data)
-    //   }).catch(err => {
-    //     console.log(err)
-    //   })
-    // },
     onClickKick (sid, group_id) {
       this.$axios.post('/teacher_kick_member/', {
         group_id: group_id,
@@ -207,15 +192,7 @@ export default {
       })
     },
     semirandomgrouping () {
-      // this.$axios.post('//', {
-      //   project_id: this.$props.project_id,
-      // }).then(res => {
-      //   console.log('semirandomgrouping', res.data)
-      //   this.pullGroupingData()
-      //   this.pullSingleData()
-      // }).catch(err => {
-      //   console.log(err)
-      // })
+
     },
     onClickCreateNewGroup () {
       this.$axios.post('/teacher_creates_group/', {
