@@ -218,6 +218,7 @@ export default {
         this.dataBlock['groupingStart'] =  startDate.getTime()
         this.dataBlock['groupingDeadline'] =  endDate.getTime()
         this.dataBlock['idx'] = idx
+        this.dataBlock['selectedStudents'] = this.selectedStudents
         this.submitUpload()
       }).catch(err => {
         console.log(err, 'err')

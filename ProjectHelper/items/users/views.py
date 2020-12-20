@@ -1527,28 +1527,30 @@ class TeacherCreateProject(View):
             logger.debug('%s request.body %s', self, type(request.POST.get('sid')))
 
             ddl = 0
-            if request.POST.get('token') is not None:
-                print('in')
-                token = request.POST.get('token')
-                student_id = get_sid(token)
-                project_name = request.POST.get('newProjectName')
-                introduction = request.POST.get('newProjectDescription')
-                group_size = int(request.POST.get('groupingMaximum'))
-                min_group_size = int(request.POST.get('groupingMinimum'))
-                course_id = int(request.POST.get('newProjectCourse'))
-                ddl = int(request.POST.get('groupingDeadline'))
-                key = request.POST.get('idx')
-            else:
-                print('not in')
-                token = get_from_request(request, 'token')
-                student_id = get_sid(token)
-                project_name = eval(request.body.decode()).get("newProjectName")
-                introduction = eval(request.body.decode()).get("newProjectDescription")
-                group_size = eval(request.body.decode()).get("groupingMaximum")
-                min_group_size = eval(request.body.decode()).get("groupingMinimum")
-                course_id = eval(request.body.decode()).get("newProjectCourse")
-                ddl = eval(request.body.decode()).get("groupingDeadline")
-                key = eval(request.body.decode()).get("idx")
+            # if request.POST.get('token') is not None:
+            #     print('in')
+            #     token = request.POST.get('token')
+            #     student_id = get_sid(token)
+            #     project_name = request.POST.get('newProjectName')
+            #     introduction = request.POST.get('newProjectDescription')
+            #     group_size = int(request.POST.get('groupingMaximum'))
+            #     min_group_size = int(request.POST.get('groupingMinimum'))
+            #     course_id = int(request.POST.get('newProjectCourse'))
+            #     ddl = int(request.POST.get('groupingDeadline'))
+            #     selected = request.POST.get("selectedStudents")
+            #     key = request.POST.get('idx')
+            # else:
+            #     print('not in')
+            token = get_from_request(request, 'token')
+            student_id = get_sid(token)
+            project_name = eval(request.body.decode()).get("newProjectName")
+            introduction = eval(request.body.decode()).get("newProjectDescription")
+            group_size = eval(request.body.decode()).get("groupingMaximum")
+            min_group_size = eval(request.body.decode()).get("groupingMinimum")
+            course_id = eval(request.body.decode()).get("newProjectCourse")
+            ddl = eval(request.body.decode()).get("groupingDeadline")
+            selected = eval(request.body.decode()).get("selectedStudents")
+            key = eval(request.body.decode()).get("idx")
             ddl = int(ddl) // 1000
             group_ddl = datetime.datetime.fromtimestamp(ddl)
 
@@ -1561,6 +1563,13 @@ class TeacherCreateProject(View):
             for k in arr:
                 file_name = k
 
+            keys = Key.objects.filter(key_word=key)
+            if keys.count() == 0:
+                return JsonResponse({"TeacherCreateProject": "has no key"})
+            array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
+            if float(array['time']) + 3600 < time.time():
+                return JsonResponse({"TeacherCreateProject": "has no key"})
+
             project_id = 0
             if course.end_time > datetime.datetime.now() > course.start_time:
                 project = Project.objects.filter(name=project_name, introduction=introduction,
@@ -1572,25 +1581,23 @@ class TeacherCreateProject(View):
                                            group_size=group_size,
                                            course_id=course_id, min_group_size=min_group_size,
                                            group_ddl=group_ddl)
-                else:
-                    for j in project:
-                        project_id = j.id
-            keys = Key.objects.filter(key_word=key)
-            if keys.count() == 0:
-                return JsonResponse({"TeacherCreateProject": "has no key"})
-            array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
-            if float(array['time']) + 3600 < time.time():
-                return JsonResponse({"TeacherCreateProject": "has no key"})
-            if file_name != '':
-                file = request.FILES.get(file_name)
-                file_name = request.FILES['file']
-                path = default_storage.save('file/' + project_name + "/" + file_name,
-                                            ContentFile(file.read()))
-                ProjectFile.objects.create(file_path=path, project_id=project_id)
-
-                return JsonResponse({"TeacherCreateProject": "success"})
-            else:
-                return JsonResponse({"TeacherCreateProject": "has no authority"})
+                project = Project.objects.get(name=project_name, introduction=introduction,
+                                                 group_size=group_size,
+                                                 course_id=course_id, min_group_size=min_group_size,
+                                                 group_ddl=group_ddl)
+                project_id = project.id
+                return JsonResponse({"TeacherCreateProject": "success", 'Project_id': project_id})
+            # if file_name != '':
+            #     file = request.FILES.get(file_name)
+            #     name = str(request.FILES['file']).replace(' ', '_')
+            #     project_name = project_name.replace(' ', '_')
+            #     path = default_storage.save('file/' + project_name + "/" + name,
+            #                                 ContentFile(file.read()))
+            #     ProjectFile.objects.create(file_path=path, project_id=project_id)
+            #
+            #     return JsonResponse({"TeacherCreateProject": "success"})
+            # else:
+            #     return JsonResponse({"TeacherCreateProject": "has no authority"})
 
         except Exception as e:
             logger.exception('%s %s', self, e)
