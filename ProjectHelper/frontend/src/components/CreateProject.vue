@@ -41,8 +41,7 @@
         <el-upload
             class="upload-demo"
             ref="upload"
-            :data="this.datas"
-            :headers="this.dataBlock"
+            :data="this.dataBlock"
             action="http://127.0.0.1:8080/api/teacher_create_project/"
             multiple
             :file-list="fileList"
@@ -122,14 +121,22 @@ export default {
         ],
       },
       fileList: [],
-      dataBlock: {},
+      dataBlock: { 'sid': '',
+        'newProjectCourse': '',
+        'newProjectName': '',
+        'newProjectDescription': '',
+        'groupingMaximum': '',
+        'groupingMinimum': '',
+        'groupingStart': '',
+        'groupingDeadline': '',
+        'idx': '',
+      },
       loadStudentsLiteral: 'Show Students',
       showSelect: false,
       allStudentInCourse: [],
       selectedStudents: [],
       manuallySearchSid: '',
       fileCount: 0,
-      datas: {'data':'udhudhiugheriughudrhgudshrgrhgujhdrfujghdfrh'},
     }
   },
   methods: {
@@ -202,24 +209,21 @@ export default {
         const idx = res.data['SendKey']
         const startDate = new Date(this.groupingStart)
         const endDate = new Date(this.groupingDeadline)
-        this.dataBlock = {
-          'sid': this.sid,
-          'newProjectCourse': this.newProjectCourse,
-          'newProjectName': this.newProjectName,
-          'newProjectDescription': this.newProjectDescription,
-          'groupingMaximum': this.maxNum,
-          'groupingMinimum': this.minNum,
-          'groupingStart': startDate.getTime(),
-          'groupingDeadline': endDate.getTime(),
-          'idx': idx,
-        }
+        this.dataBlock['sid'] = this.sid
+        this.dataBlock['newProjectCourse'] = this.newProjectCourse
+        this.dataBlock['newProjectName'] = this.newProjectName
+        this.dataBlock['newProjectDescription'] = this.newProjectDescription
+        this.dataBlock['groupingMaximum'] = this.maxNum
+        this.dataBlock['groupingMinimum'] = this.minNum
+        this.dataBlock['groupingStart'] =  startDate.getTime()
+        this.dataBlock['groupingDeadline'] =  endDate.getTime()
+        this.dataBlock['idx'] = idx
         this.submitUpload()
       }).catch(err => {
         console.log(err, 'err')
       })
     },
     submitUpload () {
-      this.datas = {'data':'udhudhiugheriughudrhgudshrgrhgujhdrfujghdfrh'}
       if (this.fileList.length === 0) {
         console.log('create project without files')
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
