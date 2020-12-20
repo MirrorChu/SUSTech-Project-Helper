@@ -47,8 +47,19 @@
         <el-form-item label="Submission Detail">
           <div v-if="eventDetail['Data']['event_type'] === 'partition'">
             {{ eventDetail }}
+            <div>
+              <h3>
+                Selected Options
+              </h3>
+            </div>
+            <div v-for="literal in selectedChoiceLiteral">
+              {{ literal }}
+            </div>
           </div>
           <div>
+            <h3>
+              Submission Datetime
+            </h3>
             Please include submission datetime here.
           </div>
         </el-form-item>
@@ -57,10 +68,9 @@
           <el-input></el-input>
         </el-form-item>
 
-        <el-form-item v-if="idx >= 0" v-for="item in groupList[idx]['memberList']"
-                      :label="idx === 0 ? 'Captain ' + item + ' Score' : item + ' Score'">
-          <el-input>
-          </el-input>
+        <el-form-item v-for="(value, key) in memberLiterals"
+                      :label="value">
+          <el-input v-model="memberScores[key]"></el-input>
         </el-form-item>
 
         <el-form-item label="Feedback">
@@ -69,17 +79,9 @@
 
       </el-form>
 
-      <el-button>Grade</el-button>
+      <el-button @click="onClickGrade">Grade</el-button>
     </el-card>
 
-
-    <!--    <el-pagination-->
-    <!--      layout="prev, pager, next"-->
-    <!--      :total="groupsList.length"-->
-    <!--      :page-size="pageSize"-->
-    <!--      background-->
-    <!--      @current-change="handleCurrentChange">-->
-    <!--    </el-pagination>-->
   </div>
 </template>
 
@@ -91,8 +93,7 @@ export default {
       required: true,
     },
     eventDetail: {
-      required: true
-      ,
+      required: true,
     },
   }
   ,
@@ -101,6 +102,11 @@ export default {
       pageSize: 1,
       groupList: [],
       idx: -1,
+      selectedChoiceLiteral: [],
+      groupScore: 0,
+      memberScores: {},
+      memberLiterals: {},
+      feedback: '',
     }
   }
   ,
@@ -111,24 +117,33 @@ export default {
   methods: {
     onClickDetail (scope) {
       this.idx = scope.$index
-      const memberList = []
-      this.$axios.post('/student_gets_single_group_information/',
-          { 'group_id': this.$props.eventDetail['Data']['data'][0]['group_id'] }).then(res => {
-        console.log('/student_gets_single_group_information/', res.data)
-        console.log(scope.$index)
-        console.log(res)
-        memberList.push(res.data['captain_sid'])
-        for (let i = 0; i < res.data['members'].length; i += 1) {
-          memberList.push(res.data['members'][i])
+      this.groupId = this.groupList[this.idx]['group_id']
+      const partitionType = this.eventDetail['Data']['event_detail']['partitionType']
+      for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
+        const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i]
+        this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name']
+        this.memberScores[member['student_id']] = 0
+      }
+      if (partitionType === 'timeSlot') {
+        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
+          const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i]
+          this.selectedChoiceLiteral.push('option ' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
+              ': ' + (new Date(option[0])) + ' to ' + (new Date(option[1])))
         }
-        this.groupList[this.idx]['memberList'] = memberList
-      }).catch(err => {
+      }
+    },
+    onClickGrade () {
+      const dataBlock = {
+        'comment': this.feedback,
+        'score': this.memberScores
+      }
+      this.$axios.post('/mark_event/', dataBlock).then(res => {
+        console.log(res)
+      }).then(err => {
         console.log(err)
       })
-    }
-    ,
-  }
-  ,
+    },
+  },
 }
 </script>
 
