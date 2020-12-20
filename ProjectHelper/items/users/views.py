@@ -2713,7 +2713,7 @@ class GetAllPartition(View):
                             if event_detail['partitionType'] == 'normal':
                                 choice[event_detail['options'][j][0]] = []
                             else:
-                                string = event_detail['options'][j][0] + '-' + event_detail['options'][j][1]
+                                string = str(event_detail['options'][j][0]) + '-' + str(event_detail['options'][j][1])
                                 choice[string] = []
                         for j in choices:
                             group = GroupOrg.objects.get(id=j.group_id)
