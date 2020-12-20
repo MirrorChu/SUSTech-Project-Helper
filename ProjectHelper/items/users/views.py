@@ -1505,9 +1505,11 @@ class TeacherGetStudentsInCourse(View):
             if course.end_time > datetime.datetime.now() > course.start_time:
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for j in student:
-                    user = UserProfile.objects.filter(id=j.user_name_id)
-                    for k in user:
-                        students[k.student_id] = k.student_id
+                    user = UserProfile.objects.get(id=j.user_name_id)
+                    auth = Authority.objects.get(user_id=user.id, type="teach", course_id=course_id)
+                    if auth.end_time > datetime.datetime.now() > auth.start_time:
+                        continue
+                    students[user.student_id] = user.student_id
                 return JsonResponse({"Data": students, "TeacherGetStudentsInCourse": "success"})
             else:
                 return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
@@ -1553,6 +1555,7 @@ class TeacherCreateProject(View):
             key = eval(request.body.decode()).get("idx")
             ddl = int(ddl) // 1000
             group_ddl = datetime.datetime.fromtimestamp(ddl)
+            students = selected.split(',')
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
             user_id = query_set.id
@@ -1572,21 +1575,24 @@ class TeacherCreateProject(View):
 
             project_id = 0
             if course.end_time > datetime.datetime.now() > course.start_time:
-                project = Project.objects.filter(name=project_name, introduction=introduction,
-                                                 group_size=group_size,
-                                                 course_id=course_id, min_group_size=min_group_size,
-                                                 group_ddl=group_ddl)
-                if project.count() == 0:
-                    Project.objects.create(name=project_name, introduction=introduction,
-                                           group_size=group_size,
-                                           course_id=course_id, min_group_size=min_group_size,
-                                           group_ddl=group_ddl)
+                # project = Project.objects.filter(name=project_name, introduction=introduction,
+                #                                  group_size=group_size,
+                #                                  course_id=course_id, min_group_size=min_group_size,
+                #                                  group_ddl=group_ddl)
+                # if project.count() == 0:
+                Project.objects.create(name=project_name, introduction=introduction,
+                                       group_size=group_size,
+                                       course_id=course_id, min_group_size=min_group_size,
+                                       group_ddl=group_ddl)
                 project = Project.objects.get(name=project_name, introduction=introduction,
-                                                 group_size=group_size,
-                                                 course_id=course_id, min_group_size=min_group_size,
-                                                 group_ddl=group_ddl)
+                                              group_size=group_size,
+                                              course_id=course_id, min_group_size=min_group_size,
+                                              group_ddl=group_ddl)
                 project_id = project.id
+                for i in students:
+                    student = UserProfile.objects.get(student_id=i)
                 return JsonResponse({"TeacherCreateProject": "success", 'Project_id': project_id})
+            return JsonResponse({"TeacherCreateProject": "has no authority"})
             # if file_name != '':
             #     file = request.FILES.get(file_name)
             #     name = str(request.FILES['file']).replace(' ', '_')
@@ -1602,6 +1608,88 @@ class TeacherCreateProject(View):
         except Exception as e:
             logger.exception('%s %s', self, e)
             return JsonResponse({"TeacherCreateProjectCheck": "failed"})
+
+
+class SubmitProjectFile(View):
+    def post(self, request):
+        try:
+
+            token = request.POST.get('token')
+            student_id = get_sid(token)
+            project_id = int(request.POST.get('project_id'))
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+
+            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            user_id = query_set.id
+            auth = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    name = str(request.FILES['file'])
+                    project_name = project.name
+                    path = default_storage.save('file/' + project_name + "/" + name,
+                                                ContentFile(file.read()))
+                    ProjectFile.objects.create(file_path=path, project_id=project_id)
+
+                    return JsonResponse({"SubmitProjectFile": "success"})
+            return JsonResponse({"SubmitProjectFile": "has no authority"})
+
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            return JsonResponse({"SubmitProjectFileCheck": "failed"})
+
+
+class SubmitEventFile(View):
+    def post(self, request):
+        try:
+            token = request.POST.get('token')
+            student_id = get_sid(token)
+            event_id = int(request.POST.get('event_id'))
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            auth = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
+            user_group = UserGroup.objects.filter(user_name_id=user_id)
+            group = None
+            for i in user_group:
+                group = GroupOrg.objects.get(id=i.group_name_id)
+                if group.project_id == project.id:
+                    break
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    name = str(request.FILES['file'])
+                    project_name = project.name
+                    path = default_storage.save('file/' + project_name + "/" + event.title + "/" + name,
+                                                ContentFile(file.read()))
+                    ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=group.id,
+                                                     user_id=user_id, event_id=event_id)
+
+                    return JsonResponse({"SubmitEventFile": "success"})
+            return JsonResponse({"SubmitEventFile": "has no authority"})
+
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            return JsonResponse({"SubmitProjectFileCheck": "failed"})
 
 
 class TeacherGetAuthInProject(View):
