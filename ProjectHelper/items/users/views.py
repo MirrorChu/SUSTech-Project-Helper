@@ -1521,9 +1521,8 @@ class TeacherCreateProject(View):
         try:
             logger.debug('%s request.header %s', self, request.headers)
             logger.debug('%s request.body %s', self, request.body)
-            logger.debug('%s request.body %s', self, request.POST)
-            logger.debug('%s request.body %s', self, request.FILES)
-
+            logger.debug('%s request.body %s', self, request.POST)  # 参数
+            logger.debug('%s request.body %s', self, request.FILES)  # 文件
             logger.debug('%s request.body %s', self, request.POST.get('data'))
 
             ddl = 0
@@ -1568,20 +1567,20 @@ class TeacherCreateProject(View):
                 path = default_storage.save('file/' + file_name,
                                             ContentFile(file.read()))
 
-            # if course.end_time > datetime.datetime.now() > course.start_time:
-            #     project = Project.objects.filter(name=project_name, introduction=introduction,
-            #                                      group_size=group_size,
-            #                                      course_id=course_id, min_group_size=min_group_size,
-            #                                      group_ddl=group_ddl)
-            #     project_id = 0
-            #     if project.count() == 0:
-            #         Project.objects.create(name=project_name, introduction=introduction,
-            #                                group_size=group_size,
-            #                                course_id=course_id, min_group_size=min_group_size,
-            #                                group_ddl=group_ddl)
-            #     else:
-            #         for j in project:
-            #             project_id = j.id
+                # if course.end_time > datetime.datetime.now() > course.start_time:
+                #     project = Project.objects.filter(name=project_name, introduction=introduction,
+                #                                      group_size=group_size,
+                #                                      course_id=course_id, min_group_size=min_group_size,
+                #                                      group_ddl=group_ddl)
+                #     project_id = 0
+                #     if project.count() == 0:
+                #         Project.objects.create(name=project_name, introduction=introduction,
+                #                                group_size=group_size,
+                #                                course_id=course_id, min_group_size=min_group_size,
+                #                                group_ddl=group_ddl)
+                #     else:
+                #         for j in project:
+                #             project_id = j.id
                 # keys = Key.objects.filter(key_word=key)
                 # if keys.count() == 0:
                 #     return JsonResponse({"TeacherCreateProject": "has no key"})
@@ -2270,7 +2269,12 @@ class TeacherCreateGroup(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             project_id = eval(request.body.decode()).get("project_id")
-            member = eval(request.body.decode()).get("member")
+            # member = eval(request.body.decode()).get("member")
+            captain_sid = eval(request.body.decode()).get("captain_sid")
+            sid_list = eval(request.body.decode()).get("sid_list")
+            sid_list.append(sid_list[0])
+            sid_list[0] = captain_sid
+            member = sid_list
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -2599,10 +2603,24 @@ class GetEventDetail(View):
                                     members = []
                                     for i in member:
                                         student = UserProfile.objects.get(id=i.user_name_id)
-                                        members.append({'id': student.id, 'student_id': student.student_id,
-                                                        'real_name': student.real_name})
-                                    groups[group.id] = {'choice': [], 'group_id': j.group_id, 'memberList': members,
-                                                        'group_name': group.group_name, 'index': []}
+                                        student_score = EventGrades.objects.filter(event_id=event_id,
+                                                                                   user_id=student.id)
+                                        if student_score.count() == 0:
+                                            members.append({'id': student.id, 'student_id': student.student_id,
+                                                            'real_name': student.real_name})
+                                        else:
+                                            for m in student_score:
+                                                members.append({'id': student.id, 'student_id': student.student_id,
+                                                                'real_name': student.real_name, 'score': m.grade})
+                                    group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                                    if group_score.count() == 0:
+                                        groups[group.id] = {'choice': [], 'group_id': j.group_id, 'memberList': members,
+                                                            'group_name': group.group_name, 'index': []}
+                                    else:
+                                        for m in group_score:
+                                            groups[group.id] = {'choice': [], 'group_id': j.group_id,
+                                                                'memberList': members, 'group_score': m.grade,
+                                                                'group_name': group.group_name, 'index': []}
                                 if events['event_detail']['partitionType'] == 'normal':
                                     events['partitionType'] = 'normal'
                                     for j in choices:
@@ -2637,50 +2655,42 @@ class GetEventDetail(View):
                         group = GroupOrg.objects.get(id=i.group_name_id)
                         if group.project_id == project.id:
                             break
-                    if event.type == "partition" and events['event_detail']['partitionType'] == 'normal':
+                    if event.type == "partition":
                         choices = ChooseEvent.objects.filter(event_id_id=event.id, group_id=group.id)
                         events['data'] = {}
-                        if choices.count() == 1:
+                        for j in choices:
+                            events['data'] = {'choice': [],
+                                              'group_id': j.group_id, 'group_name': group.group_name,
+                                              'index': [], 'submitTime': j.add_time}
+                            break
+                        group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                        if group_score.count() != 0:
+                            for j in group_score:
+                                events['data']['group_score'] = j.grade
+                                events['data']['comment'] = j.comment
+                        student_score = EventGrades.objects.filter(event_id=event_id, user_id=user_id)
+                        if student_score.count() != 0:
+                            for j in group_score:
+                                events['data']['student_score'] = j.grade
+                        if events['event_detail']['partitionType'] == 'normal':
+                            events['partitionType'] = 'normal'
                             for j in choices:
-                                events['data'] = {'choice': [events['event_detail']['options'][int(j.choice)][0]],
-                                                  'group_id': j.group_id, 'group_name': group.group_name,
-                                                  'index': [int(j.choice)], 'submitTime': j.add_time}
-                        else:
-                            for j in choices:
-                                events['data'] = {'choice': [],
-                                                  'group_id': j.group_id, 'group_name': group.group_name,
-                                                  'index': []}
-                                break
-                            for j in choices:
-                                events['data']['choice'].append(events['event_detail']['options'][int(j.choice)][1])
+                                events['data']['choice'].append((events['event_detail']['options'][int(j.choice)][0],
+                                                                 events['event_detail']['options'][int(j.choice)][1]))
                                 events['data']['index'].append(int(j.choice))
-                                events['data']['submitTime'] = j.add_time
+                        elif events['event_detail']['partitionType'] == 'timeSlot':
+                            events['partitionType'] = 'timeSlot'
+                            for j in choices:
+                                events['data']['choice'].append((events['event_detail']['options'][int(j.choice)][0],
+                                                                 events['event_detail']['options'][int(j.choice)][1],
+                                                                 events['event_detail']['options'][int(j.choice)][2]))
+                                events['data']['index'].append(int(j.choice))
                     elif event.type == "attachment":
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
                         for j in choices:
                             events['data'] = {'path': j.file_path, 'group_id': j.group_id,
                                               'group_name': group.group_name}
-                    elif event.type == "partition" and events['event_detail']['partitionType'] == 'timeSlot':
-                        choices = ChooseEvent.objects.filter(event_id_id=event.id)
-                        events['data'] = {}
-                        if choices.count() == 1:
-                            for j in choices:
-                                events['data'] = {'choice': [(events['event_detail']['options'][int(j.choice)][0],
-                                                              events['event_detail']['options'][int(j.choice)][1])],
-                                                  'group_id': j.group_id, 'group_name': group.group_name,
-                                                  'index': [int(j.choice)], 'submitTime': j.add_time}
-                        else:
-                            for j in choices:
-                                events['data'] = {'choice': [],
-                                                  'group_id': j.group_id, 'group_name': group.group_name,
-                                                  'index': []}
-                                break
-                            for j in choices:
-                                events['data']['choice'].append((events['event_detail']['options'][int(j.choice)][0],
-                                                                 events['event_detail']['options'][int(j.choice)][1]))
-                                events['data']['index'].append(int(j.choice))
-                                events['data']['submitTime'] = j.add_time
 
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
@@ -2731,7 +2741,7 @@ class GetAllPartition(View):
                                                                                           'group_name': group.group_name})
                             else:
                                 string = str(event_detail['options'][int(j.choice)][0]) + '-' + str(
-                                             event_detail['options'][int(j.choice)][1])
+                                    event_detail['options'][int(j.choice)][1])
                                 choice[string].append({'group_id': group.id, 'group_name': group.group_name})
                         event['data'] = choice
                     partitions.append(event)
@@ -2826,6 +2836,8 @@ class MarkEvent(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             event_id = eval(request.body.decode()).get("event_id")
+            group_id = eval(request.body.decode()).get("group_id")
+            group_score = eval(request.body.decode()).get("group_score")
             comment = eval(request.body.decode()).get("comment")
             score = eval(request.body.decode()).get("score")
             now = datetime.datetime.now()
@@ -2837,7 +2849,6 @@ class MarkEvent(View):
             course_id = project.course_id
             auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=course_id)
             if auth.end_time > now > auth.start_time:
-                num = 0
                 for i in score:
                     student = UserProfile.objects.get(student_id=i)
                     tmp = EventGrades.objects.filter(event_id=event_id, user_id=student.id)
@@ -2847,9 +2858,13 @@ class MarkEvent(View):
                     else:
                         EventGrades.objects.filter(event_id=event_id, user_id=student.id).update(grade=score[i],
                                                                                                  comment=comment)
-                    num += score[i]
-                # tmp1 = ProjectGrades.filter()
-
+                tmp1 = ProjectGrades.filter(group_id=group_id, event_id=event_id)
+                if tmp1.count() == 0:
+                    ProjectGrades.objects.create(grade=group_score, comment=comment, event_id=event_id,
+                                                 group_id=group_id)
+                else:
+                    ProjectGrades.objects.filter(event_id=event_id, group_id=group_id).update(grade=group_score,
+                                                                                              comment=comment)
                 return JsonResponse({"MarkEvent": "success"})
             return JsonResponse({"MarkEvent": "failed"})
 
