@@ -1506,8 +1506,13 @@ class TeacherGetStudentsInCourse(View):
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for j in student:
                     user = UserProfile.objects.get(id=j.user_name_id)
-                    auth = Authority.objects.get(user_id=user.id, type="teach", course_id=course_id)
-                    if auth.end_time > datetime.datetime.now() > auth.start_time:
+                    auth = Authority.objects.filter(user_id=user.id, type="teach", course_id=course_id)
+                    boo = False
+                    for i in auth:
+                        if i.end_time > datetime.datetime.now() > i.start_time:
+                            boo = True
+                            break
+                    if boo:
                         continue
                     students[user.student_id] = user.student_id
                 return JsonResponse({"Data": students, "TeacherGetStudentsInCourse": "success"})
