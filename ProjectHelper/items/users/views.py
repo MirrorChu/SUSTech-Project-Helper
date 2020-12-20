@@ -1521,69 +1521,78 @@ class TeacherCreateProject(View):
         try:
             logger.debug('%s request.header %s', self, request.headers)
             logger.debug('%s request.body %s', self, request.body)
-            ddl = 0
-            headersLiteral = str(request.headers).replace('\'', '\"')
-            headers = json.loads(headersLiteral)
-            print(headers.keys())
-            if 'Token' in headers.keys():
-                print('in')
-                token = headers['Token']
-                student_id = get_sid(token)
-                project_name = headers['Newprojectname']
-                introduction = headers['Newprojectdescription']
-                group_size = headers['Groupingmaximum']
-                min_group_size = headers['Groupingminimum']
-                course_id = headers['Newprojectcourse']
-                ddl = headers['Groupingdeadline']
-                key = headers['Idx']
-            else:
-                print('not in')
-                token = get_from_request(request, 'token')
-                student_id = get_sid(token)
-                project_name = eval(request.body.decode()).get("newProjectName")
-                introduction = eval(request.body.decode()).get("newProjectDescription")
-                group_size = eval(request.body.decode()).get("groupingMaximum")
-                min_group_size = eval(request.body.decode()).get("groupingMinimum")
-                course_id = eval(request.body.decode()).get("newProjectCourse")
-                ddl = eval(request.body.decode()).get("groupingDeadline")
-                key = eval(request.body.decode()).get("idx")
-            ddl = int(ddl) // 1000
-            group_ddl = datetime.datetime.fromtimestamp(ddl)
+            logger.debug('%s request.body %s', self, request.POST)
+            logger.debug('%s request.body %s', self, request.FILES)
 
-            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
-            user_id = query_set.id
-            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            logger.debug('%s request.body %s', self, request.POST.get('data'))
+
+            ddl = 0
+            # headersLiteral = str(request.headers).replace('\'', '\"')
+            # headers = json.loads(headersLiteral)
+            # print(headers.keys())
+            # if 'Token' in headers.keys():
+            #     print('in')
+            #     token = headers['Token']
+            #     student_id = get_sid(token)
+            #     project_name = headers['Newprojectname']
+            #     introduction = headers['Newprojectdescription']
+            #     group_size = headers['Groupingmaximum']
+            #     min_group_size = headers['Groupingminimum']
+            #     course_id = headers['Newprojectcourse']
+            #     ddl = headers['Groupingdeadline']
+            #     key = headers['Idx']
+            # else:
+            #     print('not in')
+            #     token = get_from_request(request, 'token')
+            #     student_id = get_sid(token)
+            #     project_name = eval(request.body.decode()).get("newProjectName")
+            #     introduction = eval(request.body.decode()).get("newProjectDescription")
+            #     group_size = eval(request.body.decode()).get("groupingMaximum")
+            #     min_group_size = eval(request.body.decode()).get("groupingMinimum")
+            #     course_id = eval(request.body.decode()).get("newProjectCourse")
+            #     ddl = eval(request.body.decode()).get("groupingDeadline")
+            #     key = eval(request.body.decode()).get("idx")
+            # ddl = int(ddl) // 1000
+            # group_ddl = datetime.datetime.fromtimestamp(ddl)
+            #
+            # query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            # user_id = query_set.id
+            # course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
 
             arr = request.FILES.keys()
             file_name = ''
             for k in arr:
                 file_name = k
+            if file_name != '':
+                file = request.FILES.get(file_name)
+                path = default_storage.save('file/' + file_name,
+                                            ContentFile(file.read()))
 
-            if course.end_time > datetime.datetime.now() > course.start_time:
-                project = Project.objects.filter(name=project_name, introduction=introduction,
-                                                 group_size=group_size,
-                                                 course_id=course_id, min_group_size=min_group_size,
-                                                 group_ddl=group_ddl)
-                project_id = 0
-                if project.count() == 0:
-                    Project.objects.create(name=project_name, introduction=introduction,
-                                           group_size=group_size,
-                                           course_id=course_id, min_group_size=min_group_size,
-                                           group_ddl=group_ddl)
-                else:
-                    for j in project:
-                        project_id = j.id
-                keys = Key.objects.filter(key_word=key)
-                if keys.count() == 0:
-                    return JsonResponse({"TeacherCreateProject": "has no key"})
-                array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
-                if float(array['time']) + 3600 < time.time():
-                    return JsonResponse({"TeacherCreateProject": "has no key"})
-                if file_name != '':
-                    file = request.FILES.get(file_name)
-                    path = default_storage.save('file/' + project_name + "/" + file_name,
-                                                ContentFile(file.read()))
-                    ProjectFile.objects.create(file_path=path, project_id=project_id)
+            # if course.end_time > datetime.datetime.now() > course.start_time:
+            #     project = Project.objects.filter(name=project_name, introduction=introduction,
+            #                                      group_size=group_size,
+            #                                      course_id=course_id, min_group_size=min_group_size,
+            #                                      group_ddl=group_ddl)
+            #     project_id = 0
+            #     if project.count() == 0:
+            #         Project.objects.create(name=project_name, introduction=introduction,
+            #                                group_size=group_size,
+            #                                course_id=course_id, min_group_size=min_group_size,
+            #                                group_ddl=group_ddl)
+            #     else:
+            #         for j in project:
+            #             project_id = j.id
+                # keys = Key.objects.filter(key_word=key)
+                # if keys.count() == 0:
+                #     return JsonResponse({"TeacherCreateProject": "has no key"})
+                # array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
+                # if float(array['time']) + 3600 < time.time():
+                #     return JsonResponse({"TeacherCreateProject": "has no key"})
+                # if file_name != '':
+                #     file = request.FILES.get(file_name)
+                #     path = default_storage.save('file/' + project_name + "/" + file_name,
+                #                                 ContentFile(file.read()))
+                #     ProjectFile.objects.create(file_path=path, project_id=project_id)
 
                 return JsonResponse({"TeacherCreateProject": "success"})
             else:
@@ -2717,8 +2726,13 @@ class GetAllPartition(View):
                                 choice[string] = []
                         for j in choices:
                             group = GroupOrg.objects.get(id=j.group_id)
-                            choice[event_detail['options'][int(j)][0]].append({'group_id': group.id,
-                                                                               'group_name': group.group_name})
+                            if event_detail['partitionType'] == 'normal':
+                                choice[event_detail['options'][int(j.choice)][0]].append({'group_id': group.id,
+                                                                                          'group_name': group.group_name})
+                            else:
+                                string = str(event_detail['options'][int(j.choice)][0]) + '-' + str(
+                                             event_detail['options'][int(j.choice)][1])
+                                choice[string].append({'group_id': group.id, 'group_name': group.group_name})
                         event['data'] = choice
                     partitions.append(event)
 
