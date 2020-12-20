@@ -181,28 +181,6 @@ export default {
         this.loadStudentsLiteral = 'Show Students'
       }
     },
-    // onClickConfirmCreateProject () {
-    //   this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
-    //     console.log(res)
-    //     const idx = res.data['SendKey']
-    //     const startDate = new Date(this.groupingStart)
-    //     const endDate = new Date(this.groupingDeadline)
-    //     this.dataBlock = {
-    //       'sid': this.sid,
-    //       'newProjectCourse': this.newProjectCourse,
-    //       'newProjectName': this.newProjectName,
-    //       'newProjectDescription': this.newProjectDescription,
-    //       'groupingMaximum': this.maxNum,
-    //       'groupingMinimum': this.minNum,
-    //       'groupingStart': startDate.getTime(),
-    //       'groupingDeadline': endDate.getTime(),
-    //       'idx': idx,
-    //     }
-    //     this.submitUpload()
-    //   }).catch(err => {
-    //     console.log(err, 'err')
-    //   })
-    // },
     onClickConfirmCreateProject () {
       this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
         console.log(res)
@@ -218,6 +196,7 @@ export default {
         this.dataBlock['groupingStart'] =  startDate.getTime()
         this.dataBlock['groupingDeadline'] =  endDate.getTime()
         this.dataBlock['idx'] = idx
+        this.dataBlock['selectedStudent'] = this.selectedStudents
         this.submitUpload()
       }).catch(err => {
         console.log(err, 'err')
