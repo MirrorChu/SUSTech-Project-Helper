@@ -2412,29 +2412,29 @@ class CreateEvent(View):
             json_obj_str = json.dumps(json_obj)
             print(json_obj_str)
 
-            if request.POST.get('token') is not None:
-                token = request.POST.get("token")
-                student_id = get_sid(token)
-                project_id = int(request.POST.get("project_id"))
-                event_type = request.POST.get("event_type")
-                event_title = request.POST.get("event_title")
-                event_detail = request.POST.get("event_detail")
-                key = request.POST.get("key")
-            else:
-                token = eval(request.body.decode()).get("token")
-                student_id = get_sid(token)
-                project_id = eval(request.body.decode()).get("project_id")
-                event_type = eval(request.body.decode()).get("event_type")
-                event_title = eval(request.body.decode()).get("event_title")
-                event_detail = eval(request.body.decode()).get("event_detail")
-                key = eval(request.body.decode()).get("key")
+            # if request.POST.get('token') is not None:
+            #     token = request.POST.get("token")
+            #     student_id = get_sid(token)
+            #     project_id = int(request.POST.get("project_id"))
+            #     event_type = request.POST.get("event_type")
+            #     event_title = request.POST.get("event_title")
+            #     event_detail = request.POST.get("event_detail")
+            #     key = request.POST.get("key")
+            # else:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+            event_type = eval(request.body.decode()).get("event_type")
+            event_title = eval(request.body.decode()).get("event_title")
+            event_detail = eval(request.body.decode()).get("event_detail")
+            key = eval(request.body.decode()).get("key")
             ddl = datetime.datetime.fromtimestamp(event_detail['due'] // 1000)
             now = datetime.datetime.now()
 
-            arr = request.FILES.keys()
-            file_name = ''
-            for k in arr:
-                file_name = k
+            # arr = request.FILES.keys()
+            # file_name = ''
+            # for k in arr:
+            #     file_name = k
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -2449,6 +2449,14 @@ class CreateEvent(View):
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if ddl <= datetime.datetime.now():
                 return JsonResponse({"CreateEvent": "wrong ddl"})
+
+            keys = Key.objects.filter(key_word=key)
+            if keys.count() == 0:
+                return JsonResponse({"TeacherCreateEvent": "has no key"})
+            array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
+            if float(array['time']) + 3600 < time.time():
+                return JsonResponse({"TeacherCreateEvent": "has no key"})
+
             if course.end_time > now > course.start_time:
                 detail = event_detail['introduction']
                 parameter = json.dumps(event_detail)
@@ -2462,19 +2470,13 @@ class CreateEvent(View):
                 tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
                                         detail=detail, title=event_title, project_id=project_id,
                                         publish_user_id=user_id)
-                keys = Key.objects.filter(key_word=key)
-                if keys.count() == 0:
-                    return JsonResponse({"TeacherCreateEvent": "has no key"})
-                array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
-                if float(array['time']) + 3600 < time.time():
-                    return JsonResponse({"TeacherCreateEvent": "has no key"})
-                if file_name != '':
-                    file = request.FILES.get(file_name)
-                    file_name = request.FILES['file']
-                    path = default_storage.save('file/' + project.name + "/" + file_name,
-                                                ContentFile(file.read()))
-                    ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
-                                                     group_id=group.id, user_id=user_id)
+                # if file_name != '':
+                #     file = request.FILES.get(file_name)
+                #     file_name = request.FILES['file']
+                #     path = default_storage.save('file/' + project.name + "/" + file_name,
+                #                                 ContentFile(file.read()))
+                #     ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
+                #                                      group_id=group.id, user_id=user_id)
                 return JsonResponse({"CreateEvent": "success"})
             return JsonResponse({"CreateEvent": "no auth"})
 
