@@ -2813,7 +2813,7 @@ class MarkEvent(View):
         :return:
         """
         try:
-
+            logger.debug('%s request.body %s', self, request.body)
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             event_id = eval(request.body.decode()).get("event_id")

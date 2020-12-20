@@ -12,7 +12,7 @@
             <el-radio :label="1">Selection</el-radio>
             <el-radio :label="2">Submission</el-radio>
             <el-radio :label="3">Partition</el-radio>
-<!--            <el-radio :label="4">Upload</el-radio>-->
+            <!--            <el-radio :label="4">Upload</el-radio>-->
           </el-radio-group>
         </el-form-item>
 
@@ -38,9 +38,9 @@
               v-bind:projectId="projectId">
           </NewPartition>
         </el-form-item>
-<!--        <el-form-item v-else-if="eventType === 4">-->
-<!--          TODO-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item v-else-if="eventType === 4">-->
+        <!--          TODO-->
+        <!--        </el-form-item>-->
       </el-form>
     </div>
 
@@ -71,13 +71,20 @@ export default {
     courseId: {
       type: Number,
       required: true,
-    }
+    },
   },
   data () {
     return {
       eventType: 1,
       expand: false,
     }
+  },
+  created () {
+    this.$axios.post('/get_all_partition/', {'project_id': this.projectId}).then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     onClickExpand () {

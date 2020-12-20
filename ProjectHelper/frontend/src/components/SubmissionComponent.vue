@@ -59,7 +59,7 @@ export default {
     },
     eventId: {
       required: true,
-    }
+    },
   },
   data () {
     return {

@@ -34,9 +34,10 @@
 
     <CreateProject
         v-bind:sid="this.sid"
-        v-if="this.displayControl.createProjectForm"></CreateProject>
+        v-if="this.displayControl.createProjectForm">
+    </CreateProject>
 
-    <el-button v-if="this.displayControl.createProjectButton" @click="onClickCreateProject">{{ createProjectLiteral }}
+    <el-button v-if="this.identity === 'teacher'" @click="onClickCreateProject">{{ createProjectLiteral }}
     </el-button>
 
   </div>
@@ -59,7 +60,7 @@ export default {
       displayControl: {
         projectsList: true,
         projectDetail: false,
-        createProjectButton: false,
+        createProjectButton: true,
         createProjectForm: false,
       },
       createProjectLiteral: 'Create New Project',
@@ -71,19 +72,25 @@ export default {
     }
   },
   created () {
-    this.loadProjects()
+    this.$axios.post('/is_teacher/', {}).then(res => {
+      console.log(res)
+      if (res.data['IsTeacher'] === 1) {
+        this.identity = 'teacher'
+      }
+      else {
+        this.identity = ''
+      }
+      this.loadProjects()
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     loadProjects() {
       this.$axios.post('/student_gets_all_projects/', {}).then(res => {
         this.projects = res.data['projects']
         this.sid = res.data['sid']
-        this.$axios.post('/get_identity/', {}).then(res => {
-          this.identity = res.data['identity']
-          this.displayControl.createProjectButton = (this.identity === 'teacher')
-        }).catch(err => {
-          console.log('err', err)
-        })
+        this.displayControl.createProjectButton = (this.identity === 'teacher')
       }).catch(err => {
         console.log('err', err)
       })
@@ -120,33 +127,9 @@ export default {
       const localProjects = this.projects.filter(data => !this.searchKey ||
           JSON.stringify(data).toLocaleLowerCase().includes(this.searchKey.toLocaleLowerCase()))
       const localProject = localProjects[index]
-
       this.projectId = localProject[0]
       this.courseId = localProject[3]
-
       this.controlDisplay('projectDetail')
-
-      // this.$axios.post('/student_gets_single_project_information/', {
-      //   'projectId': localProject[0],
-      // }).then(res => {
-      //   console.log('res', res)
-      //   this.projectDetail = res.data
-      //   this.projectDetail['projectId'] = localProject[0]
-      //   this.courseId = localProject[3]
-      //   this.$axios.post('/student_gets_group_information_in_project/', {
-      //     sid: this.sid,
-      //     project_id: localProject[0],
-      //   }).then(res => {
-      //     console.log('groupInfo', res.data)
-      //     this.groupInfo = res.data
-      //   }).catch(err => {
-      //     this.projectDetail = null
-      //     console.log(err)
-      //   })
-      // }).catch(err => {
-      //   console.log(err)
-      // })
-
     },
   },
 }

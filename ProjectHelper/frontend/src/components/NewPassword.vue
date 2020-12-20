@@ -66,7 +66,7 @@ export default {
 
 <style scoped>
 .el-card{
-  font-family: Verdana;
+  font-family: Verdana,serif;
   background-color: #F7F8F8;
   border-color:whitesmoke;
   align-content: center;

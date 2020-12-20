@@ -104,16 +104,6 @@
 
     </el-form>
 
-    <!--    TODO: File upload. -->
-    <!--    <el-upload-->
-    <!--        class="upload-demo"-->
-    <!--        drag-->
-    <!--        action="/api/personaldata/"-->
-    <!--        :name="this.sid"-->
-    <!--        :multiple="true">-->
-    <!--      <i class="el-icon-upload"></i>-->
-    <!--    </el-upload>-->
-
     <div>
       <h3>Add Tag Library</h3>
       <el-input v-model="addingtag"></el-input>
@@ -198,37 +188,6 @@ export default {
     onEditClicked () {
       this.edit = true
     },
-    // /**
-    //  *
-    //  * @param data
-    //  * @param name
-    //  */
-    // saveFile (data, name) {
-    //   try {
-    //     data = new Blob([data])
-    //     console.log(data)
-    //     console.log(name)
-    //
-    //     const blobUrl = window.URL.createObjectURL(data)
-    //     const a = document.createElement('a')
-    //     a.style.display = 'none'
-    //     a.download = name
-    //     a.href = blobUrl
-    //     a.click()
-    //     URL.revokeObjectURL(a.href)
-    //   } catch (e) {
-    //     alert('保存文件出错')
-    //   }
-    // },
-    // testFileDownload () {
-    //   this.$axios.post('/test/', { sid: this.sid }, { responseType: 'blob' }).then(res => {
-    //     console.log('res', res)
-    //     console.log(res.data.size)
-    //     this.saveFile(res.data, '11811002.zip')
-    //   }).catch(err => {
-    //     console.log('err', err)
-    //   })
-    // },
     onClickNewPassword () {
       this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res => {
         console.log(res)
@@ -256,11 +215,6 @@ export default {
       }
       return isJPG && isLt2M
     },
-    // handlePictureCardPreview (file) {
-    //   console.log('preview')
-    //   this.dialogImageUrl = file.url
-    //   this.dialogVisible = true
-    // },
     pulltagData () {
       this.$axios.post('/student_gets_all_tags/', {
         sid: this.sid,
@@ -371,18 +325,6 @@ export default {
 </script>
 
 <style>
-/*.avatar-uploader .el-upload {*/
-/*  border: 1px dashed #d9d9d9;*/
-/*  border-radius: 6px;*/
-/*  cursor: pointer;*/
-/*  position: relative;*/
-/*  overflow: hidden;*/
-/*}*/
-
-/*.avatar-uploader .el-upload:hover {*/
-/*  border-color: #409EFF;*/
-/*}*/
-
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
