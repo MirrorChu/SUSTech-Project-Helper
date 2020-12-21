@@ -164,7 +164,6 @@ export default {
     },
     onClickLoadStudent () {
       this.showSelect = !this.showSelect
-      this.allStudentInCourse = []
       if (this.showSelect) {
         this.loadStudentsLiteral = 'Cancel'
       } else {
@@ -237,6 +236,7 @@ export default {
     loadstudnetdata()
     {
       //  TODO: Update the list of all students in course.
+      this.allStudentInCourse = []
       if (this.newProjectCourse)
       {
         const dataGram = { course: parseInt(this.newProjectCourse) }
