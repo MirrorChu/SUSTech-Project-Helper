@@ -12,24 +12,35 @@
             <el-radio :label="1">Selection</el-radio>
             <el-radio :label="2">Submission</el-radio>
             <el-radio :label="3">Partition</el-radio>
-<!--            <el-radio :label="4">Upload</el-radio>-->
+            <!--            <el-radio :label="4">Upload</el-radio>-->
           </el-radio-group>
         </el-form-item>
+
         <el-form-item v-if="eventType === 0">
-          <NewAnnouncement></NewAnnouncement>
+          <NewAnnouncement>
+
+          </NewAnnouncement>
         </el-form-item>
+
         <el-form-item v-else-if="eventType === 1">
           <NewSelection></NewSelection>
         </el-form-item>
+
         <el-form-item v-else-if="eventType === 2">
-          <NewSubmission></NewSubmission>
+          <NewSubmission v-bind:projectId="this.$props.projectId"
+                         v-bind:courseId="this.$props.courseId">
+          </NewSubmission>
         </el-form-item>
+
         <el-form-item v-else-if="eventType === 3">
-          <NewPartition v-bind:projectId="projectId"></NewPartition>
+          <NewPartition
+              v-bind:course-id="courseId"
+              v-bind:projectId="projectId">
+          </NewPartition>
         </el-form-item>
-<!--        <el-form-item v-else-if="eventType === 4">-->
-<!--          TODO-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item v-else-if="eventType === 4">-->
+        <!--          TODO-->
+        <!--        </el-form-item>-->
       </el-form>
     </div>
 
@@ -57,12 +68,23 @@ export default {
       type: Number,
       required: true,
     },
+    courseId: {
+      type: Number,
+      required: true,
+    },
   },
   data () {
     return {
       eventType: 1,
       expand: false,
     }
+  },
+  created () {
+    this.$axios.post('/get_all_partition/', {'project_id': this.projectId}).then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     onClickExpand () {

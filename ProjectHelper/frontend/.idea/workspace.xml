@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="5866b465-e851-41b8-8d84-5801f4ef72ca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/GroupInfo.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/GroupInfo.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ProjectDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProjectDetail.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +25,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_package_manager_path" value="yarn" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.JavaScript" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
@@ -58,6 +61,7 @@
       <workItem from="1608193079487" duration="1258000" />
       <workItem from="1608206549479" duration="16725000" />
       <workItem from="1608269636150" duration="582000" />
+      <workItem from="1608394815734" duration="11153000" />
     </task>
     <servers />
   </component>

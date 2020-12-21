@@ -9,53 +9,72 @@
         </div>
 
         <div v-if="!this.edit">
-
           <div>
             Project Name: {{ this.projectDetail['projectName'] }}
           </div>
+
           <div>
-            Project Introduction: {{this.projectDetail['projectIntroduction']}}
+            Project Introduction: {{ this.projectDetail['projectIntroduction'] }}
+          </div>
+
+          <div>
+            <div v-for="(value, key) in this.file_dict">
+              <el-link :href="value" target="_blank" type="primary">{{ key }}</el-link>
+            </div>
           </div>
         </div>
         <el-form v-else>
           <el-form-item label="Project Name">
-            <el-input v-model="this.projectDetail['projectName']"></el-input>
+            <el-input v-model="projectDetail['projectName']"></el-input>
           </el-form-item>
 
           <el-form-item label="Project Introduction">
-            <el-input v-model="this.projectDetail['projectIntroduction']"></el-input>
+            <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
+          </el-form-item>
+
+          <el-form-item label="Upload File">
+            <el-upload
+                drag
+                action="/api/test"
+                :headers="{'token': token, 'project_id': this.$props.projectId}"
+                multiple>
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
+            </el-upload>
           </el-form-item>
         </el-form>
 
-      <div>
-        <div v-if="this.privileges['teach'] !== 1">
-          <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
-                     v-bind:group-info="this.groupInfo" v-bind:members-list="this.membersList"
-                     v-bind:sid="this.sid"></GroupInfo>
-          <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
-            groups!</h1>
-          <CreateOrJoinGroup
-              v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
-              v-bind:sid="this.sid"
-              v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
-        </div>
-
-        <div v-if="this.privileges['teach'] === 1">
-          <el-button @click="onClickEdit">{{editLiteral}}</el-button>
-        </div>
-
         <div>
-          <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-            <el-form-item label="The profile you want to view">
-              <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
+          <div v-if="this.privileges['teach'] !== 1">
+            <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
+                       v-bind:group-info="this.groupInfo"
+                       v-bind:members-list="this.membersList"
+                       v-bind:project-id="this.projectId"
+                       v-bind:sid="this.sid"></GroupInfo>
+            <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
+              groups!</h1>
+            <CreateOrJoinGroup
+                v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
+                v-bind:sid="this.sid"
+                v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
+          </div>
 
-      </div>
+          <div v-if="this.privileges['teach'] === 1">
+            <el-button @click="onClickEdit">{{ editLiteral }}</el-button>
+          </div>
+
+          <div>
+            <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+              <el-form-item label="The profile you want to view">
+                <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+
+        </div>
       </el-card>
 
     </div>
@@ -107,9 +126,6 @@
       </el-dialog>
     </div>
 
-<!--    <div>-->
-<!--      <el-button @click="showAd = !showAd">{{showAd ? 'Close' : 'Show Advertisements'}}</el-button>-->
-<!--    </div>-->
     <div v-if="showAd">
       <h2>Advertisement</h2>
 
@@ -126,7 +142,7 @@
         <div v-show="advertisementData === ''">There is no advertisement!</div>
       </el-card>
 
-      <el-card  v-if="this.privileges['teach'] !== 1">
+      <el-card v-if="this.privileges['teach'] !== 1">
         <div>
           <h3>Upload AD</h3>
           <el-form>
@@ -159,18 +175,24 @@
                  v-bind:projectId="this.$props.projectId">
       </EventList>
     </div>
+
+    <div>
+      <AuthorityManage v-bind:project_id="this.$props.projectId"></AuthorityManage>
+    </div>
+
   </div>
 </template>
 
 <script>
-import GroupInfo from './GroupInfo'
-import CreateOrJoinGroup from './CreateOrJoinGroup'
-import PersonalProfile from './PersonalProfile'
-import EventList from './EventList'
-import Grouping from './Grouping'
+import GroupInfo from './GroupInfo';
+import CreateOrJoinGroup from './CreateOrJoinGroup';
+import PersonalProfile from './PersonalProfile';
+import EventList from './EventList';
+import Grouping from './Grouping';
+import AuthorityManage from './AuthorityManage';
 
 export default {
-  components: { Grouping, EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile },
+  components: {Grouping, EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile, AuthorityManage},
   props: {
     sid: {
       type: String,
@@ -183,10 +205,11 @@ export default {
     projectId: {
       type: Number,
       required: true,
-    }
+    },
   },
-  data () {
+  data() {
     return {
+      token: '',
       membersList: '',
       status: '',
       personalProfile: '',
@@ -208,121 +231,147 @@ export default {
       editLiteral: 'Edit',
       projectDetail: {},
       groupInfo: '',
-      showAd: true
-    }
+      showAd: true,
+      file_dict: {},
+    };
   },
-  created () {
-    this.$axios.post('/student_gets_single_project_information/', {'projectId': this.$props.projectId}).then( res => {
-      this.projectDetail = res.data
-      this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).then(res => {
-        this.groupInfo = res.data
-        this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
-          this.privileges = res.data['Data']
-          this.sid = this.$props.sid
-          this.pullAdvertisementData()
+  created() {
+    this.token = localStorage.getItem('Authorization');
+    this.file_dict = {};
+    this.$axios.post('/student_gets_single_project_information/', {'projectId': this.$props.projectId}).then(res => {
+      this.projectDetail = res.data;
+      for (const key in this.projectDetail['files']) {
+        this.file_dict[key] = 'http://127.0.0.1:8000/download_file?token='
+            + localStorage.getItem('Authorization')
+            + '&file_id='
+            + this.projectDetail['files'][key];
+      }
+      // for (let i = 0; i < this.projectDetail['files'].keys().length; i += 1) {
+      //   const key = this.projectDetail['files'].keys()[i];
+      //   this.file_dict[key] = 'http://127.0.0.1:8000?token='
+      //       + localStorage.getItem('Authorization')
+      //       + '&file_id='
+      //       + this.projectDetail['files'][key];
+      // }
+      this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).
+          then(res => {
+            console.log(res)
+            this.groupInfo = res.data;
+            this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
+              this.privileges = res.data['Data'];
+              this.sid = this.$props.sid;
+              this.pullAdvertisementData();
 
-          if (this.groupInfo == null) {
-            this.status = 'You are not in a group!'
-          } else if (this.groupInfo['StudentGetsGroupInformationInProject'] === 'no group') {
-            this.status = 'You are not in a group!'
-          } else if (this.groupInfo['StudentGetsGroupInformationInProject'] == null) {
-            for (let i = 0; i < this.groupInfo['members'].length; i++) {
-              this.membersList = this.membersList + this.groupInfo['members'][i] + '  '
-            }
-          } else {
-            this.status = 'unknown'
-          }
-        }).catch(err => {
-          console.log('/get_privilege_list/', err)
-        })
-      }).catch(err => {
-        console.log(err)
-      })
+              if (this.groupInfo == null) {
+                this.status = 'You are not in a group!';
+              }
+              else if (this.groupInfo['StudentGetsGroupInformationInProject'] === 'no group') {
+                this.status = 'You are not in a group!';
+              }
+              else if (this.groupInfo['StudentGetsGroupInformationInProject'] == null) {
+                for (let i = 0; i < this.groupInfo['members'].length; i++) {
+                  this.membersList = this.membersList + this.groupInfo['members'][i] + '  ';
+                }
+              }
+              else {
+                this.status = 'unknown';
+              }
+            }).catch(err => {
+              console.log('/get_privilege_list/', err);
+            });
+          }).
+          catch(err => {
+            console.log(err);
+          });
     }).catch(err => {
-      console.log(err)
-    })
+      console.log(err);
+    });
   },
 
   methods: {
     onClickEdit() {
-      this.edit = !this.edit
+      this.edit = !this.edit;
       if (this.edit) {
-        this.editLiteral = 'Cancel'
+        this.editLiteral = 'Cancel';
       }
       else {
-        this.editLiteral = 'Edit'
+        this.editLiteral = 'Edit';
       }
     },
-    controlDisplay (item) {
+    controlDisplay(item) {
       for (const iter in this.displayControl) {
-        this.displayControl[iter] = iter === item
+        this.displayControl[iter] = iter === item;
       }
     },
-    onClickBackToProjectDetail () {
-      this.controlDisplay('projectDetail')
+    onClickBackToProjectDetail() {
+      this.controlDisplay('projectDetail');
     },
-    onQueryPersonalProfile () {
-      this.pullTagData()
+    onQueryPersonalProfile() {
+      this.pullTagData();
 
       this.$axios.post('/show_other_personal_data/', {
         sid: this.sid,
         sid_target: this.target_user.sid,
       }).then(res => {
         if (res.data['ShowOtherPersonalDataCheck'] === 'ShowPersonalData success!') {
-          this.personalProfile = res.data
+          this.personalProfile = res.data;
           // this.controlDisplay('PersonalProfile')
-          this.dialogPersonalProfileVisible = true
-        } else {
-          alert('No such user!')
+          this.dialogPersonalProfileVisible = true;
+        }
+        else {
+          alert('No such user!');
         }
       }).catch(err => {
-        this.tags = null
-        console.log(err)
-      })
+        this.tags = null;
+        console.log(err);
+      });
     },
-    onClickLike (id) {
+    onClickLike(id) {
       this.$axios.post('/student_like_tag/', {
         sid: this.sid,
         tag_target: id,
       }).then(res => {
 
         if (res.data['StudentLikeTag'] === 'no like') {
-          console.log('delike success')
-        } else if (res.data['StudentLikeTag'] === 'like') {
-          console.log('like success')
-        } else {
-          alert('failed')
+          console.log('delike success');
         }
-        this.pullTagData()
+        else if (res.data['StudentLikeTag'] === 'like') {
+          console.log('like success');
+        }
+        else {
+          alert('failed');
+        }
+        this.pullTagData();
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
-    pullTagData () {
+    pullTagData() {
       this.$axios.post('/student_gets_all_tags/', {
         sid: this.sid,
         sid_target: this.target_user.sid,
       }).then(res => {
-        this.tags = res.data
-        console.log('now this.tags', this.tags)
+        this.tags = res.data;
+        console.log('now this.tags', this.tags);
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
-    pullAdvertisementData () {
+    pullAdvertisementData() {
       this.$axios.post('/student_gets_all_ad/', {
-        'project_id': this.$props.projectId
+        'project_id': this.$props.projectId,
       }).then(res => {
         if (res.data['StudentGetAllAd'] === 'success') {
-          this.advertisementData = res.data['Data']
-        } else {
-          this.advertisementData = ''
+          this.advertisementData = res.data['Data'];
+        }
+        else {
+          this.advertisementData = '';
         }
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
-    onClickUploadAdvertisement () {
+    onClickUploadAdvertisement() {
       if (this.groupInfo['StudentGetsGroupInformationInProject'] == null) {
         this.$axios.post('/student_publish_request/', {
           project_id: this.projectDetail.project_id,
@@ -330,36 +379,39 @@ export default {
           title: this.advertisement_title,
           group_id: this.groupInfo.group_id,
         }).then(res => {
-          this.pullAdvertisementData()
+          console.log(res);
+          this.pullAdvertisementData();
         }).catch(err => {
-          console.log(err)
-        })
-      } else {
+          console.log(err);
+        });
+      }
+      else {
         this.$axios.post('/student_publish_apply/', {
           project_id: this.$props.projectDetail.project_id,
           content: this.advertisement_content,
           title: this.advertisement_title,
         }).then(res => {
-          console.log('up ad', res.data)
-          this.pullAdvertisementData()
+          console.log('up ad', res.data);
+          this.pullAdvertisementData();
         }).catch(err => {
-          console.log(err)
-        })
+          console.log(err);
+        });
       }
     },
   },
   name: 'ProjectDetail',
-}
+};
 </script>
 
 <style scoped>
-.project_detail{
+.project_detail {
   background-color: #F7F8F8;
 }
-.details{
-  font-family: Verdana,serif;
+
+.details {
+  font-family: Verdana, serif;
   background-color: #F7F8F8;
-  border-color:whitesmoke;
+  border-color: whitesmoke;
   align-content: center;
   text-align: center;
   line-height: 50px;

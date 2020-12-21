@@ -25,6 +25,18 @@
           </el-date-picker>
         </el-form-item>
 
+        <el-form-item label="Attachment">
+          TODO
+          <el-upload
+              class="upload-demo"
+              drag
+              action="https://jsonplaceholder.typicode.com/posts/"
+              multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
+          </el-upload>
+        </el-form-item>
+
         <el-form-item label="Select Partition">
           <el-select v-model="selectedPartitionList"
                      multiple placeholder="Select Partitions"
@@ -59,7 +71,7 @@
 <script>
 export default {
   name: 'NewAnnouncement',
-  data () {
+  data() {
     return {
       type: 'Announcement',
       title: '',
@@ -70,39 +82,39 @@ export default {
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
-    }
+    };
   },
-  created () {
+  created() {
 
   },
   methods: {
-    onClickSubmit () {
-      console.log(this.toJson())
-      this.$axios.post('/test/', { jsonObj: this.toJson() }).then(res => {
-        console.log('res', res)
+    onClickSubmit() {
+      console.log(this.toJson());
+      this.$axios.post('/test/', {jsonObj: this.toJson()}).then(res => {
+        console.log('res', res);
       }).catch(err => {
-        console.log('err', err)
-      })
+        console.log('err', err);
+      });
     },
-    toJson () {
-      const event = {}
-      event.type = 'Announcement'
-      event.title = this.title
-      event.introduction = this.introduction
-      event.due = this.due.getTime()
-      event.selectedGroupList = this.selectedGroupList
-      return event
+    toJson() {
+      const event = {};
+      event.type = 'Announcement';
+      event.title = this.title;
+      event.introduction = this.introduction;
+      event.due = this.due.getTime();
+      event.selectedGroupList = this.selectedGroupList;
+      return event;
     },
-    onSelectPartition (selected) {
+    onSelectPartition(selected) {
       //TODO: Partition influences selected group.
-      console.log(selected)
+      console.log(selected);
     },
     getAllPartitions() {
 
     },
   },
 
-}
+};
 </script>
 
 <style scoped>

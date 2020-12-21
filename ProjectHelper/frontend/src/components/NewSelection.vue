@@ -19,9 +19,9 @@
 
       <el-form-item label="Due">
         <el-date-picker
-          v-model="due"
-          type="datetime"
-          placeholder="Due Datetime">
+            v-model="due"
+            type="datetime"
+            placeholder="Due Datetime">
         </el-date-picker>
       </el-form-item>
 
@@ -36,10 +36,10 @@
         <el-form :model="dynamicValidateForm" ref="dynamicValidateForm">
 
           <el-form-item
-            v-for="(value, index) in dynamicValidateForm.domains"
-            :label="'Option ' + index"
-            :key="value.key"
-            :prop="'domains.' + index + '.value'">
+              v-for="(value, index) in dynamicValidateForm.domains"
+              :label="'Option ' + index"
+              :key="value.key"
+              :prop="'domains.' + index + '.value'">
             <el-input v-model="value.value"></el-input>
             <el-button @click.prevent="removeDomain(value)">Remove</el-button>
           </el-form-item>
@@ -56,17 +56,17 @@
         <el-form>
           <el-form-item label="Start">
             <el-date-picker
-              v-model="timeSlotSelectionStart"
-              type="datetime"
-              placeholder="Due Datetime">
+                v-model="timeSlotSelectionStart"
+                type="datetime"
+                placeholder="Due Datetime">
             </el-date-picker>
           </el-form-item>
 
           <el-form-item label="End">
             <el-date-picker
-              v-model="timeSlotSelectionEnd"
-              type="datetime"
-              placeholder="Due Datetime">
+                v-model="timeSlotSelectionEnd"
+                type="datetime"
+                placeholder="Due Datetime">
             </el-date-picker>
           </el-form-item>
 
@@ -75,6 +75,18 @@
           </el-form-item>
 
         </el-form>
+      </el-form-item>
+
+      <el-form-item label="Attachment">
+        TODO
+        <el-upload
+            class="upload-demo"
+            drag
+            action="https://jsonplaceholder.typicode.com/posts/"
+            multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
+        </el-upload>
       </el-form-item>
 
       <el-form-item label="Select Partition">
@@ -112,13 +124,13 @@
 <script>
 export default {
   name: 'NewSelection',
-  data () {
+  data() {
     return {
       type: '',
       title: '',
       introduction: '',
       due: '',
-      selectionType: "0",
+      selectionType: '0',
       selectionLimit: 1,
       options: [],
       newOption: '',
@@ -136,79 +148,80 @@ export default {
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
-    }
+    };
   },
   methods: {
-    onClickSubmit () {
-      console.log(this.toJson())
+    onClickSubmit() {
+      console.log(this.toJson());
       this.$axios.post('/test/', {jsonObj: this.toJson()}).then(res => {
-        console.log('res', res)
+        console.log('res', res);
       }).catch(err => {
-        console.log('err', err)
-      })
+        console.log('err', err);
+      });
     },
-    submitForm (formName) {
+    submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
+          alert('submit!');
         }
-      })
+        else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
     },
-    resetForm (formName) {
-      this.$refs[formName].resetFields()
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
     },
-    removeDomain (item) {
-      const index = this.dynamicValidateForm.domains.indexOf(item)
+    removeDomain(item) {
+      const index = this.dynamicValidateForm.domains.indexOf(item);
       if (index !== -1) {
-        this.dynamicValidateForm.domains.splice(index, 1)
+        this.dynamicValidateForm.domains.splice(index, 1);
       }
     },
-    addDomain () {
+    addDomain() {
       this.dynamicValidateForm.domains.push({
         value: '',
         key: Date.now(),
-      })
+      });
     },
-    toJson () {
-      const options = []
-      const event = {}
+    toJson() {
+      const options = [];
+      const event = {};
       if (this.selectionType === 0 || this.selectionType === '0') {
-        let idx = 0
+        let idx = 0;
         while (idx < this.dynamicValidateForm.domains.length) {
-          const item = this.dynamicValidateForm.domains[idx]
-          options.push(item.value)
-          idx += 1
+          const item = this.dynamicValidateForm.domains[idx];
+          options.push(item.value);
+          idx += 1;
         }
       }
       else {
         let startTime = this.timeSlotSelectionStart.getTime();
         const endTime = this.timeSlotSelectionEnd.getTime();
         const num = this.timeSlotNum;
-        const length = Math.floor((endTime - startTime) / num)
+        const length = Math.floor((endTime - startTime) / num);
         while (startTime < endTime) {
-          options.push([startTime, startTime + length - 1])
-          startTime += length
+          options.push([startTime, startTime + length - 1]);
+          startTime += length;
         }
-        event.timeSlotLength = length
+        event.timeSlotLength = length;
       }
-      event.type = 'Selection'
-      event.title = this.title
-      event.introduction = this.introduction
-      event.due = this.due.getTime()
-      event.selectionType = this.selectionType
-      event.selectionLimit = this.selectionLimit
-      event.options = options
-      return event
+      event.type = 'Selection';
+      event.title = this.title;
+      event.introduction = this.introduction;
+      event.due = this.due.getTime();
+      event.selectionType = this.selectionType;
+      event.selectionLimit = this.selectionLimit;
+      event.options = options;
+      return event;
     },
-    onSelectPartition (selected) {
+    onSelectPartition(selected) {
       //TODO: Partition influences selected group.
-      console.log(selected)
+      console.log(selected);
     },
   },
-}
+};
 </script>
 
 <style scoped>

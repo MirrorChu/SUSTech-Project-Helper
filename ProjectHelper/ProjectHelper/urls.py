@@ -37,7 +37,9 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     StudentPublishApply, StudentGetAllAd, GetIdentity, Logout, TeacherKickMember, \
     TeacherGetSituationInProject, TeacherGetSingleInProject, TeacherAddMember, \
     AddNewTag, SendMailToApply, GetPrivilegeList, GetEventList, GetAllPrivilegeList, \
-    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent
+    CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition, ChangeEvent, \
+    ChangePrivilege, DeleteProject, TeacherCreateGroup, ChangeProject, MarkEvent, \
+    IsTeacher, SubmitEventFile, SubmitProjectFile, SemiRandom
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -81,6 +83,7 @@ urlpatterns = [
     path('student_like_tag/', StudentLikeTag.as_view()),
     path('teacher_get_students_in_course/', TeacherGetStudentsInCourse.as_view()),
     path('teacher_create_project/', TeacherCreateProject.as_view()),
+    path('teacher_create_group/', TeacherCreateGroup.as_view()),
     path('test_file/', TestFile.as_view()),
     path('send_key/', SendKey.as_view()),
     path('unshow_tag/', UnshowTag.as_view()),
@@ -96,12 +99,22 @@ urlpatterns = [
     path('teacher_kick_member/', TeacherKickMember.as_view()),
     path('teacher_add_member/', TeacherAddMember.as_view()),
     path('get_privilege_list/', GetPrivilegeList.as_view()),
+    path('change_privilege/', ChangePrivilege.as_view()),
     path('get_all_privilege_list/', GetAllPrivilegeList.as_view()),
     path('get_event_list/', GetEventList.as_view()),
     path('create_event/', CreateEvent.as_view()),
     path('delete_event/', DeleteEvent.as_view()),
     path('submit_event/', SubmitEvent.as_view()),
+    path('change_event/', ChangeEvent.as_view()),
+    path('mark_event/', MarkEvent.as_view()),
     path('get_event_detail/', GetEventDetail.as_view()),
+    path('get_all_partition/', GetAllPartition.as_view()),
+    path('delete_project/', DeleteProject.as_view()),
+    path('change_project/', ChangeProject.as_view()),
+    path('is_teacher/', IsTeacher.as_view()),
+    path('semi_random/', SemiRandom.as_view()),
+    path('submit_event_file/', SubmitEventFile.as_view()),
+    path('submit_project_file/', SubmitProjectFile.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页

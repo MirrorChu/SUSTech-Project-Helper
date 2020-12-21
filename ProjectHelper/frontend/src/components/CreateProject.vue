@@ -4,7 +4,7 @@
   <div>
     <el-form>
       <el-form-item label="Course">
-        <el-select v-model="newProjectCourse" placeholder="Course">
+        <el-select v-model="newProjectCourse" placeholder="Course" @change="loadstudnetdata">
           <el-option v-for="course in newProjectCourseList" :key="course.value" :label="course.label"
                      :value="course.value"></el-option>
         </el-select>
@@ -41,10 +41,12 @@
         <el-upload
             class="upload-demo"
             ref="upload"
-            :data="this.dataBlock"
-            action="/teacher_create_project/"
-            multiple :file-list="fileList" :auto-upload="false"
-            :on-change="handleFileChange" :on-remove="handleFileRemove">
+            :data="this.dataforfile"
+            action="http://127.0.0.1:8080/api/submit_project_file/"
+            multiple
+            :file-list="fileList"
+            :auto-upload="false"
+            :on-change="handleFileChange">
           <el-button slot="trigger" size="small" type="primary">Select File</el-button>
         </el-upload>
       </el-form-item>
@@ -83,12 +85,12 @@ export default {
     },
   },
   created () {
-
     this.pullCoursesData()
   },
   data () {
     return {
       newProjectCourse: '',
+
       newProjectCourseList: [],
       newProjectName: '',
       newProjectDescription: '',
@@ -119,12 +121,24 @@ export default {
         ],
       },
       fileList: [],
-      dataBlock: {},
+      dataBlock: { 'sid': '',
+        'newProjectCourse': '',
+        'newProjectName': '',
+        'newProjectDescription': '',
+        'groupingMaximum': '',
+        'groupingMinimum': '',
+        'groupingStart': '',
+        'groupingDeadline': '',
+        'idx': '',
+      },
       loadStudentsLiteral: 'Show Students',
       showSelect: false,
       allStudentInCourse: [],
       selectedStudents: [],
       manuallySearchSid: '',
+      fileCount: 0,
+      project_id: '',
+      dataforfile: {'project_id': '', 'token': ''},
     }
   },
   methods: {
@@ -149,20 +163,7 @@ export default {
       }
     },
     onClickLoadStudent () {
-      //  TODO: Update the list of all students in course.
       this.showSelect = !this.showSelect
-      this.allStudentInCourse = []
-      if (this.showSelect) {
-        const dataGram = { course: parseInt(this.newProjectCourse) }
-        this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
-          console.log('res', res)
-          for (const item in res.data['Data']) {
-            this.allStudentInCourse.push({ label: item, value: item })
-          }
-        }).catch(err => {
-          console.log('err', err)
-        })
-      }
       if (this.showSelect) {
         this.loadStudentsLiteral = 'Cancel'
       } else {
@@ -171,20 +172,20 @@ export default {
     },
     onClickConfirmCreateProject () {
       this.$axios.post('/send_key/', { 'course': this.newProjectCourse }).then(res => {
+        console.log(res)
         const idx = res.data['SendKey']
         const startDate = new Date(this.groupingStart)
         const endDate = new Date(this.groupingDeadline)
-        this.dataBlock = {
-          'sid': this.sid,
-          'newProjectCourse': this.newProjectCourse,
-          'newProjectName': this.newProjectName,
-          'newProjectDescription': this.newProjectDescription,
-          'groupingMaximum': this.maxNum,
-          'groupingMinimum': this.minNum,
-          'groupingStart': startDate.getTime(),
-          'groupingDeadline': endDate.getTime(),
-          'idx': idx,
-        }
+        this.dataBlock['sid'] = this.sid
+        this.dataBlock['newProjectCourse'] = this.newProjectCourse
+        this.dataBlock['newProjectName'] = this.newProjectName
+        this.dataBlock['newProjectDescription'] = this.newProjectDescription
+        this.dataBlock['groupingMaximum'] = this.maxNum
+        this.dataBlock['groupingMinimum'] = this.minNum
+        this.dataBlock['groupingStart'] =  startDate.getTime()
+        this.dataBlock['groupingDeadline'] =  endDate.getTime()
+        this.dataBlock['idx'] = idx
+        this.dataBlock['selectedStudents'] = this.selectedStudents
         this.submitUpload()
       }).catch(err => {
         console.log(err, 'err')
@@ -193,20 +194,32 @@ export default {
     submitUpload () {
       if (this.fileList.length === 0) {
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
-          console.log('res', res)
+          console.log(res)
         }).catch(err => {
           console.log('err', err)
         })
       }
       else {
-        this.$refs.upload.submit()
+        this.dataBlock['token'] = localStorage.getItem('Authorization')
+        console.log('create project with files', this.dataBlock)
+        this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
+          console.log(res)
+          if (res.data['TeacherCreateProject'] === 'success')
+          {
+            this.dataforfile['project_id'] = res.data.project_id
+            this.dataforfile['token'] = localStorage.getItem('Authorization')
+            this.$refs.upload.submit()
+          }
+        }).catch(err => {
+          console.log('err', err)
+        })
       }
     },
-    handleFileChange () {
-
+    handleFileChange (file, fileList) {
+      this.fileList = fileList
     },
-    handleFileRemove (file) {
-
+    handleFileRemove () {
+      this.fileCount -= 1
     },
     pullCoursesData () {
       this.$axios.post('/teacher_get_courses/', {}).then(res => {
@@ -220,6 +233,27 @@ export default {
         console.log('err', err)
       })
     },
+    loadstudnetdata()
+    {
+      //  TODO: Update the list of all students in course.
+      this.allStudentInCourse = []
+      if (this.newProjectCourse)
+      {
+        const dataGram = { course: parseInt(this.newProjectCourse) }
+        this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
+          console.log('res', res)
+          for (const item in res.data['Data']) {
+            this.allStudentInCourse.push({ label: item, value: item })
+          }
+        }).catch(err => {
+          console.log('err', err)
+        })
+      }
+      else
+      {
+        this.allStudentInCourse = []
+      }
+    }
   },
 }
 </script>

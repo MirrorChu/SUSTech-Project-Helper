@@ -23,11 +23,22 @@
     </el-form-item>
     <el-form-item label="Submission Type">
       <el-radio-group v-model="submissionType">
-        <el-radio label="text">Text</el-radio>
+<!--        <el-radio label="text">Text</el-radio>-->
         <el-radio label="file">File</el-radio>
       </el-radio-group>
     </el-form-item>
 
+    <el-form-item label="Attachment">
+      TODO
+      <el-upload
+          class="upload-demo"
+          drag
+          action="https://jsonplaceholder.typicode.com/posts/"
+          multiple>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
+      </el-upload>
+    </el-form-item>
 
     <el-form-item label="Select Partition">
       <el-select v-model="selectedPartitionList"
@@ -75,18 +86,45 @@ export default {
       selectedGroupList: [],
     }
   },
+  props: {
+    projectId: {
+      type: Number,
+      required: true,
+    },
+    courseId: {
+      type: Number,
+      required: true,
+    }
+  },
   methods: {
     onClickSubmit () {
-      console.log(this.toJson())
-      //TODO: Implement submit.
+      this.$axios.post('/send_key/', {'course': this.courseId}).then(res => {
+        console.log(res)
+        const event = this.toJson()
+        const data = {}
+        data.project_id = this.$props.projectId
+        data.event_title = event.title
+        data.event_type = event.eventType
+        data.event_detail = event
+        data.key = res.data['SendKey']
+        this.$axios.post('/create_event/', data).then(res => {
+          console.log(res)
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(err => {
+        console.log(err)
+      })
     },
     toJson () {
       const event = {}
-      event.type = this.type
       event.title = this.title
       event.introduction = this.introduction
       event.due = this.due.getTime()
+      event.eventType = 'SubmissionEvent'
       event.submissionType = this.submissionType
+      // event.selectedPartitionList = this.selectedPartitionList
+      event.selectedGroupList = this.selectedGroupList
       return event
     },
     onSelectPartition (selected) {

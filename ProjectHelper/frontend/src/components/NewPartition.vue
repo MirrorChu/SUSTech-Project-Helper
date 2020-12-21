@@ -85,30 +85,6 @@
 
           </el-form-item>
 
-          <!--          <el-form-item label="Start">-->
-          <!--            <el-date-picker-->
-          <!--                v-model="timeSlotSelectionStart"-->
-          <!--                type="datetime"-->
-          <!--                placeholder="Due Datetime">-->
-          <!--            </el-date-picker>-->
-          <!--          </el-form-item>-->
-
-          <!--          <el-form-item label="End">-->
-          <!--            <el-date-picker-->
-          <!--                v-model="timeSlotSelectionEnd"-->
-          <!--                type="datetime"-->
-          <!--                placeholder="Due Datetime">-->
-          <!--            </el-date-picker>-->
-          <!--          </el-form-item>-->
-
-          <!--          <el-form-item label="Number">-->
-          <!--            <el-input-number v-model="timeSlotNum" :min="1" label="number"></el-input-number>-->
-          <!--          </el-form-item>-->
-
-          <!--          <el-form-item label="Slot Volume">-->
-          <!--            <el-input-number v-model="timeSlotVolume" label="slot volume"></el-input-number>-->
-          <!--          </el-form-item>-->
-
           <el-form-item>
             <el-button @click="addDomain">New Option</el-button>
             <el-button @click="resetForm">Reset</el-button>
@@ -119,6 +95,18 @@
 
       <el-form-item label="# of choices">
         <el-input-number v-model="selectionLimit"></el-input-number>
+      </el-form-item>
+
+      <el-form-item label="Attachment">
+        TODO
+        <el-upload
+            class="upload-demo"
+            drag
+            action="https://jsonplaceholder.typicode.com/posts/"
+            multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
+        </el-upload>
       </el-form-item>
 
       <el-form-item>
@@ -159,21 +147,30 @@ export default {
       type: Number,
       required: true,
     },
+    courseId: {
+      type: Number,
+      required: true,
+    }
   },
   methods: {
     onClickSubmit () {
-      const event = this.toJson()
-      console.log(event)
-      const data = {}
-      data.project_id = this.$props.projectId
-      data.event_title = event.title
-      data.event_type = event.eventType
-      data.event_detail = event
-      console.log('NewPartition onClickSubmit data', data)
-      this.$axios.post('/create_event/', data).then(res => {
-        console.log('NewPartition onClickSubmit /create_event/ res', res)
+      this.$axios.post('/send_key/', {'course': this.$props.courseId}).then(res => {
+        console.log(res)
+        const event = this.toJson()
+        const data = {}
+        data.project_id = this.$props.projectId
+        data.event_title = event.title
+        data.event_type = event.eventType
+        data.event_detail = event
+        data.key = res.data['SendKey']
+        console.log('NewPartition onClickSubmit data', data)
+        this.$axios.post('/create_event/', data).then(res => {
+          console.log(res)
+        }).catch(err => {
+          console.log(err)
+        })
       }).catch(err => {
-        console.log('NewPartition onClickSubmit /create_event/ err', err)
+        console.log(err)
       })
     },
     resetForm () {

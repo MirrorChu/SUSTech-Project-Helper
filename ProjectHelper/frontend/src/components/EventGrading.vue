@@ -10,13 +10,13 @@
           :data="groupList"
           style="width: 100%">
         <el-table-column
-            prop="groupId"
+            prop="group_id"
             label="Group ID"
             width="180">
         </el-table-column>
         <el-table-column
-            prop="memberList"
-            label="Members"
+            prop="group_name"
+            label="Group Name"
             width="180">
         </el-table-column>
         <el-table-column label="Detail">
@@ -45,63 +45,150 @@
 
       <el-form>
         <el-form-item label="Submission Detail">
-          <div>
-            This is the detail of submission. It relies on v-if to distinguish between submission and seleciton.
+          <div v-if="eventDetail['Data']['event_type'] === 'partition'">
+            {{ eventDetail }}
+            <div>
+              <h3>
+                Selected Options
+              </h3>
+            </div>
+            <div v-for="literal in selectedChoiceLiteral">
+              {{ literal }}
+            </div>
           </div>
           <div>
-            Please include submission datetime here.
+            <h3>
+              Submission Datetime
+            </h3>
+            {{ new Date(this.submission_datetime) }}
+          </div>
+
+          <div v-if="eventDetail['Data']['data'][this.idx]['group_score']">
+            <div>
+              <h3>Group Score: {{ eventDetail['Data']['data'][this.idx]['group_score'] }}</h3>
+            </div>
+            <div v-for="item in eventDetail['Data']['data'][this.idx]['memberList']">
+              {{ item['student_id'] + ' ' + item['real_name'] + ': ' + item['score'] }}
+            </div>
+          </div>
+
+          <div v-if="eventDetail['Data']['data'][this.idx]['comment']">
+            <h3>Comment</h3>
+            {{ eventDetail['Data']['data'][this.idx]['comment'] }}
           </div>
         </el-form-item>
 
         <el-form-item label="Group Score">
-          <el-input></el-input>
+          <el-input-number v-model="groupScore"></el-input-number>
         </el-form-item>
 
-        <el-form-item v-if="idx >= 0" v-for="item in groupList[idx]['memberList']" :label="item + ' Score'">
-          <el-input>
-          </el-input>
+        <el-form-item v-for="(value, key) in memberLiterals"
+                      :label="value">
+          <el-input-number v-model="memberScores[key]"></el-input-number>
         </el-form-item>
 
         <el-form-item label="Feedback">
-          <el-input type="textarea"></el-input>
+          <el-input type="textarea" v-model="feedback"></el-input>
         </el-form-item>
 
       </el-form>
 
-      <el-button>Grade</el-button>
+      <el-button @click="onClickGrade">Grade</el-button>
     </el-card>
 
-
-    <!--    <el-pagination-->
-    <!--      layout="prev, pager, next"-->
-    <!--      :total="groupsList.length"-->
-    <!--      :page-size="pageSize"-->
-    <!--      background-->
-    <!--      @current-change="handleCurrentChange">-->
-    <!--    </el-pagination>-->
   </div>
 </template>
 
 <script>
 export default {
   name: 'EventGrading',
-  data () {
+  props: {
+    submissionDetail: {
+      required: true,
+    },
+    eventDetail: {
+      required: true,
+    },
+    eventId: {
+      type: Number,
+      required: true,
+    },
+  }
+  ,
+  data() {
     return {
       pageSize: 1,
-      groupList: [
-        { groupId: 1, memberList: ['11810101', '11810102'] },
-        { groupId: 2, memberList: ['11810103', '11810104', '11810105'] },
-      ],
+      groupList: [],
       idx: -1,
-    }
-  },
+      selectedChoiceLiteral: [],
+      groupScore: 0,
+      memberScores: {},
+      memberLiterals: {},
+      feedback: '',
+      groupId: 0,
+      submission_datetime: 0,
+    };
+  }
+  ,
+  created() {
+    this.groupList = this.$props.submissionDetail;
+  }
+  ,
   methods: {
-    onClickDetail (scope) {
-      this.idx = scope.$index
-      console.log(scope.$index)
+    onClickDetail(scope) {
+      this.idx = scope.$index;
+      this.groupId = this.groupList[this.idx]['group_id'];
+      const eventType = this.$props.eventDetail['Data']['event_type'];
+      this.submission_datetime = this.$props.eventDetail['Data']['data'][this.idx]['submission_datetime'];
+      if (eventType === 'partition') {
+        const partitionType = this.eventDetail['Data']['event_detail']['partitionType'];
+        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
+          const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i];
+          this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name'];
+          this.memberScores[member['student_id']] = 0;
+        }
+        if (partitionType === 'timeSlot') {
+          for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
+            const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i];
+            this.selectedChoiceLiteral.push('option ' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
+                ': ' + (new Date(option[0])) + ' to ' + (new Date(option[1])));
+          }
+        }
+        else {
+          for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
+            const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i];
+            console.log(option);
+            this.selectedChoiceLiteral.push('option' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
+                ': ' + option[0]);
+          }
+        }
+      }
+      //TODO
+      else if (eventType === 'Submission') {
+
+      }
+      //TODO
+      else if (eventType === 'Selection') {
+
+      }
+
+    },
+    onClickGrade() {
+      const dataBlock = {
+        'comment': this.feedback,
+        'score': this.memberScores,
+        'group_score': this.groupScore,
+        'group_id': this.groupId,
+        'event_id': this.$props.eventId,
+      };
+      this.$axios.post('/mark_event/', dataBlock).then(res => {
+        console.log(res);
+      }).then(err => {
+        console.log(err);
+      });
     },
   },
-}
+};
 </script>
 
 <style scoped>
