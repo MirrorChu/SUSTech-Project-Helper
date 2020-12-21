@@ -2,6 +2,7 @@ import base64
 import datetime
 import os
 import time
+import xlrd
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -358,13 +359,27 @@ class UploadFile(View):
 
 
 class DownloadFile(View):
-    def post(self, request):
+    def get(self, request):
         try:
-            print(request.body)
+            token = request.GET['token']
+            student_id = get_sid(token)
+            file_id = request.GET['file_id']
 
-            path = eval(request.body.decode()).get("path")
-            file_name = eval(request.body.decode()).get("file_name")
-
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            courses = UserCourse.objects.filter(user_name_id=user_id)
+            file = ProjectFile.objects.get(id=file_id)
+            project = Project.objects.get(id=file.project_id)
+            boo = False
+            for i in courses:
+                if i.course_name_id == project.course_id:
+                    boo = True
+                    break
+            if boo is not True:
+                raise
+            path = file.path
+            array = path.split('/')
+            file_name = array[-1]
             file_obj = open(path, 'rb')
 
             response = HttpResponse(file_obj)
@@ -513,11 +528,18 @@ class StudentGetsSingleProjectInformation(View):
                 courses = Course.objects.filter(id=project.course_id)
                 assert len(courses) == 1
                 course = courses[0]
+                file = {}
+                files = ProjectFile.objects.filter(project_id=project_id)
+                for i in files:
+                    path = i.path
+                    array = path.split('/')
+                    file[array[-1]] = i.id
+                print(file)
                 response_data = {'attempt': 'success',
                                  'projectName': project.name,
                                  'projectIntroduction': project.introduction,
                                  'courseName': course.name,
-                                 'project_id': project_id}
+                                 'project_id': project_id, 'files': file}
             else:
                 response_data = {'attempt': 'offline'}
             return JsonResponse(response_data)
@@ -1999,6 +2021,7 @@ class GetAllPrivilegeList(View):
                     for j in privilege:
                         privileges[j.type] = 1
                     list.append(privileges)
+                print(list)
                 return JsonResponse({"Data": list, "GetAllPrivilegeListCheck": "success"})
             return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
         except Exception as e:
