@@ -1943,8 +1943,9 @@ class ChangePrivilege(View):
                                          course_id=project.course_id)
             t_auth = Authority.objects.filter(user_id=t_user_id, type="teach",
                                               course_id=project.course_id)
-            if t_auth.end_time > datetime.datetime.now() > t_auth.start_time:
-                return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+            for i in t_auth:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
