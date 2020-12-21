@@ -13,7 +13,7 @@
   <!--          </el-form>-->
   <!--        </template>-->
   <!--      </el-table-column>-->
-        <span>No Authority Data</span>
+        <template slot="empty"><span>No Authority Data</span></template>
         <el-table-column
           label="SID"
           prop="sid">
