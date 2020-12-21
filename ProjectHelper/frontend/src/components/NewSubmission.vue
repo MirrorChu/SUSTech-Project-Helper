@@ -28,6 +28,17 @@
       </el-radio-group>
     </el-form-item>
 
+    <el-form-item label="Attachment">
+      TODO
+      <el-upload
+          class="upload-demo"
+          drag
+          action="https://jsonplaceholder.typicode.com/posts/"
+          multiple>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
+      </el-upload>
+    </el-form-item>
 
     <el-form-item label="Select Partition">
       <el-select v-model="selectedPartitionList"
