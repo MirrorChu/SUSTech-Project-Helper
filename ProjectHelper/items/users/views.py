@@ -95,6 +95,30 @@ def get_sid(token):
         return None
 
 
+def set_style(name, height, bold=False):
+    """
+    set style for excel
+    """
+    style = xlwt.XFStyle()  # 初始化样式
+
+    font = xlwt.Font()  # 为样式创建字体
+    font.name = name  # 'Times New Roman'
+    font.bold = bold
+    font.color_index = 4
+    font.height = height
+
+    # borders = xlwt.Borders()
+    # borders.left = 6
+    # borders.right = 6
+    # borders.top = 6
+    # borders.bottom = 6
+
+    style.font = font
+    # style.borders = borders
+
+    return style
+
+
 class GetIdentity(View):
     def post(self, request):
         """
@@ -929,6 +953,9 @@ class StudentGetAllGroupsInProject(View):
 
 
 class StudentGetAllStudentsInProject(View):
+    """
+    TODO:bug
+    """
     def post(self, request):
         try:
             project_id = eval(request.body.decode()).get("project_id")
@@ -2187,10 +2214,10 @@ class MailUrl(View):
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
             GroupOrg.objects.filter(id=int(sender)).update(members=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
-            return HttpResponse('You apply the Invite!<meta http-equiv="refresh" '
+            return HttpResponse('You accept the Invitation!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
         elif type == 2:
-            return HttpResponse('You refuse the Invite!<meta http-equiv="refresh" '
+            return HttpResponse('You refuse the Invitation!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
         elif type == 3:
             array = sender.split(',')
@@ -2741,12 +2768,14 @@ class GetEventDetail(View):
                                     group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
                                     if group_score.count() == 0:
                                         groups[group.id] = {'choice': [], 'group_id': j.group_id, 'memberList': members,
-                                                            'group_name': group.group_name, 'index': []}
+                                                            'group_name': group.group_name, 'index': [],
+                                                            'submission_datetime': int(j.add_time.timestamp()*1000)}
                                     else:
                                         for m in group_score:
                                             groups[group.id] = {'choice': [], 'group_id': j.group_id,
                                                                 'memberList': members, 'group_score': m.grade,
-                                                                'group_name': group.group_name, 'index': []}
+                                                                'group_name': group.group_name, 'index': [],
+                                                                'submission_datetime': int(j.add_time.timestamp()*1000)}
                                 if events['event_detail']['partitionType'] == 'normal':
                                     events['partitionType'] = 'normal'
                                     for j in choices:
@@ -2785,10 +2814,9 @@ class GetEventDetail(View):
                         choices = ChooseEvent.objects.filter(event_id_id=event.id, group_id=group.id)
                         events['data'] = {}
                         for j in choices:
-                            events['data'] = {'choice': [],
+                            events['data'] = {'choice': [], 'submission_datetime': int(j.add_time.timestamp()*1000),
                                               'group_id': j.group_id, 'group_name': group.group_name,
                                               'index': [], 'submitTime': j.add_time}
-                            break
                         group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
                         if group_score.count() != 0:
                             for j in group_score:
@@ -2984,7 +3012,7 @@ class MarkEvent(View):
                     else:
                         EventGrades.objects.filter(event_id=event_id, user_id=student.id).update(grade=score[i],
                                                                                                  comment=comment)
-                tmp1 = ProjectGrades.filter(group_id=group_id, event_id=event_id)
+                tmp1 = ProjectGrades.objects.filter(group_id=group_id, event_id=event_id)
                 if tmp1.count() == 0:
                     ProjectGrades.objects.create(grade=group_score, comment=comment, event_id=event_id,
                                                  group_id=group_id)
@@ -3022,3 +3050,75 @@ class IsTeacher(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"IsTeacher": "failed"})
+
+
+class GetModelForEvent(View):
+    def post(self, request):
+        """
+        :param token: token
+
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            event_id = eval(request.body.decode()).get("event_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+
+            file_name = str(datetime.datetime.now()) + " Grade Event " + event.title
+            path = "tmp/" + file_name
+
+            workbook = xlwt.Workbook()
+            sheet1 = workbook.add_sheet(u'sheet1', cell_overwrite_ok=True)
+            groups = GroupOrg
+
+            file_obj = open(path, 'rb')
+            response = HttpResponse(file_obj)
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = "attachment;filename=" + file_name
+            return response
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetModelForEvent": "failed"})
+
+
+class SemiRandom(View):
+    def post(self, request):
+        """
+        user with 'group' authority can semi-randomly group students
+        :param token: token
+               project_id: id of project
+
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            auth = Authority.objects.get(user_id=user_id, type="group", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                ungroup = []
+                illegalGroup = []
+                student = UserCourse.objects.filter(course_name_id=course_id)
+                for i in student:
+                    ungroup.append(i.user_name_id)
+                group = GroupOrg.objects.filter(project_id=project_id)
+                for i in group:
+                    member = UserGroup.objects.filter(group_name_id=i.id)
+                    for j in member:
+                        ungroup.remove(j.user_name_id)
+                return JsonResponse({"GetModelForEvent": "success"})
+
+            return JsonResponse({"GetModelForEvent": "no auth"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetModelForEvent": "failed"})
