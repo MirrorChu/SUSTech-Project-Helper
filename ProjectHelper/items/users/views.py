@@ -2186,7 +2186,7 @@ class MailUrl(View):
             if group.members + 1 > project.group_size:
                 return HttpResponse('Sorry, the group has been full!<meta http-equiv="refresh" '
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
-            GroupOrg.objects.filter(id=int(sender)).update(member=group.members + 1)
+            GroupOrg.objects.filter(id=int(sender)).update(members=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
             return HttpResponse('You apply the Invite!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
@@ -2202,7 +2202,7 @@ class MailUrl(View):
             if group.members + 1 > project.group_size:
                 return HttpResponse('Sorry, the group has been full!<meta http-equiv="refresh" '
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
-            GroupOrg.objects.filter(id=int(sender)).update(member=group.members + 1)
+            GroupOrg.objects.filter(id=int(sender)).update(members=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
             return HttpResponse('You apply the Apply!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
