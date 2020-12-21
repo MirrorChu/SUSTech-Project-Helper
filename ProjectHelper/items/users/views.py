@@ -1940,7 +1940,7 @@ class ChangePrivilege(View):
             t_user = UserProfile.objects.get(student_id=t_sid)
             t_user_id = t_user.id
             project = Project.objects.get(id=project_id)
-            auth = Authority.objects.   get(user_id=user_id, type="authEdit",
+            auth = Authority.objects.get(user_id=user_id, type="authEdit",
                                          course_id=project.course_id)
             t_auth = Authority.objects.filter(user_id=t_user_id, type="teach",
                                               course_id=project.course_id)
