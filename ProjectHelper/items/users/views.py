@@ -2,7 +2,7 @@ import base64
 import datetime
 import os
 import time
-import xlrd
+import xlrd, xlwt
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -534,7 +534,6 @@ class StudentGetsSingleProjectInformation(View):
                     path = i.file_path
                     array = path.split('/')
                     file[array[-1]] = i.id
-                print(file)
                 response_data = {'attempt': 'success',
                                  'projectName': project.name,
                                  'projectIntroduction': project.introduction,
@@ -2098,9 +2097,9 @@ class SendMailToInvite(View):
             <div style="text-align: left;"><font size="4" face="幼圆">Captain: ''' + sender.username + '''</font></div>
             <div style="text-align: left;"><font size="4" face="幼圆">Member: ''' + list + '''</font></div>
             <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
-            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + group_id + '''&amp;r=''' + t_sid + '''&amp;t=1&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(group_id) + '''&amp;r=''' + t_sid + '''&amp;t=1&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
             <div style="text-align: center;"><font size="4" face="幼圆">Refuse</font></div>
-            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + group_id + '''&amp;r=''' + t_sid + '''&amp;t=2&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(group_id) + '''&amp;r=''' + t_sid + '''&amp;t=2&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
             <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
         </div>
     </div>
@@ -2114,6 +2113,7 @@ class SendMailToInvite(View):
             return JsonResponse({"SendMailToInvite": "success"})
 
         except Exception as e:
+            logger.debug('%s %s', self, e)
             return JsonResponse({"SendMailToInvite": "failed"})
 
 
@@ -2168,6 +2168,7 @@ class SendMailToApply(View):
             return JsonResponse({"SendMailToApply": "success"})
 
         except Exception as e:
+            logger.debug('%s %s', self, e)
             return JsonResponse({"SendMailToApply": "failed"})
 
 
@@ -2182,10 +2183,10 @@ class MailUrl(View):
             user = UserProfile.objects.get(student_id=reciver, password=pswd)
             group = GroupOrg.objects.get(id=int(sender))
             project = Project.objects.get(id=group.project_id)
-            if group.member + 1 > project.group_size:
+            if group.members + 1 > project.group_size:
                 return HttpResponse('Sorry, the group has been full!<meta http-equiv="refresh" '
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
-            GroupOrg.objects.filter(id=int(sender)).update(member=group.member + 1)
+            GroupOrg.objects.filter(id=int(sender)).update(member=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
             return HttpResponse('You apply the Invite!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
@@ -2198,10 +2199,10 @@ class MailUrl(View):
             user = UserProfile.objects.get(student_id=int(array[0]))
             group = GroupOrg.objects.get(id=int(array[1]))
             project = Project.objects.get(id=group.project_id)
-            if group.member + 1 > project.group_size:
+            if group.members + 1 > project.group_size:
                 return HttpResponse('Sorry, the group has been full!<meta http-equiv="refresh" '
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
-            GroupOrg.objects.filter(id=int(sender)).update(member=group.member + 1)
+            GroupOrg.objects.filter(id=int(sender)).update(member=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
             return HttpResponse('You apply the Apply!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
