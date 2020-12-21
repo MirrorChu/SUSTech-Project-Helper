@@ -3,6 +3,7 @@ import datetime
 import os
 import time
 import xlrd, xlwt
+import random
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -2661,11 +2662,17 @@ class SubmitEvent(View):
         :return:
         """
         try:
-            logger.debug('%s request.body %s', self, request.body)
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            event_id = eval(request.body.decode()).get("event_id")
+            query_dict = request.POST
+            if len(query_dict) != 0:
+                logger.debug('%s request.POST %s', self, query_dict)
+                token = request.POST.get('token')
+                event_id = request.POST.get('event_id')
+            else:
+                logger.debug('%s request.body %s', self, request.body)
+                token = eval(request.body.decode()).get("token")
+                event_id = eval(request.body.decode()).get("event_id")
             now = datetime.datetime.now()
+            student_id = get_sid(token)
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -2679,11 +2686,26 @@ class SubmitEvent(View):
                 group = GroupOrg.objects.get(id=i.group_name_id)
                 if group.project_id == project.id:
                     break
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
             if course.end_time > now > course.start_time:
                 if event.type == "choose":
                     pass
-                elif event.type == "attachment":
-                    pass
+                elif event.type == "SubmissionEvent":
+                    if file_name != '':
+                        file = request.FILES.get(file_name)
+                        name = str(request.FILES['file'])
+                        project_name = project.name
+                        path = default_storage.save('file/' + project_name + "/" + event.title + "/" + student_id +
+                                                    "/" + name,
+                                                    ContentFile(file.read()))
+                        ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=group.id,
+                                                         user_id=user_id, event_id=event_id)
+
                 elif event.type == "partition":
                     data = eval(request.body.decode()).get("selected")
                     parameter = json.loads(event.parameter)
@@ -3111,22 +3133,50 @@ class SemiRandom(View):
             auth = Authority.objects.get(user_id=user_id, type="group", course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 ungroup = []
-                illegalGroup = []
-                student = UserCourse.objects.filter(course_name_id=course_id)
+                dismissGroup = []
+                groups = []
+                remain = 0
+                pointer = 0
+                student = UserCourse.objects.filter(course_name_id=project.course_id)
                 for i in student:
                     ungroup.append(i.user_name_id)
                 group = GroupOrg.objects.filter(project_id=project_id)
                 for i in group:
                     member = UserGroup.objects.filter(group_name_id=i.id)
+                    if i.members < project.min_group_size:
+                        for j in member:
+                            ProjectComment.objects.filter(user_name_id=j.user_name_id).delete()
+                            UserGroup.objects.filter(group_name_id=i.id, user_name_id=j.user_name_id).delete()
+                        dismissGroup.append(i.id)
                     for j in member:
                         ungroup.remove(j.user_name_id)
-                    if i.member < project.min_group_size:
-                        illegalGroup.append(i.id)
+                for i in dismissGroup:
+                    GroupOrg.objects.filter(id=i).delete()
 
-                return JsonResponse({"GetModelForEvent": "success"})
+                random.shuffle(ungroup)
+                remain = len(ungroup)
 
-            return JsonResponse({"GetModelForEvent": "no auth"})
+                for i in range(int(remain/project.min_group_size)):
+                    groups.append(project.min_group_size)
+                remain -= len(groups) * project.min_group_size
+                while remain > 0:
+                    for i in range(len(groups)):
+                        if remain == 0:
+                            break
+                        if groups[i] < project.group_size:
+                            groups[i] += 1
+                            remain -= 1
+                for i in range(len(groups)):
+                    GroupOrg.objects.create(group_name='Auto Group' + str(i), members=groups[i], detail='group by AI',
+                                            captain_name_id=ungroup[pointer], project_id=project_id)
+                    g = GroupOrg.objects.get(captain_name_id=ungroup[pointer], project_id=project_id)
+                    for j in range(groups[i]):
+                        UserGroup.objects.create(group_name_id=g.id, user_name_id=ungroup[pointer + j])
+                    pointer += groups[i]
+                return JsonResponse({"SemiRandom": "success"})
+
+            return JsonResponse({"SemiRandom": "no auth"})
 
         except Exception as e:
             logger.debug('%s %s', self, e)
-            return JsonResponse({"GetModelForEvent": "failed"})
+            return JsonResponse({"SemiRandom": "failed"})

@@ -39,7 +39,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     AddNewTag, SendMailToApply, GetPrivilegeList, GetEventList, GetAllPrivilegeList, \
     CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition, ChangeEvent, \
     ChangePrivilege, DeleteProject, TeacherCreateGroup, ChangeProject, MarkEvent, \
-    IsTeacher, SubmitEventFile, SubmitProjectFile
+    IsTeacher, SubmitEventFile, SubmitProjectFile, SemiRandom
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -112,6 +112,7 @@ urlpatterns = [
     path('delete_project/', DeleteProject.as_view()),
     path('change_project/', ChangeProject.as_view()),
     path('is_teacher/', IsTeacher.as_view()),
+    path('semi_random/', SemiRandom.as_view()),
     path('submit_event_file/', SubmitEventFile.as_view()),
     path('submit_project_file/', SubmitProjectFile.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
