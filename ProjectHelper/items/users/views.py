@@ -1953,6 +1953,8 @@ class ChangePrivilege(View):
                                                          course_id=project.course_id)
                     if (privilege.count() == 1 and auths[i] == 1) or (privilege.count() == 0 and auths[i] == 0):
                         continue
+                    elif privilege.count() == 1 and auths[i] == 0:
+                        Authority.objects.filter(user_id=t_user_id, type=i, course_id=project.course_id).delete()
                     else:
                         Authority.objects.create(type=i, user_id=t_user_id, course_id=project.course_id,
                                                  start_time=datetime.datetime.now(),
