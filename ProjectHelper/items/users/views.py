@@ -2355,9 +2355,10 @@ class TeacherGetSingleInProject(View):
             user_id = user.id
             project = Project.objects.get(id=project_id)
             course_id = project.course_id
-            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            # course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
             students = []
-            if course.end_time > datetime.datetime.now() > course.start_time:
+            # if course.end_time > datetime.datetime.now() > course.start_time:
+            if True:
                 array = []
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for i in student:
