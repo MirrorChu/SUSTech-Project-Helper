@@ -60,7 +60,21 @@
             <h3>
               Submission Datetime
             </h3>
-            Please include submission datetime here.
+            {{ new Date(this.submission_datetime) }}
+          </div>
+
+          <div v-if="eventDetail['Data']['data'][this.idx]['group_score']">
+            <div>
+              <h3>Group Score: {{ eventDetail['Data']['data'][this.idx]['group_score'] }}</h3>
+            </div>
+            <div v-for="item in eventDetail['Data']['data'][this.idx]['memberList']">
+              {{ item['student_id'] + ' ' + item['real_name'] + ': ' + item['score'] }}
+            </div>
+          </div>
+
+          <div v-if="eventDetail['Data']['data'][this.idx]['comment']">
+            <h3>Comment</h3>
+            {{ eventDetail['Data']['data'][this.idx]['comment'] }}
           </div>
         </el-form-item>
 
@@ -101,7 +115,7 @@ export default {
     },
   }
   ,
-  data () {
+  data() {
     return {
       pageSize: 1,
       groupList: [],
@@ -112,47 +126,69 @@ export default {
       memberLiterals: {},
       feedback: '',
       groupId: 0,
-    }
+      submission_datetime: 0,
+    };
   }
   ,
-  created () {
-    this.groupList = this.$props.submissionDetail
+  created() {
+    this.groupList = this.$props.submissionDetail;
   }
   ,
   methods: {
-    onClickDetail (scope) {
-      this.idx = scope.$index
-      this.groupId = this.groupList[this.idx]['group_id']
-      const partitionType = this.eventDetail['Data']['event_detail']['partitionType']
-      for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
-        const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i]
-        this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name']
-        this.memberScores[member['student_id']] = 0
-      }
-      if (partitionType === 'timeSlot') {
-        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
-          const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i]
-          this.selectedChoiceLiteral.push('option ' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
-              ': ' + (new Date(option[0])) + ' to ' + (new Date(option[1])))
+    onClickDetail(scope) {
+      this.idx = scope.$index;
+      this.groupId = this.groupList[this.idx]['group_id'];
+      const eventType = this.$props.eventDetail['Data']['event_type'];
+      this.submission_datetime = this.$props.eventDetail['Data']['data'][this.idx]['submission_datetime'];
+      if (eventType === 'partition') {
+        const partitionType = this.eventDetail['Data']['event_detail']['partitionType'];
+        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
+          const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i];
+          this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name'];
+          this.memberScores[member['student_id']] = 0;
+        }
+        if (partitionType === 'timeSlot') {
+          for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
+            const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i];
+            this.selectedChoiceLiteral.push('option ' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
+                ': ' + (new Date(option[0])) + ' to ' + (new Date(option[1])));
+          }
+        }
+        else {
+          for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
+            const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i];
+            console.log(option);
+            this.selectedChoiceLiteral.push('option' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
+                ': ' + option[0]);
+          }
         }
       }
+      //TODO
+      else if (eventType === 'Submission') {
+
+      }
+      //TODO
+      else if (eventType === 'Selection') {
+
+      }
+
     },
-    onClickGrade () {
+    onClickGrade() {
       const dataBlock = {
         'comment': this.feedback,
         'score': this.memberScores,
         'group_score': this.groupScore,
         'group_id': this.groupId,
         'event_id': this.$props.eventId,
-      }
+      };
       this.$axios.post('/mark_event/', dataBlock).then(res => {
-        console.log(res)
+        console.log(res);
       }).then(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
   },
-}
+};
 </script>
 
 <style scoped>

@@ -46,7 +46,9 @@
       <div v-else>
         <el-upload
             drag
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action="http://127.0.0.1:8000/submit_event/"
+            :data="dataBlock"
+            :on-success="onSuccess"
             multiple>
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">Drag files here, or <em>click to upload</em>.</div>
@@ -86,6 +88,7 @@ export default {
       eventObj: {},
       submissionDetail: [],
       privileges: {},
+      dataBlock: {},
     }
   },
   created () {
@@ -114,6 +117,8 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+      this.dataBlock['token'] = localStorage.getItem('Authorization')
+      this.dataBlock['event_id'] = this.$props.eventId
     }).catch(err => {
       console.log(err)
     })
@@ -137,6 +142,9 @@ export default {
     },
     onClickExpand () {
       this.expand = !this.expand
+    },
+    onSuccess(response, file, fileList) {
+      console.log(response)
     },
   },
 }
