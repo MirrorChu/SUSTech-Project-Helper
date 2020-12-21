@@ -169,6 +169,11 @@
                  v-bind:projectId="this.$props.projectId">
       </EventList>
     </div>
+
+    <div>
+      <AuthorityManage v-bind:project_id="this.$props.projectId"></AuthorityManage>
+    </div>
+
   </div>
 </template>
 
@@ -178,9 +183,10 @@ import CreateOrJoinGroup from './CreateOrJoinGroup'
 import PersonalProfile from './PersonalProfile'
 import EventList from './EventList'
 import Grouping from './Grouping'
+import AuthorityManage from "./AuthorityManage";
 
 export default {
-  components: { Grouping, EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile },
+  components: { Grouping, EventList, Event, CreateOrJoinGroup, GroupInfo, PersonalProfile, AuthorityManage },
   props: {
     sid: {
       type: String,

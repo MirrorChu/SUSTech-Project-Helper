@@ -1933,6 +1933,7 @@ class ChangePrivilege(View):
             token = eval(request.body.decode()).get("token")
             t_sid = eval(request.body.decode()).get("t_sid")
             auths = eval(request.body.decode()).get("dict")
+            logger.debug(auths)
             student_id = get_sid(token)
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -1989,7 +1990,7 @@ class GetAllPrivilegeList(View):
                                   'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
                                   'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0,
                                   'groupValid': 0,
-                                  'tagEdit': 0}
+                                  'tagEdit': 0, 'edit': False}
                     privilege = Authority.objects.filter(user_id=user.id,
                                                          course_id=project.course_id)
                     for j in privilege:
