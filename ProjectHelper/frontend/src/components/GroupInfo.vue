@@ -73,8 +73,10 @@ export default {
       if (this.toInviteList.length === 0) {
         alert('You are not inviting anyone!')
       } else {
+        console.log(this.toInviteList)
         for (let i = 0; i < this.toInviteList.length; i += 1) {
           const dataBlock = {'group_id': this.$props.groupInfo['group_id'], 't_sid': this.toInviteList[i]}
+          console.log(dataBlock)
           this.$axios.post('/send_mail_to_invite/', dataBlock).then(res => {
             console.log(res)
           }).catch(err => {
