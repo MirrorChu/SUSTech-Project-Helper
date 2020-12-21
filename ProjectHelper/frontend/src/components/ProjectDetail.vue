@@ -255,6 +255,7 @@ export default {
       // }
       this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).
           then(res => {
+            console.log(res)
             this.groupInfo = res.data;
             this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
               this.privileges = res.data['Data'];

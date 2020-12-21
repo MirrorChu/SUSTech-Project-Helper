@@ -953,9 +953,6 @@ class StudentGetAllGroupsInProject(View):
 
 
 class StudentGetAllStudentsInProject(View):
-    """
-    TODO:bug
-    """
     def post(self, request):
         try:
             project_id = eval(request.body.decode()).get("project_id")
@@ -2214,10 +2211,10 @@ class MailUrl(View):
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
             GroupOrg.objects.filter(id=int(sender)).update(members=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
-            return HttpResponse('You accept the Invitation!<meta http-equiv="refresh" '
+            return HttpResponse('You apply the Invite!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
         elif type == 2:
-            return HttpResponse('You refuse the Invitation!<meta http-equiv="refresh" '
+            return HttpResponse('You refuse the Invite!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
         elif type == 3:
             array = sender.split(',')
@@ -2768,14 +2765,12 @@ class GetEventDetail(View):
                                     group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
                                     if group_score.count() == 0:
                                         groups[group.id] = {'choice': [], 'group_id': j.group_id, 'memberList': members,
-                                                            'group_name': group.group_name, 'index': [],
-                                                            'submission_datetime': int(j.add_time.timestamp()*1000)}
+                                                            'group_name': group.group_name, 'index': []}
                                     else:
                                         for m in group_score:
                                             groups[group.id] = {'choice': [], 'group_id': j.group_id,
                                                                 'memberList': members, 'group_score': m.grade,
-                                                                'group_name': group.group_name, 'index': [],
-                                                                'submission_datetime': int(j.add_time.timestamp()*1000)}
+                                                                'group_name': group.group_name, 'index': []}
                                 if events['event_detail']['partitionType'] == 'normal':
                                     events['partitionType'] = 'normal'
                                     for j in choices:
@@ -2814,9 +2809,10 @@ class GetEventDetail(View):
                         choices = ChooseEvent.objects.filter(event_id_id=event.id, group_id=group.id)
                         events['data'] = {}
                         for j in choices:
-                            events['data'] = {'choice': [], 'submission_datetime': int(j.add_time.timestamp()*1000),
+                            events['data'] = {'choice': [],
                                               'group_id': j.group_id, 'group_name': group.group_name,
                                               'index': [], 'submitTime': j.add_time}
+                            break
                         group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
                         if group_score.count() != 0:
                             for j in group_score:
