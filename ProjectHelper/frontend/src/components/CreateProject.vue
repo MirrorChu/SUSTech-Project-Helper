@@ -4,7 +4,7 @@
   <div>
     <el-form>
       <el-form-item label="Course">
-        <el-select v-model="newProjectCourse" placeholder="Course">
+        <el-select v-model="newProjectCourse" placeholder="Course" @change="loadstudnetdata">
           <el-option v-for="course in newProjectCourseList" :key="course.value" :label="course.label"
                      :value="course.value"></el-option>
         </el-select>
@@ -163,20 +163,8 @@ export default {
       }
     },
     onClickLoadStudent () {
-      //  TODO: Update the list of all students in course.
       this.showSelect = !this.showSelect
       this.allStudentInCourse = []
-      if (this.showSelect) {
-        const dataGram = { course: parseInt(this.newProjectCourse) }
-        this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
-          console.log('res', res)
-          for (const item in res.data['Data']) {
-            this.allStudentInCourse.push({ label: item, value: item })
-          }
-        }).catch(err => {
-          console.log('err', err)
-        })
-      }
       if (this.showSelect) {
         this.loadStudentsLiteral = 'Cancel'
       } else {
@@ -248,7 +236,7 @@ export default {
     },
     loadstudnetdata()
     {
-      // TODO: Update the list of all students in course.
+      //  TODO: Update the list of all students in course.
       if (this.newProjectCourse)
       {
         const dataGram = { course: parseInt(this.newProjectCourse) }
