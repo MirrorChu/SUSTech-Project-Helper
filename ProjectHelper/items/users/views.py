@@ -1716,12 +1716,6 @@ class SubmitEventFile(View):
             project = Project.objects.get(id=event.project_id)
             course_id = project.course_id
             auth = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
-            user_group = UserGroup.objects.filter(user_name_id=user_id)
-            group = None
-            for i in user_group:
-                group = GroupOrg.objects.get(id=i.group_name_id)
-                if group.project_id == project.id:
-                    break
 
             arr = request.FILES.keys()
             file_name = ''
@@ -1735,7 +1729,7 @@ class SubmitEventFile(View):
                     project_name = project.name
                     path = default_storage.save('file/' + project_name + "/" + event.title + "/" + name,
                                                 ContentFile(file.read()))
-                    ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=group.id,
+                    ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=8,
                                                      user_id=user_id, event_id=event_id)
 
                     return JsonResponse({"SubmitEventFile": "success"})
