@@ -377,7 +377,7 @@ class DownloadFile(View):
                     break
             if boo is not True:
                 raise
-            path = file.path
+            path = file.file_path
             array = path.split('/')
             file_name = array[-1]
             file_obj = open(path, 'rb')
@@ -531,7 +531,7 @@ class StudentGetsSingleProjectInformation(View):
                 file = {}
                 files = ProjectFile.objects.filter(project_id=project_id)
                 for i in files:
-                    path = i.path
+                    path = i.file_path
                     array = path.split('/')
                     file[array[-1]] = i.id
                 print(file)
