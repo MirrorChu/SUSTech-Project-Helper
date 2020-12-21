@@ -163,6 +163,14 @@ export default {
           }
         }
       }
+      //TODO
+      else if (eventType === 'Submission') {
+
+      }
+      //TODO
+      else if (eventType === 'Selection') {
+
+      }
 
     },
     onClickGrade() {
