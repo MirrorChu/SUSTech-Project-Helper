@@ -623,7 +623,7 @@ class StudentGetsSingleGroupInformation(View):
                 for j in query_set3:
                     captain_name = j.student_id
 
-                query_set3 = UserGroup.objects.filter(id=group_id)
+                query_set3 = UserGroup.objects.filter(group_name_id=group_id)
                 for j in query_set3:
                     user_id = j.user_name_id
                     query_set1 = UserProfile.objects.filter(id=user_id)
