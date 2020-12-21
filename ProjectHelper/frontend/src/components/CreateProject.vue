@@ -4,7 +4,7 @@
   <div>
     <el-form>
       <el-form-item label="Course">
-        <el-select v-model="newProjectCourse" placeholder="Course">
+        <el-select v-model="newProjectCourse" placeholder="Course" @change="loadstudnetdata">
           <el-option v-for="course in newProjectCourseList" :key="course.value" :label="course.label"
                      :value="course.value"></el-option>
         </el-select>
@@ -41,8 +41,8 @@
         <el-upload
             class="upload-demo"
             ref="upload"
-            :data="this.dataBlock"
-            action="http://127.0.0.1:8080/api/teacher_create_project/"
+            :data="this.dataforfile"
+            action="http://127.0.0.1:8080/api/submit_project_file/"
             multiple
             :file-list="fileList"
             :auto-upload="false"
@@ -137,6 +137,8 @@ export default {
       selectedStudents: [],
       manuallySearchSid: '',
       fileCount: 0,
+      project_id: '',
+      dataforfile: {'project_id': '', 'token': ''},
     }
   },
   methods: {
@@ -161,20 +163,8 @@ export default {
       }
     },
     onClickLoadStudent () {
-      //  TODO: Update the list of all students in course.
       this.showSelect = !this.showSelect
       this.allStudentInCourse = []
-      if (this.showSelect) {
-        const dataGram = { course: parseInt(this.newProjectCourse) }
-        this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
-          console.log('res', res)
-          for (const item in res.data['Data']) {
-            this.allStudentInCourse.push({ label: item, value: item })
-          }
-        }).catch(err => {
-          console.log('err', err)
-        })
-      }
       if (this.showSelect) {
         this.loadStudentsLiteral = 'Cancel'
       } else {
@@ -196,7 +186,7 @@ export default {
         this.dataBlock['groupingStart'] =  startDate.getTime()
         this.dataBlock['groupingDeadline'] =  endDate.getTime()
         this.dataBlock['idx'] = idx
-        this.dataBlock['selectedStudent'] = this.selectedStudents
+        this.dataBlock['selectedStudents'] = this.selectedStudents
         this.submitUpload()
       }).catch(err => {
         console.log(err, 'err')
@@ -213,7 +203,17 @@ export default {
       else {
         this.dataBlock['token'] = localStorage.getItem('Authorization')
         console.log('create project with files', this.dataBlock)
-        this.$refs.upload.submit()
+        this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
+          console.log(res)
+          if (res.data['TeacherCreateProject'] === 'success')
+          {
+            this.dataforfile['project_id'] = res.data.project_id
+            this.dataforfile['token'] = localStorage.getItem('Authorization')
+            this.$refs.upload.submit()
+          }
+        }).catch(err => {
+          console.log('err', err)
+        })
       }
     },
     handleFileChange (file, fileList) {
@@ -234,6 +234,26 @@ export default {
         console.log('err', err)
       })
     },
+    loadstudnetdata()
+    {
+      //  TODO: Update the list of all students in course.
+      if (this.newProjectCourse)
+      {
+        const dataGram = { course: parseInt(this.newProjectCourse) }
+        this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
+          console.log('res', res)
+          for (const item in res.data['Data']) {
+            this.allStudentInCourse.push({ label: item, value: item })
+          }
+        }).catch(err => {
+          console.log('err', err)
+        })
+      }
+      else
+      {
+        this.allStudentInCourse = []
+      }
+    }
   },
 }
 </script>

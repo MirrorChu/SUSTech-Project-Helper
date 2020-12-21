@@ -1505,9 +1505,16 @@ class TeacherGetStudentsInCourse(View):
             if course.end_time > datetime.datetime.now() > course.start_time:
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for j in student:
-                    user = UserProfile.objects.filter(id=j.user_name_id)
-                    for k in user:
-                        students[k.student_id] = k.student_id
+                    user = UserProfile.objects.get(id=j.user_name_id)
+                    auth = Authority.objects.filter(user_id=user.id, type="teach", course_id=course_id)
+                    boo = False
+                    for i in auth:
+                        if i.end_time > datetime.datetime.now() > i.start_time:
+                            boo = True
+                            break
+                    if boo:
+                        continue
+                    students[user.student_id] = user.student_id
                 return JsonResponse({"Data": students, "TeacherGetStudentsInCourse": "success"})
             else:
                 return JsonResponse({"TeacherGetStudentsInCourse": "fail"})
@@ -1527,30 +1534,33 @@ class TeacherCreateProject(View):
             logger.debug('%s request.body %s', self, type(request.POST.get('sid')))
 
             ddl = 0
-            if request.POST.get('token') is not None:
-                print('in')
-                token = request.POST.get('token')
-                student_id = get_sid(token)
-                project_name = request.POST.get('newProjectName')
-                introduction = request.POST.get('newProjectDescription')
-                group_size = request.POST.get('groupingMaximum')
-                min_group_size = request.POST.get('groupingMinimum')
-                course_id = request.POST.get('newProjectName')
-                ddl = request.POST.get('groupingDeadline')
-                key = request.POST.get('idx')
-            else:
-                print('not in')
-                token = get_from_request(request, 'token')
-                student_id = get_sid(token)
-                project_name = eval(request.body.decode()).get("newProjectName")
-                introduction = eval(request.body.decode()).get("newProjectDescription")
-                group_size = eval(request.body.decode()).get("groupingMaximum")
-                min_group_size = eval(request.body.decode()).get("groupingMinimum")
-                course_id = eval(request.body.decode()).get("newProjectCourse")
-                ddl = eval(request.body.decode()).get("groupingDeadline")
-                key = eval(request.body.decode()).get("idx")
+            # if request.POST.get('token') is not None:
+            #     print('in')
+            #     token = request.POST.get('token')
+            #     student_id = get_sid(token)
+            #     project_name = request.POST.get('newProjectName')
+            #     introduction = request.POST.get('newProjectDescription')
+            #     group_size = int(request.POST.get('groupingMaximum'))
+            #     min_group_size = int(request.POST.get('groupingMinimum'))
+            #     course_id = int(request.POST.get('newProjectCourse'))
+            #     ddl = int(request.POST.get('groupingDeadline'))
+            #     selected = request.POST.get("selectedStudents")
+            #     key = request.POST.get('idx')
+            # else:
+            #     print('not in')
+            token = get_from_request(request, 'token')
+            student_id = get_sid(token)
+            project_name = eval(request.body.decode()).get("newProjectName")
+            introduction = eval(request.body.decode()).get("newProjectDescription")
+            group_size = eval(request.body.decode()).get("groupingMaximum")
+            min_group_size = eval(request.body.decode()).get("groupingMinimum")
+            course_id = eval(request.body.decode()).get("newProjectCourse")
+            ddl = eval(request.body.decode()).get("groupingDeadline")
+            selected = eval(request.body.decode()).get("selectedStudents")
+            key = eval(request.body.decode()).get("idx")
             ddl = int(ddl) // 1000
             group_ddl = datetime.datetime.fromtimestamp(ddl)
+            students = selected
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
             user_id = query_set.id
@@ -1561,40 +1571,130 @@ class TeacherCreateProject(View):
             for k in arr:
                 file_name = k
 
-            project_id = 0
-            if course.end_time > datetime.datetime.now() > course.start_time:
-                project = Project.objects.filter(name=project_name, introduction=introduction,
-                                                 group_size=group_size,
-                                                 course_id=course_id, min_group_size=min_group_size,
-                                                 group_ddl=group_ddl)
-                if project.count() == 0:
-                    Project.objects.create(name=project_name, introduction=introduction,
-                                           group_size=group_size,
-                                           course_id=course_id, min_group_size=min_group_size,
-                                           group_ddl=group_ddl)
-                else:
-                    for j in project:
-                        project_id = j.id
             keys = Key.objects.filter(key_word=key)
             if keys.count() == 0:
                 return JsonResponse({"TeacherCreateProject": "has no key"})
             array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
             if float(array['time']) + 3600 < time.time():
                 return JsonResponse({"TeacherCreateProject": "has no key"})
-            if file_name != '':
-                file = request.FILES.get(file_name)
-                file_name = request.FILES['file']
-                path = default_storage.save('file/' + project_name + "/" + file_name,
-                                            ContentFile(file.read()))
-                ProjectFile.objects.create(file_path=path, project_id=project_id)
 
-                return JsonResponse({"TeacherCreateProject": "success"})
-            else:
-                return JsonResponse({"TeacherCreateProject": "has no authority"})
+            project_id = 0
+            if course.end_time > datetime.datetime.now() > course.start_time:
+                # project = Project.objects.filter(name=project_name, introduction=introduction,
+                #                                  group_size=group_size,
+                #                                  course_id=course_id, min_group_size=min_group_size,
+                #                                  group_ddl=group_ddl)
+                # if project.count() == 0:
+                Project.objects.create(name=project_name, introduction=introduction,
+                                       group_size=group_size,
+                                       course_id=course_id, min_group_size=min_group_size,
+                                       group_ddl=group_ddl)
+                project = Project.objects.get(name=project_name, introduction=introduction,
+                                              group_size=group_size,
+                                              course_id=course_id, min_group_size=min_group_size,
+                                              group_ddl=group_ddl)
+                project_id = project.id
+                for i in students:
+                    student = UserProfile.objects.get(student_id=i)
+                return JsonResponse({"TeacherCreateProject": "success", 'project_id': project_id})
+            return JsonResponse({"TeacherCreateProject": "has no authority"})
+            # if file_name != '':
+            #     file = request.FILES.get(file_name)
+            #     name = str(request.FILES['file']).replace(' ', '_')
+            #     project_name = project_name.replace(' ', '_')
+            #     path = default_storage.save('file/' + project_name + "/" + name,
+            #                                 ContentFile(file.read()))
+            #     ProjectFile.objects.create(file_path=path, project_id=project_id)
+            #
+            #     return JsonResponse({"TeacherCreateProject": "success"})
+            # else:
+            #     return JsonResponse({"TeacherCreateProject": "has no authority"})
 
         except Exception as e:
             logger.exception('%s %s', self, e)
             return JsonResponse({"TeacherCreateProjectCheck": "failed"})
+
+
+class SubmitProjectFile(View):
+    def post(self, request):
+        try:
+
+            token = request.POST.get('token')
+            student_id = get_sid(token)
+            project_id = int(request.POST.get('project_id'))
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            course_id = project.course_id
+
+            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            user_id = query_set.id
+            auth = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    name = str(request.FILES['file'])
+                    project_name = project.name
+                    path = default_storage.save('file/' + project_name + "/" + name,
+                                                ContentFile(file.read()))
+                    ProjectFile.objects.create(file_path=path, project_id=project_id)
+
+                    return JsonResponse({"SubmitProjectFile": "success"})
+            return JsonResponse({"SubmitProjectFile": "has no authority"})
+
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            return JsonResponse({"SubmitProjectFileCheck": "failed"})
+
+
+class SubmitEventFile(View):
+    def post(self, request):
+        try:
+            token = request.POST.get('token')
+            student_id = get_sid(token)
+            event_id = int(request.POST.get('event_id'))
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            course_id = project.course_id
+            auth = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
+            user_group = UserGroup.objects.filter(user_name_id=user_id)
+            group = None
+            for i in user_group:
+                group = GroupOrg.objects.get(id=i.group_name_id)
+                if group.project_id == project.id:
+                    break
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    name = str(request.FILES['file'])
+                    project_name = project.name
+                    path = default_storage.save('file/' + project_name + "/" + event.title + "/" + name,
+                                                ContentFile(file.read()))
+                    ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=group.id,
+                                                     user_id=user_id, event_id=event_id)
+
+                    return JsonResponse({"SubmitEventFile": "success"})
+            return JsonResponse({"SubmitEventFile": "has no authority"})
+
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            return JsonResponse({"SubmitProjectFileCheck": "failed"})
 
 
 class TeacherGetAuthInProject(View):
@@ -1833,6 +1933,7 @@ class ChangePrivilege(View):
             token = eval(request.body.decode()).get("token")
             t_sid = eval(request.body.decode()).get("t_sid")
             auths = eval(request.body.decode()).get("dict")
+            logger.debug(auths)
             student_id = get_sid(token)
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -1843,14 +1944,17 @@ class ChangePrivilege(View):
                                          course_id=project.course_id)
             t_auth = Authority.objects.filter(user_id=t_user_id, type="teach",
                                               course_id=project.course_id)
-            if t_auth.end_time > datetime.datetime.now() > t_auth.start_time:
-                return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+            for i in t_auth:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
                                                          course_id=project.course_id)
                     if (privilege.count() == 1 and auths[i] == 1) or (privilege.count() == 0 and auths[i] == 0):
                         continue
+                    elif privilege.count() == 1 and auths[i] == 0:
+                        Authority.objects.filter(user_id=t_user_id, type=i, course_id=project.course_id).delete()
                     else:
                         Authority.objects.create(type=i, user_id=t_user_id, course_id=project.course_id,
                                                  start_time=datetime.datetime.now(),
@@ -1889,7 +1993,7 @@ class GetAllPrivilegeList(View):
                                   'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
                                   'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0,
                                   'groupValid': 0,
-                                  'tagEdit': 0}
+                                  'tagEdit': 0, 'edit': False}
                     privilege = Authority.objects.filter(user_id=user.id,
                                                          course_id=project.course_id)
                     for j in privilege:
@@ -2317,29 +2421,29 @@ class CreateEvent(View):
             json_obj_str = json.dumps(json_obj)
             print(json_obj_str)
 
-            if request.POST.get('token') is not None:
-                token = request.POST.get("token")
-                student_id = get_sid(token)
-                project_id = int(request.POST.get("project_id"))
-                event_type = request.POST.get("event_type")
-                event_title = request.POST.get("event_title")
-                event_detail = request.POST.get("event_detail")
-                key = request.POST.get("key")
-            else:
-                token = eval(request.body.decode()).get("token")
-                student_id = get_sid(token)
-                project_id = eval(request.body.decode()).get("project_id")
-                event_type = eval(request.body.decode()).get("event_type")
-                event_title = eval(request.body.decode()).get("event_title")
-                event_detail = eval(request.body.decode()).get("event_detail")
-                key = eval(request.body.decode()).get("key")
+            # if request.POST.get('token') is not None:
+            #     token = request.POST.get("token")
+            #     student_id = get_sid(token)
+            #     project_id = int(request.POST.get("project_id"))
+            #     event_type = request.POST.get("event_type")
+            #     event_title = request.POST.get("event_title")
+            #     event_detail = request.POST.get("event_detail")
+            #     key = request.POST.get("key")
+            # else:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            project_id = eval(request.body.decode()).get("project_id")
+            event_type = eval(request.body.decode()).get("event_type")
+            event_title = eval(request.body.decode()).get("event_title")
+            event_detail = eval(request.body.decode()).get("event_detail")
+            key = eval(request.body.decode()).get("key")
             ddl = datetime.datetime.fromtimestamp(event_detail['due'] // 1000)
             now = datetime.datetime.now()
 
-            arr = request.FILES.keys()
-            file_name = ''
-            for k in arr:
-                file_name = k
+            # arr = request.FILES.keys()
+            # file_name = ''
+            # for k in arr:
+            #     file_name = k
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -2354,33 +2458,35 @@ class CreateEvent(View):
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if ddl <= datetime.datetime.now():
                 return JsonResponse({"CreateEvent": "wrong ddl"})
+
+            keys = Key.objects.filter(key_word=key)
+            if keys.count() == 0:
+                return JsonResponse({"TeacherCreateEvent": "has no key"})
+            array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
+            if float(array['time']) + 3600 < time.time():
+                return JsonResponse({"TeacherCreateEvent": "has no key"})
+
             if course.end_time > now > course.start_time:
                 detail = event_detail['introduction']
                 parameter = json.dumps(event_detail)
-                tmp = Event.objects.filter(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
-                                           detail=detail, title=event_title, project_id=project_id,
-                                           publish_user_id=user_id)
-                if tmp.count() == 0:
-                    Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
-                                         detail=detail, title=event_title, project_id=project_id,
-                                         publish_user_id=user_id)
+                # tmp = Event.objects.filter(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                #                            detail=detail, title=event_title, project_id=project_id,
+                #                            publish_user_id=user_id)
+                # if tmp.count() == 0:
+                Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                                     detail=detail, title=event_title, project_id=project_id,
+                                     publish_user_id=user_id)
                 tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
                                         detail=detail, title=event_title, project_id=project_id,
                                         publish_user_id=user_id)
-                keys = Key.objects.filter(key_word=key)
-                if keys.count() == 0:
-                    return JsonResponse({"TeacherCreateEvent": "has no key"})
-                array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
-                if float(array['time']) + 3600 < time.time():
-                    return JsonResponse({"TeacherCreateEvent": "has no key"})
-                if file_name != '':
-                    file = request.FILES.get(file_name)
-                    file_name = request.FILES['file']
-                    path = default_storage.save('file/' + project.name + "/" + file_name,
-                                                ContentFile(file.read()))
-                    ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
-                                                     group_id=group.id, user_id=user_id)
-                return JsonResponse({"CreateEvent": "success"})
+                # if file_name != '':
+                #     file = request.FILES.get(file_name)
+                #     file_name = request.FILES['file']
+                #     path = default_storage.save('file/' + project.name + "/" + file_name,
+                #                                 ContentFile(file.read()))
+                #     ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
+                #                                      group_id=group.id, user_id=user_id)
+                return JsonResponse({"CreateEvent": "success", "Event_id": tmp.id})
             return JsonResponse({"CreateEvent": "no auth"})
 
         except Exception as e:
