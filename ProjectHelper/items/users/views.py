@@ -953,6 +953,10 @@ class StudentGetAllGroupsInProject(View):
 
 
 class StudentGetAllStudentsInProject(View):
+    """
+    TODO:bug
+    """
+
     def post(self, request):
         try:
             project_id = eval(request.body.decode()).get("project_id")
@@ -2120,9 +2124,11 @@ class SendMailToInvite(View):
             <div style="text-align: left;"><font size="4" face="幼圆">Captain: ''' + sender.username + '''</font></div>
             <div style="text-align: left;"><font size="4" face="幼圆">Member: ''' + list + '''</font></div>
             <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
-            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(group_id) + '''&amp;r=''' + t_sid + '''&amp;t=1&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(
+                group_id) + '''&amp;r=''' + t_sid + '''&amp;t=1&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
             <div style="text-align: center;"><font size="4" face="幼圆">Refuse</font></div>
-            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(group_id) + '''&amp;r=''' + t_sid + '''&amp;t=2&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
+            <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(
+                group_id) + '''&amp;r=''' + t_sid + '''&amp;t=2&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to refuse</a><br></font></div>
             <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
         </div>
     </div>
@@ -2211,10 +2217,10 @@ class MailUrl(View):
                                     'content="5;url=http://127.0.0.1:8080/#/homepage"> ')
             GroupOrg.objects.filter(id=int(sender)).update(members=group.members + 1)
             UserGroup.objects.create(group_name_id=group.id, user_name_id=user.id)
-            return HttpResponse('You apply the Invite!<meta http-equiv="refresh" '
+            return HttpResponse('You accept the Invitation!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
         elif type == 2:
-            return HttpResponse('You refuse the Invite!<meta http-equiv="refresh" '
+            return HttpResponse('You refuse the Invitation!<meta http-equiv="refresh" '
                                 'content="3;url=http://127.0.0.1:8080/#/homepage"> ')
         elif type == 3:
             array = sender.split(',')
@@ -2765,12 +2771,15 @@ class GetEventDetail(View):
                                     group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
                                     if group_score.count() == 0:
                                         groups[group.id] = {'choice': [], 'group_id': j.group_id, 'memberList': members,
-                                                            'group_name': group.group_name, 'index': []}
+                                                            'group_name': group.group_name, 'index': [],
+                                                            'submission_datetime': int(j.add_time.timestamp() * 1000)}
                                     else:
                                         for m in group_score:
                                             groups[group.id] = {'choice': [], 'group_id': j.group_id,
                                                                 'memberList': members, 'group_score': m.grade,
-                                                                'group_name': group.group_name, 'index': []}
+                                                                'group_name': group.group_name, 'index': [],
+                                                                'submission_datetime': int(
+                                                                    j.add_time.timestamp() * 1000)}
                                 if events['event_detail']['partitionType'] == 'normal':
                                     events['partitionType'] = 'normal'
                                     for j in choices:
@@ -2809,10 +2818,9 @@ class GetEventDetail(View):
                         choices = ChooseEvent.objects.filter(event_id_id=event.id, group_id=group.id)
                         events['data'] = {}
                         for j in choices:
-                            events['data'] = {'choice': [],
+                            events['data'] = {'choice': [], 'submission_datetime': int(j.add_time.timestamp() * 1000),
                                               'group_id': j.group_id, 'group_name': group.group_name,
                                               'index': [], 'submitTime': j.add_time}
-                            break
                         group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
                         if group_score.count() != 0:
                             for j in group_score:
@@ -2978,7 +2986,7 @@ class MarkEvent(View):
         user with "eventGrade" authority can mark event
         :param token: token
                 event_id: id of event
-                
+
         :return:
         """
         try:
@@ -3111,6 +3119,8 @@ class SemiRandom(View):
                     member = UserGroup.objects.filter(group_name_id=i.id)
                     for j in member:
                         ungroup.remove(j.user_name_id)
+                    if i.member < project.min_group_size:
+                        illegalGroup.append(i.id)
                 return JsonResponse({"GetModelForEvent": "success"})
 
             return JsonResponse({"GetModelForEvent": "no auth"})
