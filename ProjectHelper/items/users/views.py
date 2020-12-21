@@ -2778,6 +2778,7 @@ class GetEventDetail(View):
                                             groups[group.id] = {'choice': [], 'group_id': j.group_id,
                                                                 'memberList': members, 'group_score': m.grade,
                                                                 'group_name': group.group_name, 'index': [],
+                                                                'comment': m.comment,
                                                                 'submission_datetime': int(
                                                                     j.add_time.timestamp() * 1000)}
                                 if events['event_detail']['partitionType'] == 'normal':
@@ -3121,6 +3122,7 @@ class SemiRandom(View):
                         ungroup.remove(j.user_name_id)
                     if i.member < project.min_group_size:
                         illegalGroup.append(i.id)
+
                 return JsonResponse({"GetModelForEvent": "success"})
 
             return JsonResponse({"GetModelForEvent": "no auth"})
