@@ -42,11 +42,10 @@
 
     <el-form-item label="Select Partition">
       <el-select v-model="selectedPartitionList"
-                 multiple placeholder="Select Partitions"
-                 @change="onSelectPartition">
+                 multiple placeholder="Select Partitions">
         <el-option
-            v-for="item in partitionList"
-            :key="item.value"
+            v-for="item in this.$props.partitionList"
+            :key="item.key"
             :label="item.label"
             :value="item.value">
         </el-option>
@@ -80,7 +79,6 @@ export default {
       introduction: '',
       due: '',
       submissionType: 'file',
-      partitionList: [],
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
@@ -95,6 +93,9 @@ export default {
       type: Number,
       required: true,
     },
+    partitionList: {
+      required: true,
+    }
   },
   created() {
     this.$axios.post('/get_all_partition/', {'project_id': this.$props.projectId}).then(res => {
@@ -114,6 +115,7 @@ export default {
         data.event_type = event.eventType;
         data.event_detail = event;
         data.key = res.data['SendKey'];
+        data.partitionList = this.selectedPartitionList
         this.$axios.post('/create_event/', data).then(res => {
           console.log(res);
         }).catch(err => {
@@ -134,10 +136,10 @@ export default {
       event.selectedGroupList = this.selectedGroupList;
       return event;
     },
-    onSelectPartition(selected) {
-      //TODO: Partition influences selected group.
-      console.log(selected);
-    },
+    // onSelectPartition(selected) {
+    //   //TODO: Partition influences selected group.
+    //   console.log(selected);
+    // },
   },
 };
 </script>
