@@ -1985,11 +1985,12 @@ class ChangePrivilege(View):
             project = Project.objects.get(id=project_id)
             auth = Authority.objects.get(user_id=user_id, type="authEdit",
                                          course_id=project.course_id)
-            t_auth = Authority.objects.filter(user_id=t_user_id, type="teach",
-                                              course_id=project.course_id)
-            for i in t_auth:
-                if i.end_time > datetime.datetime.now() > i.start_time:
-                    return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+            if t_sid != student_id:
+                t_auth = Authority.objects.filter(user_id=t_user_id, type="teach",
+                                                  course_id=project.course_id)
+                for i in t_auth:
+                    if i.end_time > datetime.datetime.now() > i.start_time:
+                        return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
@@ -1997,6 +1998,8 @@ class ChangePrivilege(View):
                     if (privilege.count() == 1 and auths[i] == 1) or (privilege.count() == 0 and auths[i] == 0):
                         continue
                     elif privilege.count() == 1 and auths[i] == 0:
+                        if auths[i] == 'authEdit' and t_sid == student_id:
+                            continue
                         Authority.objects.filter(user_id=t_user_id, type=i, course_id=project.course_id).delete()
                     else:
                         Authority.objects.create(type=i, user_id=t_user_id, course_id=project.course_id,
@@ -3140,6 +3143,14 @@ class SemiRandom(View):
                 pointer = 0
                 student = UserCourse.objects.filter(course_name_id=project.course_id)
                 for i in student:
+                    boo = False
+                    t_auth = Authority.objects.filter(user_id=i.id, type="teach",
+                                                      course_id=project.course_id)
+                    for j in t_auth:
+                        if j.end_time > datetime.datetime.now() > j.start_time:
+                            boo = True
+                    if boo:
+                        continue
                     ungroup.append(i.user_name_id)
                 group = GroupOrg.objects.filter(project_id=project_id)
                 for i in group:
