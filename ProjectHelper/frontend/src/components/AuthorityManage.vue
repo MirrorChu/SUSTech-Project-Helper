@@ -27,8 +27,6 @@
 
         <el-table-column label="Project Grade">
           <template slot-scope="scope">
-            <!--          <span v-if="!scope.row.edit & scope.row.eventGrade === '1'" class="el-icon-success"></span>-->
-            <!--          <span v-if="!scope.row.edit & scope.row.eventGrade === '0'" class="el-icon-circle-close"></span>-->
             <el-switch
                 :disabled="!scope.row.edit"
                 v-model="scope.row.projectGrade"
@@ -64,11 +62,11 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="Event Edit">
+        <el-table-column label="Event Valid">
           <template slot-scope="scope">
             <el-switch
                 :disabled="!scope.row.edit"
-                v-model="scope.row.eventEdit"
+                v-model="scope.row.eventValid"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 active-value="1"

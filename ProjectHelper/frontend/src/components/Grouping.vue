@@ -186,17 +186,6 @@ export default {
       this.dialogGroupDataVisible = true;
       this.groupInformation = row;
     },
-    // onClickInvite(group_id)
-    // {
-    //   this.$axios.post('/', {
-    //     group_id: group_id,
-    //     sid_invite: this.sid_invite,
-    //   }).then(res => {
-    //     console.log(res.data)
-    //   }).catch(err => {
-    //     console.log(err)
-    //   })
-    // },
     onClickKick(sid, group_id) {
       this.$axios.post('/teacher_kick_member/', {
         group_id: group_id,
@@ -209,8 +198,12 @@ export default {
       });
     },
     semirandomgrouping() {
-      this.$axios.post('/semi_random/', {'project_id': this.$props.project_id}).then(res => {
+      this.$axios.post('/semi_random/',
+        {
+          'project_id': this.$props.project_id
+        }).then(res => {
         console.log(res)
+        this.pullGroupingData()
       }).catch(err => {
         console.log(err)
       })

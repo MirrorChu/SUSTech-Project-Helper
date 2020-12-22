@@ -47,12 +47,9 @@
         <div>
           <div v-if="this.privileges['teach'] !== 1">
             <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
-                       v-bind:group-info="this.groupInfo"
-                       v-bind:members-list="this.membersList"
-                       v-bind:project-id="this.projectId"
-                       v-bind:sid="this.sid"></GroupInfo>
-            <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
-              groups!</h1>
+                       v-bind:project_id="this.projectId"></GroupInfo>
+            <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
+              You are not in any groups!</h1>
             <CreateOrJoinGroup
                 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
                 v-bind:sid="this.sid"
@@ -129,7 +126,7 @@
     <div v-if="showAd">
       <h2>Advertisement</h2>
 
-      <el-card v-if="advertisementData !== []">
+      <el-card v-if="advertisementData.length !== 0">
 
         <el-collapse v-if="advertisementData !== []">
           <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
@@ -138,9 +135,9 @@
 
           </el-collapse-item>
         </el-collapse>
-
-        <div v-show="advertisementData === ''">There is no advertisement!</div>
       </el-card>
+
+      <div v-show="advertisementData.length === 0">There is no advertisement now !</div>
 
       <el-card v-if="this.privileges['teach'] !== 1">
         <div>
@@ -278,6 +275,7 @@ export default {
                 for (let i = 0; i < this.groupInfo['members'].length; i++) {
                   this.membersList = this.membersList + this.groupInfo['members'][i] + '  ';
                 }
+                this.status = ''
               }
               else {
                 this.status = 'unknown';
@@ -371,7 +369,7 @@ export default {
           this.advertisementData = res.data['Data'];
         }
         else {
-          this.advertisementData = '';
+          this.advertisementData = [];
         }
       }).catch(err => {
         console.log(err);

@@ -711,11 +711,13 @@ class StudentGetsGroupInformationInProject(View):
             group_detail = ""
             project_name = ""
             course_name = ""
+            captain_id = ""
             captain_name = ""
             captain_id = 0
             project_id = 0
             course_id = 0
             members = []
+            members_name = []
 
             for i in query_set:
                 group_name = i.group_name
@@ -733,22 +735,27 @@ class StudentGetsGroupInformationInProject(View):
 
                 query_set3 = UserProfile.objects.filter(id=captain_id)
                 for j in query_set3:
-                    captain_name = j.student_id
+                    captain_id = j.student_id
+                    captain_name = j.real_name
 
                 member = UserGroup.objects.filter(group_name_id=group_id)
                 for j in member:
                     user_id = j.user_name_id
                     query_set1 = UserProfile.objects.filter(id=user_id)
                     for k in query_set1:
-                        members.append(k.student_id)
+                        if k.student_id != captain_id:
+                            members.append(k.student_id)
+                            members_name.append(k.real_name)
             return JsonResponse({"group_name": group_name,
                                  "group_introduction": group_detail,
                                  "project_id": project_id,
                                  "project_name": project_name,
                                  "course_id": course_id,
                                  "course_name": course_name,
+                                 "captain_id": captain_id,
                                  "captain_name": captain_name,
                                  "members": members,
+                                 "members_name": members_name,
                                  "group_id": group_id,
                                  })
         except Exception as e:
@@ -883,14 +890,15 @@ class CaptainKickMember(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
-            group = GroupOrg.objects.filter(group_name_id=group_id)
-            mem = 0
-            for i in group:
-                mem = i.member - 1
-            GroupOrg.objects.filter(group_name_id=group_id).update(member=mem)
-            UserGroup.objects.filter(group_name_id=group_id, user_name_id=target_id).delete()
+            t_user = UserProfile.objects.get(student_id=target_id)
+            print(t_user.id)
+            group = GroupOrg.objects.get(id=group_id)
+            mem = group.members - 1
+            GroupOrg.objects.filter(id=group_id).update(members=mem)
+            UserGroup.objects.filter(group_name_id=group_id, user_name_id=t_user.id).delete()
             return JsonResponse({"CaptainKickMemberCheck": "success"})
         except Exception as e:
+            logger.debug('%s %s', self, e)
             return JsonResponse({"CaptainKickMemberCheck": "failed"})
 
 
