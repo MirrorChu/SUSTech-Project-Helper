@@ -40,7 +40,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     CreateEvent, GetEventDetail, DeleteEvent, SubmitEvent, GetAllPartition, ChangeEvent, \
     ChangePrivilege, DeleteProject, TeacherCreateGroup, ChangeProject, MarkEvent, \
     IsTeacher, SubmitEventFile, SubmitProjectFile, SemiRandom, DownloadEventFile, \
-    TeacherAddSa
+    TeacherAddSa, GetModelForEvent
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -114,6 +114,7 @@ urlpatterns = [
     path('change_project/', ChangeProject.as_view()),
     path('is_teacher/', IsTeacher.as_view()),
     path('semi_random/', SemiRandom.as_view()),
+    path('get_model_for_event/', GetModelForEvent.as_view()),
     path('submit_event_file/', SubmitEventFile.as_view()),
     path('download_event_file/', DownloadEventFile.as_view()),
     path('submit_project_file/', SubmitProjectFile.as_view()),
