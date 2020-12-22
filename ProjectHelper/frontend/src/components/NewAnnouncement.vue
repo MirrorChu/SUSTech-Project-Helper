@@ -120,7 +120,7 @@ export default {
     },
     toJson() {
       const event = {};
-      event.eventType = 'announcement';
+      event.eventType = 'AnnouncementComponent';
       event.title = this.title;
       event.introduction = this.introduction;
       event.due = this.due.getTime();

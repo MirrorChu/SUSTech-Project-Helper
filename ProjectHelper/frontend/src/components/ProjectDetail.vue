@@ -45,7 +45,7 @@
         </el-form>
 
         <div>
-          <div v-if="this.privileges['teach'] !== 1">
+          <div v-if="this.privileges && this.privileges['teach'] !== 1">
             <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
                        v-bind:project_id="this.projectId"></GroupInfo>
             <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
