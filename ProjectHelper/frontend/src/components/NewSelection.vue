@@ -18,6 +18,7 @@
       </el-form-item>
 
       <el-form-item label="Due">
+        <el-row style="margin:0px"></el-row>
         <el-date-picker
             v-model="due"
             type="datetime"
@@ -32,6 +33,7 @@
         </el-radio-group>
       </el-form-item>
 
+      <el-divider></el-divider>
       <el-form-item v-if="selectionType === 0 || selectionType === '0'">
         <el-form :model="dynamicValidateForm" ref="dynamicValidateForm">
 
@@ -43,10 +45,10 @@
             <el-input v-model="value.value"></el-input>
             <el-button @click.prevent="removeDomain(value)">Remove</el-button>
           </el-form-item>
-
           <el-form-item>
-            <el-button @click="addDomain">New Option</el-button>
-            <el-button @click="resetForm('dynamicValidateForm')">Reset</el-button>
+            <el-row></el-row>
+            <div align="center"><el-button @click="addDomain">New Option</el-button>
+              <el-button @click="resetForm('dynamicValidateForm')">Reset</el-button></div>
           </el-form-item>
 
         </el-form>
@@ -55,6 +57,7 @@
       <el-form-item v-else-if="selectionType === 1 || selectionType === '1'">
         <el-form>
           <el-form-item label="Start">
+            <el-row style="margin: 0px"></el-row>
             <el-date-picker
                 v-model="timeSlotSelectionStart"
                 type="datetime"
@@ -63,6 +66,7 @@
           </el-form-item>
 
           <el-form-item label="End">
+            <el-row style="margin: 0px"></el-row>
             <el-date-picker
                 v-model="timeSlotSelectionEnd"
                 type="datetime"
@@ -71,6 +75,7 @@
           </el-form-item>
 
           <el-form-item label="Number">
+            <el-row style="margin: 0px"></el-row>
             <el-input-number v-model="timeSlotNum" :min="1" label="number"></el-input-number>
           </el-form-item>
 
@@ -90,6 +95,7 @@
       </el-form-item>
 
       <el-form-item label="Select Partition">
+        <el-row style="margin:0px"></el-row>
         <el-select v-model="selectedPartitionList"
                    multiple placeholder="Select Partitions"
                    @change="onSelectPartition">
@@ -103,6 +109,7 @@
       </el-form-item>
 
       <el-form-item label="Select Group">
+        <el-row style="margin:0px"></el-row>
         <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">
           <el-option
               v-for="item in groupList"
@@ -114,6 +121,7 @@
       </el-form-item>
 
       <el-form-item>
+        <el-row></el-row>
         <el-button @click="onClickSubmit">Submit</el-button>
       </el-form-item>
 

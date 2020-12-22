@@ -4,21 +4,7 @@
     <el-card>
       <h1>Personal Profile</h1>
       <el-divider></el-divider>
-    </el-card>
-    <el-image v-if="!this.edit" style="width: 200px; height: 200px"
-              :src="this.avatarUrl" :datafld="avatarUrl" fit="cover"></el-image>
-    <el-upload v-if="this.edit"
-               class="avatar-uploader"
-               action="/api/change_head_image/"
-               :data="{sid: this.sid}"
-               :auto-upload="true"
-               :show-file-list="false"
-               :on-success="handleAvatarSuccess"
-               :before-upload="beforeAvatarUpload">
-      <el-image v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar"></el-image>
-      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-    </el-upload>
-
+    <el-col :span="16">
     <el-form ref="form" label-position="left" label-width="80px">
       <el-form-item label="SID">
         <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
@@ -105,11 +91,29 @@
     </el-form>
 
     <div>
+      <el-divider></el-divider>
       <h3>Add Tag Library</h3>
       <el-input v-model="addingtag"></el-input>
       <el-button @click="onClickAddTagLibrary">ADD</el-button>
     </div>
+    </el-col>
 
+      <el-col :span="8">
+        <el-image v-if="!this.edit" style="width: 200px; height: 200px"
+                  :src="this.avatarUrl" :datafld="avatarUrl" fit="cover"></el-image>
+        <el-upload v-if="this.edit"
+                   class="avatar-uploader"
+                   action="/api/change_head_image/"
+                   :data="{sid: this.sid}"
+                   :auto-upload="true"
+                   :show-file-list="false"
+                   :on-success="handleAvatarSuccess"
+                   :before-upload="beforeAvatarUpload">
+          <el-image v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar"></el-image>
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-col>
+    </el-card>
   </div>
 </template>
 
@@ -342,4 +346,12 @@ export default {
 </style>
 
 <style scoped>
+.el-card{
+  font-family: Verdana, serif;
+  background-color: #F7F8F8;
+  border-color: whitesmoke;
+  align-content: center;
+  text-align: center;
+  line-height: 50px;
+}
 </style>

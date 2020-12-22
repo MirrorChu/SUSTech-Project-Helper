@@ -5,7 +5,6 @@
         Submission Condition
       </h4>
     </div>
-    <el-card>
       <el-table
           :data="groupList"
           style="width: 100%">
@@ -35,7 +34,6 @@
         <el-button>Upload Grading File</el-button>
       </el-upload>
 
-    </el-card>
 
     <h4 v-if="idx >= 0">
       Group Submission Detail
@@ -192,5 +190,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

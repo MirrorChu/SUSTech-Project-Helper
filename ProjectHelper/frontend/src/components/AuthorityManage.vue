@@ -4,7 +4,8 @@
       <el-table
           :data="this.AuthorityData"
           height="350"
-          style="width: 100%">
+          :header-cell-style="{background:'#F7F8F8',color:'#606266'}"
+        >
         <!--      <el-table-column type="expand">-->
         <!--        <template slot-scope="props">-->
         <!--          <el-form label-position="left" inline class="demo-table-expand">-->

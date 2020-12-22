@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Group Info</h2>
+    <h3>My Group</h3>
     Group Introduction: {{ this.$props.groupInfo.group_introduction }}
     <br>
     Group Name: {{ this.$props.groupInfo.group_name }}

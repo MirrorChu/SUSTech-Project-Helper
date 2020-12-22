@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 style="color:#003371;text-align: center">Event List</h1>
+    <h1 style="font-family: Verdana, serif;">Event List</h1>
     <div v-if="this.privileges['teach'] === 1">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
@@ -22,6 +22,7 @@
         </div>
 
       </el-card>
+      <el-divider></el-divider>
     </div>
   </div>
 </template>
@@ -188,12 +189,12 @@ export default {
   line-height: 30px;
 }
 
-.el-card:hover {
-  font-family: Verdana, serif;
-  background-color: #fffbf0;
-  border-color: whitesmoke;
-  /*align-content:space-around;*/
-  text-align: -webkit-left;
-  line-height: 30px;
-}
+/*.el-card:hover {*/
+/*  font-family: Verdana, serif;*/
+/*  background-color: #fffbf0;*/
+/*  border-color: whitesmoke;*/
+/*  !*align-content:space-around;*!*/
+/*  text-align: -webkit-left;*/
+/*  line-height: 30px;*/
+/*}*/
 </style>

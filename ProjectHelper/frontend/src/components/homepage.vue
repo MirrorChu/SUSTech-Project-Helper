@@ -146,7 +146,7 @@ export default {
   top: 150px;
 }
 .el-main{
-  margin-left: 160px;
+  margin-left: 60px;
 }
 
 </style>
