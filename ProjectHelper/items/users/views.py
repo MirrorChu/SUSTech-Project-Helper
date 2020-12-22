@@ -1785,7 +1785,7 @@ class SubmitEventFile(View):
 
         except Exception as e:
             logger.exception('%s %s', self, e)
-            return JsonResponse({"SubmitProjectFileCheck": "failed"})
+            return JsonResponse({"SubmitEventFileCheck": "failed"})
 
 
 class TeacherGetAuthInProject(View):
@@ -2117,7 +2117,28 @@ class GetEventList(View):
             course_id = project.course_id
             event = Event.objects.filter(project_id=project_id)
             events = []
+            user_group = UserGroup.objects.filter(user_name_id=user_id)
+            group = None
+            for i in user_group:
+                group = GroupOrg.objects.get(id=i.group_name_id)
+                if group.project_id == project.id:
+                    break
             for i in event:
+                parameter = json.loads(i.parameter)
+                if 'selectedPartitionList' in parameter.keys():
+                    boo = False
+                    partitionList = parameter['selectedPartitionList']
+                    for j in partitionList:
+                        n = json.loads(j)
+                        t_event = Event.objects.get(id=n['partition_id'])
+                        t_parameter = json.loads(t_event.parameter)
+                        choice = ChooseEvent.objects.filter(group_id=group.id, event_id_id=t_event.id,
+                                                            choice=str(n['option_id']))
+                        if choice.count() == 1:
+                            boo = True
+                            break
+                    if not boo:
+                        continue
                 publisher = UserProfile.objects.get(id=i.publish_user_id)
                 data = {'id': i.id, 'event_type': i.type, 'event_title': i.title, 'publisher': publisher.real_name}
                 events.append(data)
@@ -3177,9 +3198,9 @@ class GetModelForEvent(View):
         :return:
         """
         try:
-            token = eval(request.body.decode()).get("token")
-            student_id = get_sid(token)
-            event_id = eval(request.body.decode()).get("event_id")
+            # token = eval(request.body.decode()).get("token")
+            student_id = '3100001' # get_sid(token)
+            event_id = 20 # eval(request.body.decode()).get("event_id")
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
