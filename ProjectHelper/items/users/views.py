@@ -416,6 +416,39 @@ class DownloadFile(View):
             return JsonResponse({"DownloadFile": "failed"})
 
 
+class DownloadEventFile(View):
+    def get(self, request):
+        try:
+            token = request.GET['token']
+            student_id = get_sid(token)
+            file_id = request.GET['file_id']
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            courses = UserCourse.objects.filter(user_name_id=user_id)
+            file = ProjectAttachment.objects.get(id=file_id)
+            project = Project.objects.get(id=file.project_id)
+            boo = False
+            for i in courses:
+                if i.course_name_id == project.course_id:
+                    boo = True
+                    break
+            if boo is not True:
+                raise
+            path = file.file_path
+            array = path.split('/')
+            file_name = array[-1]
+            file_obj = open(path, 'rb')
+
+            response = HttpResponse(file_obj)
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = "attachment;filename=" + file_name
+            return response
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            return JsonResponse({"DownloadEventFile": "failed"})
+
+
 class Test(View):  # Fucking avatar
     def get(self, request):
         logger.debug('%s request %s', self, request)
@@ -1630,6 +1663,12 @@ class TeacherCreateProject(View):
 
             project_id = 0
             if course.end_time > datetime.datetime.now() > course.start_time:
+                project = Project.objects.filter(name=project_name, introduction=introduction,
+                                                  group_size=group_size,
+                                                  course_id=course_id, min_group_size=min_group_size,
+                                                  group_ddl=group_ddl)
+                if project.count() != 0:
+                    return JsonResponse({"TeacherCreateProjectCheck": "duplicated"})
                 # project = Project.objects.filter(name=project_name, introduction=introduction,
                 #                                  group_size=group_size,
                 #                                  course_id=course_id, min_group_size=min_group_size,
@@ -1796,8 +1835,7 @@ class TeacherKickMember(View):
             user = UserProfile.objects.get(student_id=target_id)
             group = GroupOrg.objects.get(id=group_id)
             project = Project.objects.get(id=group.project_id)
-            course = Course.objects.get(id=project.course_id)
-            auth = Authority.objects.get(user_id=student_id, type="group", course_id=course.id)
+            auth = Authority.objects.get(user_id=student_id, type="group", course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 if group.member == 1:
                     GroupOrg.objects.filter(id=group_id).delete()
@@ -1832,16 +1870,16 @@ class TeacherAddMember(View):
             student_id = get_sid(token)
             target_id = eval(request.body.decode()).get("t_sid")
             user = UserProfile.objects.get(student_id=target_id)
-            # TODO:等待权限判断，能否给course_id
-            # auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
-            # if auth.end_time > datetime.datetime.now() > auth.start_time:
             group = GroupOrg.objects.get(group_name_id=group_id)
             project = Project.objects.get(id=group.project_id)
-            if group.member + 1 > project.group_size:
-                raise
-            GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member + 1)
-            UserGroup.objects.create(group_name_id=group_id, user_name_id=user.id)
-            return JsonResponse({"TeacherAddMemberCheck": "success"})
+            auth = Authority.objects.get(user_id=student_id, type="group", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                project = Project.objects.get(id=group.project_id)
+                if group.member + 1 > project.group_size:
+                    raise
+                GroupOrg.objects.filter(group_name_id=group_id).update(member=group.member + 1)
+                UserGroup.objects.create(group_name_id=group_id, user_name_id=user.id)
+                return JsonResponse({"TeacherAddMemberCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherAddMemberCheck": "failed"})
