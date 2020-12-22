@@ -1686,7 +1686,7 @@ class TeacherCreateProject(View):
                 for i in students:
                     student = UserProfile.objects.get(student_id=i)
                 return JsonResponse({"TeacherCreateProject": "success", 'project_id': project_id})
-            return JsonResponse({"TeacherCreateProject": "has no authority"})
+            return HttpResponse('Unauthorized', status=401)
             # if file_name != '':
             #     file = request.FILES.get(file_name)
             #     name = str(request.FILES['file']).replace(' ', '_')
@@ -1736,7 +1736,7 @@ class SubmitProjectFile(View):
                     ProjectFile.objects.create(file_path=path, project_id=project_id)
 
                     return JsonResponse({"SubmitProjectFile": "success"})
-            return JsonResponse({"SubmitProjectFile": "has no authority"})
+            return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
             logger.exception('%s %s', self, e)
@@ -1773,7 +1773,7 @@ class SubmitEventFile(View):
                                                      user_id=user_id, event_id=event_id)
 
                     return JsonResponse({"SubmitEventFile": "success"})
-            return JsonResponse({"SubmitEventFile": "has no authority"})
+            return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
             logger.exception('%s %s', self, e)
@@ -1849,7 +1849,7 @@ class TeacherKickMember(View):
                             break
                 UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
                 return JsonResponse({"TeacherKickMemberCheck": "success"})
-            return JsonResponse({"TeacherKickMemberCheck": "no auth"})
+            return HttpResponse('Unauthorized', status=401)
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherKickMemberCheck": "failed"})
@@ -2029,7 +2029,7 @@ class ChangePrivilege(View):
                                                   course_id=project.course_id)
                 for i in t_auth:
                     if i.end_time > datetime.datetime.now() > i.start_time:
-                        return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+                        return HttpResponse('Unauthorized', status=401)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
@@ -2045,7 +2045,7 @@ class ChangePrivilege(View):
                                                  start_time=datetime.datetime.now(),
                                                  end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
                 return JsonResponse({"ChangePrivilegeCheck": "success"})
-            return JsonResponse({"ChangePrivilegeCheck": "you have no auth"})
+            return HttpResponse('Unauthorized', status=401)
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"ChangePrivilegeCheck": "failed"})
@@ -2085,7 +2085,7 @@ class GetAllPrivilegeList(View):
                         privileges[j.type] = '1'
                     list.append(privileges)
                 return JsonResponse({"Data": list, "GetAllPrivilegeListCheck": "success"})
-            return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
+            return HttpResponse('Unauthorized', status=401)
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"GetAllPrivilegeListCheck": "failed"})
@@ -2144,7 +2144,7 @@ class SendMailToInvite(View):
                                               course_id=project.course_id)
             for i in t_auth:
                 if i.end_time > datetime.datetime.now() > i.start_time:
-                    return JsonResponse({"SendMailToInvite": "you have no auth"})
+                    return HttpResponse('Unauthorized', status=401)
             email = receiver.email
             string = receiver.password
             pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
@@ -2559,10 +2559,10 @@ class CreateEvent(View):
 
             keys = Key.objects.filter(key_word=key)
             if keys.count() == 0:
-                return JsonResponse({"TeacherCreateEvent": "has no key"})
+                return HttpResponse('Unauthorized', status=401)
             array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
             if float(array['time']) + 3600 < time.time():
-                return JsonResponse({"TeacherCreateEvent": "has no key"})
+                return HttpResponse('Unauthorized', status=401)
 
             if course.end_time > now > course.start_time:
                 detail = event_detail['introduction']
@@ -2585,7 +2585,7 @@ class CreateEvent(View):
                 #     ProjectAttachment.objects.create(file_path=path, project_id=project_id, event_id=tmp.id,
                 #                                      group_id=group.id, user_id=user_id)
                 return JsonResponse({"CreateEvent": "success", "Event_id": tmp.id})
-            return JsonResponse({"CreateEvent": "no auth"})
+            return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -2965,7 +2965,7 @@ class GetEventDetail(View):
                             events['data']['file_id'].append(j.id)
 
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
-            return JsonResponse({"GetEventDetail": "no auth"})
+            return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -2996,29 +2996,18 @@ class GetAllPartition(View):
                 events = Event.objects.filter(project_id=project_id)
                 for i in events:
                     if i.type == "partition":
-                        event = {'id': i.id, 'event_title': i.title}
+                        event = {'partition_id': i.id, 'partition_name': i.title}
                         event_detail = json.loads(i.parameter)
-                        choices = ChooseEvent.objects.filter(event_id_id=i.id)
-                        choice = {}
                         for j in range(len(event_detail['options'])):
+                            event['option_id'] = j
                             if event_detail['partitionType'] == 'normal':
-                                choice[event_detail['options'][j][0]] = []
+                                event['option_name'] = event_detail['options'][j][0]
                             else:
                                 string = str(event_detail['options'][j][0]) + '-' + str(event_detail['options'][j][1])
-                                choice[string] = []
-                        for j in choices:
-                            group = GroupOrg.objects.get(id=j.group_id)
-                            if event_detail['partitionType'] == 'normal':
-                                choice[event_detail['options'][int(j.choice)][0]].append({'group_id': group.id,
-                                                                                          'group_name': group.group_name})
-                            else:
-                                string = str(event_detail['options'][int(j.choice)][0]) + '-' + str(
-                                    event_detail['options'][int(j.choice)][1])
-                                choice[string].append({'group_id': group.id, 'group_name': group.group_name})
-                        event['data'] = choice
-                    partitions.append(event)
-
-            return JsonResponse({"Data": partitions, "GetEventDetail": "no auth"})
+                                event['option_name'] = string
+                            partitions.append(event)
+                return JsonResponse({"Data": partitions, "GetEventDetail": "success"})
+            return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -3190,13 +3179,16 @@ class GetModelForEvent(View):
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 pass
             else:
-                return JsonResponse({"GetModelForEvent": "no auth"})
+                return HttpResponse('Unauthorized', status=401)
             file_name = str(datetime.datetime.now()) + " Grade Event " + event.title
             path = "tmp/" + file_name
 
             workbook = xlwt.Workbook()
             sheet1 = workbook.add_sheet('sheet1', cell_overwrite_ok=True)
-            groups = GroupOrg.objects.filter()
+            groups = GroupOrg.objects.filter(project_id=project.id)
+            row0 = []
+            for i in range(0, len(row0)):
+                sheet1.write(0, i, row0[i], set_style('Times New Roman', 220, True))
 
             file_obj = open(path, 'rb')
             response = HttpResponse(file_obj)
@@ -3279,7 +3271,7 @@ class SemiRandom(View):
                     pointer += groups[i]
                 return JsonResponse({"SemiRandom": "success"})
 
-            return JsonResponse({"SemiRandom": "no auth"})
+            return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
             logger.debug('%s %s', self, e)
