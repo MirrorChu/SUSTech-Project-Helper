@@ -1,49 +1,52 @@
 <template>
   <div>
-    <h2>Group Info</h2>
-    <div v-show="!this.edit">
-      Group Name: {{ this.groupInfo.group_name }}
+
+    <div>
+      <h2>Group Info</h2>
+      <div v-show="!this.edit">
+        Group Name: {{ this.groupInfo.group_name }}
+        <br>
+        Group Introduction: {{ this.groupInfo.group_introduction }}
+        <br>
+        Captain: {{ this.groupInfo.captain_name }}
+        <br>
+        Members: <span v-if="this.groupInfo.members&&this.groupInfo.members.length !== 0"> {{ this.membersList }}</span><span v-else>No memeber</span>
+      </div>
+
+      <div v-if="this.edit">
+        Group Name: <el-input v-model="group_name" ></el-input> <br>
+        Group Introduction: <el-input v-model="group_introduction" ></el-input> <br>
+        Captain: {{this.groupInfo.captain_name}} <br>
+        Members: <br>
+
+        <span v-if="this.groupInfo.members&&this.groupInfo.members.length !== 0">
+          <div v-for="(item,index) in this.groupInfo.members_name">
+            <span>{{ item }}</span> &nbsp <el-button @click="onClickKick(index)">Kick</el-button>
+          </div>
+        </span>
+        <span v-else>
+          No memeber
+        </span>
+      </div>
+
       <br>
-      Group Introduction: {{ this.groupInfo.group_introduction }}
-      <br>
-      Captain: {{ this.groupInfo.captain_name }}
-      <br>
-      Members: <span v-if="this.groupInfo.members.length !== 0"> {{ this.membersList }}</span><span v-else>No memeber</span>
+      <el-button v-show="!this.edit" @click="onClickEdit">Edit</el-button>
+      <el-button v-show="this.edit" @click="onClickConfirmEdit">Confirm Edit</el-button>
+
+      <el-divider></el-divider>
+      <h2>Wanna invite someone?</h2>
+      <el-select v-model="toInviteList" multiple clearable placeholder="select people to invite">
+        <el-option
+            v-for="item in invitableList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          <span>{{ item.label}}  &nbsp {{ item.name }}</span>
+        </el-option>
+      </el-select>
+      <el-button @click="onClickInvite">invite</el-button>
+      <el-divider></el-divider>
     </div>
-
-    <div v-if="this.edit">
-      Group Name: <el-input v-model="group_name" ></el-input> <br>
-      Group Introduction: <el-input v-model="group_introduction" ></el-input> <br>
-      Captain: {{this.groupInfo.captain_name}} <br>
-      Members: <br>
-
-      <span v-if="this.groupInfo.members.length !== 0">
-        <div v-for="(item,index) in this.groupInfo.members_name">
-          <span>{{ item }}</span> &nbsp <el-button @click="onClickKick(index)">Kick</el-button>
-        </div>
-      </span>
-      <span v-else>
-        No memeber
-      </span>
-    </div>
-
-    <br>
-    <el-button v-show="!this.edit" @click="onClickEdit">Edit</el-button>
-    <el-button v-show="this.edit" @click="onClickConfirmEdit">Confirm Edit</el-button>
-
-    <el-divider></el-divider>
-    <h2>Wanna invite someone?</h2>
-    <el-select v-model="toInviteList" multiple clearable placeholder="select people to invite">
-      <el-option
-          v-for="item in invitableList"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
-        <span>{{ item.label}}  &nbsp {{ item.name }}</span>
-      </el-option>
-    </el-select>
-    <el-button @click="onClickInvite">invite</el-button>
-    <el-divider></el-divider>
   </div>
 </template>
 

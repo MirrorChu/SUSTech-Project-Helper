@@ -174,7 +174,7 @@
     </div>
 
     <div>
-      <AuthorityManage v-bind:project_id="this.$props.projectId"></AuthorityManage>
+      <AuthorityManage v-if="this.privileges['teach'] === 1" v-bind:project_id="this.$props.projectId"></AuthorityManage>
     </div>
 
     <div v-if="this.privileges['teach'] === 1">
