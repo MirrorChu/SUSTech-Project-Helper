@@ -2099,6 +2099,11 @@ class SendMailToInvite(View):
                 raise
             group = GroupOrg.objects.get(id=group_id)
             project = Project.objects.get(id=group.project_id)
+            t_auth = Authority.objects.filter(user_id=receiver.id, type="teach",
+                                              course_id=project.course_id)
+            for i in t_auth:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    return JsonResponse({"SendMailToInvite": "you have no auth"})
             email = receiver.email
             string = receiver.password
             pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
@@ -2387,6 +2392,9 @@ class TeacherGetSingleInProject(View):
                 array = []
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for i in student:
+                    course = Authority.objects.filter(user_id=i.user_name_id, type="teach", course_id=course_id)
+                    if course.count() != 0:
+                        continue
                     array.append(i.user_name_id)
                 group = GroupOrg.objects.filter(project_id=project_id)
                 for i in group:
