@@ -163,7 +163,6 @@ export default {
         data.event_type = event.eventType
         data.event_detail = event
         data.key = res.data['SendKey']
-        console.log('NewPartition onClickSubmit data', data)
         this.$axios.post('/create_event/', data).then(res => {
           console.log(res)
         }).catch(err => {
