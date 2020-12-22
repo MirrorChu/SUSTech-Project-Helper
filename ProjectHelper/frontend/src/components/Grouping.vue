@@ -1,40 +1,45 @@
 <template>
   <div>
-    <div id="single">
-      <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
-    </div>
-
     <div>
-      <el-table
-          :data="groupData"
-          stripe
-          style="width: 100%">
-        <el-table-column
-            prop="group_id"
-            label="GROUP ID">
-        </el-table-column>
-        <el-table-column
-            prop="group_name"
-            label="GROUP NAME">
-        </el-table-column>
-        <el-table-column
-            prop="captain_name"
-            label="CAPTAIN NAME">
-        </el-table-column>
-        <el-table-column
-            prop="namelist"
-            label="MEMBERS">
-        </el-table-column>
-        <el-table-column
-            label="ACTION">
-          <template slot-scope="scope">
-            <el-button @click="onClickShowGroupDetail(scope.row)">Detail</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-button @click="changeGroupingVisiblity">(Un)Show Grouping</el-button>
+    </div>
+    <div v-show="GroupingVisiblity">
+      <div id="single">
+        <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
+      </div>
 
-      <el-button @click="semirandomgrouping"> Semi-random Grouping</el-button>
-      <el-button @click="showCreateGroupDialog"> Create New Group for Students</el-button>
+      <div>
+        <el-table
+            :data="groupData"
+            stripe
+            style="width: 100%">
+          <el-table-column
+              prop="group_id"
+              label="GROUP ID">
+          </el-table-column>
+          <el-table-column
+              prop="group_name"
+              label="GROUP NAME">
+          </el-table-column>
+          <el-table-column
+              prop="captain_name"
+              label="CAPTAIN NAME">
+          </el-table-column>
+          <el-table-column
+              prop="namelist"
+              label="MEMBERS">
+          </el-table-column>
+          <el-table-column
+              label="ACTION">
+            <template slot-scope="scope">
+              <el-button @click="onClickShowGroupDetail(scope.row)">Detail</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-button @click="semirandomgrouping"> Semi-random Grouping</el-button>
+        <el-button @click="showCreateGroupDialog"> Create New Group for Students</el-button>
+      </div>
     </div>
 
     <div>
@@ -136,6 +141,7 @@ export default {
       createGroupName: '',
       captain_sid: '',
       member_select: [],
+      GroupingVisiblity: false,
     };
   },
   created() {
@@ -256,6 +262,10 @@ export default {
     },
     closeDialog() {
       this.pullSingleData();
+    },
+    changeGroupingVisiblity()
+    {
+      this.GroupingVisiblity = !this.GroupingVisiblity
     },
   },
 };

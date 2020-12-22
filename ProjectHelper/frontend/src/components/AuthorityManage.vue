@@ -1,8 +1,12 @@
 <template>
   <div>
     <div>
+      <el-button @click="changeAuthorityVisiblity">(Un)Show Authority</el-button>
+    </div>
+    <div>
       <el-table
           :data="this.AuthorityData"
+          v-show="AuthorityVisiblity"
           height="350"
           style="width: 100%">
         <!--      <el-table-column type="expand">-->
@@ -202,6 +206,7 @@ export default {
       target_editauthority: '',
       dialogEditAuthorityVisible: false,
       edit: [],
+      AuthorityVisiblity: false,
     };
   },
   props: {
@@ -261,6 +266,10 @@ export default {
         this.AuthorityData[index].edit = false;
       });
     },
+    changeAuthorityVisiblity()
+    {
+      this.AuthorityVisiblity = !this.AuthorityVisiblity
+    }
   },
 };
 </script>
