@@ -2031,18 +2031,17 @@ class GetAllPrivilegeList(View):
                 list = []
                 for i in users:
                     person = UserProfile.objects.get(id=i.user_name_id)
-                    privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': 0,
-                                  'projectGrade': 0,
-                                  'projectEdit': 0, 'eventValid': 0, 'eventVisible': 0,
-                                  'eventGrade': 0, 'eventEdit': 0, 'group': 0, 'authEdit': 0,
-                                  'groupValid': 0,
-                                  'tagEdit': 0, 'edit': False}
-                    privilege = Authority.objects.filter(user_id=user.id,
+                    privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': '0',
+                                  'projectGrade': '0',
+                                  'projectEdit': '0', 'eventValid': '0', 'eventVisible': '0',
+                                  'eventGrade': '0', 'eventEdit': '0', 'group': '0', 'authEdit': '0',
+                                  'groupValid': '0',
+                                  'tagEdit': '0', 'edit': False}
+                    privilege = Authority.objects.filter(user_id=person.id,
                                                          course_id=project.course_id)
                     for j in privilege:
-                        privileges[j.type] = 1
+                        privileges[j.type] = '1'
                     list.append(privileges)
-                print(list)
                 return JsonResponse({"Data": list, "GetAllPrivilegeListCheck": "success"})
             return JsonResponse({"GetAllPrivilegeListCheck": "you have no auth"})
         except Exception as e:
