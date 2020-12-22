@@ -140,6 +140,7 @@ export default {
       this.groupId = this.groupList[this.idx]['group_id'];
       const eventType = this.$props.eventDetail['Data']['event_type'];
       this.submission_datetime = this.$props.eventDetail['Data']['data'][this.idx]['submission_datetime'];
+      //Grading partition event, which is not needed. This is just a trial.
       if (eventType === 'partition') {
         const partitionType = this.eventDetail['Data']['event_detail']['partitionType'];
         for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
@@ -164,12 +165,20 @@ export default {
         }
       }
       //TODO
-      else if (eventType === 'Submission') {
-
+      else if (eventType === 'Submission' || eventType === 'SubmissionEvent') {
+        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
+          const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i];
+          this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name'];
+          this.memberScores[member['student_id']] = 0;
+        }
       }
       //TODO
-      else if (eventType === 'Selection') {
-
+      else if (eventType === 'Selection' || eventType === 'SelectionEvent') {
+        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
+          const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i];
+          this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name'];
+          this.memberScores[member['student_id']] = 0;
+        }
       }
 
     },

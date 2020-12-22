@@ -180,6 +180,11 @@
       <AuthorityManage v-bind:project_id="this.$props.projectId"></AuthorityManage>
     </div>
 
+    <div v-if="this.privileges['teach'] === 1">
+      <el-input v-model="whoaddSA">sid of SA</el-input>
+      <el-button @click="addSA">Add SA</el-button>
+    </div>
+
   </div>
 </template>
 
@@ -233,6 +238,7 @@ export default {
       groupInfo: '',
       showAd: true,
       file_dict: {},
+      whoaddSA: '',
     };
   },
   created() {
@@ -398,6 +404,42 @@ export default {
         });
       }
     },
+    addSA()
+    {
+      if (isNaN(Number(this.whoaddSA)))
+      {
+        alert("You can only add a SA whose sid is number")
+        this.whoaddSA = ''
+      }
+      else
+      {
+        this.$confirm('Are you sure to add '+ this.whoaddSA + ' as an SA into ' + this.projectDetail['courseName'] + '?', 'Notice', {
+          confirmButtonText: 'Confirm',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+          this.$axios.post('/', {
+            course_id: this.courseId,
+            sid_sa: this.whoaddSA,
+          }).then(res => {
+            console.log('add sa', res.data);
+            this.$message({
+              type: 'success',
+              message: 'Add Success'
+            });
+            this.whoaddSA = '';
+          }).catch(err => {
+            console.log(err);
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: 'Canceled'
+          });
+        });
+      }
+
+    }
   },
   name: 'ProjectDetail',
 };
