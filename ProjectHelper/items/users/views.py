@@ -2811,31 +2811,62 @@ class GetEventDetail(View):
                                 if events['event_detail']['partitionType'] == 'normal':
                                     events['partitionType'] = 'normal'
                                     for j in choices:
-                                        group = GroupOrg.objects.get(id=j.group_id)
-                                        groups[group.id]['choice'].append((
+                                        groups[j.group_id]['choice'].append((
                                             events['event_detail']['options'][int(j.choice)][0],
                                             events['event_detail']['options'][int(j.choice)][1]))
-                                        groups[group.id]['index'].append(int(j.choice))
-                                        groups[group.id]['submitTime'] = j.add_time
+                                        groups[j.group_id]['index'].append(int(j.choice))
+                                        groups[j.group_id]['submitTime'] = j.add_time
                                 elif events['event_detail']['partitionType'] == 'timeSlot':
                                     events['partitionType'] = 'timeSlot'
                                     for j in choices:
-                                        groups[group.id]['choice'].append(
+                                        groups[j.group_id]['choice'].append(
                                             (events['event_detail']['options'][int(j.choice)][0],
                                              events['event_detail']['options'][int(j.choice)][1],
                                              events['event_detail']['options'][int(j.choice)][2]))
-                                        groups[group.id]['index'].append(int(j.choice))
-                                        groups[group.id]['submitTime'] = j.add_time
+                                        groups[j.group_id]['index'].append(int(j.choice))
+                                        groups[j.group_id]['submitTime'] = j.add_time
                                 for j in groups:
                                     events['data'].append(groups[j])
                             elif event.type == "SubmissionEvent":
                                 choices = ProjectAttachment.objects.filter(event_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
+                                    if group.id in groups.keys():
+                                        continue
+                                    member = UserGroup.objects.filter(group_name_id=group.id)
+                                    members = []
+                                    for i in member:
+                                        student = UserProfile.objects.get(id=i.user_name_id)
+                                        student_score = EventGrades.objects.filter(event_id=event_id,
+                                                                                   user_id=student.id)
+                                        if student_score.count() == 0:
+                                            members.append({'id': student.id, 'student_id': student.student_id,
+                                                            'real_name': student.real_name})
+                                        else:
+                                            for m in student_score:
+                                                members.append({'id': student.id, 'student_id': student.student_id,
+                                                                'real_name': student.real_name, 'score': m.grade})
+                                    group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                                    if group_score.count() == 0:
+                                        groups[group.id] = {'file_name': [], 'group_id': j.group_id, 'memberList': members,
+                                                            'group_name': group.group_name, 'file_id': [],
+                                                            'submission_datetime': int(j.add_time.timestamp() * 1000)}
+                                    else:
+                                        for m in group_score:
+                                            groups[group.id] = {'file_name': [], 'group_id': j.group_id,
+                                                                'memberList': members, 'group_score': m.grade,
+                                                                'group_name': group.group_name, 'file_id': [],
+                                                                'comment': m.comment,
+                                                                'submission_datetime': int(
+                                                                    j.add_time.timestamp() * 1000)}
+                                for j in choices:
                                     path = j.file_path
                                     array = path.split('/')
-                                    events['data'].append({'file_name': array[-1], 'group_id': j.group_id,
-                                                           'group_name': group.group_name, 'file_id': j.id})
+                                    groups[j.group_id]['file_name'].append(array[-1])
+                                    groups[j.group_id]['file_id'].append(j.id)
+                                    groups[j.group_id]['submitTime'] = j.add_time
+                                for j in groups:
+                                    events['data'].append(groups[j])
                             break
                 if isStudent:
                     user_group = UserGroup.objects.filter(user_name_id=user_id)
@@ -2877,10 +2908,23 @@ class GetEventDetail(View):
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
                         for j in choices:
+                            events['data'] = {'file_name': [], 'submission_datetime': int(j.add_time.timestamp() * 1000),
+                                              'group_id': j.group_id, 'group_name': group.group_name,
+                                              'file_id': [], 'submitTime': j.add_time}
+                        group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                        if group_score.count() != 0:
+                            for j in group_score:
+                                events['data']['group_score'] = j.grade
+                                events['data']['comment'] = j.comment
+                        student_score = EventGrades.objects.filter(event_id=event_id, user_id=user_id)
+                        if student_score.count() != 0:
+                            for j in group_score:
+                                events['data']['student_score'] = j.grade
+                        for j in choices:
                             path = j.file_path
                             array = path.split('/')
-                            events['data'] = {'file_name': array[-1], 'group_id': j.group_id,
-                                              'group_name': group.group_name, 'file_id': j.id}
+                            events['data']['file_name'].append(array[-1])
+                            events['data']['file_id'].append(j.id)
 
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
