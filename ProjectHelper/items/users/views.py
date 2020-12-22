@@ -412,6 +412,7 @@ class DownloadFile(View):
             response['Content-Disposition'] = "attachment;filename=" + file_name
             return response
         except Exception as e:
+            logger.exception('%s %s', self, e)
             return JsonResponse({"DownloadFile": "failed"})
 
 
@@ -2827,12 +2828,14 @@ class GetEventDetail(View):
                                         groups[group.id]['submitTime'] = j.add_time
                                 for j in groups:
                                     events['data'].append(groups[j])
-                            elif event.type == "submission":
+                            elif event.type == "SubmissionEvent":
                                 choices = ProjectAttachment.objects.filter(event_id=event.id)
                                 for j in choices:
                                     group = GroupOrg.objects.get(id=j.group_id)
-                                    events['data'].append({'path': j.file_path, 'group_id': j.group_id,
-                                                           'group_name': group.group_name})
+                                    path = j.file_path
+                                    array = path.split('/')
+                                    events['data'].append({'file_name': array[-1], 'group_id': j.group_id,
+                                                           'group_name': group.group_name, 'file_id': j.id})
                             break
                 if isStudent:
                     user_group = UserGroup.objects.filter(user_name_id=user_id)
@@ -2870,12 +2873,14 @@ class GetEventDetail(View):
                                                                  events['event_detail']['options'][int(j.choice)][1],
                                                                  events['event_detail']['options'][int(j.choice)][2]))
                                 events['data']['index'].append(int(j.choice))
-                    elif event.type == "attachment":
+                    elif event.type == "SubmissionEvent":
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
                         for j in choices:
-                            events['data'] = {'path': j.file_path, 'group_id': j.group_id,
-                                              'group_name': group.group_name}
+                            path = j.file_path
+                            array = path.split('/')
+                            events['data'] = {'file_name': array[-1], 'group_id': j.group_id,
+                                              'group_name': group.group_name, 'file_id': j.id}
 
                 return JsonResponse({"Data": events, "GetEventDetail": "success"})
             return JsonResponse({"GetEventDetail": "no auth"})
@@ -3098,13 +3103,18 @@ class GetModelForEvent(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             event = Event.objects.get(id=event_id)
-
+            project = Project.objects.get(id=event.project_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                pass
+            else:
+                return JsonResponse({"GetModelForEvent": "no auth"})
             file_name = str(datetime.datetime.now()) + " Grade Event " + event.title
             path = "tmp/" + file_name
 
             workbook = xlwt.Workbook()
-            sheet1 = workbook.add_sheet(u'sheet1', cell_overwrite_ok=True)
-            groups = GroupOrg
+            sheet1 = workbook.add_sheet('sheet1', cell_overwrite_ok=True)
+            groups = GroupOrg.objects.filter()
 
             file_obj = open(path, 'rb')
             response = HttpResponse(file_obj)
