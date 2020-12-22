@@ -132,8 +132,8 @@ export default {
       event.due = this.due.getTime();
       event.eventType = 'SubmissionEvent';
       event.submissionType = this.submissionType;
-      // event.selectedPartitionList = this.selectedPartitionList
-      event.selectedGroupList = this.selectedGroupList;
+      event.selectedPartitionList = this.selectedPartitionList
+      // event.selectedGroupList = this.selectedGroupList;
       return event;
     },
     // onSelectPartition(selected) {

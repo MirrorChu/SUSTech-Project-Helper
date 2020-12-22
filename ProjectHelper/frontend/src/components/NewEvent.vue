@@ -17,8 +17,10 @@
         </el-form-item>
 
         <el-form-item v-if="eventType === 0">
-          <NewAnnouncement>
-
+          <NewAnnouncement
+              v-bind:courseId="courseId"
+              v-bind:projectId="projectId"
+              v-bind:partitionList="partitionList">
           </NewAnnouncement>
         </el-form-item>
 
@@ -93,8 +95,11 @@ export default {
         else {
           option['label'] = partition['partition_name'] + ': ' + partition['option_name'];
         }
-        option['value'] = '{' + '\"event_id\"' + ':' + partition['partition_id'] + ',' + '\"partition_id\"' + ':' +
-            partition['option_id'] + '}';
+        const item = {'partition_id': partition['partition_id'],
+        'option_id': partition['option_id']}
+        option['value'] = JSON.stringify(item)
+        // option['value'] = '{' + '\\"partition_id\\"' + ':' + partition['partition_id'] + ',' +
+        //     '\\"option_id\\"' + ':' + partition['option_id'] + '}';
         option['key'] = i;
         this.partitionList.push(option);
       }

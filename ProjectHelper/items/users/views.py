@@ -3114,6 +3114,34 @@ class ChangeProject(View):
             return JsonResponse({"ChangeProject": "failed"})
 
 
+class ChangeGroup(View):
+    def post(self, request):
+        """
+        :param token:
+        :return:
+        """
+        try:
+
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            group_id = eval(request.body.decode()).get("group_id")
+            group_name = eval(request.body.decode()).get("group_name")
+            introduction = eval(request.body.decode()).get("group_introduction")
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            group = GroupOrg.objects.get(id=group_id)
+            if user_id == group.captain_name_id:
+                GroupOrg.objects.filter(id=group_id).update(group_name=group_name, detail=introduction)
+                return JsonResponse({"ChangeGroup": "success"})
+            return JsonResponse({"ChangeGroup": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"ChangeGroup": "failed"})
+
+
+
 class MarkEvent(View):
     def post(self, request):
         """

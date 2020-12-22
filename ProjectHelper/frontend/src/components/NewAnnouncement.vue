@@ -39,27 +39,26 @@
 
         <el-form-item label="Select Partition">
           <el-select v-model="selectedPartitionList"
-                     multiple placeholder="Select Partitions"
-                     @change="onSelectPartition">
+                     multiple placeholder="Select Partitions">
             <el-option
-                v-for="item in partitionList"
-                :key="item.value"
+                v-for="item in this.$props.partitionList"
+                :key="item.key"
                 :label="item.label"
                 :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Select Group">
-          <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">
-            <el-option
-                v-for="item in groupList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
+        <!--        <el-form-item label="Select Group">-->
+        <!--          <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">-->
+        <!--            <el-option-->
+        <!--                v-for="item in groupList"-->
+        <!--                :key="item.value"-->
+        <!--                :label="item.label"-->
+        <!--                :value="item.value">-->
+        <!--            </el-option>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
 
       </el-form>
     </div>
@@ -71,6 +70,19 @@
 <script>
 export default {
   name: 'NewAnnouncement',
+  props: {
+    partitionList: {
+      required: true,
+    },
+    courseId: {
+      type: Number,
+      required: true,
+    },
+    projectId: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       type: 'Announcement',
@@ -78,7 +90,6 @@ export default {
       introduction: '',
       due: '',
       eventId: '',
-      partitionList: [],
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
@@ -89,29 +100,37 @@ export default {
   },
   methods: {
     onClickSubmit() {
-      console.log(this.toJson());
-      this.$axios.post('/test/', {jsonObj: this.toJson()}).then(res => {
-        console.log('res', res);
+      this.$axios.post('/send_key/', {'course': this.$props.courseId}).then(res => {
+        console.log(res)
+        const event = this.toJson()
+        const data = {}
+        data.project_id = this.$props.projectId
+        data.event_title = event.title
+        data.event_type = event.eventType
+        data.event_detail = event
+        data.key = res.data['SendKey']
+        this.$axios.post('/create_event/', data).then(res => {
+          console.log('res', res);
+        }).catch(err => {
+          console.log('err', err);
+        });
       }).catch(err => {
-        console.log('err', err);
-      });
+        console.log(err)
+      })
     },
     toJson() {
       const event = {};
-      event.type = 'Announcement';
+      event.eventType = 'announcement';
       event.title = this.title;
       event.introduction = this.introduction;
       event.due = this.due.getTime();
-      event.selectedGroupList = this.selectedGroupList;
+      event.partitionList = this.selectedPartitionList;
       return event;
     },
-    onSelectPartition(selected) {
-      //TODO: Partition influences selected group.
-      console.log(selected);
-    },
-    getAllPartitions() {
-
-    },
+    // onSelectPartition(selected) {
+    //   //TODO: Partition influences selected group.
+    //   console.log(selected);
+    // },
   },
 
 };
