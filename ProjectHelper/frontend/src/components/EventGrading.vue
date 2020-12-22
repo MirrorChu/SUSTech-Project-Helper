@@ -24,6 +24,10 @@
         </el-table-column>
       </el-table>
 
+      <el-button v-if="idx < 0" @click="downloadAllSubmission">
+        Download All Submission
+      </el-button>
+
       <el-button v-if="idx < 0">
         Download Grading Template
       </el-button>
@@ -215,7 +219,10 @@ export default {
           + localStorage.getItem('Authorization')
           + '&file_id='
           + id.toString();
-    }
+    },
+    downloadAllSubmission() {
+      //  TODO
+    },
   },
 };
 </script>
