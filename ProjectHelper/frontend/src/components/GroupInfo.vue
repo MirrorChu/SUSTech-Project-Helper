@@ -8,17 +8,23 @@
       <br>
       Captain: {{ this.groupInfo.captain_name }}
       <br>
-      Members: {{ this.membersList }}
+      Members: <span v-if="this.groupInfo.members.length !== 0"> {{ this.membersList }}</span><span v-else>No memeber</span>
     </div>
 
     <div v-if="this.edit">
-      Group Name: <el-input v-model="this.groupInfo.group_name" ></el-input> <br>
-      Group Introduction: <el-input v-model="this.groupInfo.group_introduction" ></el-input> <br>
+      Group Name: <el-input v-model="group_name" ></el-input> <br>
+      Group Introduction: <el-input v-model="group_introduction" ></el-input> <br>
       Captain: {{this.groupInfo.captain_name}} <br>
       Members: <br>
-      <div v-for="(item,index) in this.groupInfo.members_name">
-        <span>{{ item }}</span> &nbsp <el-button @click="onClickKick(index)">Kick</el-button>
-      </div>
+
+      <span v-if="this.groupInfo.members.length !== 0">
+        <div v-for="(item,index) in this.groupInfo.members_name">
+          <span>{{ item }}</span> &nbsp <el-button @click="onClickKick(index)">Kick</el-button>
+        </div>
+      </span>
+      <span v-else>
+        No memeber
+      </span>
     </div>
 
     <br>
@@ -111,12 +117,15 @@ export default {
     onClickEdit()
     {
       this.edit = true
+      this.group_name = this.groupInfo.group_name
+      this.group_introduction = this.groupInfo.group_introduction
     },
     onClickConfirmEdit()
     {
-      this.$axios.post('/', {
-        group_name: this.groupInfo.group_name,
-        group_introduction: this.groupInfo.group_introduction,
+      this.$axios.post('/change_group/', {
+        group_name: this.group_name,
+        group_introduction: this.group_introduction,
+        group_id: this.groupInfo.group_id,
       }).then(res => {
         console.log(res.data)
         this.edit = false
