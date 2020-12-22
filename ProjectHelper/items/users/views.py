@@ -3284,3 +3284,33 @@ class SemiRandom(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"SemiRandom": "failed"})
+
+
+class TeacherAddSa(View):
+    def post(self, request):
+        """
+        :param token:token
+        :return:
+        """
+        try:
+            course_id = eval(request.body.decode()).get("course_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("sid_sa")
+            user = UserProfile.objects.get(student_id=target_id)
+            auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                userCourse = UserCourse.objects.filter(user_name_id=user.id, course_name_id=course_id)
+                if userCourse.count() != 0:
+                    return JsonResponse({"TeacherAddSaCheck": "already in"})
+                UserCourse.objects.create(user_name_id=user.id, course_name_id=course_id, lab=0)
+                Authority.objects.create(type='eventVisible', user_id=user.id, course_id=course_id,
+                                         start_time=datetime.datetime.now(),
+                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                Authority.objects.create(type='tagEdit', user_id=user.id, course_id=course_id,
+                                         start_time=datetime.datetime.now(),
+                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                return JsonResponse({"TeacherAddSaCheck": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherAddSaCheck": "failed"})
