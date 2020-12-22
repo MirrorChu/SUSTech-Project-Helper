@@ -81,7 +81,7 @@
         </el-card>
       </div>
     </el-col>
-      <el-col :span="12" :offset="2">
+      <el-col :span="13" :offset="1">
         <div>
           <EventList v-bind:sid="this.$props.sid"
                      v-bind:courseId="this.$props.courseId"

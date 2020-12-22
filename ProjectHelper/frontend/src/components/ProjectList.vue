@@ -10,12 +10,12 @@
               :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
 
       <!--      sortable is not supported-->
-      <el-table-column fixed prop=1 label="Course" width="400"></el-table-column>
+      <el-table-column fixed prop=1 label="Course" width="450"></el-table-column>
 
       <!--      sortable is not supported-->
-      <el-table-column prop=2 label="Project" width="400"></el-table-column>
+      <el-table-column prop=2 label="Project" width="450"></el-table-column>
 
-      <el-table-column width="200" align="right">
+      <el-table-column width="250" align="right">
         <template slot="header" slot-scope="scope">
           <el-input size="mini" v-model="searchKey" placeholder="Search"/>
         </template>

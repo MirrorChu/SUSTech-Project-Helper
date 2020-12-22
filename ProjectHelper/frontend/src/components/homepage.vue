@@ -2,6 +2,7 @@
   <div class="homepage">
     <el-container direction="horizontal">
 
+
       <el-aside :width="asideWidth">
         <el-menu default-active="1-4-1" class="nav" :collapse="!showNav">
           <el-header v-if="showNav">
@@ -45,6 +46,7 @@
         <ProjectList v-show="mainContent.projects"></ProjectList>
 
       </el-main>
+
 
     </el-container>
   </div>
@@ -149,4 +151,33 @@ export default {
   margin-left: 60px;
 }
 
+/*.homepage{*/
+/*  top: 0;*/
+
+/*  left: 0;*/
+
+/*  width:100%;*/
+
+/*  height:100%;*/
+
+/*  min-width: 1000px;*/
+
+/*  z-index:-10;*/
+
+
+/*  background-color: #fff;*/
+
+/*  background: url(pic.jpg);*/
+
+/*  background-repeat:no-repeat;*/
+
+/*  background-size: cover;*/
+
+/*  -webkit-background-size: cover;*/
+
+/*  -o-background-size: cover;*/
+
+/*  background-position: center 0;*/
+
+/*}*/
 </style>
