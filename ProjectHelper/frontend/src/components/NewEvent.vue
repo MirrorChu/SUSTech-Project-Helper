@@ -9,7 +9,7 @@
         <el-form-item label="Event Type">
           <el-radio-group v-model="eventType">
             <el-radio :label="0">Announcement</el-radio>
-            <el-radio :label="1">Selection</el-radio>
+<!--            <el-radio :label="1">Selection</el-radio>-->
             <el-radio :label="2">Submission</el-radio>
             <el-radio :label="3">Partition</el-radio>
             <!--            <el-radio :label="4">Upload</el-radio>-->
@@ -22,9 +22,9 @@
           </NewAnnouncement>
         </el-form-item>
 
-        <el-form-item v-else-if="eventType === 1">
-          <NewSelection></NewSelection>
-        </el-form-item>
+<!--        <el-form-item v-else-if="eventType === 1">-->
+<!--          <NewSelection></NewSelection>-->
+<!--        </el-form-item>-->
 
         <el-form-item v-else-if="eventType === 2">
           <NewSubmission v-bind:projectId="this.$props.projectId"

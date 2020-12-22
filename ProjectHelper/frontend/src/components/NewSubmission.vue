@@ -23,7 +23,7 @@
     </el-form-item>
     <el-form-item label="Submission Type">
       <el-radio-group v-model="submissionType">
-<!--        <el-radio label="text">Text</el-radio>-->
+        <!--        <el-radio label="text">Text</el-radio>-->
         <el-radio label="file">File</el-radio>
       </el-radio-group>
     </el-form-item>
@@ -53,16 +53,16 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item label="Select Group">
-      <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">
-        <el-option
-            v-for="item in groupList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-        </el-option>
-      </el-select>
-    </el-form-item>
+    <!--    <el-form-item label="Select Group">-->
+    <!--      <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">-->
+    <!--        <el-option-->
+    <!--            v-for="item in groupList"-->
+    <!--            :key="item.value"-->
+    <!--            :label="item.label"-->
+    <!--            :value="item.value">-->
+    <!--        </el-option>-->
+    <!--      </el-select>-->
+    <!--    </el-form-item>-->
 
     <el-form-item>
       <el-button @click="onClickSubmit">Submit</el-button>
@@ -73,7 +73,7 @@
 <script>
 export default {
   name: 'NewSubmission',
-  data () {
+  data() {
     return {
       type: '',
       title: '',
@@ -84,7 +84,7 @@ export default {
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
-    }
+    };
   },
   props: {
     projectId: {
@@ -94,45 +94,52 @@ export default {
     courseId: {
       type: Number,
       required: true,
-    }
+    },
+  },
+  created() {
+    this.$axios.post('/get_all_partition/', {'project_id': this.$props.projectId}).then(res => {
+      console.log(res);
+    }).catch(err => {
+      console.log(err);
+    });
   },
   methods: {
-    onClickSubmit () {
+    onClickSubmit() {
       this.$axios.post('/send_key/', {'course': this.courseId}).then(res => {
-        console.log(res)
-        const event = this.toJson()
-        const data = {}
-        data.project_id = this.$props.projectId
-        data.event_title = event.title
-        data.event_type = event.eventType
-        data.event_detail = event
-        data.key = res.data['SendKey']
+        console.log(res);
+        const event = this.toJson();
+        const data = {};
+        data.project_id = this.$props.projectId;
+        data.event_title = event.title;
+        data.event_type = event.eventType;
+        data.event_detail = event;
+        data.key = res.data['SendKey'];
         this.$axios.post('/create_event/', data).then(res => {
-          console.log(res)
+          console.log(res);
         }).catch(err => {
-          console.log(err)
-        })
+          console.log(err);
+        });
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
-    toJson () {
-      const event = {}
-      event.title = this.title
-      event.introduction = this.introduction
-      event.due = this.due.getTime()
-      event.eventType = 'SubmissionEvent'
-      event.submissionType = this.submissionType
+    toJson() {
+      const event = {};
+      event.title = this.title;
+      event.introduction = this.introduction;
+      event.due = this.due.getTime();
+      event.eventType = 'SubmissionEvent';
+      event.submissionType = this.submissionType;
       // event.selectedPartitionList = this.selectedPartitionList
-      event.selectedGroupList = this.selectedGroupList
-      return event
+      event.selectedGroupList = this.selectedGroupList;
+      return event;
     },
-    onSelectPartition (selected) {
+    onSelectPartition(selected) {
       //TODO: Partition influences selected group.
-      console.log(selected)
+      console.log(selected);
     },
   },
-}
+};
 </script>
 
 <style scoped>

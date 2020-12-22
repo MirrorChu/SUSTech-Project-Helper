@@ -24,6 +24,10 @@
         </el-table-column>
       </el-table>
 
+      <el-button v-if="idx < 0" @click="downloadAllSubmission">
+        Download All Submission
+      </el-button>
+
       <el-button v-if="idx < 0">
         Download Grading Template
       </el-button>
@@ -56,6 +60,20 @@
               {{ literal }}
             </div>
           </div>
+          <div v-else-if="eventDetail['Data']['event_type'] === 'submission' ||
+          eventDetail['Data']['event_type'] === 'SubmissionEvent'">
+            {{ eventDetail }}
+            <div>
+              <h3>
+                Submission
+              </h3>
+              <el-link v-for="(item, index) in eventDetail['Data']['data']"
+                       :href="generateFileUrl(item['file_id'][index])">
+                {{ item['file_name'][index] }}
+              </el-link>
+            </div>
+          </div>
+
           <div>
             <h3>
               Submission Datetime
@@ -195,6 +213,15 @@ export default {
       }).then(err => {
         console.log(err);
       });
+    },
+    generateFileUrl(id) {
+      return 'http://127.0.0.1:8000/download_event_file?token='
+          + localStorage.getItem('Authorization')
+          + '&file_id='
+          + id.toString();
+    },
+    downloadAllSubmission() {
+      //  TODO
     },
   },
 };
