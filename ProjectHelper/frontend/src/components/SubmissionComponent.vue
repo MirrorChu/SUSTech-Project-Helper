@@ -55,6 +55,36 @@
         </el-upload>
       </div>
 
+      <div v-if="privileges['teach'] === 0">
+        <div v-if="eventDetail['Data']['data']['file_id']">
+          <h3>My Submission</h3>
+          <div v-for="(item, index) in eventDetail['Data']['data']['file_name']">
+            <el-link :href="generateFileUrl(eventDetail['Data']['data']['file_id'][index])">
+              {{ item }}
+            </el-link>
+            <i class="el-icon-delete" @click="onClickDelete(index)"></i>
+          </div>
+        </div>
+
+        <div v-if="eventDetail['Data']['data']['group_score']">
+          <div>
+            <h3>Group Score: {{ eventDetail['Data']['data']['group_score'] }}</h3>
+          </div>
+        </div>
+
+        <div v-if="eventDetail['Data']['data']['student_score']">
+          <div>
+            <h3>My Score: {{ eventDetail['Data']['data']['student_score'] }}</h3>
+          </div>
+        </div>
+
+        <div v-if="eventDetail['Data']['data']['comment']">
+          <h3>Comment</h3>
+          {{ eventDetail['Data']['data']['comment'] }}
+        </div>
+        <el-button @click="onClickSubmit">Submit</el-button>
+      </div>
+
     </div>
 
 
@@ -62,11 +92,11 @@
 </template>
 
 <script>
-import EventGrading from './EventGrading'
+import EventGrading from './EventGrading';
 
 export default {
   name: 'SubmissionComponent',
-  components: { EventGrading },
+  components: {EventGrading},
   props: {
     data: {
       required: true,
@@ -78,7 +108,7 @@ export default {
       required: true,
     },
   },
-  data () {
+  data() {
     return {
       submissionText: '',
       fileList: [],
@@ -89,65 +119,74 @@ export default {
       submissionDetail: [],
       privileges: {},
       dataBlock: {},
-    }
+    };
   },
-  created () {
-    this.token = localStorage.getItem('Authorization')
-    this.edit = false
-    this.$axios.post('/get_event_detail/', { 'event_id': this.$props.eventId }).then(res => {
-      console.log(res)
-      this.submissionDetail = res.data['Data']['data']
-      this.eventDetail = res.data
-      const eventEle = res.data['Data']
-      const typeStr = eventEle['event_type']
+  created() {
+    this.token = localStorage.getItem('Authorization');
+    this.edit = false;
+    this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+      console.log(res);
+      this.submissionDetail = res.data['Data']['data'];
+      this.eventDetail = res.data;
+      const eventEle = res.data['Data'];
+      const typeStr = eventEle['event_type'];
       if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
-        this.eventObj['type'] = 'SubmissionComponent'
-        this.eventObj['data'] = {}
-        this.eventObj['data']['type'] = 'SubmissionComponent'
-        this.eventObj['partitionType'] = eventEle['event_detail']['partitionType']
+        this.eventObj['type'] = 'SubmissionComponent';
+        this.eventObj['data'] = {};
+        this.eventObj['data']['type'] = 'SubmissionComponent';
+        this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
       }
-      this.eventObj['data']['title'] = eventEle['event_title']
-      this.eventObj['data']['introduction'] = eventEle['introduction']
-      this.eventObj['data']['due'] = eventEle['event_detail']['due']
-      this.eventObj['publisher'] = eventEle['publisher']
-      this.eventObj['id'] = this.$props.eventId
+      this.eventObj['data']['title'] = eventEle['event_title'];
+      this.eventObj['data']['introduction'] = eventEle['introduction'];
+      this.eventObj['data']['due'] = eventEle['event_detail']['due'];
+      this.eventObj['publisher'] = eventEle['publisher'];
+      this.eventObj['id'] = this.$props.eventId;
 
-      this.$axios.post('/get_privilege_list/', { 'course_id': this.$props.courseId }).then(res => {
-        this.privileges = res.data['Data']
+      this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+        this.privileges = res.data['Data'];
       }).catch(err => {
-        console.log(err)
-      })
-      this.dataBlock['token'] = localStorage.getItem('Authorization')
-      this.dataBlock['event_id'] = this.$props.eventId
+        console.log(err);
+      });
+      this.dataBlock['token'] = localStorage.getItem('Authorization');
+      this.dataBlock['event_id'] = this.$props.eventId;
     }).catch(err => {
-      console.log(err)
-    })
+      console.log(err);
+    });
   },
   methods: {
-    onClickDeleteEvent () {
-      this.$axios.post('/delete_event/', { 'event_id': this.eventObj['id'] }).then(res => {
-        alert('Delete Event ' + res.data['DeleteEvent'])
+    onClickDeleteEvent() {
+      this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
+        alert('Delete Event ' + res.data['DeleteEvent']);
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
-    onClickSubmit () {
+    onClickSubmit() {
       //  TODO: Implement submit.
     },
-    handleFileChange () {
+    handleFileChange() {
 
     },
-    handleFileRemove () {
+    handleFileRemove() {
 
     },
-    onClickExpand () {
-      this.expand = !this.expand
+    onClickExpand() {
+      this.expand = !this.expand;
     },
     onSuccess(response, file, fileList) {
-      console.log(response)
+      console.log(response);
+    },
+    generateFileUrl(id) {
+      return 'http://127.0.0.1:8000/download_event_file?token='
+          + localStorage.getItem('Authorization')
+          + '&file_id='
+          + id.toString();
+    },
+    onClickDelete(index) {
+      console.log(index);
     },
   },
-}
+};
 </script>
 
 <style scoped>
