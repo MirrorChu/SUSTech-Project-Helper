@@ -3005,7 +3005,7 @@ class GetAllPartition(View):
                         if event_detail['partitionType'] == 'normal':
                             event['option_name'] = event_detail['options'][j][0]
                         else:
-                            string = str(event_detail['options'][j][0]) + '-' + str(event_detail['options'][j][1])
+                            string = [int(event_detail['options'][j][0]), int(event_detail['options'][j][1])]
                             event['option_name'] = string
                         partitions.append(event.copy())
                 return JsonResponse({"Data": partitions, "GetEventDetail": "success"})
@@ -3199,10 +3199,12 @@ class GetModelForEvent(View):
                 member = UserGroup.objects.filter(group_name_id=i.id)
                 for j in member:
                     student = UserProfile.objects.get(id=j.user_name_id)
-                    sheet1.write(pointer, 0, j.real_name, set_style('Times New Roman', 220))
-                    sheet1.write(pointer, 1, j.student_id, set_style('Times New Roman', 220))
+                    sheet1.write(pointer, 0, student.real_name, set_style('Times New Roman', 220))
+                    sheet1.write(pointer, 1, student.student_id, set_style('Times New Roman', 220))
                     pointer += 1
-                sheet1.write_merge(1, pointer - 1, 3, 3)
+                sheet1.write_merge(pointer - 1 - groups.members, pointer - 1, 3, 3)
+                pointer += 1
+            workbook.save(path)
 
             file_obj = open(path, 'rb')
             response = HttpResponse(file_obj)
@@ -3213,6 +3215,73 @@ class GetModelForEvent(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"GetModelForEvent": "failed"})
+
+
+class SubmitModelForEvent(View):
+    def post(self, request):
+        """
+        :param token: token
+
+        :return:
+        """
+        try:
+            # token = eval(request.body.decode()).get("token")
+            # student_id = get_sid(token)
+            # event_id = eval(request.body.decode()).get("event_id")
+            #
+            # user = UserProfile.objects.get(student_id=student_id)
+            # user_id = user.id
+            # event = Event.objects.get(id=event_id)
+            # project = Project.objects.get(id=event.project_id)
+            # auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)arr = request.FILES.keys()
+            # file_name = ''
+            # for k in arr:
+            #     file_name = k
+            #
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            #     if file_name != '':
+            #         file = request.FILES.get(file_name)
+            #         name = str(request.FILES['file'])
+            #         project_name = project.name
+            #         path = default_storage.save('file/' + project_name + "/" + name,
+            #                                     ContentFile(file.read()))
+            #         ProjectFile.objects.create(file_path=path, project_id=project_id)
+            # if auth.end_time > datetime.datetime.now() > auth.start_time:
+            #
+            # return HttpResponse('Unauthorized', status=401)
+            # file_name = str(datetime.datetime.now()) + " Grade Event " + event.title
+            # path = "tmp/" + file_name
+            #
+            # workbook = xlwt.Workbook()
+            # sheet1 = workbook.add_sheet('sheet1', cell_overwrite_ok=True)
+            # groups = GroupOrg.objects.filter(project_id=project.id)
+            # row0 = ['name', 'id/sid', 'grade', 'comment']
+            # pointer = 1
+            # for i in range(0, len(row0)):
+            #     sheet1.write(0, i, row0[i], set_style('Times New Roman', 220, True))
+            # for i in groups:
+            #     sheet1.write(pointer, 0, i.group_name, set_style('Times New Roman', 220))
+            #     sheet1.write(pointer, 1, i.id, set_style('Times New Roman', 220))
+            #     pointer += 1
+            #     member = UserGroup.objects.filter(group_name_id=i.id)
+            #     for j in member:
+            #         student = UserProfile.objects.get(id=j.user_name_id)
+            #         sheet1.write(pointer, 0, student.real_name, set_style('Times New Roman', 220))
+            #         sheet1.write(pointer, 1, student.student_id, set_style('Times New Roman', 220))
+            #         pointer += 1
+            #     sheet1.write_merge(pointer - 1 - groups.members, pointer - 1, 3, 3)
+            #     pointer += 1
+            # workbook.save(path)
+            #
+            # file_obj = open(path, 'rb')
+            # response = HttpResponse(file_obj)
+            # response['Content-Type'] = 'application/octet-stream'
+            # response['Content-Disposition'] = "attachment;filename=" + file_name
+            return JsonResponse({"SubmitModelForEvent": "success"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"SubmitModelForEvent": "failed"})
 
 
 class SemiRandom(View):
