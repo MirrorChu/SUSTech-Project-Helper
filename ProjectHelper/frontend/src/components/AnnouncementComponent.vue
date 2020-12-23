@@ -6,7 +6,7 @@
       </h3>
 
       <div>
-        <el-button @click="onClickExpand">{{this.mi}}</el-button>
+        <el-button @click="onClickExpand">{{this.expand ? "Close" : "Expand"}}</el-button>
       </div>
     </div>
 
@@ -14,7 +14,7 @@
 
       {{ this.introduction }}<br>
       <div>Due: {{ new Date(this.due) }}</div>
-
+      <div><el-button @click="onClickDeleteEvent">Delete Event</el-button></div>
     </div>
 
   </div>
@@ -41,7 +41,6 @@ export default {
       introduction: '',
       due: '',
       title: '',
-      mi: 'Expand',
     }
   },
   created() {
@@ -59,15 +58,16 @@ export default {
       return null
     },
     onClickExpand () {
-      if (this.expand)
-      {
-        this.mi = 'Expand'
-      }
-      else
-      {
-        this.mi = 'Close'
-      }
       this.expand = !this.expand
+    },
+    onClickDeleteEvent() {
+      this.$axios.post('/delete_event/', {
+        'event_id': this.$props.eventId
+      }).then(res => {
+        alert('Delete Event ' + res.data['DeleteEvent']);
+      }).catch(err => {
+        console.log(err);
+      });
     },
   },
 }

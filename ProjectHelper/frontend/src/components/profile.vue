@@ -93,7 +93,7 @@
     <div>
       <el-divider></el-divider>
       <h3>Add Tag Library</h3>
-      <el-input v-model="addingtag"></el-input>
+      <el-input v-model="addingtag" placeholder="Tag Name"></el-input>
       <el-button @click="onClickAddTagLibrary">ADD</el-button>
     </div>
     </el-col>
@@ -315,15 +315,22 @@ export default {
     },
     onClickAddTagLibrary()
     {
-      this.$axios.post('/add_new_tag/', {
-        tag_name: this.addingtag,
-      }).then(res => {
-        console.log(res.data)
-        this.addingtag = ''
-      }).catch(err => {
-        console.log('err', err)
-      })
-    }
+      if (this.addingtag && this.addingtag.length !== 0)
+      {
+        this.$axios.post('/add_new_tag/', {
+          tag_name: this.addingtag,
+        }).then(res => {
+          console.log(res.data)
+          this.addingtag = ''
+        }).catch(err => {
+          console.log('err', err)
+        })
+      }
+      else
+      {
+        alert("You cannot add a space tag")
+      }
+    },
   },
 }
 </script>

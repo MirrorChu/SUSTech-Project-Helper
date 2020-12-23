@@ -59,7 +59,7 @@
                 v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
             </div>
 
-            <div v-if="this.privileges['teach'] === 1">
+            <div v-if="this.privileges && this.privileges['teach'] === 1">
               <el-button @click="onClickEdit">{{ editLiteral }}</el-button>
             </div>
 
@@ -102,7 +102,7 @@
             <div v-else>There is no advertisement!</div>
           </el-card>
 
-          <el-card v-if="this.privileges['teach'] !== 1">
+          <el-card v-if="this.privileges && this.privileges['teach'] !== 1">
             <div>
               <h3>Upload AD</h3>
               <el-form>
@@ -445,7 +445,7 @@ export default {
     },
     addSA()
     {
-      if (isNaN(Number(this.whoaddSA)))
+      if (isNaN(Number(this.whoaddSA)) || !this.whoaddSA || this.whoaddSA.length === 0)
       {
         alert("You can only add a SA whose sid is number")
         this.whoaddSA = ''
