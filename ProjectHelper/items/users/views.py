@@ -55,15 +55,18 @@ def check_token(token) -> bool:
     :param token: The token from frontend.
     :return: token exists and is not expired (user is online)
     """
-    if token is None:
-        return False
-    record = r.get(token)
-    logger.debug('check_token(token) token: %s, record: %s', token, record)
-    if record is None:
-        return False
-    update_token(token)
-    return True
-
+    try:
+        if token is None:
+            return False
+        record = r.get(token)
+        logger.debug('check_token(token) token: %s, record: %s', token, record)
+        if record is None:
+            return False
+        update_token(token)
+        return True
+    except Exception as e:
+        logger.exception('get_sid(token) %s', e)
+        return None
 
 def update_token(token) -> None:
     r.expire(token, EXPIRE_TIME)
@@ -3315,6 +3318,31 @@ class IsTeacher(View):
             return JsonResponse({"IsTeacher": "failed"})
 
 
+class TagEditable(View):
+    def post(self, request):
+        """
+        :param token: token
+
+        :return: 1/0 yes/no
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            auth = Authority.objects.filter(user_id=user_id, type="tagEdit")
+            if auth.count() != 0:
+                for i in auth:
+                    if i.end_time > datetime.datetime.now() > i.start_time:
+                        return JsonResponse({"TagEditable": 1})
+            return JsonResponse({"TagEditable": 0})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TagEditable": "failed"})
+
+
 class GetModelForEvent(View):
     def get(self, request):
         """
@@ -3575,3 +3603,51 @@ class TeacherAddSa(View):
             logger.debug('%s %s', self, e)
 
             return JsonResponse({"TeacherAddSaCheck": "failed"})
+
+
+class TeacherAddStudent(View):
+    def post(self, request):
+        """
+        :param token:token
+        :return:
+        """
+        try:
+            token = request.POST.get('token')
+            project_id = request.POST.get('project_id')
+            student_id = get_sid(token)
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            auth = Authority.objects.get(user_id=user_id, type="teach", course_id=project.course_id)
+
+            arr = request.FILES.keys()
+            file_name = ''
+            for k in arr:
+                file_name = k
+
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                if file_name != '':
+                    file = request.FILES.get(file_name)
+                    name = str(request.FILES['file'])
+                    path = default_storage.save('tmp/' + name, ContentFile(file.read()))
+                    workbook = xlrd.open_workbook(path)
+                    sheet1 = workbook.sheet_by_index(0)
+
+                    students = []
+                    sid = sheet1.col_values(0)
+
+                    for i in sid:
+                        students.append(i)
+                    os.remove(path)
+                    for i in students:
+                        student = UserProfile.objects.get(student_id=i)
+                        tmp1 = UserCourse.objects.filter(user_name_id=student.id, course_name_id=project.course_id)
+                        if tmp1.count() == 0:
+                            UserCourse.objects.filter(user_name_id=student.id, course_name_id=project.course_id)
+                    return JsonResponse({"TeacherAddStudent": "success"})
+
+            return JsonResponse({"TeacherAddStudent": "failed"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherAddStudent": "failed"})

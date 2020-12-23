@@ -41,7 +41,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     ChangePrivilege, DeleteProject, TeacherCreateGroup, ChangeProject, MarkEvent, \
     IsTeacher, SubmitEventFile, SubmitProjectFile, SemiRandom, DownloadEventFile, \
     TeacherAddSa, GetModelForEvent, ChangeGroup, SubmitModelForEvent, DeleteEventFile, \
-    DeleteProjectFile, DownloadEventSubmission
+    DeleteProjectFile, DownloadEventSubmission, TagEditable, TeacherAddStudent
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -114,6 +114,7 @@ urlpatterns = [
     path('delete_project/', DeleteProject.as_view()),
     path('change_project/', ChangeProject.as_view()),
     path('is_teacher/', IsTeacher.as_view()),
+    path('tag_editable/', TagEditable.as_view()),
     path('semi_random/', SemiRandom.as_view()),
     path('get_model_for_event/', GetModelForEvent.as_view()),
     path('submit_model_for_event/', SubmitModelForEvent.as_view()),
@@ -125,6 +126,7 @@ urlpatterns = [
     path('change_group/', ChangeGroup.as_view()),
     path('delete_event_file/', DeleteEventFile.as_view()),
     path('delete_project_file/', DeleteProjectFile.as_view()),
+    path('teacher_add_student/', TeacherAddStudent.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页
