@@ -101,7 +101,6 @@
       </el-form-item>
 
       <el-form-item label="Attachment">
-        TODO
         <el-upload
           class="upload-demo"
           drag

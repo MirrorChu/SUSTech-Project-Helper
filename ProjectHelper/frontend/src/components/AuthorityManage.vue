@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1 style="font-family: Verdana, serif;">Authority Management</h1>
     <div>
       <el-button @click="changeAuthorityVisiblity">(Un)Show Authority</el-button>
     </div>

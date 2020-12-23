@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1 style="font-family: Verdana, serif;">Grouping</h1>
     <div>
       <el-button @click="changeGroupingVisiblity">(Un)Show Grouping</el-button>
     </div>
@@ -9,7 +10,7 @@
         <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
       </div>
       </el-card>
-      
+
       <h1 style="font-family: Verdana, serif;">Current existing group</h1>
       <div>
         <el-table

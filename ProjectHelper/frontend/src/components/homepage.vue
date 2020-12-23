@@ -19,10 +19,10 @@
             <i class="el-icon-folder"></i>
             <span slot="title" @click="onClickProjects">My Projects</span>
           </el-menu-item>
-          <el-menu-item>
-            <i class="el-icon-message"></i>
-            <span slot="title">Messages</span>
-          </el-menu-item>
+<!--          <el-menu-item>-->
+<!--            <i class="el-icon-message"></i>-->
+<!--            <span slot="title">Messages</span>-->
+<!--          </el-menu-item>-->
           <el-menu-item>
             <i class="el-icon-setting" @click="onClickSettings"></i>
             <span slot="title">Settings</span>
