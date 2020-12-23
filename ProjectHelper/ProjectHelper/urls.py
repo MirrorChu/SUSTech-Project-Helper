@@ -41,7 +41,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     ChangePrivilege, DeleteProject, TeacherCreateGroup, ChangeProject, MarkEvent, \
     IsTeacher, SubmitEventFile, SubmitProjectFile, SemiRandom, DownloadEventFile, \
     TeacherAddSa, GetModelForEvent, ChangeGroup, SubmitModelForEvent, DeleteEventFile, \
-    DeleteProjectFile
+    DeleteProjectFile, DownloadEventSubmission
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -119,6 +119,7 @@ urlpatterns = [
     path('submit_model_for_event/', SubmitModelForEvent.as_view()),
     path('submit_event_file/', SubmitEventFile.as_view()),
     path('download_event_file/', DownloadEventFile.as_view()),
+    path('download_event_submission/', DownloadEventSubmission.as_view()),
     path('submit_project_file/', SubmitProjectFile.as_view()),
     path('teacher_add_sa/', TeacherAddSa.as_view()),
     path('change_group/', ChangeGroup.as_view()),

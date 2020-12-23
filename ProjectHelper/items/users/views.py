@@ -1,10 +1,15 @@
 import base64
 import datetime
+import json
+import logging
 import os
-import time
-import xlrd, xlwt
 import random
+import time
+import xlrd
+import xlwt
+import shutil
 
+from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
@@ -14,12 +19,9 @@ from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
 from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, ProjectGrades, \
-    Key, ProjectFile, ProjectComment, Event, ChooseEvent, ParticipantEvent, ProjectAttachment, EventGrades
+    Key, ProjectFile, ProjectComment, Event, ChooseEvent, ProjectAttachment, EventGrades
 from items.projects.models import Project
 from items.users.models import UserProfile
-from django.core.cache import cache
-import logging
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -410,7 +412,7 @@ class DownloadFile(View):
 
             response = HttpResponse(file_obj)
             response['Content-Type'] = 'application/octet-stream'
-            response['Content-Disposition'] = "attachment;filename=" + file_name
+            response['Content-Disposition'] = 'attachment;filename="' + file_name + '"'
             return response
         except Exception as e:
             logger.exception('%s %s', self, e)
@@ -443,11 +445,45 @@ class DownloadEventFile(View):
 
             response = HttpResponse(file_obj)
             response['Content-Type'] = 'application/octet-stream'
-            response['Content-Disposition'] = "attachment;filename=" + file_name
+            response['Content-Disposition'] = 'attachment;filename="' + file_name + '"'
             return response
         except Exception as e:
             logger.exception('%s %s', self, e)
             return JsonResponse({"DownloadEventFile": "failed"})
+
+
+class DownloadEventSubmission(View):
+    def get(self, request):
+        try:
+            token = request.GET['token']
+            student_id = get_sid(token)
+            event_id = request.GET['event_id']
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                pass
+            else:
+                return JsonResponse({"DownloadEventSubmission": "failed"})
+            suffix = datetime.datetime.now().strftime("%Y-%m-%d %H,%M,%S")
+            base_name = 'file/' + project.name + '/' + event.title
+            path = 'tmp/' + str(suffix) + ' ' + event.title
+            shutil.make_archive(path, 'zip', base_name)
+            path += '.zip'
+            array = path.split('/')
+            file_name = array[-1]
+            file_obj = open(path, 'rb')
+
+            response = HttpResponse(file_obj)
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment;filename="' + file_name + '"'
+            return response
+        except Exception as e:
+            logger.exception('%s %s', self, e)
+            return JsonResponse({"DownloadEventSubmission": "failed"})
 
 
 class DeleteEventFile(View):
@@ -2826,7 +2862,7 @@ class SubmitEvent(View):
                         file = request.FILES.get(file_name)
                         name = str(request.FILES['file'])
                         project_name = project.name
-                        path = default_storage.save('file/' + project_name + "/" + event.title + "/" + student_id +
+                        path = default_storage.save('file/' + project_name + "/" + event.title + "/" + group.group_name +
                                                     "/" + name,
                                                     ContentFile(file.read()))
                         ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=group.id,
