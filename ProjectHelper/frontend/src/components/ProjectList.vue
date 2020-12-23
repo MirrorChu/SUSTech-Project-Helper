@@ -33,13 +33,12 @@
                    v-bind:projectId="this.projectId"
                    v-bind:courseId="this.courseId"></ProjectDetail>
 
+    <el-button v-if="this.identity === 'teacher'" @click="onClickCreateProject">{{ createProjectLiteral }}</el-button>
+
     <CreateProject
         v-bind:sid="this.sid"
         v-if="this.displayControl.createProjectForm">
     </CreateProject>
-
-    <el-button v-if="this.identity === 'teacher'" @click="onClickCreateProject">{{ createProjectLiteral }}
-    </el-button>
 
   </div>
 </template>
