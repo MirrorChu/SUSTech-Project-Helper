@@ -218,8 +218,8 @@
     </el-row>
 
     <div v-if="this.privileges['teach'] === 1">
-      <el-input v-model="whoaddSA">sid of SA</el-input>
-      <el-button @click="addSA">Add SA</el-button>
+      <el-input v-model="addingStudent" placeholder="sid of student"></el-input>
+      <el-button @click="addStudent">Add Student into This Course</el-button>
     </div>
 
   </div>
@@ -275,7 +275,7 @@ export default {
       groupInfo: '',
       showAd: true,
       file_dict: {},
-      whoaddSA: '',
+      addingStudent: '',
       advertisementData: {},
     };
   },
@@ -443,30 +443,39 @@ export default {
         });
       }
     },
-    addSA()
+    addStudent()
     {
-      if (isNaN(Number(this.whoaddSA)) || !this.whoaddSA || this.whoaddSA.length === 0)
+      if (isNaN(Number(this.addingStudent)) || !this.addingStudent || this.addingStudent.length === 0)
       {
-        alert("You can only add a SA whose sid is number")
-        this.whoaddSA = ''
+        alert("You can only add a student whose sid is number")
+        this.addingStudent = ''
       }
-      else
-      {
-        this.$confirm('Are you sure to add '+ this.whoaddSA + ' as an SA into ' + this.projectDetail['courseName'] + '?', 'Notice', {
+      else {
+        this.$confirm('Are you sure to add ' + this.addingStudent + ' into ' + this.projectDetail['courseName'] + '?', 'Notice', {
           confirmButtonText: 'Confirm',
           cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
-          this.$axios.post('/teacher_add_sa/', {
+          this.$axios.post('/teacher_add_one_student/', {
             course_id: this.courseId,
-            sid_sa: this.whoaddSA,
+            sid_: this.addingStudent,
           }).then(res => {
-            console.log('add sa', res.data);
-            this.$message({
-              type: 'success',
-              message: 'Add Success'
-            });
-            this.whoaddSA = '';
+            console.log('add student', res.data);
+            if (res.data['TeacherAddOneStudent'] === 'success')
+            {
+              this.$message({
+                type: 'success',
+                message: 'Add Student Success'
+              });
+            }
+            else
+            {
+              this.$message({
+                type: 'error',
+                message: 'Add Student Failed'
+              })
+            }
+            this.addingStudent = '';
           }).catch(err => {
             console.log(err);
           });
@@ -477,8 +486,7 @@ export default {
           });
         });
       }
-
-    }
+    },
   },
   name: 'ProjectDetail',
 };

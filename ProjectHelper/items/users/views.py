@@ -2265,7 +2265,6 @@ class GetEventList(View):
                 events.append(data)
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
-            e.with_traceback()
             logger.debug('%s %s', self, e)
             return JsonResponse({"GetEventListCheck": "failed"})
 

@@ -8,6 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import Axios from 'axios'
 import Vuex from 'vuex'
 import store from './store/index.js'
+import VueResource from 'vue-resource'
 
 Vue.prototype.$axios = Axios
 Axios.defaults.baseURL = '/api'
@@ -15,6 +16,7 @@ Axios.defaults.headers.post['Content-Type'] = 'application/json'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(Vuex)
+Vue.use(VueResource)
 
 /* eslint-disable no-new */
 new Vue({
@@ -25,7 +27,6 @@ new Vue({
   template: '<App/>',
 })
 
-//异步请求前在data里加入token
 Axios.interceptors.request.use(
   config => {
     if (localStorage.getItem('Authorization')) {
@@ -37,30 +38,30 @@ Axios.interceptors.request.use(
     return Promise.reject(error)
   })
 
-//异步请求后，判断token是否过期
-Axios.interceptors.response.use(
-  response => {
-    // console.log('token有效')
-    return response
-  },
-  error => {
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          localStorage.removeItem('Authorization')
-          // console.log('token删除了')
-          this.$router.push('/')
-      }
-    }
-  },
-)
-
-//异步请求前判断请求的连接是否需要token
+// this.Axios.interceptors.response.use(
+//   response => {
+//     console.log('response token有效')
+//     return response
+//   },
+//   error => {
+//     var self = this
+//     if (error.response) {
+//       switch (error.response.status) {
+//         case 401:
+//           localStorage.removeItem('Authorization')
+//           // console.log('token删除了')
+//           this.$router.push({
+//             name: 'Login',
+//           })
+//       }
+//     }
+//   },
+// )
+//
 // router.beforeEach((to, from, next) => {
 //   let token = localStorage.getItem('Authorization')
-//   console.log('beforeEach')
-//   console.log('我是浏览器本地缓存的token: ' + token)
-//   if (token === 'null' || token === '') {
+//   console.log('p',to.path)
+//   if (to.path !== '/login' && to.path !== '/' && (token === 'null' || token === '')) {
 //     console.log('无token || token失效')
 //     next({ path: '/login', query: { Rurl: to.fullPath } })
 //   } else {

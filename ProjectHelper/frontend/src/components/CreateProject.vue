@@ -67,7 +67,7 @@
         <div>
           <el-input clearable placeholer="Manually Search" v-model="manuallySearchSid"
                     v-if="this.showSelect"></el-input>
-          <el-button v-model="this.showSelect" v-if="this.showSelect">Add</el-button>
+          <el-button v-model="this.showSelect" v-if="this.showSelect" @click="this.onClickAdd">Add</el-button>
         </div>
       </el-form-item>
       <el-button @click="onClickConfirmCreateProject">Create</el-button>
@@ -144,7 +144,43 @@ export default {
   },
   methods: {
     onClickAdd () {
-      this.allStudentInCourse.push({ value: this.manuallySearchSid, label: this.manuallySearchSid })
+      if (!this.newProjectCourse)
+      {
+        alert("must choose course first")
+      }
+      else
+      {
+        if (isNaN(Number(this.manuallySearchSid)) || !this.manuallySearchSid || this.manuallySearchSid.length === 0)
+        {
+          alert("You can only add a student whose sid is number")
+          this.manuallySearchSid = ''
+        }
+        else {
+            this.$axios.post('/teacher_add_one_student/', {
+              course_id: this.newProjectCourse,
+              sid_: this.manuallySearchSid,
+            }).then(res => {
+              console.log('add student', res.data);
+              if (res.data['TeacherAddOneStudent'] === 'success')
+              {
+                this.$message({
+                  type: 'success',
+                  message: 'Add Student Success'
+                });
+              }
+              else
+              {
+                this.$message({
+                  type: 'error',
+                  message: 'Add Student Failed'
+                })
+              }
+              this.manuallySearchSid = '';
+            }).catch(err => {
+              console.log(err);
+            });
+        }
+      }
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
@@ -198,6 +234,7 @@ export default {
       if (this.fileList.length === 0) {
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
           console.log(res)
+          this.newProjectCourse = ''
         }).catch(err => {
           console.log('err', err)
         })
@@ -211,6 +248,7 @@ export default {
             this.dataforfile['token'] = localStorage.getItem('Authorization')
             this.$refs.upload.submit()
           }
+          this.newProjectCourse = ''
         }).catch(err => {
           console.log('err', err)
         })
