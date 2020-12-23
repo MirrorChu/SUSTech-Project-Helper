@@ -458,7 +458,7 @@ class Test(View):  # Fucking avatar
             token = request.GET['token']
             sid = get_sid(token)
             logger.debug('%s sid %s', self, sid)
-            with open('head_images/11811001/2020_11_23_07_49_55/file.jpg', 'rb') as f:
+            with open('head_image/11811001/2020_11_23_07_49_55/default.jpg', 'rb') as f:
                 return HttpResponse(f.read(), content_type='image/jpeg')
 
         except Exception as e:
@@ -1135,7 +1135,7 @@ class ChangeHeadImage(View):
 
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('head_images/' + student_id + "/" +
+                path = default_storage.save('head_image/' + student_id + "/" +
                                             time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
                                             + "/" + file_name + ".jpg",
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
@@ -1781,7 +1781,7 @@ class SubmitEventFile(View):
                                                      user_id=user_id, event_id=event_id)
 
                     return JsonResponse({"SubmitEventFile": "success"})
-            return HttpResponse('Unauthorized', status=401)
+            return JsonResponse({"SubmitEventFileCheck": "failed"})
 
         except Exception as e:
             logger.exception('%s %s', self, e)
@@ -2114,9 +2114,19 @@ class GetEventList(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             project = Project.objects.get(id=project_id)
-            course_id = project.course_id
             event = Event.objects.filter(project_id=project_id)
             events = []
+            boo1 = False
+            t_auth = Authority.objects.filter(user_id=user_id, type="tagEdit",
+                                              course_id=project.course_id)
+            for i in t_auth:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    boo1 = True
+            t_auth = Authority.objects.filter(user_id=user_id, type="teach",
+                                              course_id=project.course_id)
+            for i in t_auth:
+                if i.end_time > datetime.datetime.now() > i.start_time:
+                    boo1 = True
             user_group = UserGroup.objects.filter(user_name_id=user_id)
             group = None
             for i in user_group:
@@ -2131,14 +2141,14 @@ class GetEventList(View):
                     for j in partitionList:
                         n = json.loads(j)
                         t_event = Event.objects.get(id=n['partition_id'])
-                        t_parameter = json.loads(t_event.parameter)
                         choice = ChooseEvent.objects.filter(group_id=group.id, event_id_id=t_event.id,
                                                             choice=str(n['option_id']))
                         if choice.count() == 1:
                             boo = True
                             break
                     if not boo:
-                        continue
+                        if not boo1:
+                            continue
                 publisher = UserProfile.objects.get(id=i.publish_user_id)
                 data = {'id': i.id, 'event_type': i.type, 'event_title': i.title, 'publisher': publisher.real_name}
                 events.append(data)
@@ -2374,7 +2384,7 @@ class TestFile(View):
             print(sid, pswd)
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('head_images/' + sid + "/" +
+                path = default_storage.save('head_image/' + sid + "/" +
                                             time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
                                             + "/" + file_name,
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
@@ -2833,9 +2843,15 @@ class GetEventDetail(View):
 
             if course.end_time > datetime.datetime.now() > course.start_time:
                 publisher = UserProfile.objects.get(id=event.publish_user_id)
-                events = {'event_type': event.type, 'event_title': event.title,
+                events = {'event_type': event.type, 'event_title': event.title, 'file_id': [], 'file_name': [],
                           'event_detail': json.loads(event.parameter), 'introduction': event.detail,
                           'publisher': publisher.student_id}
+                event_file = ProjectAttachment.objects.filter(event_id=event_id, group_id=8, project_id=project.id)
+                for i in event_file:
+                    path = i.file_path
+                    array1 = path.split('/')
+                    events['file_id'].append(i.id)
+                    events['file_name'].append(array1[-1])
                 isStudent = True
                 if auth.count() != 0:
                     for k in auth:
@@ -3309,21 +3325,21 @@ class SubmitModelForEvent(View):
                     grade = {}
                     pointer = 1
 
-                    for i in groups:
-                        sheet1.write(pointer, 0, i.group_name, set_style('Times New Roman', 220))
-                        sheet1.write(pointer, 1, i.id, set_style('Times New Roman', 220))
-                        pointer += 1
-                        member = UserGroup.objects.filter(group_name_id=i.id)
-                        for j in member:
-                            student = UserProfile.objects.get(id=j.user_name_id)
-                            sheet1.write(pointer, 0, student.real_name, set_style('Times New Roman', 220))
-                            sheet1.write(pointer, 1, student.student_id, set_style('Times New Roman', 220))
-                            pointer += 1
-                        sheet1.write_merge(pointer - 1 - groups.members, pointer - 1, 3, 3)
-                        pointer += 1
-                    workbook.save(path)
-                else:
-                    return HttpResponse('Unauthorized', status=401)
+                #     for i in groups:
+                #         sheet1.write(pointer, 0, i.group_name, set_style('Times New Roman', 220))
+                #         sheet1.write(pointer, 1, i.id, set_style('Times New Roman', 220))
+                #         pointer += 1
+                #         member = UserGroup.objects.filter(group_name_id=i.id)
+                #         for j in member:
+                #             student = UserProfile.objects.get(id=j.user_name_id)
+                #             sheet1.write(pointer, 0, student.real_name, set_style('Times New Roman', 220))
+                #             sheet1.write(pointer, 1, student.student_id, set_style('Times New Roman', 220))
+                #             pointer += 1
+                #         sheet1.write_merge(pointer - 1 - groups.members, pointer - 1, 3, 3)
+                #         pointer += 1
+                #     workbook.save(path)
+                # else:
+                #     return HttpResponse('Unauthorized', status=401)
 
 
             return JsonResponse({"SubmitModelForEvent": "success"})
