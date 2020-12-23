@@ -1,80 +1,128 @@
 <template>
   <div class="project_detail">
-    <div v-if="this.displayControl.projectDetail">
-      <el-card class="details">
-        <h2>Project Info</h2>
+    <el-row :gutter="2"><el-col :span="10" >
+      <div v-if="this.displayControl.projectDetail">
+        <h1 style="font-family: Verdana, serif;">Project Info</h1>
+        <el-card>
 
-        <div>
-          Course Name: {{ this.projectDetail['courseName'] }}
-        </div>
-
-        <div v-if="!this.edit">
           <div>
-            Project Name: {{ this.projectDetail['projectName'] }}
+            Course Name: {{ this.projectDetail['courseName'] }}
           </div>
 
-          <div>
-            Project Introduction: {{ this.projectDetail['projectIntroduction'] }}
-          </div>
+          <div v-if="!this.edit">
+            <div>
+              Project Name: {{ this.projectDetail['projectName'] }}
+            </div>
 
-          <div>
-            <div v-for="(value, key) in this.file_dict">
-              <el-link :href="value" target="_blank" type="primary">{{ key }}</el-link>
+            <div>
+              Project Introduction: {{ this.projectDetail['projectIntroduction'] }}
+            </div>
+
+            <div>
+              <div v-for="(value, key) in this.file_dict">
+                <el-link :href="value" target="_blank" type="primary">{{ key }}</el-link>
+              </div>
             </div>
           </div>
-        </div>
-        <el-form v-else>
-          <el-form-item label="Project Name">
-            <el-input v-model="projectDetail['projectName']"></el-input>
-          </el-form-item>
+          <el-form v-else>
+            <el-form-item label="Project Name">
+              <el-input v-model="projectDetail['projectName']"></el-input>
+            </el-form-item>
 
-          <el-form-item label="Project Introduction">
-            <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
-          </el-form-item>
+            <el-form-item label="Project Introduction">
+              <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
+            </el-form-item>
 
-          <el-form-item label="Upload File">
-            <el-upload
+            <el-form-item label="Upload File">
+              <el-upload
                 drag
                 action="/api/test"
                 :headers="{'token': token, 'project_id': this.$props.projectId}"
                 multiple>
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
-            </el-upload>
-          </el-form-item>
-        </el-form>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
+              </el-upload>
+            </el-form-item>
+          </el-form>
 
-        <div>
-          <div v-if="this.privileges && this.privileges['teach'] !== 1">
-            <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
-                       v-bind:project_id="this.projectId"></GroupInfo>
-            <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
-              You are not in any groups!</h1>
-            <CreateOrJoinGroup
+
+          <div>
+            <div v-if="this.privileges && this.privileges['teach'] !== 1">
+              <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
+                         v-bind:project_id="this.projectId"></GroupInfo>
+              <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
+                You are not in any groups!</h1>
+              <CreateOrJoinGroup
+
                 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
                 v-bind:sid="this.sid"
                 v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
-          </div>
+            </div>
 
-          <div v-if="this.privileges['teach'] === 1">
-            <el-button @click="onClickEdit">{{ editLiteral }}</el-button>
-          </div>
+            <div v-if="this.privileges['teach'] === 1">
+              <el-button @click="onClickEdit">{{ editLiteral }}</el-button>
+            </div>
 
-          <div>
-            <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-              <el-form-item label="The profile you want to view">
-                <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="onQueryPersonalProfile">Query</el-button>
-              </el-form-item>
-            </el-form>
+
+            <div>
+              <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+                <h2>Wanna know somebody?</h2>
+                <el-form-item label="">
+                  <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="onQueryPersonalProfile" align="right">Query</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+
           </div>
+        </el-card>
+      </div>
+    </el-col>
+      <el-col :span="13" :offset="1">
+        <div>
+          <EventList v-bind:sid="this.$props.sid"
+                     v-bind:courseId="this.$props.courseId"
+                     v-bind:projectId="this.$props.projectId">
+          </EventList>
+        </div>
+
+        <div v-if="showAd">
+          <h1 style="font-family: Verdana, serif;">Advertisement</h1>
+          <el-card v-if="advertisementData !== []">
+            <el-collapse v-if="advertisementData !== []">
+              <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+
+                <div>{{ item.content }}</div>
+
+              </el-collapse-item>
+            </el-collapse>
+
+            <div v-show="advertisementData === ''">There is no advertisement!</div>
+          </el-card>
+
+          <el-card v-if="this.privileges['teach'] !== 1">
+            <div>
+              <h3>Upload AD</h3>
+              <el-form>
+                <el-form-item label="Title">
+                  <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>
+                </el-form-item>
+                <el-form-item label="Content">
+                  <el-input type="textarea" :rows="3" placeholder="the content of advertisement"
+                            v-model="advertisement_content"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+          </el-card>
 
         </div>
-      </el-card>
-
-    </div>
+      </el-col>
+    </el-row>
 
     <div>
       <PersonalProfile v-if="this.displayControl.PersonalProfile" v-bind:sid="this.sid"
@@ -123,6 +171,7 @@
       </el-dialog>
     </div>
 
+
     <div v-if="showAd">
       <h2>Advertisement</h2>
 
@@ -156,31 +205,26 @@
           </el-form>
         </div>
       </el-card>
-
     </div>
 
-    <div v-if="this.privileges['teach'] === 1">
-      <el-card>
-        <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
-
-      </el-card>
-    </div>
-
-    <div>
-      <EventList v-bind:sid="this.$props.sid"
-                 v-bind:courseId="this.$props.courseId"
-                 v-bind:projectId="this.$props.projectId">
-      </EventList>
-    </div>
-
-    <div>
-      <AuthorityManage v-if="this.privileges['teach'] === 1" v-bind:project_id="this.$props.projectId"></AuthorityManage>
-    </div>
+    
+    <el-row>
+      <div v-if="this.privileges['teach'] === 1">
+          <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
+      </div>
+      <h1 style="font-family: Verdana, serif;">Authority Management</h1>
+      <div>
+        <AuthorityManage   v-bind:project_id="this.$props.projectId"></AuthorityManage>
+      </div>
+    </el-row>
 
     <div v-if="this.privileges['teach'] === 1">
       <el-input v-model="whoaddSA">sid of SA</el-input>
       <el-button @click="addSA">Add SA</el-button>
     </div>
+
+
+
 
   </div>
 </template>
@@ -224,7 +268,7 @@ export default {
         sid: '',
       },
       dialogPersonalProfileVisible: false,
-      advertisementData: [],
+      eementData: [],
       eventList: [],
       advertisement_content: '',
       advertisement_title: '',
@@ -445,16 +489,16 @@ export default {
 
 <style scoped>
 .project_detail {
-  background-color: #F7F8F8;
+  /*background-color: #F7F8F8;*/
 }
 
-.details {
+.el-card {
   font-family: Verdana, serif;
   background-color: #F7F8F8;
   border-color: whitesmoke;
   align-content: center;
-  text-align: center;
-  line-height: 50px;
+  /*text-align: center;*/
+  line-height: 40px;
 }
 
 </style>

@@ -4,15 +4,19 @@
       <el-button @click="changeGroupingVisiblity">(Un)Show Grouping</el-button>
     </div>
     <div v-show="GroupingVisiblity">
-      <div id="single">
+    <h1 style="font-family: Verdana, serif;">Ungrouped members</h1>
+      <el-card><div id="single">
         <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
       </div>
-
+      </el-card>
+      
+      <h1 style="font-family: Verdana, serif;">Current existing group</h1>
       <div>
         <el-table
             :data="groupData"
             stripe
-            style="width: 100%">
+            style="width: 100%"
+            :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
           <el-table-column
               prop="group_id"
               label="GROUP ID">
@@ -36,6 +40,7 @@
             </template>
           </el-table-column>
         </el-table>
+
 
         <el-button @click="semirandomgrouping"> Semi-random Grouping</el-button>
         <el-button @click="showCreateGroupDialog"> Create New Group for Students</el-button>
@@ -273,7 +278,21 @@ export default {
 
 <style scoped>
 #single {
-  display: flex;
-  justify-content: flex-start;
+  width: 1000px;
+}
+#li{
+  display:inline-block;
+  width: 90px;
+}
+#multi{
+  width: 100%;
+}
+.el-card{
+  font-family: Verdana, serif;
+  background-color: #F7F8F8;
+  border-color: whitesmoke;
+  align-content: center;
+  /*text-align: center;*/
+  line-height: 40px;
 }
 </style>

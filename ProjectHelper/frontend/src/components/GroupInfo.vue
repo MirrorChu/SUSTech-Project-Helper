@@ -1,8 +1,7 @@
 <template>
   <div>
-
     <div>
-      <h2>Group Info</h2>
+      <h2>My Group</h2>
       <div v-show="!this.edit">
         Group Name: {{ this.groupInfo.group_name }}
         <br>

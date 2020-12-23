@@ -18,6 +18,7 @@
         </el-form-item>
 
         <el-form-item label="Due">
+          <el-row style="margin:0px"></el-row>
           <el-date-picker
               v-model="due"
               type="datetime"
@@ -43,6 +44,7 @@
         </el-form-item>
 
         <el-form-item label="Select Partition">
+          <el-row style="margin:0px"></el-row>
           <el-select v-model="selectedPartitionList"
                      multiple placeholder="Select Partitions">
             <el-option
@@ -54,7 +56,9 @@
           </el-select>
         </el-form-item>
 
+
         <!--        <el-form-item label="Select Group">-->
+        <el-row style="margin:0px"></el-row>
         <!--          <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">-->
         <!--            <el-option-->
         <!--                v-for="item in groupList"-->
@@ -65,9 +69,10 @@
         <!--          </el-select>-->
         <!--        </el-form-item>-->
 
+
       </el-form>
     </div>
-
+    <el-row></el-row>
     <el-button @click="onClickSubmit">Submit</el-button>
   </div>
 </template>
@@ -153,5 +158,7 @@ export default {
 </script>
 
 <style scoped>
-
+.el-form{
+  line-height: 30px;
+}
 </style>

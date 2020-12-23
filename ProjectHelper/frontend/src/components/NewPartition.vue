@@ -17,6 +17,7 @@
       </el-form-item>
 
       <el-form-item label="Due">
+        <el-row style="margin:0px"></el-row>
         <el-date-picker
             v-model="due"
             type="datetime"
@@ -30,7 +31,7 @@
           <el-radio label="1">Timeslot</el-radio>
         </el-radio-group>
       </el-form-item>
-
+      <el-divider></el-divider>
       <!--      normal partition.-->
       <el-form-item v-if="selectionType === 0 || selectionType === '0'">
         <el-form :model="dynamicValidateForm" ref="dynamicValidateForm">
@@ -44,8 +45,10 @@
             <el-button @click.prevent="removeDomain(value)">Remove</el-button>
           </el-form-item>
           <el-form-item>
-            <el-button @click="addDomain">New Option</el-button>
-            <el-button @click="resetForm('dynamicValidateForm')">Reset</el-button>
+            <el-row></el-row>
+            <div align="center"><el-button @click="addDomain">New Option</el-button>
+              <el-button @click="resetForm('dynamicValidateForm')">Reset</el-button>
+            </div>
           </el-form-item>
         </el-form>
       </el-form-item>
@@ -84,10 +87,10 @@
 
 
           </el-form-item>
-
+          <el-row></el-row>
           <el-form-item>
-            <el-button @click="addDomain">New Option</el-button>
-            <el-button @click="resetForm">Reset</el-button>
+            <div align="center"><el-button @click="addDomain" align="center">New Option</el-button>
+              <el-button @click="resetForm">Reset</el-button></div>
           </el-form-item>
 
         </el-form>

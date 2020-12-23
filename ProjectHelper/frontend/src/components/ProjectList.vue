@@ -6,15 +6,16 @@
     <el-table v-show="this.displayControl.projectsList"
               :data="projects.filter(data => !searchKey ||
       JSON.stringify(data).toLocaleLowerCase().includes(searchKey.toLocaleLowerCase()))"
-              style="width: 100%" height="500">
+              style="width: 100%" height="500"
+              :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
 
       <!--      sortable is not supported-->
-      <el-table-column fixed prop=1 label="Course" width="350"></el-table-column>
+      <el-table-column fixed prop=1 label="Course" width="450"></el-table-column>
 
       <!--      sortable is not supported-->
-      <el-table-column prop=2 label="Project" width="350"></el-table-column>
+      <el-table-column prop=2 label="Project" width="450"></el-table-column>
 
-      <el-table-column width="200" align="right">
+      <el-table-column width="250" align="right">
         <template slot="header" slot-scope="scope">
           <el-input size="mini" v-model="searchKey" placeholder="Search"/>
         </template>
