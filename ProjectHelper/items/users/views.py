@@ -261,9 +261,8 @@ class ChangePassword(View):
     # 当用户按下登录按键时
     def post(self, request):
         try:
-            print(request.body)
-
-            student_id = eval(request.body.decode()).get("sid")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
             old_password = eval(request.body.decode()).get("old")
             new_password = eval(request.body.decode()).get("new")
 
