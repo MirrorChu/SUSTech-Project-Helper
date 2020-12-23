@@ -100,10 +100,15 @@
       <el-form-item label="Attachment">
         TODO
         <el-upload
-            class="upload-demo"
-            drag
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple>
+          class="upload-demo"
+          drag
+          multiple
+          :data="this.partitionData"
+          ref="upload"
+          action="http://127.0.0.1:8080/api/submit_event_file/"
+          :file-list="fileList"
+          :auto-upload="false"
+          :on-change="handleFileChange">
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
         </el-upload>
@@ -140,6 +145,8 @@ export default {
       timeSlotSelectionEnd: '',
       timeSlotNum: 0,
       timeSlotVolume: 0,
+      partitionData: {"event_id": '', "token": ''},
+      fileList: [],
     }
   },
   props: {
@@ -153,6 +160,9 @@ export default {
     }
   },
   methods: {
+    handleFileChange (file, fileList) {
+      this.fileList = fileList
+    },
     onClickSubmit () {
       this.$axios.post('/send_key/', {'course': this.$props.courseId}).then(res => {
         console.log(res)
@@ -163,8 +173,15 @@ export default {
         data.event_type = event.eventType
         data.event_detail = event
         data.key = res.data['SendKey']
-        this.$axios.post('/create_event/', data).then(res => {
+        this.$axios.post('/create_event/',
+          data).then(res => {
           console.log(res)
+          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0)
+          {
+            this.partitionData['event_id'] =res.data.Event_id
+            this.partitionData['token'] = localStorage.getItem('Authorization')
+            this.$refs.upload.submit()
+          }
         }).catch(err => {
           console.log(err)
         })

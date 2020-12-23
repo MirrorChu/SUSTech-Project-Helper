@@ -91,11 +91,17 @@ export default {
           else if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
             eventObj['type'] = 'SubmissionComponent'
           }
+          else if (typeStr === 'announcement' || typeStr === 'AnnouncementEvent' || typeStr === 'AnnouncementComponent')
+          {
+            eventObj['type'] = 'AnnouncementComponent'
+          }
           eventObj['data'] = {}
           eventObj['data']['title'] = eventEle['event_title']
+
           // eventObj['data']['introduction'] = eventEle['introduction']
           // eventObj['data']['due'] = eventEle['event_detail']['due']
           // eventObj['publisher'] = eventEle['publisher']
+
           eventObj['id'] = eventEle['id']
           this.componentObjs.push(eventObj)
           this.visible[eventObj['id']] = false

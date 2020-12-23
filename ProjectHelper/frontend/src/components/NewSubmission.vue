@@ -33,8 +33,13 @@
       <el-upload
           class="upload-demo"
           drag
-          action="https://jsonplaceholder.typicode.com/posts/"
-          multiple>
+          multiple
+          :data="this.submissionData"
+          ref="upload"
+          action="http://127.0.0.1:8080/api/submit_event_file/"
+          :file-list="fileList"
+          :auto-upload="false"
+          :on-change="handleFileChange">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
       </el-upload>
@@ -82,6 +87,8 @@ export default {
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
+      fileList: [],
+      submissionData: {'token': '', 'event_id': ''},
     };
   },
   props: {
@@ -105,6 +112,9 @@ export default {
     });
   },
   methods: {
+    handleFileChange (file, fileList) {
+      this.fileList = fileList
+    },
     onClickSubmit() {
       this.$axios.post('/send_key/', {'course': this.courseId}).then(res => {
         console.log(res);
@@ -118,6 +128,12 @@ export default {
         data.partitionList = this.selectedPartitionList
         this.$axios.post('/create_event/', data).then(res => {
           console.log(res);
+          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0)
+          {
+            this.submissionData['event_id'] =res.data.Event_id
+            this.submissionData['token'] = localStorage.getItem('Authorization')
+            this.$refs.upload.submit()
+          }
         }).catch(err => {
           console.log(err);
         });
