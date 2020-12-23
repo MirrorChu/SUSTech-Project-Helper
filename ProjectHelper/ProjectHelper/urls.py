@@ -42,7 +42,7 @@ from items.users.views import Login, ChangePassword, ShowPersonalData, \
     IsTeacher, SubmitEventFile, SubmitProjectFile, SemiRandom, DownloadEventFile, \
     TeacherAddSa, GetModelForEvent, ChangeGroup, SubmitModelForEvent, DeleteEventFile, \
     DeleteProjectFile, DownloadEventSubmission, TagEditable, TeacherAddStudent, \
-    TeacherAddOneStudent
+    TeacherAddOneStudent, GetScoreForEvent
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -118,6 +118,7 @@ urlpatterns = [
     path('tag_editable/', TagEditable.as_view()),
     path('semi_random/', SemiRandom.as_view()),
     path('get_model_for_event/', GetModelForEvent.as_view()),
+    path('get_score_for_event/', GetScoreForEvent.as_view()),
     path('submit_model_for_event/', SubmitModelForEvent.as_view()),
     path('submit_event_file/', SubmitEventFile.as_view()),
     path('download_event_file/', DownloadEventFile.as_view()),

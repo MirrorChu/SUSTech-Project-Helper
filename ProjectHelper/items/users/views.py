@@ -3454,7 +3454,7 @@ class GetModelForEvent(View):
             if 'selectedPartitionList' in parameter.keys():
                 if len(parameter['selectedPartitionList']) != 0:
                     boo = True
-            if boo:
+            if not boo:
                 group = GroupOrg.objects.filter(project_id=project.id)
                 partitionList = parameter['selectedPartitionList']
                 for i in group:
@@ -3571,6 +3571,104 @@ class SubmitModelForEvent(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"SubmitModelForEvent": "wrong submit"})
+
+
+class GetScoreForEvent(View):
+    def get(self, request):
+        """
+        :param token: token
+
+        :return:
+        """
+        try:
+            token = request.GET['token']
+            student_id = get_sid(token)
+            event_id = request.GET['event_id']
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            event = Event.objects.get(id=event_id)
+            project = Project.objects.get(id=event.project_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                pass
+            else:
+                return HttpResponse('Unauthorized', status=401)
+            suffix = datetime.datetime.now().strftime("%Y-%m-%d %H,%M,%S")
+            file_name = str(suffix) + " Get Score " + event.title + '.xls'
+            path = "tmp/" + file_name
+
+            workbook = xlwt.Workbook()
+            sheet1 = workbook.add_sheet('sheet1', cell_overwrite_ok=True)
+            parameter = json.loads(event.parameter)
+            groups = []
+            boo = False
+            if 'selectedPartitionList' in parameter.keys():
+                if len(parameter['selectedPartitionList']) != 0:
+                    boo = True
+            if not boo:
+                group = GroupOrg.objects.filter(project_id=project.id)
+                partitionList = parameter['selectedPartitionList']
+                for i in group:
+                    for j in partitionList:
+                        n = json.loads(j)
+                        t_event = Event.objects.get(id=n['partition_id'])
+                        choice = ChooseEvent.objects.filter(group_id=i.id, event_id_id=t_event.id,
+                                                            choice=str(n['option_id']))
+                        if choice.count() == 1:
+                            grade = 0
+                            comment = ""
+                            group_grade = ProjectGrades.objects.filter(event_id=event_id, group_id=i.id)
+                            for k in group_grade:
+                                grade = k.grade
+                                comment = k.comment
+                            groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members,
+                                           'group_grade': grade, 'comment': comment})
+                            break
+            else:
+                group = GroupOrg.objects.filter(project_id=project.id)
+                for i in group:
+                    grade = 0
+                    comment = ""
+                    group_grade = ProjectGrades.objects.filter(event_id=event_id, group_id=i.id)
+                    for k in group_grade:
+                        grade = k.grade
+                        comment = k.comment
+                    groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members, 'group_grade': grade,
+                                   'comment': comment})
+            row0 = ['id/sid', 'name', 'grade', 'comment']
+            pointer = 1
+            for i in range(0, len(row0)):
+                sheet1.write(0, i, row0[i], set_style('Times New Roman', 220, True))
+            for i in groups:
+                sheet1.write(pointer, 2, i['group_grade'], set_style('Times New Roman', 220))
+                sheet1.write(pointer, 1, i['group_name'], set_style('Times New Roman', 220))
+                sheet1.write(pointer, 0, i['id'], set_style('Times New Roman', 220))
+                pointer += 1
+                member = UserGroup.objects.filter(group_name_id=i['id'])
+                for j in member:
+                    student = UserProfile.objects.get(id=j.user_name_id)
+                    s_grade = 0
+                    student_grade = EventGrades.objects.filter(event_id=event_id, user_id=student.id)
+                    for k in student_grade:
+                        s_grade = k.grade
+                    sheet1.write(pointer, 2, s_grade, set_style('Times New Roman', 220))
+                    sheet1.write(pointer, 1, student.real_name, set_style('Times New Roman', 220))
+                    sheet1.write(pointer, 0, student.student_id, set_style('Times New Roman', 220))
+                    pointer += 1
+                sheet1.write_merge(pointer - 1 - i['members'], pointer - 1, 3, 3, i.comment)
+                pointer += 1
+            workbook.save(path)
+
+            file_obj = open(path, 'rb')
+            response = FileResponse(file_obj)
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment;filename="' + file_name + '"'
+            return response
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetScoreForEvent": "failed"})
 
 
 class SemiRandom(View):
