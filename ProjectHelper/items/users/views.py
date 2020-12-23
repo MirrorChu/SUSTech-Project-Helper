@@ -26,7 +26,7 @@ from items.users.models import UserProfile
 logger = logging.getLogger(__name__)
 
 r = get_redis_connection()
-EXPIRE_TIME = 600
+EXPIRE_TIME = 3600
 
 
 def get_from_request(request, arg):
@@ -2276,7 +2276,7 @@ class SendMailToInvite(View):
                 person = UserProfile.objects.get(id=j.user_name_id)
                 if person.student_id == student_id:
                     continue
-                list += person.username + " "
+                list += person.real_name + " "
             subject = 'An Invite from Group ' + group.group_name + 'in Project ' + project.name
             text_content = 'You need to read this email with a client can read html.'
             html_content = '''<div><includetail>
@@ -2284,7 +2284,7 @@ class SendMailToInvite(View):
         <div style="position:relative;">
             <div style="text-align: left;"><font size="4" face="幼圆">Group ''' + group.group_name + ''' in Project ''' + project.name + ''' Invite you to join!</font></div>
             <div style="text-align: left;"><font size="4" face="幼圆">Group detail: ''' + group.detail + '''</font></div>
-            <div style="text-align: left;"><font size="4" face="幼圆">Captain: ''' + sender.username + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Captain: ''' + sender.real_name + '''</font></div>
             <div style="text-align: left;"><font size="4" face="幼圆">Member: ''' + list + '''</font></div>
             <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
             <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + str(
@@ -2298,7 +2298,7 @@ class SendMailToInvite(View):
     <!--<![endif]--></includetail>
 </div>'''
             msg = EmailMultiAlternatives(subject, text_content,
-                                         sender.username + '<11812710@mail.sustech.edu.cn>',
+                                         sender.real_name + '<11812710@mail.sustech.edu.cn>',
                                          [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
@@ -2336,12 +2336,12 @@ class SendMailToApply(View):
             for i in tags:
                 tag = Tag.objects.get(id=i.tag_id)
                 list += tag.tag + " "
-            subject = 'An Apply from Student ' + sender.username + 'in Project ' + project.name
+            subject = 'An Apply from Student ' + sender.real_name + 'in Project ' + project.name
             text_content = 'You need to read this email with a client can read html.'
             html_content = '''<div><includetail>
     <div style="font:Verdana normal 14px;color:#000;">
         <div style="position:relative;">
-            <div style="text-align: left;"><font size="4" face="幼圆">Student ''' + sender.username + ''' in Project ''' + project.name + ''' Want to join your group!</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Student ''' + sender.real_name + ''' in Project ''' + project.name + ''' Want to join your group!</font></div>
             <div style="text-align: left;"><font size="4" face="幼圆">Tag: ''' + list + '''</font></div>
             <div style="text-align: center;"><font size="4" face="幼圆">Agree</font></div>
             <div style="text-align: center;"><font size="4" face="幼圆"><a href="http://127.0.0.1:8000/mailurl/?s=''' + student_id + ''',''' + group_id + '''&amp;r=''' + receiver.student_id + '''&amp;t=3&amp;c=''' + pswd + '''" se_prerender_url="loading">click it to accept</a><br></font></div>
@@ -2353,7 +2353,7 @@ class SendMailToApply(View):
     <!--<![endif]--></includetail>
 </div>'''
             msg = EmailMultiAlternatives(subject, text_content,
-                                         sender.username + '<11812710@mail.sustech.edu.cn>',
+                                         sender.real_name + '<11812710@mail.sustech.edu.cn>',
                                          [email])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
@@ -2699,6 +2699,55 @@ class CreateEvent(View):
                 tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
                                         detail=detail, title=event_title, project_id=project_id,
                                         publish_user_id=user_id)
+                subject = 'An Event published in Project ' + project.name
+                text_content = 'You need to read this email with a client can read html.'
+                html_content = '''
+                <div><includetail>
+    <div style="font:Verdana normal 14px;color:#000;">
+        <div style="position:relative;">
+            <div style="text-align: left;"><font size="4" face="幼圆">Title: ''' + event_title + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Detail: ''' + detail + '''</font></div>
+            <div style="text-align: left;"><font size="4" face="幼圆">Publisher: ''' + user.real_name + '''</font></div>
+            <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
+        </div>
+    </div>
+    <!--<![endif]--></includetail>
+</div>
+                '''
+                students = UserCourse.objects.filter(course_name_id=course_id)
+                emails = []
+                if 'selectedPartitionList' in event_detail and len(event_detail['selectedPartitionList']) != 0:
+                    for i in students:
+                        user_group = UserGroup.objects.filter(user_name_id=i.user_name_id)
+                        group = None
+                        for j in user_group:
+                            group = GroupOrg.objects.get(id=j.group_name_id)
+                            if group.project_id == project.id:
+                                break
+                        boo = False
+                        partitionList = event_detail['selectedPartitionList']
+                        for j in partitionList:
+                            n = json.loads(j)
+                            t_event = Event.objects.get(id=n['partition_id'])
+                            choice = ChooseEvent.objects.filter(group_id=group.id, event_id_id=t_event.id,
+                                                                choice=str(n['option_id']))
+                            if choice.count() == 1:
+                                boo = True
+                                break
+                        if not boo:
+                            continue
+                        student = UserProfile.objects.get(id=i.user_name_id)
+                        emails.append(student.email)
+                else:
+                    for i in students:
+                        student = UserProfile.objects.get(id=i.user_name_id)
+                        emails.append(student.email)
+
+                msg = EmailMultiAlternatives(subject, text_content,
+                                             user.real_name + '<11812710@mail.sustech.edu.cn>',
+                                             emails)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
                 # if file_name != '':
                 #     file = request.FILES.get(file_name)
                 #     file_name = request.FILES['file']
