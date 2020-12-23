@@ -17,12 +17,6 @@
 <script>
 export default {
   name: 'NewPassword',
-  props: {
-    sid: {
-      type: String,
-      required: true,
-    },
-  },
   data() {
     return {
       old_pswd: '',
@@ -35,7 +29,6 @@ export default {
     this.new_pswd = ''
     this.repeat = ''
   },
-  //TODO: Add cookie.
   methods: {
     onChangeClicked() {
       if (this.new_pswd !== this.repeat) {
@@ -44,8 +37,7 @@ export default {
         this.new_pswd = ''
         this.repeat = ''
       } else {
-        this.$axios.post('ange_password/', {
-          sid: this.$props.sid,
+        this.$axios.post('/change_password/', {
           old: this.old_pswd,
           new: this.new_pswd
         }).then(res => {

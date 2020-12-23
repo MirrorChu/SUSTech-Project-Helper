@@ -67,7 +67,7 @@
         <div>
           <el-input clearable placeholer="Manually Search" v-model="manuallySearchSid"
                     v-if="this.showSelect"></el-input>
-          <el-button v-model="this.showSelect" v-if="this.showSelect">Add</el-button>
+          <el-button v-model="this.showSelect" v-if="this.showSelect" @click="this.onClickAdd">Add</el-button>
         </div>
       </el-form-item>
       <el-button @click="onClickConfirmCreateProject">Create</el-button>
@@ -144,22 +144,21 @@ export default {
   },
   methods: {
     onClickAdd () {
-      this.allStudentInCourse.push({ value: this.manuallySearchSid, label: this.manuallySearchSid })
+      let duplicate = false
+      for (const item in this.allStudentInCourse) {
+        if (item['value'] === this.manuallySearchSid) {
+          duplicate = true
+          break
+        }
+      }
+      if (!duplicate)
+      {
+        this.allStudentInCourse.push({ value: this.manuallySearchSid, label: this.manuallySearchSid })
+      }
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
-        let duplicate = false
-        const toSelect = this.allStudentInCourse[item]['value']
-        for (const selectedKey in this.selectedStudents) {
-          const selected = this.selectedStudents[selectedKey]
-          if (selected === toSelect) {
-            duplicate = true
-            break
-          }
-        }
-        if (duplicate) {
-          continue
-        }
+
         this.selectedStudents.push(toSelect)
       }
     },

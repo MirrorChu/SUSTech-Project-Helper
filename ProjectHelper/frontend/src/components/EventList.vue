@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 style="font-family: Verdana, serif;">Event List</h1>
-    <div v-if="this.privileges['teach'] === 1">
+    <div v-if="this.privileges['teach'] && this.privileges['teach'] === 1">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
                   v-bind:course-id="this.$props.courseId"

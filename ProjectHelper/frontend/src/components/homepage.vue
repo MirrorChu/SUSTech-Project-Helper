@@ -41,7 +41,7 @@
 
         <profile v-if="mainContent.profile" v-bind:sid="this.sid"></profile>
 
-        <NewPassword v-if="mainContent.settings" v-bind:sid="this.sid"></NewPassword>
+        <NewPassword v-if="mainContent.settings"></NewPassword>
 
         <ProjectList v-show="mainContent.projects"></ProjectList>
 

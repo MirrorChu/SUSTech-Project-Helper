@@ -90,7 +90,7 @@
 
     </el-form>
 
-    <div>
+    <div v-if="this.tageditable && this.tageditable === 1">
       <el-divider></el-divider>
       <h3>Add Tag Library</h3>
       <el-input v-model="addingtag" placeholder="Tag Name"></el-input>
@@ -139,6 +139,7 @@ export default {
       addtags: '',
       avatarUrl: '',
       addingtag: '',
+      tageditable: '',
     }
   },
   created () {
@@ -193,7 +194,7 @@ export default {
       this.edit = true
     },
     onClickNewPassword () {
-      this.$router.push({ name: 'homepage_profile_newpassword', sid: this.$route.params.sid }).then(res => {
+      this.$router.push({ name: 'homepage_profile_newpassword' }).then(res => {
         console.log(res)
       }).catch(err => {
         console.log(err)
@@ -313,8 +314,7 @@ export default {
         console.log('err', err)
       })
     },
-    onClickAddTagLibrary()
-    {
+    onClickAddTagLibrary() {
       if (this.addingtag && this.addingtag.length !== 0)
       {
         this.$axios.post('/add_new_tag/', {
@@ -331,6 +331,14 @@ export default {
         alert("You cannot add a space tag")
       }
     },
+    pulltageditable() {
+      this.$axios.post('/tag_editable/', {}).then(res => {
+        console.log(res.data)
+        this.tageditable = res.data['TagEditable']
+      }).catch(err => {
+        console.log('err', err)
+      })
+    }
   },
 }
 </script>
