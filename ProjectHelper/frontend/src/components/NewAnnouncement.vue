@@ -145,7 +145,7 @@ export default {
       event.title = this.title;
       event.introduction = this.introduction;
       event.due = this.due.getTime();
-      event.partitionList = this.selectedPartitionList;
+      event.selectedPartitionList = this.selectedPartitionList;
       return event;
     },
     // onSelectPartition(selected) {
