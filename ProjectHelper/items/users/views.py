@@ -1751,6 +1751,7 @@ class TeacherCreateProject(View):
                 return JsonResponse({"TeacherCreateProject": "has no key"})
 
             project_id = 0
+            html_content = ''
             if course.end_time > datetime.datetime.now() > course.start_time:
                 project = Project.objects.filter(name=project_name, introduction=introduction,
                                                  group_size=group_size,
@@ -1772,8 +1773,37 @@ class TeacherCreateProject(View):
                                               course_id=course_id, min_group_size=min_group_size,
                                               group_ddl=group_ddl)
                 project_id = project.id
+                subject = 'A Project published in Course ' + course.name
+                text_content = 'You need to read this email with a client can read html.'
+                html_content = '''
+                                <div><includetail>
+                    <div style="font:Verdana normal 14px;color:#000;">
+                        <div style="position:relative;">
+                            <div style="text-align: left;"><font size="4" face="幼圆">Name: ''' + project_name + '''</font></div>
+                            <div style="text-align: left;"><font size="4" face="幼圆">Detail: ''' + introduction + '''</font></div>
+                            <div style="text-align: left;"><font size="4" face="幼圆">Publisher: ''' + query_set.real_name + '''</font></div>
+                            <div style="text-align: center;"><font face="幼圆" size="1"><i style="">by ProjectHelper</i></font></div>
+                        </div>
+                    </div>
+                    <!--<![endif]--></includetail>
+                </div>
+                                '''
+                students = UserCourse.objects.filter(course_name_id=course_id)
+                emails = []
                 for i in students:
-                    student = UserProfile.objects.get(student_id=i)
+                    student = UserProfile.objects.get(id=i.user_name_id)
+                    emails.append(student.email)
+
+                msg = EmailMultiAlternatives(subject, text_content,
+                                             query_set.real_name + '<11812710@mail.sustech.edu.cn>',
+                                             emails)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+                # for i in students:
+                #     student = UserProfile.objects.get(student_id=i)
+                #     inCourse = UserCourse.objects.filter(user_name_id=student.id, course_name_id=course_id)
+                #     if inCourse.count() == 0:
+                #         UserCourse.objects.create(user_name_id=student.id, course_name_id=course_id)
                 return JsonResponse({"TeacherCreateProject": "success", 'project_id': project_id})
             return HttpResponse('Unauthorized', status=401)
             # if file_name != '':
@@ -3649,8 +3679,39 @@ class TeacherAddSa(View):
                 return JsonResponse({"TeacherAddSaCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
-
             return JsonResponse({"TeacherAddSaCheck": "failed"})
+
+
+class TeacherAddOneStudent(View):
+    def post(self, request):
+        """
+        :param token:token
+        :return:
+        """
+        try:
+            course_id = eval(request.body.decode()).get("course_id")
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            target_id = eval(request.body.decode()).get("sid")
+            print(course_id, target_id)
+            u = UserProfile.objects.get(student_id=student_id)
+            user = UserProfile.objects.get(student_id=target_id)
+            auth = Authority.objects.get(user_id=u.id, type="teach", course_id=course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                userCourse = UserCourse.objects.filter(user_name_id=user.id, course_name_id=course_id)
+                if userCourse.count() != 0:
+                    return JsonResponse({"TeacherAddOneStudent": "already in"})
+                UserCourse.objects.create(user_name_id=user.id, course_name_id=course_id, lab=0)
+                Authority.objects.create(type='eventVisible', user_id=user.id, course_id=course_id,
+                                         start_time=datetime.datetime.now(),
+                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                Authority.objects.create(type='groupValid', user_id=user.id, course_id=course_id,
+                                         start_time=datetime.datetime.now(),
+                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                return JsonResponse({"TeacherAddOneStudent": "success"})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"TeacherAddOneStudent": "failed"})
 
 
 class TeacherAddStudent(View):
