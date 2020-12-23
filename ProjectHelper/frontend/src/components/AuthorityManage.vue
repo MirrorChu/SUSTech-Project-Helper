@@ -1,8 +1,12 @@
 <template>
   <div>
     <div>
+      <el-button @click="changeAuthorityVisiblity">(Un)Show Authority</el-button>
+    </div>
+    <div>
       <el-table
           :data="this.AuthorityData"
+          v-show="AuthorityVisiblity"
           height="350"
           :header-cell-style="{background:'#F7F8F8',color:'#606266'}"
         >
@@ -28,8 +32,6 @@
 
         <el-table-column label="Project Grade">
           <template slot-scope="scope">
-            <!--          <span v-if="!scope.row.edit & scope.row.eventGrade === '1'" class="el-icon-success"></span>-->
-            <!--          <span v-if="!scope.row.edit & scope.row.eventGrade === '0'" class="el-icon-circle-close"></span>-->
             <el-switch
                 :disabled="!scope.row.edit"
                 v-model="scope.row.projectGrade"
@@ -65,11 +67,11 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="Event Edit">
+        <el-table-column label="Event Valid">
           <template slot-scope="scope">
             <el-switch
                 :disabled="!scope.row.edit"
-                v-model="scope.row.eventEdit"
+                v-model="scope.row.eventValid"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 active-value="1"
@@ -205,6 +207,7 @@ export default {
       target_editauthority: '',
       dialogEditAuthorityVisible: false,
       edit: [],
+      AuthorityVisiblity: false,
     };
   },
   props: {
@@ -264,6 +267,10 @@ export default {
         this.AuthorityData[index].edit = false;
       });
     },
+    changeAuthorityVisiblity()
+    {
+      this.AuthorityVisiblity = !this.AuthorityVisiblity
+    }
   },
 };
 </script>

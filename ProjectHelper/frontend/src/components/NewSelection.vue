@@ -85,10 +85,15 @@
       <el-form-item label="Attachment">
         TODO
         <el-upload
-            class="upload-demo"
-            drag
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple>
+          class="upload-demo"
+          drag
+          multiple
+          :data="this.selectionData"
+          ref="upload"
+          action="http://127.0.0.1:8080/api/submit_event_file/"
+          :file-list="fileList"
+          :auto-upload="false"
+          :on-change="handleFileChange">
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
         </el-upload>
@@ -156,6 +161,8 @@ export default {
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
+      fileList: [],
+      selectionData: {'token': '', 'event_id': ''},
     };
   },
   methods: {

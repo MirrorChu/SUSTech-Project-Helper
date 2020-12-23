@@ -2,19 +2,21 @@
   <div>
     <div>
       <h3>
-        {{ this.$props.data.title }}
+        {{ this.title }}
       </h3>
-      <div v-if="!expand">
-        <el-button @click="onClickExpand">Expand</el-button>
-      </div>
-    </div>
-    <div v-if="expand">
+
       <div>
-        <el-button @click="onClickExpand">Close</el-button>
+        <el-button @click="onClickExpand">{{this.mi}}</el-button>
       </div>
-      {{ this.$props.data.introduction }}
-      <div>Due: {{ new Date(this.$props.data.due) }}</div>
     </div>
+
+    <div v-if="expand">
+
+      {{ this.introduction }}<br>
+      <div>Due: {{ new Date(this.due) }}</div>
+
+    </div>
+
   </div>
 </template>
 
@@ -36,13 +38,35 @@ export default {
     return {
       expand: false,
       eventDetail: {},
+      introduction: '',
+      due: '',
+      title: '',
+      mi: 'Expand',
     }
+  },
+  created() {
+    this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+      console.log(res);
+      this.title = res.data['Data']['event_detail']['title']
+      this.due = res.data['Data']['event_detail']['due']
+      this.introduction = res.data.Data['introduction']
+    }).catch(err => {
+      console.log(err);
+    });
   },
   methods: {
     getResult () {
       return null
     },
     onClickExpand () {
+      if (this.expand)
+      {
+        this.mi = 'Expand'
+      }
+      else
+      {
+        this.mi = 'Close'
+      }
       this.expand = !this.expand
     },
   },

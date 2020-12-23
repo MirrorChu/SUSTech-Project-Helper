@@ -31,8 +31,13 @@
           <el-upload
               class="upload-demo"
               drag
-              action="https://jsonplaceholder.typicode.com/posts/"
-              multiple>
+              multiple
+              :data="this.announcementData"
+              ref="upload"
+              action="http://127.0.0.1:8080/api/submit_event_file/"
+              :file-list="fileList"
+              :auto-upload="false"
+              :on-change="handleFileChange">
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
           </el-upload>
@@ -41,28 +46,29 @@
         <el-form-item label="Select Partition">
           <el-row style="margin:0px"></el-row>
           <el-select v-model="selectedPartitionList"
-                     multiple placeholder="Select Partitions"
-                     @change="onSelectPartition">
+                     multiple placeholder="Select Partitions">
             <el-option
-                v-for="item in partitionList"
-                :key="item.value"
+                v-for="item in this.$props.partitionList"
+                :key="item.key"
                 :label="item.label"
                 :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Select Group">
-          <el-row style="margin:0px"></el-row>
-          <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">
-            <el-option
-                v-for="item in groupList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
+
+        <!--        <el-form-item label="Select Group">-->
+        <el-row style="margin:0px"></el-row>
+        <!--          <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">-->
+        <!--            <el-option-->
+        <!--                v-for="item in groupList"-->
+        <!--                :key="item.value"-->
+        <!--                :label="item.label"-->
+        <!--                :value="item.value">-->
+        <!--            </el-option>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
+
 
       </el-form>
     </div>
@@ -74,6 +80,19 @@
 <script>
 export default {
   name: 'NewAnnouncement',
+  props: {
+    partitionList: {
+      required: true,
+    },
+    courseId: {
+      type: Number,
+      required: true,
+    },
+    projectId: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       type: 'Announcement',
@@ -81,40 +100,58 @@ export default {
       introduction: '',
       due: '',
       eventId: '',
-      partitionList: [],
       groupList: [],
       selectedPartitionList: [],
       selectedGroupList: [],
+      fileList: [],
+      announcementData: {'token': '', 'event_id': ''},
     };
   },
   created() {
 
   },
   methods: {
+    handleFileChange (file, fileList) {
+      this.fileList = fileList
+    },
     onClickSubmit() {
-      console.log(this.toJson());
-      this.$axios.post('/test/', {jsonObj: this.toJson()}).then(res => {
-        console.log('res', res);
+      this.$axios.post('/send_key/', {'course': this.$props.courseId}).then(res => {
+        console.log(res)
+        const event = this.toJson()
+        const data = {}
+        data.project_id = this.$props.projectId
+        data.event_title = event.title
+        data.event_type = event.eventType
+        data.event_detail = event
+        data.key = res.data['SendKey']
+        this.$axios.post('/create_event/', data).then(res => {
+          console.log('res', res);
+          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0)
+          {
+            this.announcementData['event_id'] = res.data.Event_id
+            this.announcementData['token'] = localStorage.getItem('Authorization')
+            this.$refs.upload.submit()
+          }
+        }).catch(err => {
+          console.log('err', err);
+        });
       }).catch(err => {
-        console.log('err', err);
-      });
+        console.log(err)
+      })
     },
     toJson() {
       const event = {};
-      event.type = 'Announcement';
+      event.eventType = 'AnnouncementComponent';
       event.title = this.title;
       event.introduction = this.introduction;
       event.due = this.due.getTime();
-      event.selectedGroupList = this.selectedGroupList;
+      event.partitionList = this.selectedPartitionList;
       return event;
     },
-    onSelectPartition(selected) {
-      //TODO: Partition influences selected group.
-      console.log(selected);
-    },
-    getAllPartitions() {
-
-    },
+    // onSelectPartition(selected) {
+    //   //TODO: Partition influences selected group.
+    //   console.log(selected);
+    // },
   },
 
 };

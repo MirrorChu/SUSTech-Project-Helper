@@ -76,9 +76,10 @@ export default {
     this.courseId = this.$props.courseId
     this.projectId = this.$props.projectId
     this.$axios.post('/get_privilege_list/', { 'course_id': this.$props.courseId }).then(res => {
+      console.log(res)
       this.privileges = res.data['Data']
       this.$axios.post('/get_event_list/', { 'project_id': this.$props.projectId }).then(res => {
-        console.log('event list', res)
+        console.log(res)
         const tempEventArray = res.data['Data']
         this.componentObjs = []
         for (let i = 0; i < tempEventArray.length; i += 1) {
@@ -91,11 +92,17 @@ export default {
           else if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
             eventObj['type'] = 'SubmissionComponent'
           }
+          else if (typeStr === 'announcement' || typeStr === 'AnnouncementEvent' || typeStr === 'AnnouncementComponent')
+          {
+            eventObj['type'] = 'AnnouncementComponent'
+          }
           eventObj['data'] = {}
           eventObj['data']['title'] = eventEle['event_title']
+
           // eventObj['data']['introduction'] = eventEle['introduction']
           // eventObj['data']['due'] = eventEle['event_detail']['due']
           // eventObj['publisher'] = eventEle['publisher']
+
           eventObj['id'] = eventEle['id']
           this.componentObjs.push(eventObj)
           this.visible[eventObj['id']] = false
@@ -104,70 +111,8 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-
-      ////  ===***--- DO NOT DELETE THIS ---***=== ////
-      // this.componentObjs = [
-      //   {
-      //     type: 'AnnouncementComponent',
-      //     sid: this.$props.sid,
-      //     pswd: this.$props.pswd,
-      //     data:
-      //     {
-      //       type: 'AnnouncementComponent',
-      //       title: 'Demo Announcement',
-      //       introduction: 'This is a demo announcement.',
-      //       due: (new Date()).getTime(),
-      //     },
-      //   },
-      //   {
-      //     type: 'SelectionComponent',
-      //     sid: this.$props.sid,
-      //     pswd: this.$props.pswd,
-      //     data: {
-      //       type: 'SelectionComponent',
-      //       title: 'Demo Selection',
-      //       introduction: 'Choose your selection wisely.',
-      //       due: (new Date()).getTime(),
-      //       selectionLimit: 2,
-      //       options: [
-      //         { label: 'label1', value: 'value1' },
-      //         { label: 'label2', value: 'value2' },
-      //         { label: 'label3', value: 'value3' }],
-      //     },
-      //   },
-      //   {
-      //     type: 'SubmissionComponent',
-      //     sid: this.$props.sid,
-      //     pswd: this.$props.pswd,
-      //     due: (new Date()).getTime(),
-      //     data: {
-      //       type: 'SubmissionComponent',
-      //       title: 'Demo Submission',
-      //       introduction: 'This is a demo submission.',
-      //       submissionType: 'file',
-      //       due: (new Date()).getTime(),
-      //     },
-      //   },
-      //   {
-      //     type: 'PartitionEvent',
-      //     sid: this.$props.sid,
-      //     pswd: this.$props.pswd,
-      //     due: (new Date()).getTime(),
-      //     data: {
-      //       type: 'PartitionEvent',
-      //       title: 'Demo Partition',
-      //       introduction: 'This is a demo partition.',
-      //       selectionLimit: 1,
-      //       options: [
-      //         { label: 'label1', value: 'value1', limit: 5 },
-      //         { label: 'label2', value: 'value2', limit: 5 },
-      //         { label: 'label3', value: 'value3', limit: 5 },
-      //       ],
-      //       due: (new Date()).getTime(),
-      //     },
-      //   }]
     }).catch(err => {
-      console.log('EventList /student_gets_all_projects/', err)
+      console.log(err)
     })
   },
   methods: {

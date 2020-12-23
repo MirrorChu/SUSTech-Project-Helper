@@ -45,16 +45,15 @@
             </el-form-item>
           </el-form>
 
+
           <div>
-            <div v-if="this.privileges['teach'] !== 1">
+            <div v-if="this.privileges && this.privileges['teach'] !== 1">
               <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
-                         v-bind:group-info="this.groupInfo"
-                         v-bind:members-list="this.membersList"
-                         v-bind:project-id="this.projectId"
-                         v-bind:sid="this.sid"></GroupInfo>
-              <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">You are not in any
-                groups!</h1>
+                         v-bind:project_id="this.projectId"></GroupInfo>
+              <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
+                You are not in any groups!</h1>
               <CreateOrJoinGroup
+
                 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
                 v-bind:sid="this.sid"
                 v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
@@ -172,14 +171,59 @@
       </el-dialog>
     </div>
 
-<el-row><div v-if="this.privileges['teach'] === 1">
-    <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
-</div>
-  <h1 style="font-family: Verdana, serif;">Authority Management</h1>
-  <div>
-    <AuthorityManage   v-bind:project_id="this.$props.projectId"></AuthorityManage>
-  </div>
-</el-row>
+
+    <div v-if="showAd">
+      <h2>Advertisement</h2>
+
+      <el-card v-if="advertisementData.length !== 0">
+
+        <el-collapse v-if="advertisementData !== []">
+          <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+
+            <div>{{ item.content }}</div>
+
+          </el-collapse-item>
+        </el-collapse>
+      </el-card>
+
+      <div v-show="advertisementData.length === 0">There is no advertisement now !</div>
+
+      <el-card v-if="this.privileges['teach'] !== 1">
+        <div>
+          <h3>Upload AD</h3>
+          <el-form>
+            <el-form-item label="Title">
+              <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>
+            </el-form-item>
+            <el-form-item label="Content">
+              <el-input type="textarea" :rows="3" placeholder="the content of advertisement"
+                        v-model="advertisement_content"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-card>
+    </div>
+
+    
+    <el-row>
+      <div v-if="this.privileges['teach'] === 1">
+          <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
+      </div>
+      <h1 style="font-family: Verdana, serif;">Authority Management</h1>
+      <div>
+        <AuthorityManage   v-bind:project_id="this.$props.projectId"></AuthorityManage>
+      </div>
+    </el-row>
+
+    <div v-if="this.privileges['teach'] === 1">
+      <el-input v-model="whoaddSA">sid of SA</el-input>
+      <el-button @click="addSA">Add SA</el-button>
+    </div>
+
+
 
 
   </div>
@@ -224,7 +268,7 @@ export default {
         sid: '',
       },
       dialogPersonalProfileVisible: false,
-      advertisementData: [],
+      eementData: [],
       eventList: [],
       advertisement_content: '',
       advertisement_title: '',
@@ -235,6 +279,7 @@ export default {
       groupInfo: '',
       showAd: true,
       file_dict: {},
+      whoaddSA: '',
     };
   },
   created() {
@@ -274,6 +319,7 @@ export default {
                 for (let i = 0; i < this.groupInfo['members'].length; i++) {
                   this.membersList = this.membersList + this.groupInfo['members'][i] + '  ';
                 }
+                this.status = ''
               }
               else {
                 this.status = 'unknown';
@@ -367,7 +413,7 @@ export default {
           this.advertisementData = res.data['Data'];
         }
         else {
-          this.advertisementData = '';
+          this.advertisementData = [];
         }
       }).catch(err => {
         console.log(err);
@@ -400,6 +446,42 @@ export default {
         });
       }
     },
+    addSA()
+    {
+      if (isNaN(Number(this.whoaddSA)))
+      {
+        alert("You can only add a SA whose sid is number")
+        this.whoaddSA = ''
+      }
+      else
+      {
+        this.$confirm('Are you sure to add '+ this.whoaddSA + ' as an SA into ' + this.projectDetail['courseName'] + '?', 'Notice', {
+          confirmButtonText: 'Confirm',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+          this.$axios.post('/', {
+            course_id: this.courseId,
+            sid_sa: this.whoaddSA,
+          }).then(res => {
+            console.log('add sa', res.data);
+            this.$message({
+              type: 'success',
+              message: 'Add Success'
+            });
+            this.whoaddSA = '';
+          }).catch(err => {
+            console.log(err);
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: 'Canceled'
+          });
+        });
+      }
+
+    }
   },
   name: 'ProjectDetail',
 };
