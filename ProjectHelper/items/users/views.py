@@ -3517,8 +3517,10 @@ class TeacherAddSa(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
             target_id = eval(request.body.decode()).get("sid_sa")
+            print(course_id, target_id)
+            u = UserProfile.objects.get(student_id=student_id)
             user = UserProfile.objects.get(student_id=target_id)
-            auth = Authority.objects.get(user_id=student_id, type="teach", course_id=course_id)
+            auth = Authority.objects.get(user_id=u.id, type="teach", course_id=course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 userCourse = UserCourse.objects.filter(user_name_id=user.id, course_name_id=course_id)
                 if userCourse.count() != 0:
@@ -3533,4 +3535,5 @@ class TeacherAddSa(View):
                 return JsonResponse({"TeacherAddSaCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
+
             return JsonResponse({"TeacherAddSaCheck": "failed"})

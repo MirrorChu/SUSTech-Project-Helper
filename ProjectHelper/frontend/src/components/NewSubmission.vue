@@ -30,7 +30,6 @@
     </el-form-item>
 
     <el-form-item label="Attachment">
-      TODO
       <el-upload
           class="upload-demo"
           drag
@@ -58,19 +57,6 @@
         </el-option>
       </el-select>
     </el-form-item>
-
-    <!--    <el-form-item label="Select Group">-->
-    <el-row style="margin:0px"></el-row>
-    <!--      <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">-->
-    <!--        <el-option-->
-    <!--            v-for="item in groupList"-->
-    <!--            :key="item.value"-->
-    <!--            :label="item.label"-->
-    <!--            :value="item.value">-->
-    <!--        </el-option>-->
-    <!--      </el-select>-->
-    <!--    </el-form-item>-->
-
 
     <el-form-item>
       <el-row></el-row>

@@ -90,8 +90,8 @@
 
         <div v-if="showAd">
           <h1 style="font-family: Verdana, serif;">Advertisement</h1>
-          <el-card v-if="advertisementData !== []">
-            <el-collapse v-if="advertisementData !== []">
+          <el-card>
+            <el-collapse v-if="this.advertisementData && this.advertisementData.length !== 0">
               <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
 
                 <div>{{ item.content }}</div>
@@ -99,7 +99,7 @@
               </el-collapse-item>
             </el-collapse>
 
-            <div v-show="advertisementData === ''">There is no advertisement!</div>
+            <div v-else>There is no advertisement!</div>
           </el-card>
 
           <el-card v-if="this.privileges['teach'] !== 1">
@@ -172,49 +172,48 @@
     </div>
 
 
-    <div v-if="showAd">
-      <h2>Advertisement</h2>
+<!--    <div v-if="showAd">-->
+<!--      <h2>Advertisement</h2>-->
 
-      <el-card v-if="advertisementData.length !== 0">
+<!--      <el-card v-if="advertisementData.length !== 0">-->
 
-        <el-collapse v-if="advertisementData !== []">
-          <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+<!--        <el-collapse v-if="advertisementData !== []">-->
+<!--          <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>-->
 
-            <div>{{ item.content }}</div>
+<!--            <div>{{ item.content }}</div>-->
 
-          </el-collapse-item>
-        </el-collapse>
-      </el-card>
+<!--          </el-collapse-item>-->
+<!--        </el-collapse>-->
+<!--      </el-card>-->
 
-      <div v-show="advertisementData.length === 0">There is no advertisement now !</div>
+<!--      <div v-show="this.advertisementData.length === 0">There is no advertisement now !</div>-->
 
-      <el-card v-if="this.privileges['teach'] !== 1">
-        <div>
-          <h3>Upload AD</h3>
-          <el-form>
-            <el-form-item label="Title">
-              <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>
-            </el-form-item>
-            <el-form-item label="Content">
-              <el-input type="textarea" :rows="3" placeholder="the content of advertisement"
-                        v-model="advertisement_content"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </el-card>
-    </div>
+<!--      <el-card v-if="this.privileges['teach'] !== 1">-->
+<!--        <div>-->
+<!--          <h3>Upload AD</h3>-->
+<!--          <el-form>-->
+<!--            <el-form-item label="Title">-->
+<!--              <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="Content">-->
+<!--              <el-input type="textarea" :rows="3" placeholder="the content of advertisement"-->
+<!--                        v-model="advertisement_content"></el-input>-->
+<!--            </el-form-item>-->
+<!--            <el-form-item>-->
+<!--              <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>-->
+<!--            </el-form-item>-->
+<!--          </el-form>-->
+<!--        </div>-->
+<!--      </el-card>-->
+<!--    </div>-->
 
-    
-    <el-row>
-      <div v-if="this.privileges['teach'] === 1">
-          <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
-      </div>
-      <h1 style="font-family: Verdana, serif;">Authority Management</h1>
+
+    <el-row v-if="this.privileges && this.privileges['teach'] === 1">
       <div>
-        <AuthorityManage   v-bind:project_id="this.$props.projectId"></AuthorityManage>
+        <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
+      </div>
+      <div>
+        <AuthorityManage v-bind:project_id="this.$props.projectId"></AuthorityManage>
       </div>
     </el-row>
 
@@ -222,9 +221,6 @@
       <el-input v-model="whoaddSA">sid of SA</el-input>
       <el-button @click="addSA">Add SA</el-button>
     </div>
-
-
-
 
   </div>
 </template>
@@ -460,7 +456,7 @@ export default {
           cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
-          this.$axios.post('/', {
+          this.$axios.post('/teacher_add_sa/', {
             course_id: this.courseId,
             sid_sa: this.whoaddSA,
           }).then(res => {

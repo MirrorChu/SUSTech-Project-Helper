@@ -232,7 +232,6 @@ export default {
       return event;
     },
     onSelectPartition(selected) {
-      //TODO: Partition influences selected group.
       console.log(selected);
     },
   },
