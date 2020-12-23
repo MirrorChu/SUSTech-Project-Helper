@@ -302,18 +302,19 @@ class ShowPersonalData(View):
                                  'imageUrl': 'Not Implemented Feature',
                                  }
                 return JsonResponse(response_data)
+            return HttpResponse('Unauthorized', status=401)
 
-            # TODO: Implement avatar feature.
-            arr = request.FILES.keys()
-            file_name = ''
-
-            for k in arr:
-                file_name = k
-
-            if file_name != '':
-                file = request.FILES.get(file_name)
-                path = default_storage.save('tmp/' + file_name + ".jpg",
-                                            ContentFile(file.read()))  # 根据名字存图(无类型)
+            # # TODO: Implement avatar feature.
+            # arr = request.FILES.keys()
+            # file_name = ''
+            #
+            # for k in arr:
+            #     file_name = k
+            #
+            # if file_name != '':
+            #     file = request.FILES.get(file_name)
+            #     path = default_storage.save('tmp/' + file_name + ".jpg",
+            #                                 ContentFile(file.read()))  # 根据名字存图(无类型)
 
         except Exception as e:
             logger.debug('%s %s', self, e)
