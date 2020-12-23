@@ -449,6 +449,48 @@ class DownloadEventFile(View):
             return JsonResponse({"DownloadEventFile": "failed"})
 
 
+class DeleteEventFile(View):
+    def post(self, request):
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            file_id = eval(request.body.decode()).get("file_id")
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            file = ProjectAttachment.objects.get(id=file_id)
+            project = Project.objects.get(id=file.project_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                ProjectAttachment.objects.filter(id=file_id).delete()
+                return JsonResponse({"DeleteEventFileCheck": "success"})
+            return JsonResponse({"DeleteEventFileCheck": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"DeleteEventFileCheck": "failed"})
+
+
+class DeleteProjectFile(View):
+    def post(self, request):
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            file_id = eval(request.body.decode()).get("file_id")
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            file = ProjectFile.objects.get(id=file_id)
+            project = Project.objects.get(id=file.project_id)
+            auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                ProjectFile.objects.filter(id=file_id).delete()
+                return JsonResponse({"DeleteProjectFileCheck": "success"})
+            return JsonResponse({"DeleteProjectFileCheck": "failed"})
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"DeleteProjectFileCheck": "failed"})
+
+
 class Test(View):  # Fucking avatar
     def get(self, request):
         logger.debug('%s request %s', self, request)
