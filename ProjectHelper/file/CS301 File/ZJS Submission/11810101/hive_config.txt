@@ -1,0 +1,25 @@
+set mapreduce.input.fileinputformat.split.maxsize = 64000000; 若读取小文件较多，则设置在map端进行小文件合并参数
+set hive.merge.mapfiles = true;  //合并小文件
+set hive.merge.mapredfiles = true; //合并小文件
+set hive.merge.size.per.task = 64000000; //配置MR任务结束后进行文件合并
+set hive.merge.smallfiles.avgsize = 32000000; //配置MR任务结束后进行文件合并
+set mapreduce.input.fileinputformat.split.minsize.per.node = 64000000; //若读取小文件较多，则设置在map端进行小文件合并参数
+set mapreduce.input.fileinputformat.split.minsize.per.rack = 64000000; //若读取小文件较多，则设置在map端进行小文件合并参数
+set mapreduce.map.memory.mb = 5120; 
+set mapreduce.map.java.opts = -Xmx4096M;
+set mapreduce.reduce.memory.mb = 5120; 
+set mapreduce.reduce.java.opts = -Xmx4096M;
+set hive.exec.parallel = true;  //任务并行执行
+set hive.exec.parallel.thread.number = 32;
+set hive.map.aggr = true;
+set hive.groupby.skewindata = true;
+set hive.exec.dynamic.partition = true;
+set hive.exec.dynamic.partition.mode = nonstrict
+
+
+https://blog.csdn.net/ABCDEFG0929/article/details/95205862
+
+for i in $(ls ./)
+do
+cat $i | grep -P "vertexName=Map 1.*timeTaken=(\d+)" -o | sed 's/.*timeTaken=\([0-9]*\)/\1/g' > $i.grep
+done
