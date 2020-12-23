@@ -144,21 +144,58 @@ export default {
   },
   methods: {
     onClickAdd () {
-      let duplicate = false
-      for (const item in this.allStudentInCourse) {
-        if (item['value'] === this.manuallySearchSid) {
-          duplicate = true
-          break
-        }
-      }
-      if (!duplicate)
+      if (!this.newProjectCourse)
       {
-        this.allStudentInCourse.push({ value: this.manuallySearchSid, label: this.manuallySearchSid })
+        alert("must choose course first")
+      }
+      else
+      {
+        if (isNaN(Number(this.manuallySearchSid)) || !this.manuallySearchSid || this.manuallySearchSid.length === 0)
+        {
+          alert("You can only add a student whose sid is number")
+          this.manuallySearchSid = ''
+        }
+        else {
+            this.$axios.post('/teacher_add_one_student/', {
+              course_id: this.newProjectCourse,
+              sid_: this.manuallySearchSid,
+            }).then(res => {
+              console.log('add student', res.data);
+              if (res.data['TeacherAddOneStudent'] === 'success')
+              {
+                this.$message({
+                  type: 'success',
+                  message: 'Add Student Success'
+                });
+              }
+              else
+              {
+                this.$message({
+                  type: 'error',
+                  message: 'Add Student Failed'
+                })
+              }
+              this.manuallySearchSid = '';
+            }).catch(err => {
+              console.log(err);
+            });
+        }
       }
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
-
+        let duplicate = false
+        const toSelect = this.allStudentInCourse[item]['value']
+        for (const selectedKey in this.selectedStudents) {
+          const selected = this.selectedStudents[selectedKey]
+          if (selected === toSelect) {
+            duplicate = true
+            break
+          }
+        }
+        if (duplicate) {
+          continue
+        }
         this.selectedStudents.push(toSelect)
       }
     },
@@ -197,6 +234,7 @@ export default {
       if (this.fileList.length === 0) {
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
           console.log(res)
+          this.newProjectCourse = ''
         }).catch(err => {
           console.log('err', err)
         })
@@ -210,6 +248,7 @@ export default {
             this.dataforfile['token'] = localStorage.getItem('Authorization')
             this.$refs.upload.submit()
           }
+          this.newProjectCourse = ''
         }).catch(err => {
           console.log('err', err)
         })
