@@ -188,6 +188,7 @@ export default {
     onClickDeleteEvent() {
       this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
         alert('Delete Event ' + res.data['DeleteEvent']);
+        this.$parent.$parent.pullData()
       }).catch(err => {
         console.log(err);
       });
