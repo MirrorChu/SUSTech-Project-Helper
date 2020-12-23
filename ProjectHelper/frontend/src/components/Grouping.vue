@@ -2,7 +2,7 @@
   <div>
     <h1 style="font-family: Verdana, serif;">Grouping</h1>
     <div>
-      <el-button @click="changeGroupingVisiblity">(Un)Show Grouping</el-button>
+      <el-button @click="changeGroupingVisiblity">{{ this.GroupingVisiblity ? "Unshow Grouping" : "Show Grouping" }}</el-button>
     </div>
     <div v-show="GroupingVisiblity">
     <h1 style="font-family: Verdana, serif;">Ungrouped members</h1>

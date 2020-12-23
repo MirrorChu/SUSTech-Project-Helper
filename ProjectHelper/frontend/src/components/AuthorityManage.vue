@@ -2,7 +2,7 @@
   <div>
     <h1 style="font-family: Verdana, serif;">Authority Management</h1>
     <div>
-      <el-button @click="changeAuthorityVisiblity">(Un)Show Authority</el-button>
+      <el-button @click="changeAuthorityVisiblity">{{ this.AuthorityVisiblity ? "Unshow Authority" : "Show Authority" }}</el-button>
     </div>
     <div>
       <el-table

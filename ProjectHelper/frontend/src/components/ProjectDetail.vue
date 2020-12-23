@@ -92,7 +92,7 @@
           <h1 style="font-family: Verdana, serif;">Advertisement</h1>
           <el-card>
             <el-collapse v-if="this.advertisementData && this.advertisementData.length !== 0">
-              <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>
+              <el-collapse-item v-for="item in this.advertisementData" :title=item.titlee :name=item.id>
 
                 <div>{{ item.content }}</div>
 
@@ -276,6 +276,7 @@ export default {
       showAd: true,
       file_dict: {},
       whoaddSA: '',
+      advertisementData: {},
     };
   },
   created() {
