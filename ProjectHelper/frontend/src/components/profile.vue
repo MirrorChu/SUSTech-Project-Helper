@@ -1,10 +1,9 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
-  <div id="profile">
-    <el-card>
+  <div>
+    <el-col :span="10">
       <h1>Personal Profile</h1>
-      <el-divider></el-divider>
-    <el-col :span="16">
+    <el-card>
     <el-form ref="form" label-position="left" label-width="80px">
       <el-form-item label="SID">
         <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
@@ -32,73 +31,28 @@
         </el-row>
       </el-form-item>
 
-      <el-form-item label="EMAIL">
-        <el-input v-model="email" v-if="this.edit" :placeholder="this.email" clearable>
-        </el-input>
-
-        <el-row v-if="!this.edit">
-          {{ this.email }}
-        </el-row>
-      </el-form-item>
-
-
-      <el-form-item label="MOBILE">
-        <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
-        </el-input>
-
-        <el-row v-if="!this.edit">
-          {{ this.mobile }}
-        </el-row>
-      </el-form-item>
-
-      <el-form-item label="ADDR">
-        <el-input v-model="address" v-if="this.edit" :placeholder="address" clearable>
-        </el-input>
-
-        <el-row v-if="!this.edit">
-          {{ this.address }}
-        </el-row>
-      </el-form-item>
-
-      <el-form-item label="Tag">
-        <div v-if="!this.edit">
-          <span v-for="item in this.tags['Data']">
-            <el-badge :value="item.likes">
-              <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
-            </el-badge>
-            &nbsp
-          </span>
-        </div>
-
-        <div v-if="this.edit">
-          <b>Have Selected:</b>
-          <span v-for="item in this.tags['Data']">
-            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{ item.tag_name }}</el-button>
-            &nbsp
-          </span>
-          <br>
-          <b>To be Selected:</b>
-          <span v-for="item in addtags['Data']">
-            <el-button @click="onClickAddTag(item.tag_id, item.tag_name)">{{ item.tag_name }}</el-button>
-            &nbsp
-          </span>
-        </div>
-      </el-form-item>
-
-      <el-button v-if="!this.edit" @click="onEditClicked()">EDIT</el-button>
-      <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
-
     </el-form>
 
-    <div>
+    </el-card>
       <el-divider></el-divider>
-      <h3>Add Tag Library</h3>
-      <el-input v-model="addingtag"></el-input>
-      <el-button @click="onClickAddTagLibrary">ADD</el-button>
-    </div>
-    </el-col>
+      <h1 style="font-family: Verdana, serif;">Add tag library</h1>
+      <el-card>
+        <el-form>
+          <el-form-item label="Title">
+          <el-input v-model="addingtag"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="onClickAddTagLibrary">ADD</el-button></el-form-item>
 
-      <el-col :span="8">
+        </el-form>
+      </el-card>
+  </el-col>
+
+    <el-col :span="13" :offset="1">
+      <el-button v-if="!this.edit" @click="onEditClicked()">Edit Info</el-button>
+      <el-button v-if="this.edit" @click="onConfirmEditClicked()">CONFIRM EDIT</el-button>
+      <el-card align="center">
+
         <el-image v-if="!this.edit" style="width: 200px; height: 200px"
                   :src="this.avatarUrl" :datafld="avatarUrl" fit="cover"></el-image>
         <el-upload v-if="this.edit"
@@ -108,12 +62,69 @@
                    :auto-upload="true"
                    :show-file-list="false"
                    :on-success="handleAvatarSuccess"
-                   :before-upload="beforeAvatarUpload">
+                   :before-upload="beforeAvatarUpload"
+                    >
           <el-image v-if="imageUrl" :src="imageUrl" class="avatar" alt="avatar"></el-image>
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-      </el-col>
-    </el-card>
+
+        <el-form align="center"><el-form-item label="EMAIL">
+          <el-input v-model="email" v-if="this.edit" :placeholder="this.email" clearable>
+          </el-input>
+
+          <el-row v-if="!this.edit">
+            {{ this.email }}
+          </el-row>
+        </el-form-item>
+
+
+          <el-form-item label="MOBILE">
+            <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
+            </el-input>
+
+            <el-row v-if="!this.edit">
+              {{ this.mobile }}
+            </el-row>
+          </el-form-item>
+
+          <el-form-item label="ADDR">
+            <el-input v-model="address" v-if="this.edit" :placeholder="address" clearable>
+            </el-input>
+
+            <el-row v-if="!this.edit">
+              {{ this.address }}
+            </el-row>
+          </el-form-item>
+
+          <el-form-item label="Tag">
+            <el-row></el-row>
+            <div v-if="!this.edit">
+          <span v-for="item in this.tags['Data']">
+            <el-badge :value="item.likes">
+              <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
+            </el-badge>
+            &nbsp
+          </span>
+            </div>
+
+            <div v-if="this.edit" align="left">
+              <b>Have Selected:</b>
+              <span v-for="item in this.tags['Data']">
+            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{ item.tag_name }}</el-button>
+            &nbsp
+          </span>
+              <br>
+              <b>To be Selected:</b>
+              <span v-for="item in addtags['Data']">
+            <el-button @click="onClickAddTag(item.tag_id, item.tag_name)">{{ item.tag_name }}</el-button>
+            &nbsp
+          </span>
+            </div>
+          </el-form-item>
+
+        </el-form>
+      </el-card>
+    </el-col>
   </div>
 </template>
 
@@ -351,7 +362,7 @@ export default {
   background-color: #F7F8F8;
   border-color: whitesmoke;
   align-content: center;
-  text-align: center;
+  /*text-align: center;*/
   line-height: 50px;
 }
 </style>
