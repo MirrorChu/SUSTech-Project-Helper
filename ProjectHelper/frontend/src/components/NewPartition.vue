@@ -184,6 +184,8 @@ export default {
             this.partitionData['token'] = localStorage.getItem('Authorization')
             this.$refs.upload.submit()
           }
+          this.$parent.$parent.$parent.$parent.$parent.pullData()
+          this.$parent.$parent.$parent.expand = false
         }).catch(err => {
           console.log(err)
         })

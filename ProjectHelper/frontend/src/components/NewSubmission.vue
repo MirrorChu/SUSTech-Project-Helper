@@ -68,7 +68,7 @@
 <script>
 export default {
   name: 'NewSubmission',
-  data() {
+  data () {
     return {
       type: '',
       title: '',
@@ -79,8 +79,8 @@ export default {
       selectedPartitionList: [],
       selectedGroupList: [],
       fileList: [],
-      submissionData: {'token': '', 'event_id': ''},
-    };
+      submissionData: { 'token': '', 'event_id': '' },
+    }
   },
   props: {
     projectId: {
@@ -93,62 +93,63 @@ export default {
     },
     partitionList: {
       required: true,
-    }
+    },
   },
-  created() {
-    this.$axios.post('/get_all_partition/', {'project_id': this.$props.projectId}).then(res => {
-      console.log(res);
+  created () {
+    this.$axios.post('/get_all_partition/', { 'project_id': this.$props.projectId }).then(res => {
+      console.log(res)
     }).catch(err => {
-      console.log(err);
-    });
+      console.log(err)
+    })
   },
   methods: {
     handleFileChange (file, fileList) {
       this.fileList = fileList
     },
-    onClickSubmit() {
-      this.$axios.post('/send_key/', {'course': this.courseId}).then(res => {
-        console.log(res);
-        const event = this.toJson();
-        const data = {};
-        data.project_id = this.$props.projectId;
-        data.event_title = event.title;
-        data.event_type = event.eventType;
-        data.event_detail = event;
-        data.key = res.data['SendKey'];
+    onClickSubmit () {
+      this.$axios.post('/send_key/', { 'course': this.courseId }).then(res => {
+        console.log(res)
+        const event = this.toJson()
+        const data = {}
+        data.project_id = this.$props.projectId
+        data.event_title = event.title
+        data.event_type = event.eventType
+        data.event_detail = event
+        data.key = res.data['SendKey']
         data.partitionList = this.selectedPartitionList
         this.$axios.post('/create_event/', data).then(res => {
-          console.log(res);
-          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0)
-          {
-            this.submissionData['event_id'] =res.data.Event_id
+          console.log(res)
+          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0) {
+            this.submissionData['event_id'] = res.data.Event_id
             this.submissionData['token'] = localStorage.getItem('Authorization')
             this.$refs.upload.submit()
           }
+          this.$parent.$parent.$parent.$parent.$parent.pullData()
+          this.$parent.$parent.$parent.expand = false
         }).catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
       }).catch(err => {
-        console.log(err);
-      });
+        console.log(err)
+      })
     },
-    toJson() {
-      const event = {};
-      event.title = this.title;
-      event.introduction = this.introduction;
-      event.due = this.due.getTime();
-      event.eventType = 'SubmissionEvent';
-      event.submissionType = this.submissionType;
+    toJson () {
+      const event = {}
+      event.title = this.title
+      event.introduction = this.introduction
+      event.due = this.due.getTime()
+      event.eventType = 'SubmissionEvent'
+      event.submissionType = this.submissionType
       event.selectedPartitionList = this.selectedPartitionList
       // event.selectedGroupList = this.selectedGroupList;
-      return event;
+      return event
     },
     // onSelectPartition(selected) {
     //   //TODO: Partition influences selected group.
     //   console.log(selected);
     // },
   },
-};
+}
 </script>
 
 <style scoped>

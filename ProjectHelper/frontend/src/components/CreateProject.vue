@@ -67,7 +67,7 @@
         <div>
           <el-input clearable placeholer="Manually Search" v-model="manuallySearchSid"
                     v-if="this.showSelect"></el-input>
-          <el-button v-model="this.showSelect" v-if="this.showSelect">Add</el-button>
+          <el-button v-model="this.showSelect" v-if="this.showSelect" @click="this.onClickAdd">Add</el-button>
         </div>
       </el-form-item>
       <el-button @click="onClickConfirmCreateProject">Create</el-button>
@@ -121,7 +121,8 @@ export default {
         ],
       },
       fileList: [],
-      dataBlock: { 'sid': '',
+      dataBlock: {
+        'sid': '',
         'newProjectCourse': '',
         'newProjectName': '',
         'newProjectDescription': '',
@@ -138,12 +139,48 @@ export default {
       manuallySearchSid: '',
       fileCount: 0,
       project_id: '',
-      dataforfile: {'project_id': '', 'token': ''},
+      dataforfile: { 'project_id': '', 'token': '' },
     }
   },
   methods: {
     onClickAdd () {
-      this.allStudentInCourse.push({ value: this.manuallySearchSid, label: this.manuallySearchSid })
+      if (!this.newProjectCourse)
+      {
+        this.$message.error("must choose course first")
+      }
+      else
+      {
+        if (isNaN(Number(this.manuallySearchSid)) || !this.manuallySearchSid || this.manuallySearchSid.length === 0)
+        {
+          this.$message.error("You can only add a student whose sid is number")
+          this.manuallySearchSid = ''
+        }
+        else {
+            this.$axios.post('/teacher_add_one_student/', {
+              course_id: this.newProjectCourse,
+              sid_: this.manuallySearchSid,
+            }).then(res => {
+              console.log('add student', res.data);
+              if (res.data['TeacherAddOneStudent'] === 'success')
+              {
+                this.$message({
+                  type: 'success',
+                  message: 'Add Student Success'
+                });
+              }
+              else
+              {
+                this.$message({
+                  type: 'error',
+                  message: 'Add Student Failed'
+                })
+              }
+              this.manuallySearchSid = '';
+            }).catch(err => {
+              console.log(err);
+            });
+        }
+      }
     },
     onClickSelectAll () {
       for (const item in this.allStudentInCourse) {
@@ -182,11 +219,13 @@ export default {
         this.dataBlock['newProjectDescription'] = this.newProjectDescription
         this.dataBlock['groupingMaximum'] = this.maxNum
         this.dataBlock['groupingMinimum'] = this.minNum
-        this.dataBlock['groupingStart'] =  startDate.getTime()
-        this.dataBlock['groupingDeadline'] =  endDate.getTime()
+        this.dataBlock['groupingStart'] = startDate.getTime()
+        this.dataBlock['groupingDeadline'] = endDate.getTime()
         this.dataBlock['idx'] = idx
         this.dataBlock['selectedStudents'] = this.selectedStudents
         this.submitUpload()
+        this.$parent.displayControl['createProjectForm'] = false
+        this.$parent.loadProjects()
       }).catch(err => {
         console.log(err, 'err')
       })
@@ -195,21 +234,21 @@ export default {
       if (this.fileList.length === 0) {
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
           console.log(res)
+          this.newProjectCourse = ''
         }).catch(err => {
           console.log('err', err)
         })
-      }
-      else {
+      } else {
         this.dataBlock['token'] = localStorage.getItem('Authorization')
         console.log('create project with files', this.dataBlock)
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
           console.log(res)
-          if (res.data['TeacherCreateProject'] === 'success')
-          {
+          if (res.data['TeacherCreateProject'] === 'success') {
             this.dataforfile['project_id'] = res.data.project_id
             this.dataforfile['token'] = localStorage.getItem('Authorization')
             this.$refs.upload.submit()
           }
+          this.newProjectCourse = ''
         }).catch(err => {
           console.log('err', err)
         })
@@ -233,12 +272,10 @@ export default {
         console.log('err', err)
       })
     },
-    loadstudnetdata()
-    {
+    loadstudnetdata () {
       //  TODO: Update the list of all students in course.
       this.allStudentInCourse = []
-      if (this.newProjectCourse)
-      {
+      if (this.newProjectCourse) {
         const dataGram = { course: parseInt(this.newProjectCourse) }
         this.$axios.post('/teacher_get_students_in_course/', dataGram).then(res => {
           console.log('res', res)
@@ -248,12 +285,10 @@ export default {
         }).catch(err => {
           console.log('err', err)
         })
-      }
-      else
-      {
+      } else {
         this.allStudentInCourse = []
       }
-    }
+    },
   },
 }
 </script>

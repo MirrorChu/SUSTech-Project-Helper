@@ -1,6 +1,4 @@
-/*用export把方法暴露出来*/
-
-/*设置cookie*/
+//设置cookie
 export function setCookie (c_name, value, expire)
 {
   var date = new Date()
@@ -10,7 +8,7 @@ export function setCookie (c_name, value, expire)
   console.log(document.cookie)
 }
 
-/*获取cookie*/
+//获取cookie
 export function getCookie (c_name)
 {
   if (document.cookie.length > 0)
@@ -27,13 +25,13 @@ export function getCookie (c_name)
   return ''
 }
 
-/*删除cookie*/
+//删除cookie
 export function delCookie (c_name)
 {
   setCookie(c_name, '', -1)
 }
 
-/*更新cookie时间*/
+//更新cookie时间
 export function updateCookie (c_name, value, expire)
 {
   setCookie(c_name, value, expire)
