@@ -514,6 +514,7 @@ class DeleteEventFile(View):
                 auth = Authority.objects.get(user_id=user_id, type="eventEdit",
                                              course_id=project.course_id)
                 if auth.end_time > datetime.datetime.now() > auth.start_time:
+                    os.remove(file.file_path)
                     ProjectAttachment.objects.filter(id=file_id).delete()
                     return JsonResponse({"DeleteEventFileCheck": "success"})
             else:
@@ -541,6 +542,7 @@ class DeleteProjectFile(View):
             auth = Authority.objects.get(user_id=user_id, type="projectEdit",
                                          course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
+                os.remove(file.file_path)
                 ProjectFile.objects.filter(id=file_id).delete()
                 return JsonResponse({"DeleteProjectFileCheck": "success"})
             return JsonResponse({"DeleteProjectFileCheck": "failed"})
@@ -2050,10 +2052,10 @@ class TeacherKickMember(View):
                                 captain_name_id=i.user_name_id)
                             break
                 UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
-                if group.member == 1:
+                if group.members == 1:
                     GroupOrg.objects.filter(id=group_id).delete()
                 else:
-                    GroupOrg.objects.filter(id=group_id).update(member=group.member - 1)
+                    GroupOrg.objects.filter(id=group_id).update(members=group.members - 1)
                 return JsonResponse({"TeacherKickMemberCheck": "success"})
             return HttpResponse('Unauthorized', status=401)
         except Exception as e:
@@ -2353,6 +2355,7 @@ class GetEventList(View):
                 group = GroupOrg.objects.get(id=i.group_name_id)
                 if group.project_id == project.id:
                     break
+                group = GroupOrg.objects.get(id=8)
             for i in event:
                 parameter = json.loads(i.parameter)
                 if 'selectedPartitionList' in parameter.keys() and not boo1:
@@ -2828,11 +2831,6 @@ class CreateEvent(View):
             project = Project.objects.get(id=project_id)
             course_id = project.course_id
             user_group = UserGroup.objects.filter(user_name_id=user_id)
-            group = None
-            for i in user_group:
-                group = GroupOrg.objects.get(id=i.group_name_id)
-                if group.project_id == project.id:
-                    break
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if ddl <= datetime.datetime.now():
                 return JsonResponse({"CreateEvent": "wrong ddl"})
@@ -2885,6 +2883,9 @@ class CreateEvent(View):
                             group = GroupOrg.objects.get(id=j.group_name_id)
                             if group.project_id == project.id:
                                 break
+                            group = None
+                        if group is None:
+                            continue
                         boo = False
                         partitionList = event_detail['selectedPartitionList']
                         for j in partitionList:
@@ -3054,6 +3055,9 @@ class SubmitEvent(View):
                 group = GroupOrg.objects.get(id=i.group_name_id)
                 if group.project_id == project.id:
                     break
+                group = None
+            if group is None:
+                return JsonResponse({"SubmitEvent": "no group"})
             if event.end_time < datetime.datetime.now():
                 return JsonResponse({"SubmitEvent": "overtime"})
 
@@ -3222,6 +3226,8 @@ class GetEventDetail(View):
                             elif event.type == "SubmissionEvent":
                                 choices = ProjectAttachment.objects.filter(event_id=event.id)
                                 for j in choices:
+                                    if j.group_id == 8:
+                                        continue
                                     group = GroupOrg.objects.get(id=j.group_id)
                                     if group.id in groups.keys():
                                         continue
@@ -3263,6 +3269,8 @@ class GetEventDetail(View):
                                                                 'submission_datetime': int(
                                                                     j.add_time.timestamp() * 1000)}
                                 for j in choices:
+                                    if j.group_id == 8:
+                                        continue
                                     path = j.file_path
                                     array = path.split('/')
                                     groups[j.group_id]['file_name'].append(array[-1])
@@ -3278,6 +3286,7 @@ class GetEventDetail(View):
                         group = GroupOrg.objects.get(id=i.group_name_id)
                         if group.project_id == project.id:
                             break
+                        group = GroupOrg.objects.get(id=8)
                     if event.type == "partition":
                         choices = ChooseEvent.objects.filter(event_id_id=event.id,
                                                              group_id=group.id)
@@ -3297,7 +3306,7 @@ class GetEventDetail(View):
                         student_score = EventGrades.objects.filter(event_id=event_id,
                                                                    user_id=user_id)
                         if student_score.count() != 0:
-                            for j in group_score:
+                            for j in student_score:
                                 events['data']['student_score'] = j.grade
                         if events['event_detail']['partitionType'] == 'normal':
                             events['partitionType'] = 'normal'
@@ -3315,9 +3324,12 @@ class GetEventDetail(View):
                                      events['event_detail']['options'][int(j.choice)][2]))
                                 events['data']['index'].append(int(j.choice))
                     elif event.type == "SubmissionEvent":
-                        choices = ProjectAttachment.objects.filter(event_id=event.id)
+                        choices = ProjectAttachment.objects.filter(event_id=event.id,
+                                                                   group_id=group.id)
                         events['data'] = {}
                         for j in choices:
+                            if j.group_id == 8:
+                                continue
                             events['data'] = {'file_name': [],
                                               'submission_datetime': int(
                                                   j.add_time.timestamp() * 1000),
@@ -3333,9 +3345,11 @@ class GetEventDetail(View):
                         student_score = EventGrades.objects.filter(event_id=event_id,
                                                                    user_id=user_id)
                         if student_score.count() != 0:
-                            for j in group_score:
+                            for j in student_score:
                                 events['data']['student_score'] = j.grade
                         for j in choices:
+                            if j.group_id == 8:
+                                continue
                             path = j.file_path
                             array = path.split('/')
                             events['data']['file_name'].append(array[-1])
@@ -3345,6 +3359,7 @@ class GetEventDetail(View):
             return HttpResponse('Unauthorized', status=401)
 
         except Exception as e:
+            e.with_traceback()
             logger.debug('%s %s', self, e)
             return JsonResponse({"GetEventDetail": "failed"})
 
@@ -3626,6 +3641,7 @@ class GetModelForEvent(View):
             if student_id is None:
                 return HttpResponse('Unauthorized', status=401)
             event_id = request.GET['event_id']
+            print(event_id)
 
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
@@ -3734,6 +3750,7 @@ class SubmitModelForEvent(View):
                     idSid = sheet1.col_values(0)
                     grade = sheet1.col_values(2)
                     comment = sheet1.col_values(3)
+                    print(grade)
 
                     while len(idSid) > pointer:
                         data = {'group_id': int(idSid[pointer]), 'group_score': grade[pointer],
@@ -3772,7 +3789,7 @@ class SubmitModelForEvent(View):
                         if i['group_score'] == '':
                             continue
                         if tmp1.count() == 0:
-                            ProjectGrades.objects.create(grade=i['group_score'], comment=comment,
+                            ProjectGrades.objects.create(grade=i['group_score'], comment=i['comment'],
                                                          event_id=event_id,
                                                          group_id=i['group_id'])
                         else:
@@ -3785,6 +3802,7 @@ class SubmitModelForEvent(View):
 
         except Exception as e:
             print(pointer)
+            e.with_traceback()
             logger.debug('%s %s', self, e)
             return JsonResponse({"SubmitModelForEvent": "wrong submit"})
 
