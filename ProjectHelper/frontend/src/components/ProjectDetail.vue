@@ -461,7 +461,7 @@ export default {
         }).then(() => {
           this.$axios.post('/teacher_add_one_student/', {
             course_id: this.courseId,
-            sid_: this.addingStudent,
+            sid: this.addingStudent,
           }).then(res => {
             console.log('add student', res.data);
             if (res.data['TeacherAddOneStudent'] === 'success')
