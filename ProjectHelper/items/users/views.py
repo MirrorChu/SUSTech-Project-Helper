@@ -1649,10 +1649,10 @@ class TeacherGetCourses(View):
             token = eval(request.body.decode()).get("token")
             student_id = get_sid(token)
 
-            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
             courses = {}
-            course = Authority.objects.filter(user_id=user_id, type="teach")
+            course = Authority.objects.filter(user_id=user_id, type="projectEdit")
             if course.count() == 0:
                 return JsonResponse({"Data": None, "TeacherGetCoursesCheck": "no course"})
             for i in course:
@@ -3559,6 +3559,8 @@ class SubmitModelForEvent(View):
                     for i in grades:
                         for j in i['member']:
                             tmp = EventGrades.objects.filter(event_id=event_id, user_id=j[0])
+                            if j[1] == '':
+                                continue
                             if tmp.count() == 0:
                                 EventGrades.objects.create(grade=j[1], comment=i['comment'], event_id=event_id,
                                                            user_id=j[0])
@@ -3566,6 +3568,8 @@ class SubmitModelForEvent(View):
                                 EventGrades.objects.filter(event_id=event_id, user_id=j[0]).update(grade=j[1],
                                                                                                    comment=i['comment'])
                         tmp1 = ProjectGrades.objects.filter(group_id=i['group_id'], event_id=event_id)
+                        if i['group_score'] == '':
+                            continue
                         if tmp1.count() == 0:
                             ProjectGrades.objects.create(grade=i['group_score'], comment=comment, event_id=event_id,
                                                          group_id=i['group_id'])
@@ -3780,7 +3784,7 @@ class SemiRandom(View):
                 student = UserCourse.objects.filter(course_name_id=project.course_id)
                 for i in student:
                     boo = False
-                    t_auth = Authority.objects.filter(user_id=i.id, type="teach",
+                    t_auth = Authority.objects.filter(user_id=i.id, type="tagEdit",
                                                       course_id=project.course_id)
                     for j in t_auth:
                         if j.end_time > datetime.datetime.now() > j.start_time:
@@ -3876,7 +3880,7 @@ class TeacherAddOneStudent(View):
             print(course_id, target_id)
             u = UserProfile.objects.get(student_id=student_id)
             user = UserProfile.objects.get(student_id=target_id)
-            auth = Authority.objects.get(user_id=u.id, type="teach", course_id=course_id)
+            auth = Authority.objects.get(user_id=u.id, type="projectEdit", course_id=course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 userCourse = UserCourse.objects.filter(user_name_id=user.id, course_name_id=course_id)
                 if userCourse.count() != 0:
@@ -3908,7 +3912,7 @@ class TeacherAddStudent(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             project = Project.objects.get(id=project_id)
-            auth = Authority.objects.get(user_id=user_id, type="teach", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=project.course_id)
 
             arr = request.FILES.keys()
             file_name = ''
