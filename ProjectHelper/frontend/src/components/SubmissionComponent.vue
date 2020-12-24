@@ -70,8 +70,6 @@
             <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
               <div v-for="(item, index) in eventDetail['file_name']">
                 <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-                <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
-                </el-button>
               </div>
             </div>
             <div v-else>No Attachment</div>
@@ -183,12 +181,12 @@ export default {
     pullData()
     {
       this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
-        console.log(res);
+        console.log('===debug===', res);
         this.submissionDetail = res.data['Data']['data'];
         this.eventDetai = res.data;
         this.eventDetail = res.data['Data'];
-        const eventEle = res.data['Data'];
-        const typeStr = eventEle['event_type'];
+        let eventEle = res.data['Data'];
+        let typeStr = eventEle['event_type'];
         if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
           this.eventObj['type'] = 'SubmissionComponent';
           this.eventObj['data'] = {};
@@ -196,6 +194,7 @@ export default {
           this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
         }
         this.eventObj['data']['title'] = eventEle['event_title'];
+        this.eventObj['data']['introduction'] = 'hello world!'
         this.eventObj['data']['introduction'] = eventEle['introduction'];
         this.eventObj['data']['due'] = eventEle['event_detail']['due'];
         this.eventObj['publisher'] = eventEle['publisher'];

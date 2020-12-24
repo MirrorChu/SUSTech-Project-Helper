@@ -80,6 +80,7 @@
             </div>
           </el-card>
           <el-divider></el-divider>
+          
           <div v-if="showAd">
             <h1 style="font-family: Verdana, serif;">Advertisement</h1>
             <el-card>
@@ -111,11 +112,10 @@
                 </el-form>
               </div>
             </el-card>
-
           </div>
+        
         </div>
       </el-col>
-
       <el-col :span="13" :offset="1">
         <div>
           <EventList v-bind:sid="this.$props.sid"
