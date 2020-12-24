@@ -3,8 +3,10 @@
     <div>
       <h2 align="center">{{ this.$props.data.title }}</h2>
     </div>
-    <div align="center"><el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand'}}</el-button>
-      <el-button @click="onClickDeleteEvent">Delete Event</el-button></div>
+    <div align="center">
+      <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand'}}</el-button>
+      <el-button v-if="this.privileges && this.privileges['eventEdit']" @click="onClickDeleteEvent">Delete Event</el-button>
+    </div>
 
     <div v-if="expand">
       <div v-if="privileges && privileges['teach'] === 1">
@@ -13,7 +15,15 @@
           <el-form>
             <h3 style="font-family: Verdana, serif;">Introduction: </h3>
             <el-form-item label="">
-              <el-input type="textarea" v-model="this.eventObj['data']['introduction']"></el-input>
+              <el-input type="textarea" v-model="eventObj['data']['introduction']"></el-input>
+            </el-form-item>
+            <h3 style="font-family: Verdana, serif;">Due: </h3>
+            <el-form-item label="">
+              <el-date-picker
+                v-model="dueDatetime"
+                type="datetime"
+                placeholder="Due Datetime">
+              </el-date-picker>
             </el-form-item>
             <h3 style="font-family: Verdana, serif;">File List: </h3>
             <el-form-item label="">
@@ -80,6 +90,7 @@
           </EventGrading>
         </div>
       </div>
+
       <div v-if="!privileges || privileges['eventGrade'] !== 1">
         <el-upload
             drag
@@ -158,6 +169,7 @@ export default {
       privileges: {},
       dataBlock: {},
       submissionData: {'token': '', 'event_id': ''},
+      dueDatetime: new Date(),
     };
   },
   created() {
@@ -196,6 +208,7 @@ export default {
         });
         this.dataBlock['token'] = localStorage.getItem('Authorization');
         this.dataBlock['event_id'] = this.$props.eventId;
+        this.dueDatetime = new Date(this.eventObj.data.due)
       }).catch(err => {
         console.log(err);
       });
@@ -243,6 +256,7 @@ export default {
       this.$axios.post('/change_event/', {
         'event_id': this.$props.eventId,
         'introduction': this.eventObj['data']['introduction'],
+        'due': this.dueDatetime.getTime(),
       }).then(res => {
         console.log(res);
         this.edit = false
@@ -254,7 +268,16 @@ export default {
       }).catch(err => {
         console.log(err);
       });
-    }
+    },
+    onClickDeleteEventFile(id) {
+      this.$axios.post('/delete_event_file/', {'file_id': id}).then(res => {
+        console.log(res);
+        this.$parent.$parent.pullData();
+        this.pullData();
+      }).catch(err => {
+        console.log(err);
+      });
+    },
   },
 };
 </script>

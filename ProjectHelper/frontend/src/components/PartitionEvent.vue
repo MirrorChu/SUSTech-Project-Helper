@@ -4,7 +4,7 @@
       <div><h2 align="center">{{ this.$props.eventTitle }}</h2></div>
       <div align="center">
         <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand'}}</el-button>
-        <el-button @click="onClickDeleteEvent">Delete Event</el-button>
+        <el-button v-if="this.privileges && this.privileges['eventEdit']" @click="onClickDeleteEvent">Delete Event</el-button>
       </div>
 
       <div v-if="expand">
@@ -28,8 +28,6 @@
                 <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
                   <div v-for="(item, index) in eventDetail['file_name']">
                     <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-                    <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
-                    </el-button>
                   </div>
                 </div>
                 <div v-else>No file</div>
@@ -45,7 +43,14 @@
                 </el-option>
               </el-select>
             </div>
-            <el-row></el-row>
+            <div>
+              <EventGrading
+                v-bind:eventDetail="geteventdetailresponse"
+                v-bind:eventId="this.$props.eventId"
+                v-bind:submissionDetail="submissionDetail">
+              </EventGrading>
+            </div>
+            <br/>
             <div><el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button></div>
           </div>
           <div v-if="this.edit">
@@ -159,6 +164,7 @@
         edit: false,
         token: '',
         eventDetail: {},
+        geteventdetailresponse: {},
         partitionData: {'token': '', 'event_id': ''},
         fileList: [],
         due: new Date(),
@@ -177,7 +183,7 @@
         this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
           console.log(res);
           this.submissionDetail = res.data['Data']['data'];
-          this.eventDetail = res.data;
+          this.geteventdetailresponse = res.data;
           const eventEle = res.data['Data'];
           const typeStr = eventEle['event_type'];
           if (typeStr === 'partition') {
@@ -281,7 +287,16 @@
         }).catch(err => {
           console.log(err);
         });
-      }
+      },
+      onClickDeleteEventFile(id) {
+        this.$axios.post('/delete_event_file/', {'file_id': id}).then(res => {
+          console.log(res);
+          this.$parent.$parent.pullData();
+          this.pullData();
+        }).catch(err => {
+          console.log(err);
+        });
+      },
     },
   };
 </script>

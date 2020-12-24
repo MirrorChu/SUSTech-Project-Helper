@@ -5,11 +5,12 @@
         {{ this.title }}
       </h2>
 
-      <div>
-        <div style="float: left;margin-left: 175px"><el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand' }}</el-button></div>
-        <div v-if="this.privileges && this.privileges['eventEdit']" style="float: left;padding-left: 15px;padding-bottom: 20px">
-        <el-button @click="onClickDeleteEvent">Delete Event</el-button>
-      </div>
+      <div align="center">
+        <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand' }}</el-button>
+        &nbsp
+        <span v-if="this.privileges && this.privileges['eventEdit']">
+          <el-button @click="onClickDeleteEvent">Delete Event</el-button>
+        </span>
       </div>
     </div>
     <br>
