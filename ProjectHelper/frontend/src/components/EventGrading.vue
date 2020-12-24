@@ -5,38 +5,38 @@
         Submission Condition
       </h4>
     </div>
-      <el-table
-          :data="groupList"
-          style="width: 100%">
-        <el-table-column
-            prop="group_id"
-            label="Group ID"
-            width="180">
-        </el-table-column>
-        <el-table-column
-            prop="group_name"
-            label="Group Name"
-            width="180">
-        </el-table-column>
-        <el-table-column label="Detail">
-          <el-button slot-scope="scope" @click="onClickDetail(scope)">Detail</el-button>
-        </el-table-column>
-      </el-table>
+    <el-table
+        :data="groupList"
+        style="width: 100%">
+      <el-table-column
+          prop="group_id"
+          label="Group ID"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="group_name"
+          label="Group Name"
+          width="180">
+      </el-table-column>
+      <el-table-column label="Detail">
+        <el-button slot-scope="scope" @click="onClickDetail(scope)">Detail</el-button>
+      </el-table-column>
+    </el-table>
 
-      <el-button v-if="idx < 0" @click="downloadAllSubmission">
-        Download All Submission
-      </el-button>
+    <div v-if="idx < 0">
+      <el-link :href="this.downloadAllUrl">Download All Submission</el-link>
+    </div>
 
-      <el-button v-if="idx < 0">
-        Download Grading Template
-      </el-button>
+    <div v-if="idx < 0">
+      <el-link :href="this.downloadGradingTemplate">Download Grading Template</el-link>
+    </div>
 
-      <el-upload
-          v-if="idx < 0"
-          class="upload-demo"
-          action="https://jsonplaceholder.typicode.com/posts/">
-        <el-button>Upload Grading File</el-button>
-      </el-upload>
+    <el-upload
+        v-if="idx < 0"
+        class="upload-demo"
+        action="https://jsonplaceholder.typicode.com/posts/">
+      <el-button>Upload Grading File</el-button>
+    </el-upload>
 
 
     <h4 v-if="idx >= 0">
@@ -143,11 +143,16 @@ export default {
       feedback: '',
       groupId: 0,
       submission_datetime: 0,
+      downloadAllUrl: '',
+      downloadGradingTemplate: '',
     };
   }
   ,
   created() {
     this.groupList = this.$props.submissionDetail;
+    this.downloadAllUrl = this.downloadAllSubmissionUrl();
+    this.downloadGradingTemplate = 'http://127.0.0.1:8000/get_model_for_event?token=' +
+        localStorage.getItem('Authorization') + '&event_id=' + this.eventId;
   }
   ,
   methods: {
@@ -218,8 +223,10 @@ export default {
           + '&file_id='
           + id.toString();
     },
-    downloadAllSubmission() {
-      //  TODO
+    downloadAllSubmissionUrl() {
+      const tokenStr = 'token=' + localStorage.getItem('Authorization');
+      const eventIdStr = 'event_id=' + this.eventId;
+      return 'http://127.0.0.1:8000/download_event_submission' + '?' + tokenStr + '&' + eventIdStr;
     },
   },
 };
