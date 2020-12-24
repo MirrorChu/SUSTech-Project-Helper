@@ -34,6 +34,10 @@
                 placeholder="Due Datetime">
             </el-date-picker>
           </el-form-item>
+          <div>
+            <el-button @click="onClickUpdateEvent">Update</el-button>
+          </div>
+
           <el-form-item label="File List">
             <br>
             <div v-for="(item, index) in eventDetail['file_name']">
@@ -55,9 +59,6 @@
               <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
             </el-upload>
           </el-form-item>
-          <div>
-            <el-button >Upload</el-button>
-          </div>
         </el-form>
       </div>
 
@@ -96,7 +97,7 @@ export default {
     this.edit = false;
     this.announcementData['event_id'] = this.eventId;
     this.announcementData['token'] = localStorage.getItem('Authorization');
-    this.pullData()
+    this.pullData();
   },
   methods: {
     getResult() {
@@ -137,16 +138,30 @@ export default {
       this.$axios.post('/delete_event_file/', {'file_id': id}).then(res => {
         console.log(res);
         this.$parent.$parent.pullData();
-        this.pullData()
+        this.pullData();
       }).catch(err => {
         console.log(err);
       });
     },
     onUploadFileSuccess(response, file, fileList) {
-      console.log('upload success')
-      console.log(response)
+      console.log('upload success');
+      console.log(response);
       this.$parent.$parent.pullData();
-      this.pullData()
+      this.pullData();
+    },
+    onClickUpdateEvent() {
+      const data = {
+        'introduction': this.introduction,
+        'due': this.dueDatetime.getTime(),
+        'event_id': this.eventId,
+      };
+      this.$axios.post('/change_event/', data).then(res => {
+        console.log(res);
+        this.$parent.$parent.pullData();
+        this.pullData();
+      }).catch(err => {
+        console.log(err);
+      });
     },
   },
 };
