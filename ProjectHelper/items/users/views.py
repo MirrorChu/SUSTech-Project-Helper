@@ -3695,7 +3695,7 @@ class GetStudentInProject(View):
             else:
                 return HttpResponse('Unauthorized', status=401)
             suffix = datetime.datetime.now().strftime("%Y-%m-%d %H,%M,%S")
-            file_name = str(suffix) + " Project Group " + project.title + '.xls'
+            file_name = str(suffix) + " Project Group " + project.name + '.xls'
             path = "tmp/" + file_name
 
             workbook = xlwt.Workbook()

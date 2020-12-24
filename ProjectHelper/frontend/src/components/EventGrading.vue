@@ -28,7 +28,7 @@
     </div>
 
     <div v-if="idx < 0">
-      <el-link :href="this.downloadGradingTemplate">Download Grading Template</el-link>
+      <el-link :href="this.downloadGradingTemplate">Download Grading File</el-link>
     </div>
 
     <el-upload
