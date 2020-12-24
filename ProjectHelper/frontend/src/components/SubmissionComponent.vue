@@ -29,7 +29,7 @@
         <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
       </div>
 
-      <div v-if="privileges && privileges['teach'] === 1">
+      <div v-if="privileges && privileges['eventGrade'] === 1">
         <div>
           <el-button @click="onClickDeleteEvent">Delete Event</el-button>
         </div>
