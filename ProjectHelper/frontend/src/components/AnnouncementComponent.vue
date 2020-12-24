@@ -6,7 +6,7 @@
       </h3>
 
       <div>
-        <el-button @click="onClickExpand">{{this.expand ? "Close" : "Expand"}}</el-button>
+        <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand' }}</el-button>
       </div>
     </div>
 
@@ -14,7 +14,12 @@
 
       {{ this.introduction }}<br>
       <div>Due: {{ new Date(this.due) }}</div>
-      <div><el-button @click="onClickDeleteEvent">Delete Event</el-button></div>
+      <div v-for="(item, index) in eventDetail['file_name']">
+        <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+      </div>
+      <div>
+        <el-button @click="onClickDeleteEvent">Delete Event</el-button>
+      </div>
     </div>
 
   </div>
@@ -32,46 +37,53 @@ export default {
     },
     eventId: {
       required: true,
-    }
+    },
   },
-  data () {
+  data() {
     return {
       expand: false,
       eventDetail: {},
       introduction: '',
       due: '',
       title: '',
-    }
+    };
   },
   created() {
     this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
       console.log(res);
-      this.title = res.data['Data']['event_detail']['title']
-      this.due = res.data['Data']['event_detail']['due']
-      this.introduction = res.data.Data['introduction']
+      this.eventDetail = res.data['Data'];
+      this.title = res.data['Data']['event_detail']['title'];
+      this.due = res.data['Data']['event_detail']['due'];
+      this.introduction = res.data.Data['introduction'];
     }).catch(err => {
       console.log(err);
     });
   },
   methods: {
-    getResult () {
-      return null
+    getResult() {
+      return null;
     },
-    onClickExpand () {
-      this.expand = !this.expand
+    onClickExpand() {
+      this.expand = !this.expand;
     },
     onClickDeleteEvent() {
       this.$axios.post('/delete_event/', {
-        'event_id': this.$props.eventId
+        'event_id': this.$props.eventId,
       }).then(res => {
         alert('Delete Event ' + res.data['DeleteEvent']);
-        this.$parent.$parent.pullData()
+        this.$parent.$parent.pullData();
       }).catch(err => {
         console.log(err);
       });
     },
+    generateFileUrl(id) {
+      return 'http://127.0.0.1:8000/download_event_file?token='
+          + localStorage.getItem('Authorization')
+          + '&file_id='
+          + id.toString();
+    },
   },
-}
+};
 </script>
 
 <style scoped>
