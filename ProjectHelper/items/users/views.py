@@ -1674,15 +1674,15 @@ class TeacherGetStudentsInCourse(View):
             student_id = get_sid(token)
             course_id = eval(request.body.decode()).get("course")
 
-            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
             students = {}
-            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            course = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=course_id)
             if course.end_time > datetime.datetime.now() > course.start_time:
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for j in student:
                     user = UserProfile.objects.get(id=j.user_name_id)
-                    auth = Authority.objects.filter(user_id=user.id, type="teach", course_id=course_id)
+                    auth = Authority.objects.filter(user_id=user.id, type="projectEdit", course_id=course_id)
                     boo = False
                     for i in auth:
                         if i.end_time > datetime.datetime.now() > i.start_time:
@@ -1738,9 +1738,9 @@ class TeacherCreateProject(View):
             group_ddl = datetime.datetime.fromtimestamp(ddl)
             students = selected
 
-            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
-            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            course = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=course_id)
 
             arr = request.FILES.keys()
             file_name = ''
@@ -1840,9 +1840,9 @@ class SubmitProjectFile(View):
             project = Project.objects.get(id=project_id)
             course_id = project.course_id
 
-            query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
+            query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
-            auth = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            auth = Authority.objects.get(user_id=user_id, type="proejctEdit", course_id=course_id)
 
             arr = request.FILES.keys()
             file_name = ''
@@ -1921,7 +1921,7 @@ class TeacherGetAuthInProject(View):
             username = user.username
             project = Project.objects.get(id=project_id)
             course_id = project.course_id
-            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            course = Authority.objects.get(user_id=user_id, type="authEdit", course_id=course_id)
             auths = {}
             if course.end_time > datetime.datetime.now() > course.start_time:
                 auth = Authority.objects.filter(course_id=course_id)
@@ -2294,11 +2294,11 @@ class SendMailToInvite(View):
                 raise
             group = GroupOrg.objects.get(id=group_id)
             project = Project.objects.get(id=group.project_id)
-            t_auth = Authority.objects.filter(user_id=receiver.id, type="teach",
+            t_auth = Authority.objects.filter(user_id=receiver.id, type="tagEdit",
                                               course_id=project.course_id)
             for i in t_auth:
                 if i.end_time > datetime.datetime.now() > i.start_time:
-                    return HttpResponse('Unauthorized', status=401)
+                    return JsonResponse({"SendMailToInvite": "failed"})
             email = receiver.email
             string = receiver.password
             pswd = base64.b64encode(string.encode("utf-8")).decode("utf-8")
@@ -2467,7 +2467,7 @@ class SendKey(View):
 
             query_set = UserProfile.objects.get(student_id=student_id, is_staff=1)
             user_id = query_set.id
-            course = Authority.objects.get(user_id=user_id, type="teach", course_id=course_id)
+            course = Authority.objects.get(user_id=user_id, type="tagEdit", course_id=course_id)
             data = {'student_id': student_id, 'course_id': course_id, 'time': time.time()}
             string = json.dumps(data)
             key = base64.b64encode(string.encode("utf-8")).decode("utf-8")
@@ -2932,6 +2932,8 @@ class SubmitEvent(View):
                 group = GroupOrg.objects.get(id=i.group_name_id)
                 if group.project_id == project.id:
                     break
+            if event.end_time < datetime.datetime.now():
+                return JsonResponse({"SubmitEvent": "overtime"})
 
             arr = request.FILES.keys()
             file_name = ''
@@ -3937,7 +3939,7 @@ class TeacherAddStudent(View):
                         student = UserProfile.objects.get(student_id=i)
                         tmp1 = UserCourse.objects.filter(user_name_id=student.id, course_name_id=project.course_id)
                         if tmp1.count() == 0:
-                            UserCourse.objects.filter(user_name_id=student.id, course_name_id=project.course_id)
+                            UserCourse.objects.create(user_name_id=student.id, course_name_id=project.course_id)
                     return JsonResponse({"TeacherAddStudent": "success"})
 
             return JsonResponse({"TeacherAddStudent": "failed"})
