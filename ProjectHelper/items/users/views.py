@@ -3511,6 +3511,7 @@ class SubmitModelForEvent(View):
 
         :return:
         """
+        pointer = 1
         try:
             token = request.POST.get('token')
             event_id = request.POST.get('event_id')
@@ -3541,15 +3542,15 @@ class SubmitModelForEvent(View):
                     comment = sheet1.col_values(3)
 
                     while len(idSid) > pointer:
-                        data = {'group_id': int(idSid[pointer]), 'group_grade': grade[pointer], 'member': [],
+                        data = {'group_id': int(idSid[pointer]), 'group_score': grade[pointer], 'member': [],
                                 'comment': comment[pointer]}
                         group = GroupOrg.objects.get(id=data['group_id'])
-                        if grade[pointer] < 0:
+                        if not is_numeber(grade[pointer]) and is_numeber(grade[pointer]) < 0:
                             return JsonResponse({"row": pointer, "group": group.group_name})
                         pointer += 1
                         for i in range(group.members):
                             student = UserProfile.objects.get(student_id=idSid[pointer])
-                            if grade[pointer] < 0:
+                            if not is_numeber(grade[pointer]) and is_numeber(grade[pointer]) < 0:
                                 return JsonResponse({"row": pointer, "student": idSid[pointer],
                                                      "group": group.group_name})
                             data['member'].append((student.id, grade[pointer]))
@@ -3560,7 +3561,6 @@ class SubmitModelForEvent(View):
                     print(grades)
                     for i in grades:
                         for j in i['member']:
-                            print(j)
                             tmp = EventGrades.objects.filter(event_id=event_id, user_id=j[0])
                             if j[1] == '':
                                 continue
@@ -3585,9 +3585,22 @@ class SubmitModelForEvent(View):
 
         except Exception as e:
             print(pointer)
-            e.with_traceback()
             logger.debug('%s %s', self, e)
             return JsonResponse({"SubmitModelForEvent": "wrong submit"})
+
+
+def is_numeber(a):
+    try:
+        float(a)
+        return float(a)
+    except ValueError:
+        pass
+    try:
+        if a.isdigit():
+            return int(a)
+    except ValueError:
+        pass
+    return False
 
 
 class GetScoreForEvent(View):
