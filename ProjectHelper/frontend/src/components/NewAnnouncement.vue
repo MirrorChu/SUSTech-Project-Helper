@@ -27,14 +27,13 @@
         </el-form-item>
 
         <el-form-item label="Attachment">
-          TODO
           <el-upload
               class="upload-demo"
               drag
               multiple
               :data="this.announcementData"
               ref="upload"
-              action="http://127.0.0.1:8080/api/submit_event_file/"
+              action="http://127.0.0.1:8000/submit_event_file/"
               :file-list="fileList"
               :auto-upload="false"
               :on-change="handleFileChange">
@@ -55,20 +54,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-
-
-        <!--        <el-form-item label="Select Group">-->
-        <el-row style="margin:0px"></el-row>
-        <!--          <el-select v-model="selectedGroupList" multiple placeholder="Select Partitions">-->
-        <!--            <el-option-->
-        <!--                v-for="item in groupList"-->
-        <!--                :key="item.value"-->
-        <!--                :label="item.label"-->
-        <!--                :value="item.value">-->
-        <!--            </el-option>-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
-
 
       </el-form>
     </div>
@@ -111,33 +96,34 @@ export default {
 
   },
   methods: {
-    handleFileChange (file, fileList) {
-      this.fileList = fileList
+    handleFileChange(file, fileList) {
+      this.fileList = fileList;
     },
     onClickSubmit() {
       this.$axios.post('/send_key/', {'course': this.$props.courseId}).then(res => {
-        console.log(res)
-        const event = this.toJson()
-        const data = {}
-        data.project_id = this.$props.projectId
-        data.event_title = event.title
-        data.event_type = event.eventType
-        data.event_detail = event
-        data.key = res.data['SendKey']
+        console.log(res);
+        const event = this.toJson();
+        const data = {};
+        data.project_id = this.$props.projectId;
+        data.event_title = event.title;
+        data.event_type = event.eventType;
+        data.event_detail = event;
+        data.key = res.data['SendKey'];
         this.$axios.post('/create_event/', data).then(res => {
           console.log('res', res);
-          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0)
-          {
-            this.announcementData['event_id'] = res.data.Event_id
-            this.announcementData['token'] = localStorage.getItem('Authorization')
-            this.$refs.upload.submit()
+          if (res.data['CreateEvent'] === 'success' && this.fileList.length !== 0) {
+            this.announcementData['event_id'] = res.data.Event_id;
+            this.announcementData['token'] = localStorage.getItem('Authorization');
+            this.$refs.upload.submit();
           }
+          this.$parent.$parent.$parent.$parent.$parent.pullData();
+          this.$parent.$parent.$parent.expand = false;
         }).catch(err => {
           console.log('err', err);
         });
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
     toJson() {
       const event = {};
@@ -145,7 +131,7 @@ export default {
       event.title = this.title;
       event.introduction = this.introduction;
       event.due = this.due.getTime();
-      event.partitionList = this.selectedPartitionList;
+      event.selectedPartitionList = this.selectedPartitionList;
       return event;
     },
     // onSelectPartition(selected) {
@@ -158,7 +144,7 @@ export default {
 </script>
 
 <style scoped>
-.el-form{
+.el-form {
   line-height: 30px;
 }
 </style>

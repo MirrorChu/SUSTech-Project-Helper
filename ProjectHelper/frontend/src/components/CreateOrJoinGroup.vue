@@ -99,7 +99,7 @@ export default {
     },
     onClickConfirmCreateGroup () {
       if (this.createGroupName.length === 0) {
-        alert('Group name cannot be empty!')
+        this.$message.error('Group name cannot be empty!')
       } else {
         this.$axios.post('/student_creates_group/', {
           sid: this.sid,
@@ -109,7 +109,7 @@ export default {
         }).then(res => {
           console.log('ConfirmCreateProject',res.data)
         }).catch(err => {
-          alert(err.data)
+          this.$message.error(err.data)
         })
       }
     },

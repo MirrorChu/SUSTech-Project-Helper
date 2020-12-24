@@ -2,15 +2,14 @@
   <div>
     <h1 style="font-family: Verdana, serif;">Authority Management</h1>
     <div>
-      <el-button @click="changeAuthorityVisiblity">(Un)Show Authority</el-button>
+      <el-button @click="changeAuthorityVisiblity">{{ this.AuthorityVisiblity ? "Unshow Authority" : "Show Authority" }}</el-button>
     </div>
     <div>
       <el-table
           :data="this.AuthorityData"
           v-show="AuthorityVisiblity"
           height="350"
-          :header-cell-style="{background:'#F7F8F8',color:'#606266'}"
-        >
+          :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
         <!--      <el-table-column type="expand">-->
         <!--        <template slot-scope="props">-->
         <!--          <el-form label-position="left" inline class="demo-table-expand">-->
@@ -229,7 +228,7 @@ export default {
           this.AuthorityData = res.data.Data;
         }
         else if (res.data.GetAllPrivilegeListCheck === 'you have no auth') {
-          alert('You don\'t have authority to edit');
+          this.$message.error('You don\'t have authority to edit');
         }
       }).catch(err => {
         console.log(err);

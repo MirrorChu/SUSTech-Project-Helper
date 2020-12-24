@@ -1,6 +1,7 @@
 <template>
   <div>
     <div><h3>New Event</h3></div>
+<!--    <el-button @click="parentFunc">TESTING</el-button>-->
     <div v-if="expand">
       <div>
         <el-button @click="onClickExpand">Close</el-button>
@@ -51,14 +52,14 @@
 </template>
 
 <script>
-import NewAnnouncement from './NewAnnouncement';
-import NewSelection from './NewSelection';
-import NewSubmission from './NewSubmission';
-import NewPartition from './NewPartition';
+import NewAnnouncement from './NewAnnouncement'
+import NewSelection from './NewSelection'
+import NewSubmission from './NewSubmission'
+import NewPartition from './NewPartition'
 
 export default {
   name: 'NewEvent',
-  components: {NewPartition, NewSubmission, NewSelection, NewAnnouncement},
+  components: { NewPartition, NewSubmission, NewSelection, NewAnnouncement },
   props: {
     sid: {
       type: String,
@@ -73,46 +74,50 @@ export default {
       required: true,
     },
   },
-  data() {
+  data () {
     return {
       eventType: 1,
       expand: false,
       partitionList: [],
-    };
+    }
   },
-  created() {
-    this.$axios.post('/get_all_partition/', {'project_id': this.projectId}).then(res => {
-      console.log(res);
+  created () {
+    this.$axios.post('/get_all_partition/', { 'project_id': this.projectId }).then(res => {
+      console.log(res)
       for (let i = 0; i < res.data['Data'].length; i += 1) {
         //TODO: timeSlot and normal
-        const partition = res.data['Data'][i];
-        const option = {};
+        const partition = res.data['Data'][i]
+        const option = {}
         if (typeof partition['option_name'] === typeof Number) {
-          const start = new Date(partition['option_name'][0]);
-          const end = new Date(partition['option_name'][1]);
-          option['label'] = partition['partition_name'] + start + ' to ' + end;
+          const start = new Date(partition['option_name'][0])
+          const end = new Date(partition['option_name'][1])
+          option['label'] = partition['partition_name'] + start + ' to ' + end
+        } else {
+          option['label'] = partition['partition_name'] + ': ' + partition['option_name']
         }
-        else {
-          option['label'] = partition['partition_name'] + ': ' + partition['option_name'];
+        const item = {
+          'partition_id': partition['partition_id'],
+          'option_id': partition['option_id'],
         }
-        const item = {'partition_id': partition['partition_id'],
-        'option_id': partition['option_id']}
         option['value'] = JSON.stringify(item)
         // option['value'] = '{' + '\\"partition_id\\"' + ':' + partition['partition_id'] + ',' +
         //     '\\"option_id\\"' + ':' + partition['option_id'] + '}';
-        option['key'] = i;
-        this.partitionList.push(option);
+        option['key'] = i
+        this.partitionList.push(option)
       }
     }).catch(err => {
-      console.log(err);
-    });
+      console.log(err)
+    })
   },
   methods: {
-    onClickExpand() {
-      this.expand = !this.expand;
+    onClickExpand () {
+      this.expand = !this.expand
+    },
+    parentFunc () {
+      this.$parent.$parent.testing()
     },
   },
-};
+}
 </script>
 
 <style scoped>

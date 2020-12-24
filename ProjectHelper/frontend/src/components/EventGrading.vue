@@ -5,39 +5,41 @@
         Submission Condition
       </h4>
     </div>
-      <el-table
-          :data="groupList"
-          style="width: 100%">
-        <el-table-column
-            prop="group_id"
-            label="Group ID"
-            width="180">
-        </el-table-column>
-        <el-table-column
-            prop="group_name"
-            label="Group Name"
-            width="180">
-        </el-table-column>
-        <el-table-column label="Detail">
-          <el-button slot-scope="scope" @click="onClickDetail(scope)">Detail</el-button>
-        </el-table-column>
-      </el-table>
+    <el-table
+        :data="groupList"
+        style="width: 100%">
+      <el-table-column
+          prop="group_id"
+          label="Group ID"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="group_name"
+          label="Group Name"
+          width="180">
+      </el-table-column>
+      <el-table-column label="Detail">
+        <el-button slot-scope="scope" @click="onClickDetail(scope)">Detail</el-button>
+      </el-table-column>
+    </el-table>
 
-      <el-button v-if="idx < 0" @click="downloadAllSubmission">
-        Download All Submission
-      </el-button>
+    <div v-if="idx < 0">
+      <el-link :href="this.downloadAllUrl">Download All Submission</el-link>
+    </div>
 
-      <el-button v-if="idx < 0">
-        Download Grading Template
-      </el-button>
+    <div v-if="idx < 0">
+      <el-link :href="this.downloadGradingTemplate">Download Grading File</el-link>
+    </div>
 
-      <el-upload
-          v-if="idx < 0"
-          class="upload-demo"
-          action="https://jsonplaceholder.typicode.com/posts/">
-        <el-button>Upload Grading File</el-button>
-      </el-upload>
-
+    <el-upload
+        class="upload-demo"
+        action="http://127.0.0.1:8000/submit_model_for_event/"
+        :on-success="handlesuccess"
+        :on-error="handleerror"
+        :multiple="false"
+        :data="datas">
+      <el-button size="small" type="primary">Upload Grading Excel</el-button>
+    </el-upload>
 
     <h4 v-if="idx >= 0">
       Group Submission Detail
@@ -48,7 +50,6 @@
       <el-form>
         <el-form-item label="Submission Detail">
           <div v-if="eventDetail['Data']['event_type'] === 'partition'">
-            {{ eventDetail }}
             <div>
               <h3>
                 Selected Options
@@ -143,14 +144,28 @@ export default {
       feedback: '',
       groupId: 0,
       submission_datetime: 0,
+      downloadAllUrl: '',
+      downloadGradingTemplate: '',
+      datas: {'token': '', 'event_id': ''},
     };
   }
   ,
   created() {
     this.groupList = this.$props.submissionDetail;
+    this.downloadAllUrl = this.downloadAllSubmissionUrl();
+    this.downloadGradingTemplate = 'http://127.0.0.1:8000/get_model_for_event?token=' +
+        localStorage.getItem('Authorization') + '&event_id=' + this.eventId;
+    this.datas['token'] = localStorage.getItem('Authorization');
+    this.datas['event_id'] = this.$props.eventId;
   }
   ,
   methods: {
+    handlesuccess(response, file, fileList) {
+      this.$message.info('Upload grading file success');
+    },
+    handleerror(err, file, fileList) {
+      this.$message.error('Upload grading file failed');
+    },
     onClickDetail(scope) {
       this.idx = scope.$index;
       this.groupId = this.groupList[this.idx]['group_id'];
@@ -218,8 +233,10 @@ export default {
           + '&file_id='
           + id.toString();
     },
-    downloadAllSubmission() {
-      //  TODO
+    downloadAllSubmissionUrl() {
+      const tokenStr = 'token=' + localStorage.getItem('Authorization');
+      const eventIdStr = 'event_id=' + this.eventId;
+      return 'http://127.0.0.1:8000/download_event_submission' + '?' + tokenStr + '&' + eventIdStr;
     },
   },
 };

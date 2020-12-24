@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div v-if="this.privileges['teach'] === 1">
-      <h1 style="font-family: Verdana, serif;">Initiate a new event</h1>
+    <h1 style="font-family: Verdana, serif;">Initiate a new event</h1>
+    <div v-if="this.privileges['teach'] && this.privileges['teach'] === 1">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
                   v-bind:course-id="this.$props.courseId"
@@ -73,53 +73,57 @@ export default {
     }
   },
   created () {
-    this.courseId = this.$props.courseId
-    this.projectId = this.$props.projectId
-    this.$axios.post('/get_privilege_list/', { 'course_id': this.$props.courseId }).then(res => {
-      console.log(res)
-      this.privileges = res.data['Data']
-      this.$axios.post('/get_event_list/', { 'project_id': this.$props.projectId }).then(res => {
-        console.log(res)
-        const tempEventArray = res.data['Data']
-        this.componentObjs = []
-        for (let i = 0; i < tempEventArray.length; i += 1) {
-          const eventEle = tempEventArray[i]
-          const eventObj = {}
-          const typeStr = eventEle['event_type']
-          if (typeStr === 'partition') {
-            eventObj['type'] = 'PartitionEvent'
-          }
-          else if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
-            eventObj['type'] = 'SubmissionComponent'
-          }
-          else if (typeStr === 'announcement' || typeStr === 'AnnouncementEvent' || typeStr === 'AnnouncementComponent')
-          {
-            eventObj['type'] = 'AnnouncementComponent'
-          }
-          eventObj['data'] = {}
-          eventObj['data']['title'] = eventEle['event_title']
-
-          // eventObj['data']['introduction'] = eventEle['introduction']
-          // eventObj['data']['due'] = eventEle['event_detail']['due']
-          // eventObj['publisher'] = eventEle['publisher']
-
-          eventObj['id'] = eventEle['id']
-          this.componentObjs.push(eventObj)
-          this.visible[eventObj['id']] = false
-        }
-        console.log(this.componentObjs)
-      }).catch(err => {
-        console.log(err)
-      })
-    }).catch(err => {
-      console.log(err)
-    })
+    this.pullData()
   },
   methods: {
     // onClickExpandComponent(id) {
     //   this.visible[id] = !this.visible[id];
     //   console.log(this.visible[id])
     // },
+    pullData () {
+      this.courseId = this.$props.courseId
+      this.projectId = this.$props.projectId
+      this.$axios.post('/get_privilege_list/', { 'course_id': this.$props.courseId }).then(res => {
+        console.log(res)
+        this.privileges = res.data['Data']
+        this.$axios.post('/get_event_list/', { 'project_id': this.$props.projectId }).then(res => {
+          console.log(res)
+          const tempEventArray = res.data['Data']
+          this.componentObjs = []
+          for (let i = 0; i < tempEventArray.length; i += 1) {
+            const eventEle = tempEventArray[i]
+            const eventObj = {}
+            const typeStr = eventEle['event_type']
+            if (typeStr === 'partition') {
+              eventObj['type'] = 'PartitionEvent'
+            } else if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
+              eventObj['type'] = 'SubmissionComponent'
+            } else if (typeStr === 'announcement' || typeStr === 'AnnouncementEvent' || typeStr ===
+                'AnnouncementComponent') {
+              eventObj['type'] = 'AnnouncementComponent'
+            }
+            eventObj['data'] = {}
+            eventObj['data']['title'] = eventEle['event_title']
+
+            // eventObj['data']['introduction'] = eventEle['introduction']
+            // eventObj['data']['due'] = eventEle['event_detail']['due']
+            // eventObj['publisher'] = eventEle['publisher']
+
+            eventObj['id'] = eventEle['id']
+            this.componentObjs.push(eventObj)
+            this.visible[eventObj['id']] = false
+          }
+          console.log(this.componentObjs)
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    testing () {
+      this.pullData()
+    },
   },
 }
 </script>

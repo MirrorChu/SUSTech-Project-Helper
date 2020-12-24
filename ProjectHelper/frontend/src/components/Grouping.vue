@@ -2,13 +2,18 @@
   <div>
     <h1 style="font-family: Verdana, serif;">Grouping</h1>
     <div>
-      <el-button @click="changeGroupingVisiblity">(Un)Show Grouping</el-button>
+      <el-button @click="changeGroupingVisiblity">
+        {{ this.GroupingVisiblity ? 'Unshow Grouping' : 'Show Grouping' }}
+      </el-button>
+      <el-link :href="this.allGroupingUrl">Download Grouping Information</el-link>
     </div>
     <div v-show="GroupingVisiblity">
+
     <h1 style="font-family: Verdana, serif;">Ungrouped members</h1>
-      <el-card><div id="single">
+      <el-card>
+      <div id="single">
         <ul id="multi">
-        <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
+          <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
         </ul>
       </div>
       </el-card>
@@ -19,6 +24,7 @@
             :data="groupData"
             stripe
             style="width: 100%"
+            height="500"
             :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
           <el-table-column
               prop="group_id"
@@ -47,6 +53,16 @@
 
         <el-button @click="semirandomgrouping"> Semi-random Grouping</el-button>
         <el-button @click="showCreateGroupDialog"> Create New Group for Students</el-button>
+        <el-upload
+          class="upload-demo"
+          action="http://127.0.0.1:8000/teacher_add_student/"
+          :on-success="handlesuccess"
+          :on-error="handleerror"
+          :multiple="false"
+          :data="datas">
+          <el-button size="small" type="primary">Add Students via File</el-button>
+          <div slot="tip" class="el-upload__tip">SID of students need to be added in the column0 of Excel </div>
+        </el-upload>
       </div>
     </div>
 
@@ -150,12 +166,26 @@ export default {
       captain_sid: '',
       member_select: [],
       GroupingVisiblity: false,
+      allGroupingUrl: '',
+      datas: {'token': '', 'project_id': ''},
     };
   },
   created() {
     this.pullGroupingData();
+    this.allGroupingUrl = 'http://127.0.0.1:8000/get_student_in_project?token=' +
+        localStorage.getItem('Authorization') + '&project_id=' + this.project_id;
+    this.datas['token'] = localStorage.getItem('Authorization')
+    this.datas['project_id'] = this.$props.project_id
   },
   methods: {
+    handlesuccess(response, file, fileList)
+    {
+      this.$message.info('Add students success')
+    },
+    handleerror(err, file,fileList)
+    {
+      this.$message.error('Add students failed')
+    },
     test(group_id) {
       for (const index in this.stu_invite) {
         this.$axios.post('/teacher_add_member/', {
@@ -163,6 +193,7 @@ export default {
           sid_invite: this.stu_invite[index],
         }).then(res => {
           console.log(res.data);
+          this.$message.info('You invite ' + this.stu_invite[index] )
         }).catch(err => {
           console.log(err);
         });
@@ -203,9 +234,10 @@ export default {
     onClickKick(sid, group_id) {
       this.$axios.post('/teacher_kick_member/', {
         group_id: group_id,
-        sid_kick: sid,
+        t_sid: sid,
       }).then(res => {
         console.log(res.data);
+        this.$message.warning('You kick ' + sid )
         this.pullSingleData();
       }).catch(err => {
         console.log(err);
@@ -213,14 +245,15 @@ export default {
     },
     semirandomgrouping() {
       this.$axios.post('/semi_random/',
-        {
-          'project_id': this.$props.project_id
-        }).then(res => {
-        console.log(res)
-        this.pullGroupingData()
+          {
+            'project_id': this.$props.project_id,
+          }).then(res => {
+        console.log(res);
+        this.$message.info('Auto-grouping is done')
+        this.pullGroupingData();
       }).catch(err => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     },
     onClickCreateNewGroup() {
       this.$axios.post('/teacher_creates_group/', {
@@ -271,9 +304,8 @@ export default {
     closeDialog() {
       this.pullSingleData();
     },
-    changeGroupingVisiblity()
-    {
-      this.GroupingVisiblity = !this.GroupingVisiblity
+    changeGroupingVisiblity() {
+      this.GroupingVisiblity = !this.GroupingVisiblity;
     },
   },
 };
@@ -283,14 +315,17 @@ export default {
 #single {
   width: 1000px;
 }
-#li{
-  display:inline-block;
+
+#li {
+  display: inline-block;
   width: 90px;
 }
-#multi{
+
+#multi {
   width: 100%;
 }
-.el-card{
+
+.el-card {
   font-family: Verdana, serif;
   background-color: #F7F8F8;
   border-color: whitesmoke;
