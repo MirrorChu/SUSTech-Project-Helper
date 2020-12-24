@@ -8,11 +8,14 @@
       <el-link :href="this.allGroupingUrl">Download Grouping Information</el-link>
     </div>
     <div v-show="GroupingVisiblity">
-      <h1 style="font-family: Verdana, serif;">Ungrouped members</h1>
+
+    <h1 style="font-family: Verdana, serif;">Ungrouped members</h1>
       <el-card>
-        <div id="single">
+      <div id="single">
+        <ul id="multi">
           <li v-for="item in this.singleData">{{ item.sid + ' ' + item.realname }}&nbsp</li>
-        </div>
+        </ul>
+      </div>
       </el-card>
 
       <h1 style="font-family: Verdana, serif;">Current existing group</h1>
