@@ -32,7 +32,7 @@ export default {
   methods: {
     onChangeClicked() {
       if (this.new_pswd !== this.repeat) {
-        this.$alert('New passwords input are not the same.')
+        this.$message.error('New passwords input are not the same.')
         this.old_pswd = ''
         this.new_pswd = ''
         this.repeat = ''
@@ -43,7 +43,7 @@ export default {
         }).then(res => {
           console.log(res)
           console.log(res.data)
-          alert(res.data['ChangePasswordCheck'])
+          this.$message.info(res.data['ChangePasswordCheck'])
         }).catch(err => {
           console.log('err', err)
         })

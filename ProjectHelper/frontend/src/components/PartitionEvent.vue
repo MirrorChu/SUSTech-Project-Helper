@@ -108,6 +108,7 @@
                          :label="getLabelAndNumberFromItem(item)" :value="index">
               </el-option>
             </el-select>
+            <br>
             <el-button @click="onClickSubmit">Submit</el-button>
           </div>
         </div>
@@ -221,7 +222,7 @@ export default {
     },
     onClickDeleteEvent() {
       this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
-        alert('Delete Event ' + res.data['DeleteEvent']);
+        this.$message.success('Delete Event ' + res.data['DeleteEvent']);
         this.$parent.$parent.pullData()
       }).catch(err => {
         console.log(err);
@@ -231,6 +232,7 @@ export default {
       const selected = this.selected;
       this.$axios.post('/submit_event/', {'event_id': this.$props.eventId, 'selected': selected}).then(res => {
         console.log(res);
+        this.pullData()
       }).catch(err => {
         console.log(err);
       });

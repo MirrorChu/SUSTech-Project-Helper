@@ -111,11 +111,11 @@ export default {
         } else {
           this.nameValidateForm.sid = ''
           this.nameValidateForm.pswd = ''
-          alert('WRONG SID OR PASSWORD')
+          this.$message.error('WRONG SID OR PASSWORD')
         }
       }).catch(err => {
         console.log('err', err)
-        alert(err)
+        this.$message.error(err)
       })
     },
 

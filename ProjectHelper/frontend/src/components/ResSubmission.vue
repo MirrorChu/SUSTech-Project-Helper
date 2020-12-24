@@ -92,7 +92,7 @@ export default {
       //If a member is not graded, his or her grade would be -1.
       for (const member in this.membersList) {
         if (this.gradesDict[member] < 0) {
-          alert('Wrong grades. Did you grade all members?')
+          this.$message.warning('Wrong grades. Did you grade all members?')
           return
         }
       }

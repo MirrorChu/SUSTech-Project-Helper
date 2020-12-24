@@ -88,7 +88,7 @@
             }
             else
             {
-              alert("failed")
+              this.$message.error("failed")
             }
           }).catch(err => {
             console.log(err)

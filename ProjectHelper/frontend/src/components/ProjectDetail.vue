@@ -222,7 +222,7 @@
     </el-row>
 
     <el-row v-if="this.privileges && this.privileges['teach'] === 1">
-      <el-input v-model="addingStudent" placeholder="sid of student"></el-input>
+      <el-input v-model="this.addingStudent" placeholder="sid of student"></el-input>
       <el-button @click="addStudent">Add Student into This Course</el-button>
     </el-row>
 
@@ -368,7 +368,7 @@ export default {
           this.dialogPersonalProfileVisible = true;
         }
         else {
-          alert('No such user!');
+          this.$message.error('No such user!');
         }
       }).catch(err => {
         this.tags = null;
@@ -388,7 +388,7 @@ export default {
           console.log('like success');
         }
         else {
-          alert('failed');
+          this.$message.error('failed');
         }
         this.pullTagData();
       }).catch(err => {
@@ -449,7 +449,7 @@ export default {
     },
     addStudent() {
       if (isNaN(Number(this.addingStudent)) || !this.addingStudent || this.addingStudent.length === 0) {
-        alert('You can only add a student whose sid is number');
+        this.$message.error('You can only add a student whose sid is number');
         this.addingStudent = '';
       }
       else {

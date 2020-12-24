@@ -2036,9 +2036,10 @@ class TeacherKickMember(View):
                 return HttpResponse('Unauthorized', status=401)
             target_id = eval(request.body.decode()).get("t_sid")
             user = UserProfile.objects.get(student_id=target_id)
+            u = UserProfile.objects.get(student_id=student_id)
             group = GroupOrg.objects.get(id=group_id)
             project = Project.objects.get(id=group.project_id)
-            auth = Authority.objects.get(user_id=student_id, type="group",
+            auth = Authority.objects.get(user_id=u.id, type="group",
                                          course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 if user.id == group.captain_name_id:
@@ -2247,7 +2248,7 @@ class ChangePrivilege(View):
                                                   course_id=project.course_id)
                 for i in t_auth:
                     if i.end_time > datetime.datetime.now() > i.start_time:
-                        return HttpResponse('Unauthorized', status=401)
+                        return JsonResponse({"ChangePrivilegeCheck": "failed"})
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
@@ -2267,7 +2268,7 @@ class ChangePrivilege(View):
                                                  end_time=datetime.datetime.now() + datetime.timedelta(
                                                      weeks=52))
                 return JsonResponse({"ChangePrivilegeCheck": "success"})
-            return HttpResponse('Unauthorized', status=401)
+            return JsonResponse({"ChangePrivilegeCheck": "failed"})
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"ChangePrivilegeCheck": "failed"})
@@ -2356,6 +2357,8 @@ class GetEventList(View):
                 parameter = json.loads(i.parameter)
                 if 'selectedPartitionList' in parameter.keys() and not boo1:
                     boo = False
+                    if len(parameter['selectedPartitionList']) == 0:
+                        boo = True
                     partitionList = parameter['selectedPartitionList']
                     for j in partitionList:
                         n = json.loads(j)

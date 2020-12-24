@@ -228,7 +228,7 @@ export default {
           this.AuthorityData = res.data.Data;
         }
         else if (res.data.GetAllPrivilegeListCheck === 'you have no auth') {
-          alert('You don\'t have authority to edit');
+          this.$message.error('You don\'t have authority to edit');
         }
       }).catch(err => {
         console.log(err);

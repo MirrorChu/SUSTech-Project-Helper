@@ -50,7 +50,6 @@
       <el-form>
         <el-form-item label="Submission Detail">
           <div v-if="eventDetail['Data']['event_type'] === 'partition'">
-            {{ eventDetail }}
             <div>
               <h3>
                 Selected Options

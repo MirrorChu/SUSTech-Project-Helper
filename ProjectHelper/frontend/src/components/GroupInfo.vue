@@ -100,7 +100,7 @@ export default {
     onClickInvite ()
     {
       if (this.toInviteList && this.toInviteList.length === 0) {
-        alert('You are inviting air!')
+        this.$message.error('You are inviting air!')
       } else {
         console.log(this.toInviteList)
         for (let i = 0; i < this.toInviteList.length; i += 1) {
