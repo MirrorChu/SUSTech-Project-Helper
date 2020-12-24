@@ -2157,9 +2157,9 @@ class ChangePrivilege(View):
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
                                                          course_id=project.course_id)
-                    if (privilege.count() == 1 and auths[i] == 1) or (privilege.count() == 0 and auths[i] == 0):
+                    if (privilege.count() == 1 and int(auths[i]) == 1) or (privilege.count() == 0 and int(auths[i]) == 0):
                         continue
-                    elif privilege.count() == 1 and auths[i] == 0:
+                    elif privilege.count() == 1 and int(auths[i]) == 0:
                         if auths[i] == 'authEdit' and t_sid == student_id:
                             continue
                         Authority.objects.filter(user_id=t_user_id, type=i, course_id=project.course_id).delete()
@@ -2587,7 +2587,7 @@ class TeacherGetSingleInProject(View):
                 array = []
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for i in student:
-                    course = Authority.objects.filter(user_id=i.user_name_id, type="teach", course_id=course_id)
+                    course = Authority.objects.filter(user_id=i.user_name_id, type="tagEdit", course_id=course_id)
                     if course.count() != 0:
                         continue
                     array.append(i.user_name_id)
@@ -3543,9 +3543,14 @@ class SubmitModelForEvent(View):
                         data = {'group_id': int(idSid[pointer]), 'group_grade': grade[pointer], 'member': [],
                                 'comment': comment[pointer]}
                         group = GroupOrg.objects.get(id=data['group_id'])
+                        if grade[pointer] < 0:
+                            return JsonResponse({"row": pointer, "group": group.group_name})
                         pointer += 1
                         for i in range(group.members):
                             student = UserProfile.objects.get(student_id=idSid[pointer])
+                            if grade[pointer] < 0:
+                                return JsonResponse({"row": pointer, "student": idSid[pointer],
+                                                     "group": group.group_name})
                             data['member'].append((student.id, grade[pointer]))
                             pointer += 1
                         pointer += 1
@@ -3619,7 +3624,7 @@ class GetScoreForEvent(View):
                         choice = ChooseEvent.objects.filter(group_id=i.id, event_id_id=t_event.id,
                                                             choice=str(n['option_id']))
                         if choice.count() == 1:
-                            grade = 0
+                            grade = -1
                             comment = ""
                             group_grade = ProjectGrades.objects.filter(event_id=event_id, group_id=i.id)
                             for k in group_grade:
@@ -3631,7 +3636,7 @@ class GetScoreForEvent(View):
             else:
                 group = GroupOrg.objects.filter(project_id=project.id)
                 for i in group:
-                    grade = 0
+                    grade = -1
                     comment = ""
                     group_grade = ProjectGrades.objects.filter(event_id=event_id, group_id=i.id)
                     for k in group_grade:
@@ -3644,7 +3649,8 @@ class GetScoreForEvent(View):
             for i in range(0, len(row0)):
                 sheet1.write(0, i, row0[i], set_style('Times New Roman', 220, True))
             for i in groups:
-                sheet1.write(pointer, 2, i['group_grade'], set_style('Times New Roman', 220))
+                if i['group_grade'] != -1:
+                    sheet1.write(pointer, 2, i['group_grade'], set_style('Times New Roman', 220))
                 sheet1.write(pointer, 1, i['group_name'], set_style('Times New Roman', 220))
                 sheet1.write(pointer, 0, i['id'], set_style('Times New Roman', 220))
                 pointer += 1
@@ -3655,7 +3661,8 @@ class GetScoreForEvent(View):
                     student_grade = EventGrades.objects.filter(event_id=event_id, user_id=student.id)
                     for k in student_grade:
                         s_grade = k.grade
-                    sheet1.write(pointer, 2, s_grade, set_style('Times New Roman', 220))
+                    if student_grade.count() != 0:
+                        sheet1.write(pointer, 2, s_grade, set_style('Times New Roman', 220))
                     sheet1.write(pointer, 1, student.real_name, set_style('Times New Roman', 220))
                     sheet1.write(pointer, 0, student.student_id, set_style('Times New Roman', 220))
                     pointer += 1
@@ -3697,7 +3704,13 @@ class GetStudentInProject(View):
             suffix = datetime.datetime.now().strftime("%Y-%m-%d %H,%M,%S")
             file_name = str(suffix) + " Project Group " + project.name + '.xls'
             path = "tmp/" + file_name
-
+            allStudent = UserCourse.objects.filter(course_name_id=project.course_id)
+            students = []
+            for i in allStudent:
+                course = Authority.objects.filter(user_id=i.user_name_id, type="tagEdit", course_id=project.course_id)
+                if course.count() != 0:
+                    continue
+                students.append(i.user_name_id)
             workbook = xlwt.Workbook()
             sheet1 = workbook.add_sheet('sheet1', cell_overwrite_ok=True)
             groups = []
@@ -3715,9 +3728,17 @@ class GetStudentInProject(View):
                 member = UserGroup.objects.filter(group_name_id=i['id'])
                 for j in member:
                     student = UserProfile.objects.get(id=j.user_name_id)
+                    students.remove(student.id)
                     sheet1.write(pointer, 1, student.real_name, set_style('Times New Roman', 220))
                     sheet1.write(pointer, 0, student.student_id, set_style('Times New Roman', 220))
                     pointer += 1
+                pointer += 1
+            sheet1.write(pointer, 0, 'ungroup student', set_style('Times New Roman', 220))
+            pointer += 1
+            for i in students:
+                student = UserProfile.objects.get(id=i)
+                sheet1.write(pointer, 1, student.real_name, set_style('Times New Roman', 220))
+                sheet1.write(pointer, 0, student.student_id, set_style('Times New Roman', 220))
                 pointer += 1
             workbook.save(path)
 
