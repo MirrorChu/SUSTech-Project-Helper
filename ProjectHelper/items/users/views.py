@@ -2036,9 +2036,10 @@ class TeacherKickMember(View):
                 return HttpResponse('Unauthorized', status=401)
             target_id = eval(request.body.decode()).get("t_sid")
             user = UserProfile.objects.get(student_id=target_id)
+            u = UserProfile.objects.get(student_id=student_id)
             group = GroupOrg.objects.get(id=group_id)
             project = Project.objects.get(id=group.project_id)
-            auth = Authority.objects.get(user_id=student_id, type="group",
+            auth = Authority.objects.get(user_id=u.id, type="group",
                                          course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 if user.id == group.captain_name_id:

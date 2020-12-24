@@ -21,6 +21,7 @@
             :data="groupData"
             stripe
             style="width: 100%"
+            height="500"
             :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
           <el-table-column
               prop="group_id"
@@ -230,7 +231,7 @@ export default {
     onClickKick(sid, group_id) {
       this.$axios.post('/teacher_kick_member/', {
         group_id: group_id,
-        sid_kick: sid,
+        t_sid: sid,
       }).then(res => {
         console.log(res.data);
         this.$message.warning('You kick ' + sid )

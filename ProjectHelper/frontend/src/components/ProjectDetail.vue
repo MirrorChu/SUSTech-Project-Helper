@@ -222,7 +222,7 @@
     </el-row>
 
     <el-row v-if="this.privileges && this.privileges['teach'] === 1">
-      <el-input v-model="addingStudent" placeholder="sid of student"></el-input>
+      <el-input v-model="this.addingStudent" placeholder="sid of student"></el-input>
       <el-button @click="addStudent">Add Student into This Course</el-button>
     </el-row>
 

@@ -55,7 +55,7 @@
           <el-button @click="onClickLoadStudent">{{ loadStudentsLiteral }}</el-button>
         </div>
         <div>
-          <el-select v-model="selectedStudents" multiple v-if="loadStudentsLiteral === 'Cancel'">
+          <el-select v-model="selectedStudents" multiple v-if="loadStudentsLiteral === 'Cancel'" collapse-tags>
             <el-option v-for="item in allStudentInCourse"
                        :key="item.value"
                        :value="item.value"
@@ -67,7 +67,7 @@
         <div>
           <el-input clearable placeholer="Manually Search" v-model="manuallySearchSid"
                     v-if="this.showSelect"></el-input>
-          <el-button v-model="this.showSelect" v-if="this.showSelect" @click="this.onClickAdd">Add</el-button>
+          <el-button v-model="this.showSelect" v-if="this.showSelect" @click="onClickAdd">Add</el-button>
         </div>
       </el-form-item>
       <el-button @click="onClickConfirmCreateProject">Create</el-button>
@@ -158,8 +158,9 @@ export default {
         else {
             this.$axios.post('/teacher_add_one_student/', {
               course_id: this.newProjectCourse,
-              sid_: this.manuallySearchSid,
+              sid: this.manuallySearchSid,
             }).then(res => {
+              this.loadstudnetdata()
               console.log('add student', res.data);
               if (res.data['TeacherAddOneStudent'] === 'success')
               {
