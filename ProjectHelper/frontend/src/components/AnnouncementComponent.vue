@@ -27,6 +27,7 @@
           </div>
         </div>
         <div v-else>No Attachment</div>
+        <el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button>
       </div>
       <div v-else>
         <el-form>
@@ -71,8 +72,8 @@
               <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
             </el-upload>
           </el-form-item>
+          <el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button>
         </el-form>
-        <el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button>
       </div>
 
     </div>

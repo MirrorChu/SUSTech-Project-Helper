@@ -1,7 +1,6 @@
-<!--TODO After refresh, everything is gone.-->
 <template>
-  <div id="profile">
-    <el-card>
+  <div>
+    <el-col :span="10">
       <h1>Personal Profile</h1>
       <el-card>
         <el-form ref="form" label-position="left" label-width="80px">
@@ -35,15 +34,17 @@
 
       </el-card>
       <el-divider></el-divider>
-      <div v-if="this.tageditable && this.tageditable === 1">
       <h1 style="font-family: Verdana, serif;">Add tag library</h1>
-        <el-card>
-          <el-form>
-            <el-form-item label="Title"><el-input v-model="addingtag"></el-input></el-form-item>
-            <el-form-item><el-button @click="onClickAddTagLibrary">ADD</el-button></el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+      <el-card>
+        <el-form>
+          <el-form-item label="Title">
+            <el-input v-model="addingtag"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="onClickAddTagLibrary">ADD</el-button></el-form-item>
+
+        </el-form>
+      </el-card>
     </el-col>
 
     <el-col :span="13" :offset="1">
@@ -75,6 +76,7 @@
           </el-row>
         </el-form-item>
 
+
           <el-form-item label="MOBILE">
             <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
             </el-input>
@@ -94,20 +96,20 @@
           </el-form-item>
 
           <el-form-item label="Tag">
-          <br/>
+            <el-row></el-row>
             <div v-if="!this.edit">
-              <span v-for="item in this.tags['Data']">
-                <el-badge :value="item.likes"><el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button></el-badge>
-                &nbsp
-              </span>
+          <span v-for="item in this.tags['Data']">
+            <el-badge :value="item.likes">
+              <el-button @click="onClickLike(item.tag_id)">{{ item.tag_name }}</el-button>
+            </el-badge>
+            &nbsp
+          </span>
             </div>
 
-            <div v-if="this.edit">
+            <div v-if="this.edit" align="left">
               <b>Have Selected:</b>
               <span v-for="item in this.tags['Data']">
-            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{
-                item.tag_name
-              }}</el-button>
+            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{ item.tag_name }}</el-button>
             &nbsp
           </span>
               <br>
@@ -116,7 +118,6 @@
             <el-button @click="onClickAddTag(item.tag_id, item.tag_name)">{{ item.tag_name }}</el-button>
             &nbsp
           </span>
-
             </div>
           </el-form-item>
 
@@ -146,8 +147,6 @@ export default {
       addtags: '',
       avatarUrl: '',
       addingtag: '',
-      tageditable: '',
-      avatar_data: {},
     }
   },
   created () {
@@ -172,7 +171,6 @@ export default {
           this.address = data['address']
           console.log('after pull info', this.sid)
           this.pulltagData()
-          this.pulltageditable();
         }
       }).catch(err => {
         console.log('err', err)
@@ -191,7 +189,7 @@ export default {
         if (data['attempt'] === 'offline') {
           this.$router.push('/')
         } else if (data['attempt'] === 'failure') {
-          this.$message.error('Failed to edit profile!')
+          alert('Failed to edit profile!')
         }
         this.pullPersonalData()
         this.edit = false
@@ -252,7 +250,7 @@ export default {
         } else if (res.data.StudentLikeTag === 'like') {
           console.log('like success')
         } else {
-          this.$message.error('failed')
+          alert('failed')
         }
         this.pulltagData()
       }).catch(err => {
@@ -285,7 +283,7 @@ export default {
       let len = this.tags.Data.length
       if (len >= 10)
       {
-        this.$message.error('You can not add tag anymore! or delete some first')
+        alert('You can not add tag anymore! or delete some first')
       }
       else
       {
@@ -321,31 +319,19 @@ export default {
         console.log('err', err)
       })
     },
-    onClickAddTagLibrary() {
-      if (this.addingtag && this.addingtag.length !== 0) {
-        this.$axios.post('/add_new_tag/', {
-          tag_name: this.addingtag,
-        }).then(res => {
-          console.log(res.data);
-          this.addingtag = '';
-        }).catch(err => {
-          console.log('err', err);
-        });
-      }
-      else {
-        this.$message.error('You cannot add a air tag');
-      }
-    },
-    pulltageditable() {
-      this.$axios.post('/tag_editable/', {}).then(res => {
-        console.log(res.data);
-        this.tageditable = res.data['TagEditable'];
+    onClickAddTagLibrary()
+    {
+      this.$axios.post('/add_new_tag/', {
+        tag_name: this.addingtag,
+      }).then(res => {
+        console.log(res.data)
+        this.addingtag = ''
       }).catch(err => {
-        console.log('err', err);
-      });
-    },
+        console.log('err', err)
+      })
+    }
   },
-};
+}
 </script>
 
 <style>
@@ -370,7 +356,7 @@ export default {
   background-color: #F7F8F8;
   border-color: whitesmoke;
   align-content: center;
-  text-align: center;
+  /*text-align: center;*/
   line-height: 50px;
 }
 </style>
