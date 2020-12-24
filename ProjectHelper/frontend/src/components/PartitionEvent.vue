@@ -12,6 +12,14 @@
           <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
           <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
           <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
+          <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+            <div v-for="(item, index) in eventDetail['file_name']">
+              <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+              <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+              </el-button>
+            </div>
+          </div>
+          <div v-else>No file</div>
           <div >
             <el-select v-model="selected"
                        :multiple="this.eventObj.data.selectionLimit > 1"
@@ -34,6 +42,14 @@
                   placeholder="Due Datetime">
                 </el-date-picker>
               </el-form-item>
+              <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+                <div v-for="(item, index) in eventDetail['file_name']">
+                  <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+                  <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+                  </el-button>
+                </div>
+              </div>
+              <div v-else>No file</div>
               <el-form-item label="Upload File">
                 <el-upload
                   class="upload-demo"
@@ -59,9 +75,15 @@
           <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
           <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
           <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
-          <div v-if="eventDetail['Data']['data']['choice']">
+          <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+            <div v-for="(item, index) in eventDetail['file_name']">
+              <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+            </div>
+          </div>
+          <div v-else>No Attachment</div>
+          <div v-if="eventDetail['data']['choice']">
             <h3>Selected Options</h3>
-            <div v-for="item in eventDetail['Data']['data']['choice']">
+            <div v-for="item in eventDetail['data']['choice']">
               {{ generateTimeSlotChoiceLiteral(item) }}
             </div>
           </div>
@@ -160,11 +182,18 @@ export default {
       }).catch(err => {
         console.log(err);
       });
+      this.eventDetail = res.data['Data'];
     }).catch(err => {
       console.log(err);
     });
   },
   methods: {
+    generateFileUrl(id) {
+      return 'http://127.0.0.1:8000/download_event_file?token='
+        + localStorage.getItem('Authorization')
+        + '&file_id='
+        + id.toString();
+    },
     handleFileChange (file, fileList) {
       this.fileList = fileList
     },
@@ -221,7 +250,6 @@ export default {
       }).catch(err => {
         console.log(err);
       });
-
     }
   },
 };
