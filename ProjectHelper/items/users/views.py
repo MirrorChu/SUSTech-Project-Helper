@@ -3670,6 +3670,64 @@ class GetScoreForEvent(View):
             return JsonResponse({"GetScoreForEvent": "failed"})
 
 
+class GetStudentInProject(View):
+    def get(self, request):
+        """
+        :param token: token
+
+        :return:
+        """
+        try:
+            token = request.GET['token']
+            student_id = get_sid(token)
+            project_id = request.GET['project_id']
+
+            user = UserProfile.objects.get(student_id=student_id)
+            user_id = user.id
+            project = Project.objects.get(id=project_id)
+            auth = Authority.objects.get(user_id=user_id, type="tagEdit", course_id=project.course_id)
+            if auth.end_time > datetime.datetime.now() > auth.start_time:
+                pass
+            else:
+                return HttpResponse('Unauthorized', status=401)
+            suffix = datetime.datetime.now().strftime("%Y-%m-%d %H,%M,%S")
+            file_name = str(suffix) + " Project Group " + project.title + '.xls'
+            path = "tmp/" + file_name
+
+            workbook = xlwt.Workbook()
+            sheet1 = workbook.add_sheet('sheet1', cell_overwrite_ok=True)
+            groups = []
+            group = GroupOrg.objects.filter(project_id=project.id)
+            for i in group:
+                groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members})
+            row0 = ['id/sid', 'name']
+            pointer = 1
+            for i in range(0, len(row0)):
+                sheet1.write(0, i, row0[i], set_style('Times New Roman', 220, True))
+            for i in groups:
+                sheet1.write(pointer, 1, i['group_name'], set_style('Times New Roman', 220))
+                sheet1.write(pointer, 0, i['id'], set_style('Times New Roman', 220))
+                pointer += 1
+                member = UserGroup.objects.filter(group_name_id=i['id'])
+                for j in member:
+                    student = UserProfile.objects.get(id=j.user_name_id)
+                    sheet1.write(pointer, 1, student.real_name, set_style('Times New Roman', 220))
+                    sheet1.write(pointer, 0, student.student_id, set_style('Times New Roman', 220))
+                    pointer += 1
+                pointer += 1
+            workbook.save(path)
+
+            file_obj = open(path, 'rb')
+            response = FileResponse(file_obj)
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment;filename="' + file_name + '"'
+            return response
+
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"GetStudentInProject": "failed"})
+
+
 class SemiRandom(View):
     def post(self, request):
         """
