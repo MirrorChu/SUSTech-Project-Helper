@@ -3,15 +3,9 @@
     <div>
       <h3>{{ this.$props.data.title }}</h3>
     </div>
-    <div v-if="!expand">
-      <el-button @click="onClickExpand">Expand</el-button>
-    </div>
+    <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand'}}</el-button>
 
     <div v-if="expand">
-      <div>
-        <el-button @click="onClickExpand">Close</el-button>
-      </div>
-
       <div v-if="privileges && privileges['teach'] === 1">
         <el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button>
 
@@ -20,30 +14,56 @@
             <el-form-item label="Introduction">
               <el-input type="textarea" v-model="this.eventObj['data']['introduction']"></el-input>
             </el-form-item>
+            <el-form-item label="File List">
+              <br/>
+              <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+                <div v-for="(item, index) in eventDetail['file_name']">
+                  <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+                </div>
+              </div>
+              <div v-else>No Attachment</div>
+            </el-form-item>
+            <el-form-item label="Upload File">
+              <el-upload
+                class="upload-demo"
+                drag
+                multiple
+                :data="this.submissionData"
+                ref="upload"
+                action="http://127.0.0.1:8080/api/submit_event_file/"
+                :file-list="fileList"
+                :auto-upload="false"
+                :on-change="handleFileChange">
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">Drag file here, or <em>click to upload</em>.</div>
+              </el-upload>
+            </el-form-item>
           </el-form>
+          <el-button @click="onClickConfirmEdit">Confirm Edit</el-button>
         </div>
       </div>
 
       <div v-if="!edit">
         <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
         <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
+        <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+          <div v-for="(item, index) in eventDetail['file_name']">
+            <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+            <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+            </el-button>
+          </div>
+        </div>
+        <div v-else>No Attachment</div>
       </div>
 
-      <div v-if="privileges && privileges['eventGrade'] === 1">
-        <div>
-          <el-button @click="onClickDeleteEvent">Delete Event</el-button>
-        </div>
-
-        <div>
-          <EventGrading
-              v-bind:eventDetail="eventDetail"
-              v-bind:eventId="this.$props.eventId"
-              v-bind:submissionDetail="submissionDetail">
-          </EventGrading>
-        </div>
-
+      <div v-if="!this.edit && privileges && privileges['eventGrade'] === 1">
+        <EventGrading
+            v-bind:eventDetail="eventDetai"
+            v-bind:eventId="this.$props.eventId"
+            v-bind:submissionDetail="submissionDetail">
+        </EventGrading>
       </div>
-      <div v-else>
+      <div v-if="!privileges || privileges['eventGrade'] !== 1">
         <el-upload
             drag
             action="http://127.0.0.1:8000/submit_event/"
@@ -55,38 +75,40 @@
         </el-upload>
       </div>
 
-      <div v-if="privileges['teach'] === 0">
-        <div v-if="eventDetail['Data']['data']['file_id']">
+      <div v-if="privileges && privileges['teach'] !== 1">
+        <div v-if="eventDetail['data']['file_id']">
           <h3>My Submission</h3>
-          <div v-for="(item, index) in eventDetail['Data']['data']['file_name']">
-            <el-link :href="generateFileUrl(eventDetail['Data']['data']['file_id'][index])">
+          <div v-for="(item, index) in eventDetail['data']['file_name']">
+            <el-link :href="generateFileUrl(eventDetail['data']['file_id'][index])">
               {{ item }}
             </el-link>
             <el-button class="el-icon-delete" @click="onClickDelete(index)"></el-button>
           </div>
         </div>
 
-        <div v-if="eventDetail['Data']['data']['group_score']">
+        <div v-if="eventDetail['data']['group_score']">
           <div>
-            <h3>Group Score: {{ eventDetail['Data']['data']['group_score'] }}</h3>
+            <h3>Group Score: {{ eventDetail['data']['group_score'] }}</h3>
           </div>
         </div>
 
-        <div v-if="eventDetail['Data']['data']['student_score']">
+        <div v-if="eventDetail['data']['student_score']">
           <div>
-            <h3>My Score: {{ eventDetail['Data']['data']['student_score'] }}</h3>
+            <h3>My Score: {{ eventDetail['data']['student_score'] }}</h3>
           </div>
         </div>
 
-        <div v-if="eventDetail['Data']['data']['comment']">
+        <div v-if="eventDetail['data']['comment']">
           <h3>Comment</h3>
-          {{ eventDetail['Data']['data']['comment'] }}
+          {{ eventDetail['data']['comment'] }}
         </div>
       </div>
 
+      <div v-if="privileges && privileges['teach'] === 1">
+        <br/>
+        <el-button @click="onClickDeleteEvent">Delete Event</el-button>
+      </div>
     </div>
-
-
   </div>
 </template>
 
@@ -113,20 +135,25 @@ export default {
       fileList: [],
       expand: false,
       eventDetail: {},
+      eventDetai: {},
       edit: false,
       eventObj: {},
       submissionDetail: [],
       privileges: {},
       dataBlock: {},
+      submissionData: {'token': '', 'event_id': ''},
     };
   },
   created() {
     this.token = localStorage.getItem('Authorization');
+    this.submissionData['token'] = localStorage.getItem('Authorization')
+    this.submissionData['event_id'] = this.$props.eventId
     this.edit = false;
     this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
       console.log(res);
       this.submissionDetail = res.data['Data']['data'];
-      this.eventDetail = res.data;
+      this.eventDetai = res.data;
+      this.eventDetail = res.data['Data'];
       const eventEle = res.data['Data'];
       const typeStr = eventEle['event_type'];
       if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
@@ -161,8 +188,8 @@ export default {
         console.log(err);
       });
     },
-    handleFileChange() {
-
+    handleFileChange(file, fileList) {
+      this.fileList = fileList
     },
     handleFileRemove() {
 
@@ -181,14 +208,31 @@ export default {
     },
     onClickDelete(index) {
       this.$axios.post('/delete_event_file/', {
-        'file_id': this.eventDetail['Data']['data']['file_id'][index]
+        'file_id': this.eventDetail['data']['file_id'][index]
       }).then(res => {
-        this.$message.warning('Delete File ' + this.eventDetail['Data']['data']['file_name'][index]);
+        this.$message.warning('Delete File ' + this.eventDetail['data']['file_name'][index]);
         this.$parent.$parent.pullData()
       }).catch(err => {
         console.log(err);
       });
     },
+    onClickConfirmEdit()
+    {
+      this.$axios.post('/change_event/', {
+        'event_id': this.$props.eventId,
+        'introduction': this.eventObj['data']['introduction'],
+      }).then(res => {
+        console.log(res);
+        this.edit = false
+        if (this.fileList && this.fileList.length !== 0)
+        {
+          this.$refs.upload.submit()
+        }
+        this.$parent.$parent.pullData()
+      }).catch(err => {
+        console.log(err);
+      });
+    }
   },
 };
 </script>

@@ -15,9 +15,12 @@
       <div v-if="!edit">
         {{ this.introduction }}<br>
         <div>Due: {{ new Date(this.due) }}</div>
-        <div v-for="(item, index) in eventDetail['file_name']">
-          <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+        <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+          <div v-for="(item, index) in eventDetail['file_name']">
+            <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+          </div>
         </div>
+        <div v-else>No Attachment</div>
         <div>
           <el-button @click="onClickDeleteEvent">Delete Event</el-button>
         </div>
@@ -41,11 +44,14 @@
 
           <el-form-item label="File List">
             <br>
-            <div v-for="(item, index) in eventDetail['file_name']">
-              <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-              <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
-              </el-button>
+            <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+              <div v-for="(item, index) in eventDetail['file_name']">
+                <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+                <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+                </el-button>
+              </div>
             </div>
+            <div v-else>No file</div>
           </el-form-item>
           <el-form-item label="Attachment">
             <el-upload
