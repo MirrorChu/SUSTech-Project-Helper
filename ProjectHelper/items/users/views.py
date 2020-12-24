@@ -3962,3 +3962,19 @@ class TeacherAddStudent(View):
         except Exception as e:
             logger.debug('%s %s', self, e)
             return JsonResponse({"TeacherAddStudent": "failed"})
+
+
+class VerifyToken(View):
+    def post(self, request):
+        """
+        :param token:token
+        :return:
+        """
+        try:
+            token = eval(request.body.decode()).get("token")
+            student_id = get_sid(token)
+            u = UserProfile.objects.get(student_id=student_id)
+            return JsonResponse({"VerifyToken": 1})
+        except Exception as e:
+            logger.debug('%s %s', self, e)
+            return JsonResponse({"VerifyToken": 0})
