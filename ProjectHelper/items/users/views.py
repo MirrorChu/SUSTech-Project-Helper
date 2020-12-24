@@ -18,7 +18,8 @@ from django.views.generic.base import View
 from django_redis import get_redis_connection
 from items.courses.models import Course
 from items.groups.models import GroupOrg
-from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, ProjectGrades, \
+from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLikeTag, Authority, \
+    ProjectGrades, \
     Key, ProjectFile, ProjectComment, Event, ChooseEvent, ProjectAttachment, EventGrades
 from items.projects.models import Project
 from items.users.models import UserProfile
@@ -66,7 +67,8 @@ def check_token(token) -> bool:
         return True
     except Exception as e:
         logger.exception('get_sid(token) %s', e)
-        return None
+        return False
+
 
 def update_token(token) -> None:
     r.expire(token, EXPIRE_TIME)
@@ -472,7 +474,8 @@ class DownloadEventSubmission(View):
             user_id = user.id
             event = Event.objects.get(id=event_id)
             project = Project.objects.get(id=event.project_id)
-            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 pass
             else:
@@ -508,7 +511,8 @@ class DeleteEventFile(View):
             file = ProjectAttachment.objects.get(id=file_id)
             project = Project.objects.get(id=file.project_id)
             if file.group_id == 8:
-                auth = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=project.course_id)
+                auth = Authority.objects.get(user_id=user_id, type="eventEdit",
+                                             course_id=project.course_id)
                 if auth.end_time > datetime.datetime.now() > auth.start_time:
                     ProjectAttachment.objects.filter(id=file_id).delete()
                     return JsonResponse({"DeleteEventFileCheck": "success"})
@@ -534,7 +538,8 @@ class DeleteProjectFile(View):
             user_id = user.id
             file = ProjectFile.objects.get(id=file_id)
             project = Project.objects.get(id=file.project_id)
-            auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="projectEdit",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 ProjectFile.objects.filter(id=file_id).delete()
                 return JsonResponse({"DeleteProjectFileCheck": "success"})
@@ -1238,14 +1243,14 @@ class Image(View):
             # return JsonResponse({"ShowPersonalData": "success"})
 
         except Exception as e:
-            print('avatar exception')
+            print('%s %s', self, e)
             return JsonResponse({"ShowPersonalData": "failed"})
 
 
 class ChangeHeadImage(View):
     def post(self, request):
         try:
-            token = eval(request.body.decode()).get("token")
+            token = request.POST.get("token")
             student_id = get_sid(token)
             if student_id is None:
                 return HttpResponse('Unauthorized', status=401)
@@ -1260,9 +1265,8 @@ class ChangeHeadImage(View):
 
             if file_name != '':
                 file = request.FILES.get(file_name)
-                path = default_storage.save('head_image/' + student_id + "/" +
-                                            time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
-                                            + "/" + file_name + ".jpg",
+                name = str(request.FILES['file'])
+                path = default_storage.save('head_image/' + student_id + "/" + name,
                                             ContentFile(file.read()))  # 根据名字存图(无类型)
                 print(path)
 
@@ -1280,7 +1284,7 @@ class ChangeHeadImage(View):
                 return JsonResponse({"ChangeHeadImage": "success"})
 
         except Exception as e:
-            print('avatar exception')
+            logger.debug('%s %s', self, e)
             return JsonResponse({"ChangeHeadImage": "failed"})
 
 
@@ -1304,12 +1308,11 @@ class ShowHeadImage(View):
         except Exception as e:
             logger.debug('%s error %s', self, e)
             return JsonResponse({"ShowHeadImage": "failed"})
-    # def post(self, request):
-    #     try:
-    #         token = eval(request.body.decode()).get("token")
-    #         student_id = get_sid(token)
-            if student_id is None:
-                return HttpResponse('Unauthorized', status=401)
+            # def post(self, request):
+            #     try:
+            #         token = eval(request.body.decode()).get("token")
+            #         student_id = get_sid(token)
+
     #
     #         head_image_path = ""
     #
@@ -1334,10 +1337,8 @@ class AddNewTag(View):
     def post(self, request):
         """
         add new tag
-        :param token: token
-                tag_target: id of operations_tag
-        :return: UserTagID: id of operations_usertag
-                Type: type of operations_tag
+        :param request:
+        :return:
         """
         try:
             token = eval(request.body.decode()).get("token")
@@ -1748,7 +1749,8 @@ class TeacherGetStudentsInCourse(View):
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for j in student:
                     user = UserProfile.objects.get(id=j.user_name_id)
-                    auth = Authority.objects.filter(user_id=user.id, type="projectEdit", course_id=course_id)
+                    auth = Authority.objects.filter(user_id=user.id, type="projectEdit",
+                                                    course_id=course_id)
                     boo = False
                     for i in auth:
                         if i.end_time > datetime.datetime.now() > i.start_time:
@@ -1962,9 +1964,11 @@ class SubmitEventFile(View):
                     file = request.FILES.get(file_name)
                     name = str(request.FILES['file'])
                     project_name = project.name
-                    path = default_storage.save('file/' + project_name + "/" + event.title + "/" + name,
-                                                ContentFile(file.read()))
-                    ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=8,
+                    path = default_storage.save(
+                        'file/' + project_name + "/" + event.title + "/" + name,
+                        ContentFile(file.read()))
+                    ProjectAttachment.objects.create(file_path=path, project_id=project.id,
+                                                     group_id=8,
                                                      user_id=user_id, event_id=event_id)
 
                     return JsonResponse({"SubmitEventFile": "success"})
@@ -2034,13 +2038,15 @@ class TeacherKickMember(View):
             user = UserProfile.objects.get(student_id=target_id)
             group = GroupOrg.objects.get(id=group_id)
             project = Project.objects.get(id=group.project_id)
-            auth = Authority.objects.get(user_id=student_id, type="group", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=student_id, type="group",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 if user.id == group.captain_name_id:
                     member = UserGroup.objects.filter(group_name_id=group_id)
                     for i in member:
                         if i.user_name_id != user.id:
-                            GroupOrg.objects.filter(id=group_id).update(captain_name_id=i.user_name_id)
+                            GroupOrg.objects.filter(id=group_id).update(
+                                captain_name_id=i.user_name_id)
                             break
                 UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
                 if group.member == 1:
@@ -2073,7 +2079,8 @@ class TeacherAddMember(View):
             user = UserProfile.objects.get(student_id=target_id)
             group = GroupOrg.objects.get(group_name_id=group_id)
             project = Project.objects.get(id=group.project_id)
-            auth = Authority.objects.get(user_id=student_id, type="group", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=student_id, type="group",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 project = Project.objects.get(id=group.project_id)
                 if group.member + 1 > project.group_size:
@@ -2245,16 +2252,20 @@ class ChangePrivilege(View):
                 for i in auths:
                     privilege = Authority.objects.filter(user_id=t_user_id, type=i,
                                                          course_id=project.course_id)
-                    if (privilege.count() == 1 and int(auths[i]) == 1) or (privilege.count() == 0 and int(auths[i]) == 0):
+                    if (privilege.count() == 1 and int(auths[i]) == 1) or (
+                            privilege.count() == 0 and int(auths[i]) == 0):
                         continue
                     elif privilege.count() == 1 and int(auths[i]) == 0:
                         if auths[i] == 'authEdit' and t_sid == student_id:
                             continue
-                        Authority.objects.filter(user_id=t_user_id, type=i, course_id=project.course_id).delete()
+                        Authority.objects.filter(user_id=t_user_id, type=i,
+                                                 course_id=project.course_id).delete()
                     else:
-                        Authority.objects.create(type=i, user_id=t_user_id, course_id=project.course_id,
+                        Authority.objects.create(type=i, user_id=t_user_id,
+                                                 course_id=project.course_id,
                                                  start_time=datetime.datetime.now(),
-                                                 end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                                                 end_time=datetime.datetime.now() + datetime.timedelta(
+                                                     weeks=52))
                 return JsonResponse({"ChangePrivilegeCheck": "success"})
             return HttpResponse('Unauthorized', status=401)
         except Exception as e:
@@ -2289,7 +2300,8 @@ class GetAllPrivilegeList(View):
                     privileges = {'sid': person.student_id, 'name': person.real_name, 'teach': '0',
                                   'projectGrade': '0',
                                   'projectEdit': '0', 'eventValid': '0', 'eventVisible': '0',
-                                  'eventGrade': '0', 'eventEdit': '0', 'group': '0', 'authEdit': '0',
+                                  'eventGrade': '0', 'eventEdit': '0', 'group': '0',
+                                  'authEdit': '0',
                                   'groupValid': '0',
                                   'tagEdit': '0', 'edit': False}
                     privilege = Authority.objects.filter(user_id=person.id,
@@ -2348,7 +2360,8 @@ class GetEventList(View):
                     for j in partitionList:
                         n = json.loads(j)
                         t_event = Event.objects.get(id=n['partition_id'])
-                        choice = ChooseEvent.objects.filter(group_id=group.id, event_id_id=t_event.id,
+                        choice = ChooseEvent.objects.filter(group_id=group.id,
+                                                            event_id_id=t_event.id,
                                                             choice=str(n['option_id']))
                         if choice.count() == 1:
                             boo = True
@@ -2357,7 +2370,8 @@ class GetEventList(View):
                         if not boo1:
                             continue
                 publisher = UserProfile.objects.get(id=i.publish_user_id)
-                data = {'id': i.id, 'event_type': i.type, 'event_title': i.title, 'publisher': publisher.real_name}
+                data = {'id': i.id, 'event_type': i.type, 'event_title': i.title,
+                        'publisher': publisher.real_name}
                 events.append(data)
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
@@ -2604,7 +2618,7 @@ class TestFile(View):
                 print(path)
             return JsonResponse({"ChangeHeadImage": "success"})
         except Exception as e:
-            print('avatar exception', e)
+            print('%s %s', self, e)
             return JsonResponse({"ChangeHeadImage": "failed"})
 
 
@@ -2689,7 +2703,8 @@ class TeacherGetSingleInProject(View):
                 array = []
                 student = UserCourse.objects.filter(course_name_id=course_id)
                 for i in student:
-                    course = Authority.objects.filter(user_id=i.user_name_id, type="tagEdit", course_id=course_id)
+                    course = Authority.objects.filter(user_id=i.user_name_id, type="tagEdit",
+                                                      course_id=course_id)
                     if course.count() != 0:
                         continue
                     array.append(i.user_name_id)
@@ -2742,7 +2757,8 @@ class TeacherCreateGroup(View):
                 for i in member:
                     student = UserProfile.objects.get(student_id=i)
                     students.append(student.id)
-                GroupOrg.objects.create(group_name='TeacherCreate', member=len(students), captain_name_id=students[0],
+                GroupOrg.objects.create(group_name='TeacherCreate', member=len(students),
+                                        captain_name_id=students[0],
                                         project_id=project_id, detail='A group created by teacher')
                 group = GroupOrg.objects.get(captain_name_id=students[0], project_id=project_id)
                 for i in students:
@@ -2832,10 +2848,12 @@ class CreateEvent(View):
                 #                            detail=detail, title=event_title, project_id=project_id,
                 #                            publish_user_id=user_id)
                 # if tmp.count() == 0:
-                Event.objects.create(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                Event.objects.create(type=event_type, parameter=parameter, start_time=now,
+                                     end_time=ddl,
                                      detail=detail, title=event_title, project_id=project_id,
                                      publish_user_id=user_id)
-                tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now, end_time=ddl,
+                tmp = Event.objects.get(type=event_type, parameter=parameter, start_time=now,
+                                        end_time=ddl,
                                         detail=detail, title=event_title, project_id=project_id,
                                         publish_user_id=user_id)
                 subject = 'An Event published in Project ' + project.name
@@ -2855,7 +2873,8 @@ class CreateEvent(View):
                 '''
                 students = UserCourse.objects.filter(course_name_id=course_id)
                 emails = []
-                if 'selectedPartitionList' in event_detail and len(event_detail['selectedPartitionList']) != 0:
+                if 'selectedPartitionList' in event_detail and len(
+                        event_detail['selectedPartitionList']) != 0:
                     for i in students:
                         user_group = UserGroup.objects.filter(user_name_id=i.user_name_id)
                         group = None
@@ -2868,7 +2887,8 @@ class CreateEvent(View):
                         for j in partitionList:
                             n = json.loads(j)
                             t_event = Event.objects.get(id=n['partition_id'])
-                            choice = ChooseEvent.objects.filter(group_id=group.id, event_id_id=t_event.id,
+                            choice = ChooseEvent.objects.filter(group_id=group.id,
+                                                                event_id_id=t_event.id,
                                                                 choice=str(n['option_id']))
                             if choice.count() == 1:
                                 boo = True
@@ -2949,7 +2969,8 @@ class ChangeEvent(View):
                 parameter['introduction'] = introduction
                 parameter['due'] = due
                 string = json.dumps(parameter)
-                Event.objects.filter(id=event_id).update(detail=introduction, parameter=string, end_time=ddl)
+                Event.objects.filter(id=event_id).update(detail=introduction, parameter=string,
+                                                         end_time=ddl)
                 return JsonResponse({"ChangeEvent": "success"})
             return JsonResponse({"ChangeEvent": "failed"})
 
@@ -3046,10 +3067,12 @@ class SubmitEvent(View):
                         file = request.FILES.get(file_name)
                         name = str(request.FILES['file'])
                         project_name = project.name
-                        path = default_storage.save('file/' + project_name + "/" + event.title + "/" + group.group_name +
-                                                    "/" + name,
-                                                    ContentFile(file.read()))
-                        ProjectAttachment.objects.create(file_path=path, project_id=project.id, group_id=group.id,
+                        path = default_storage.save(
+                            'file/' + project_name + "/" + event.title + "/" + group.group_name +
+                            "/" + name,
+                            ContentFile(file.read()))
+                        ProjectAttachment.objects.create(file_path=path, project_id=project.id,
+                                                         group_id=group.id,
                                                          user_id=user_id, event_id=event_id)
 
                 elif event.type == "partition":
@@ -3071,10 +3094,12 @@ class SubmitEvent(View):
                     ChooseEvent.objects.filter(event_id_id=event_id, group_id=group.id).delete()
                     for i in data:
                         if parameter['partitionType'] == 'timeSlot':
-                            ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id, choice=i)
+                            ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id,
+                                                       choice=i)
                             parameter['options'][i][2] -= 1
                         else:
-                            ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id, choice=i)
+                            ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id,
+                                                       choice=i)
                             parameter['options'][i][1] -= 1
                 return JsonResponse({"SubmitEvent": "success"})
             return JsonResponse({"SubmitEvent": "failed"})
@@ -3104,15 +3129,18 @@ class GetEventDetail(View):
             user_id = user.id
             project = Project.objects.get(id=event.project_id)
             course_id = project.course_id
-            course = Authority.objects.get(user_id=user_id, type="eventVisible", course_id=course_id)
+            course = Authority.objects.get(user_id=user_id, type="eventVisible",
+                                           course_id=course_id)
             auth = Authority.objects.filter(user_id=user_id, type="tagEdit", course_id=course_id)
 
             if course.end_time > datetime.datetime.now() > course.start_time:
                 publisher = UserProfile.objects.get(id=event.publish_user_id)
-                events = {'event_type': event.type, 'event_title': event.title, 'file_id': [], 'file_name': [],
+                events = {'event_type': event.type, 'event_title': event.title, 'file_id': [],
+                          'file_name': [],
                           'event_detail': json.loads(event.parameter), 'introduction': event.detail,
                           'publisher': publisher.student_id}
-                event_file = ProjectAttachment.objects.filter(event_id=event_id, group_id=8, project_id=project.id)
+                event_file = ProjectAttachment.objects.filter(event_id=event_id, group_id=8,
+                                                              project_id=project.id)
                 for i in event_file:
                     path = i.file_path
                     array1 = path.split('/')
@@ -3135,25 +3163,36 @@ class GetEventDetail(View):
                                     members = []
                                     for i in member:
                                         student = UserProfile.objects.get(id=i.user_name_id)
-                                        student_score = EventGrades.objects.filter(event_id=event_id,
-                                                                                   user_id=student.id)
+                                        student_score = EventGrades.objects.filter(
+                                            event_id=event_id,
+                                            user_id=student.id)
                                         if student_score.count() == 0:
-                                            members.append({'id': student.id, 'student_id': student.student_id,
-                                                            'real_name': student.real_name})
+                                            members.append(
+                                                {'id': student.id, 'student_id': student.student_id,
+                                                 'real_name': student.real_name})
                                         else:
                                             for m in student_score:
-                                                members.append({'id': student.id, 'student_id': student.student_id,
-                                                                'real_name': student.real_name, 'score': m.grade})
-                                    group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                                                members.append({'id': student.id,
+                                                                'student_id': student.student_id,
+                                                                'real_name': student.real_name,
+                                                                'score': m.grade})
+                                    group_score = ProjectGrades.objects.filter(event_id=event_id,
+                                                                               group_id=group.id)
                                     if group_score.count() == 0:
-                                        groups[group.id] = {'choice': [], 'group_id': j.group_id, 'memberList': members,
-                                                            'group_name': group.group_name, 'index': [],
-                                                            'submission_datetime': int(j.add_time.timestamp() * 1000)}
+                                        groups[group.id] = {'choice': [], 'group_id': j.group_id,
+                                                            'memberList': members,
+                                                            'group_name': group.group_name,
+                                                            'index': [],
+                                                            'submission_datetime': int(
+                                                                j.add_time.timestamp() * 1000)}
                                     else:
                                         for m in group_score:
-                                            groups[group.id] = {'choice': [], 'group_id': j.group_id,
-                                                                'memberList': members, 'group_score': m.grade,
-                                                                'group_name': group.group_name, 'index': [],
+                                            groups[group.id] = {'choice': [],
+                                                                'group_id': j.group_id,
+                                                                'memberList': members,
+                                                                'group_score': m.grade,
+                                                                'group_name': group.group_name,
+                                                                'index': [],
                                                                 'comment': m.comment,
                                                                 'submission_datetime': int(
                                                                     j.add_time.timestamp() * 1000)}
@@ -3186,26 +3225,36 @@ class GetEventDetail(View):
                                     members = []
                                     for i in member:
                                         student = UserProfile.objects.get(id=i.user_name_id)
-                                        student_score = EventGrades.objects.filter(event_id=event_id,
-                                                                                   user_id=student.id)
+                                        student_score = EventGrades.objects.filter(
+                                            event_id=event_id,
+                                            user_id=student.id)
                                         if student_score.count() == 0:
-                                            members.append({'id': student.id, 'student_id': student.student_id,
-                                                            'real_name': student.real_name})
+                                            members.append(
+                                                {'id': student.id, 'student_id': student.student_id,
+                                                 'real_name': student.real_name})
                                         else:
                                             for m in student_score:
-                                                members.append({'id': student.id, 'student_id': student.student_id,
-                                                                'real_name': student.real_name, 'score': m.grade})
-                                    group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                                                members.append({'id': student.id,
+                                                                'student_id': student.student_id,
+                                                                'real_name': student.real_name,
+                                                                'score': m.grade})
+                                    group_score = ProjectGrades.objects.filter(event_id=event_id,
+                                                                               group_id=group.id)
                                     if group_score.count() == 0:
                                         groups[group.id] = {'file_name': [], 'group_id': j.group_id,
                                                             'memberList': members,
-                                                            'group_name': group.group_name, 'file_id': [],
-                                                            'submission_datetime': int(j.add_time.timestamp() * 1000)}
+                                                            'group_name': group.group_name,
+                                                            'file_id': [],
+                                                            'submission_datetime': int(
+                                                                j.add_time.timestamp() * 1000)}
                                     else:
                                         for m in group_score:
-                                            groups[group.id] = {'file_name': [], 'group_id': j.group_id,
-                                                                'memberList': members, 'group_score': m.grade,
-                                                                'group_name': group.group_name, 'file_id': [],
+                                            groups[group.id] = {'file_name': [],
+                                                                'group_id': j.group_id,
+                                                                'memberList': members,
+                                                                'group_score': m.grade,
+                                                                'group_name': group.group_name,
+                                                                'file_id': [],
                                                                 'comment': m.comment,
                                                                 'submission_datetime': int(
                                                                     j.add_time.timestamp() * 1000)}
@@ -3226,48 +3275,59 @@ class GetEventDetail(View):
                         if group.project_id == project.id:
                             break
                     if event.type == "partition":
-                        choices = ChooseEvent.objects.filter(event_id_id=event.id, group_id=group.id)
+                        choices = ChooseEvent.objects.filter(event_id_id=event.id,
+                                                             group_id=group.id)
                         events['data'] = {}
                         for j in choices:
-                            events['data'] = {'choice': [], 'submission_datetime': int(j.add_time.timestamp() * 1000),
-                                              'group_id': j.group_id, 'group_name': group.group_name,
+                            events['data'] = {'choice': [], 'submission_datetime': int(
+                                j.add_time.timestamp() * 1000),
+                                              'group_id': j.group_id,
+                                              'group_name': group.group_name,
                                               'index': [], 'submitTime': j.add_time}
-                        group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                        group_score = ProjectGrades.objects.filter(event_id=event_id,
+                                                                   group_id=group.id)
                         if group_score.count() != 0:
                             for j in group_score:
                                 events['data']['group_score'] = j.grade
                                 events['data']['comment'] = j.comment
-                        student_score = EventGrades.objects.filter(event_id=event_id, user_id=user_id)
+                        student_score = EventGrades.objects.filter(event_id=event_id,
+                                                                   user_id=user_id)
                         if student_score.count() != 0:
                             for j in group_score:
                                 events['data']['student_score'] = j.grade
                         if events['event_detail']['partitionType'] == 'normal':
                             events['partitionType'] = 'normal'
                             for j in choices:
-                                events['data']['choice'].append((events['event_detail']['options'][int(j.choice)][0],
-                                                                 events['event_detail']['options'][int(j.choice)][1]))
+                                events['data']['choice'].append(
+                                    (events['event_detail']['options'][int(j.choice)][0],
+                                     events['event_detail']['options'][int(j.choice)][1]))
                                 events['data']['index'].append(int(j.choice))
                         elif events['event_detail']['partitionType'] == 'timeSlot':
                             events['partitionType'] = 'timeSlot'
                             for j in choices:
-                                events['data']['choice'].append((events['event_detail']['options'][int(j.choice)][0],
-                                                                 events['event_detail']['options'][int(j.choice)][1],
-                                                                 events['event_detail']['options'][int(j.choice)][2]))
+                                events['data']['choice'].append(
+                                    (events['event_detail']['options'][int(j.choice)][0],
+                                     events['event_detail']['options'][int(j.choice)][1],
+                                     events['event_detail']['options'][int(j.choice)][2]))
                                 events['data']['index'].append(int(j.choice))
                     elif event.type == "SubmissionEvent":
                         choices = ProjectAttachment.objects.filter(event_id=event.id)
                         events['data'] = {}
                         for j in choices:
                             events['data'] = {'file_name': [],
-                                              'submission_datetime': int(j.add_time.timestamp() * 1000),
-                                              'group_id': j.group_id, 'group_name': group.group_name,
+                                              'submission_datetime': int(
+                                                  j.add_time.timestamp() * 1000),
+                                              'group_id': j.group_id,
+                                              'group_name': group.group_name,
                                               'file_id': [], 'submitTime': j.add_time}
-                        group_score = ProjectGrades.objects.filter(event_id=event_id, group_id=group.id)
+                        group_score = ProjectGrades.objects.filter(event_id=event_id,
+                                                                   group_id=group.id)
                         if group_score.count() != 0:
                             for j in group_score:
                                 events['data']['group_score'] = j.grade
                                 events['data']['comment'] = j.comment
-                        student_score = EventGrades.objects.filter(event_id=event_id, user_id=user_id)
+                        student_score = EventGrades.objects.filter(event_id=event_id,
+                                                                   user_id=user_id)
                         if student_score.count() != 0:
                             for j in group_score:
                                 events['data']['student_score'] = j.grade
@@ -3320,7 +3380,8 @@ class GetAllPartition(View):
                         if event_detail['partitionType'] == 'normal':
                             event['option_name'] = event_detail['options'][j][0]
                         else:
-                            string = [int(event_detail['options'][j][0]), int(event_detail['options'][j][1])]
+                            string = [int(event_detail['options'][j][0]),
+                                      int(event_detail['options'][j][1])]
                             event['option_name'] = string
                         partitions.append(event.copy())
                 return JsonResponse({"Data": partitions, "GetEventDetail": "success"})
@@ -3393,9 +3454,12 @@ class ChangeProject(View):
             course_id = project.course_id
             auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=course_id)
             if auth.end_time > now > auth.start_time:
-                Project.objects.filter(id=project_id).update(name=project_name, introduction=introduction,
-                                                             group_size=group_size, course_id=course_id,
-                                                             min_group_size=min_group_size, group_ddl=group_ddl)
+                Project.objects.filter(id=project_id).update(name=project_name,
+                                                             introduction=introduction,
+                                                             group_size=group_size,
+                                                             course_id=course_id,
+                                                             min_group_size=min_group_size,
+                                                             group_ddl=group_ddl)
                 return JsonResponse({"ChangeProject": "success"})
             return JsonResponse({"ChangeProject": "failed"})
 
@@ -3424,7 +3488,8 @@ class ChangeGroup(View):
             user_id = user.id
             group = GroupOrg.objects.get(id=group_id)
             if user_id == group.captain_name_id:
-                GroupOrg.objects.filter(id=group_id).update(group_name=group_name, detail=introduction)
+                GroupOrg.objects.filter(id=group_id).update(group_name=group_name,
+                                                            detail=introduction)
                 return JsonResponse({"ChangeGroup": "success"})
             return JsonResponse({"ChangeGroup": "failed"})
 
@@ -3466,18 +3531,22 @@ class MarkEvent(View):
                     student = UserProfile.objects.get(student_id=i)
                     tmp = EventGrades.objects.filter(event_id=event_id, user_id=student.id)
                     if tmp.count() == 0:
-                        EventGrades.objects.create(grade=score[i], comment=comment, event_id=event_id,
+                        EventGrades.objects.create(grade=score[i], comment=comment,
+                                                   event_id=event_id,
                                                    user_id=student.id)
                     else:
-                        EventGrades.objects.filter(event_id=event_id, user_id=student.id).update(grade=score[i],
-                                                                                                 comment=comment)
+                        EventGrades.objects.filter(event_id=event_id, user_id=student.id).update(
+                            grade=score[i],
+                            comment=comment)
                 tmp1 = ProjectGrades.objects.filter(group_id=group_id, event_id=event_id)
                 if tmp1.count() == 0:
-                    ProjectGrades.objects.create(grade=group_score, comment=comment, event_id=event_id,
+                    ProjectGrades.objects.create(grade=group_score, comment=comment,
+                                                 event_id=event_id,
                                                  group_id=group_id)
                 else:
-                    ProjectGrades.objects.filter(event_id=event_id, group_id=group_id).update(grade=group_score,
-                                                                                              comment=comment)
+                    ProjectGrades.objects.filter(event_id=event_id, group_id=group_id).update(
+                        grade=group_score,
+                        comment=comment)
                 return JsonResponse({"MarkEvent": "success"})
             return JsonResponse({"MarkEvent": "failed"})
 
@@ -3558,7 +3627,8 @@ class GetModelForEvent(View):
             user_id = user.id
             event = Event.objects.get(id=event_id)
             project = Project.objects.get(id=event.project_id)
-            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 pass
             else:
@@ -3585,7 +3655,8 @@ class GetModelForEvent(View):
                         choice = ChooseEvent.objects.filter(group_id=i.id, event_id_id=t_event.id,
                                                             choice=str(n['option_id']))
                         if choice.count() == 1:
-                            groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members})
+                            groups.append(
+                                {'group_name': i.group_name, 'id': i.id, 'members': i.members})
                             break
             else:
                 group = GroupOrg.objects.filter(project_id=project.id)
@@ -3638,7 +3709,8 @@ class SubmitModelForEvent(View):
             user_id = user.id
             event = Event.objects.get(id=event_id)
             project = Project.objects.get(id=event.project_id)
-            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade",
+                                         course_id=project.course_id)
 
             arr = request.FILES.keys()
             file_name = ''
@@ -3660,7 +3732,8 @@ class SubmitModelForEvent(View):
                     comment = sheet1.col_values(3)
 
                     while len(idSid) > pointer:
-                        data = {'group_id': int(idSid[pointer]), 'group_score': grade[pointer], 'member': [],
+                        data = {'group_id': int(idSid[pointer]), 'group_score': grade[pointer],
+                                'member': [],
                                 'comment': comment[pointer]}
                         group = GroupOrg.objects.get(id=data['group_id'])
                         if not is_numeber(grade[pointer]) and is_numeber(grade[pointer]) < 0:
@@ -3683,19 +3756,24 @@ class SubmitModelForEvent(View):
                             if j[1] == '':
                                 continue
                             if tmp.count() == 0:
-                                EventGrades.objects.create(grade=j[1], comment=i['comment'], event_id=event_id,
+                                EventGrades.objects.create(grade=j[1], comment=i['comment'],
+                                                           event_id=event_id,
                                                            user_id=j[0])
                             else:
-                                EventGrades.objects.filter(event_id=event_id, user_id=j[0]).update(grade=j[1],
-                                                                                                   comment=i['comment'])
-                        tmp1 = ProjectGrades.objects.filter(group_id=i['group_id'], event_id=event_id)
+                                EventGrades.objects.filter(event_id=event_id, user_id=j[0]).update(
+                                    grade=j[1],
+                                    comment=i['comment'])
+                        tmp1 = ProjectGrades.objects.filter(group_id=i['group_id'],
+                                                            event_id=event_id)
                         if i['group_score'] == '':
                             continue
                         if tmp1.count() == 0:
-                            ProjectGrades.objects.create(grade=i['group_score'], comment=comment, event_id=event_id,
+                            ProjectGrades.objects.create(grade=i['group_score'], comment=comment,
+                                                         event_id=event_id,
                                                          group_id=i['group_id'])
                         else:
-                            ProjectGrades.objects.filter(event_id=event_id, group_id=i['group_id']).update(
+                            ProjectGrades.objects.filter(event_id=event_id,
+                                                         group_id=i['group_id']).update(
                                 grade=i['group_score'], comment=i['comment'])
                     return JsonResponse({"SubmitModelForEvent": "success"})
 
@@ -3739,7 +3817,8 @@ class GetScoreForEvent(View):
             user_id = user.id
             event = Event.objects.get(id=event_id)
             project = Project.objects.get(id=event.project_id)
-            auth = Authority.objects.get(user_id=user_id, type="eventGrade", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="eventGrade",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 pass
             else:
@@ -3768,12 +3847,14 @@ class GetScoreForEvent(View):
                         if choice.count() == 1:
                             grade = -1
                             comment = ""
-                            group_grade = ProjectGrades.objects.filter(event_id=event_id, group_id=i.id)
+                            group_grade = ProjectGrades.objects.filter(event_id=event_id,
+                                                                       group_id=i.id)
                             for k in group_grade:
                                 grade = k.grade
                                 comment = k.comment
-                            groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members,
-                                           'group_grade': grade, 'comment': comment})
+                            groups.append(
+                                {'group_name': i.group_name, 'id': i.id, 'members': i.members,
+                                 'group_grade': grade, 'comment': comment})
                             break
             else:
                 group = GroupOrg.objects.filter(project_id=project.id)
@@ -3784,7 +3865,8 @@ class GetScoreForEvent(View):
                     for k in group_grade:
                         grade = k.grade
                         comment = k.comment
-                    groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members, 'group_grade': grade,
+                    groups.append({'group_name': i.group_name, 'id': i.id, 'members': i.members,
+                                   'group_grade': grade,
                                    'comment': comment})
             row0 = ['id/sid', 'name', 'grade', 'comment']
             pointer = 1
@@ -3800,7 +3882,8 @@ class GetScoreForEvent(View):
                 for j in member:
                     student = UserProfile.objects.get(id=j.user_name_id)
                     s_grade = 0
-                    student_grade = EventGrades.objects.filter(event_id=event_id, user_id=student.id)
+                    student_grade = EventGrades.objects.filter(event_id=event_id,
+                                                               user_id=student.id)
                     for k in student_grade:
                         s_grade = k.grade
                     if student_grade.count() != 0:
@@ -3808,7 +3891,7 @@ class GetScoreForEvent(View):
                     sheet1.write(pointer, 1, student.real_name, set_style('Times New Roman', 220))
                     sheet1.write(pointer, 0, student.student_id, set_style('Times New Roman', 220))
                     pointer += 1
-                sheet1.write_merge(pointer - 1 - i['members'], pointer - 1, 3, 3, i.comment)
+                sheet1.write_merge(pointer - 1 - i['members'], pointer - 1, 3, 3, i['comment'])
                 pointer += 1
             workbook.save(path)
 
@@ -3840,7 +3923,8 @@ class GetStudentInProject(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             project = Project.objects.get(id=project_id)
-            auth = Authority.objects.get(user_id=user_id, type="tagEdit", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="tagEdit",
+                                         course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
                 pass
             else:
@@ -3851,7 +3935,8 @@ class GetStudentInProject(View):
             allStudent = UserCourse.objects.filter(course_name_id=project.course_id)
             students = []
             for i in allStudent:
-                course = Authority.objects.filter(user_id=i.user_name_id, type="tagEdit", course_id=project.course_id)
+                course = Authority.objects.filter(user_id=i.user_name_id, type="tagEdit",
+                                                  course_id=project.course_id)
                 if course.count() != 0:
                     continue
                 students.append(i.user_name_id)
@@ -3940,7 +4025,8 @@ class SemiRandom(View):
                     if i.members < project.min_group_size:
                         for j in member:
                             ProjectComment.objects.filter(user_name_id=j.user_name_id).delete()
-                            UserGroup.objects.filter(group_name_id=i.id, user_name_id=j.user_name_id).delete()
+                            UserGroup.objects.filter(group_name_id=i.id,
+                                                     user_name_id=j.user_name_id).delete()
                         dismissGroup.append(i.id)
                     for j in member:
                         ungroup.remove(j.user_name_id)
@@ -3961,11 +4047,14 @@ class SemiRandom(View):
                             groups[i] += 1
                             remain -= 1
                 for i in range(len(groups)):
-                    GroupOrg.objects.create(group_name='Auto Group' + str(i), members=groups[i], detail='group by AI',
+                    GroupOrg.objects.create(group_name='Auto Group' + str(i), members=groups[i],
+                                            detail='group by AI',
                                             captain_name_id=ungroup[pointer], project_id=project_id)
-                    g = GroupOrg.objects.get(captain_name_id=ungroup[pointer], project_id=project_id)
+                    g = GroupOrg.objects.get(captain_name_id=ungroup[pointer],
+                                             project_id=project_id)
                     for j in range(groups[i]):
-                        UserGroup.objects.create(group_name_id=g.id, user_name_id=ungroup[pointer + j])
+                        UserGroup.objects.create(group_name_id=g.id,
+                                                 user_name_id=ungroup[pointer + j])
                     pointer += groups[i]
                 return JsonResponse({"SemiRandom": "success"})
 
@@ -3994,16 +4083,19 @@ class TeacherAddSa(View):
             user = UserProfile.objects.get(student_id=target_id)
             auth = Authority.objects.get(user_id=u.id, type="teach", course_id=course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
-                userCourse = UserCourse.objects.filter(user_name_id=user.id, course_name_id=course_id)
+                userCourse = UserCourse.objects.filter(user_name_id=user.id,
+                                                       course_name_id=course_id)
                 if userCourse.count() != 0:
                     return JsonResponse({"TeacherAddSaCheck": "already in"})
                 UserCourse.objects.create(user_name_id=user.id, course_name_id=course_id, lab=0)
                 Authority.objects.create(type='eventVisible', user_id=user.id, course_id=course_id,
                                          start_time=datetime.datetime.now(),
-                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                                         end_time=datetime.datetime.now() + datetime.timedelta(
+                                             weeks=52))
                 Authority.objects.create(type='tagEdit', user_id=user.id, course_id=course_id,
                                          start_time=datetime.datetime.now(),
-                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                                         end_time=datetime.datetime.now() + datetime.timedelta(
+                                             weeks=52))
                 return JsonResponse({"TeacherAddSaCheck": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -4028,16 +4120,19 @@ class TeacherAddOneStudent(View):
             user = UserProfile.objects.get(student_id=target_id)
             auth = Authority.objects.get(user_id=u.id, type="projectEdit", course_id=course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
-                userCourse = UserCourse.objects.filter(user_name_id=user.id, course_name_id=course_id)
+                userCourse = UserCourse.objects.filter(user_name_id=user.id,
+                                                       course_name_id=course_id)
                 if userCourse.count() != 0:
                     return JsonResponse({"TeacherAddOneStudent": "already in"})
                 UserCourse.objects.create(user_name_id=user.id, course_name_id=course_id, lab=0)
                 Authority.objects.create(type='eventVisible', user_id=user.id, course_id=course_id,
                                          start_time=datetime.datetime.now(),
-                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                                         end_time=datetime.datetime.now() + datetime.timedelta(
+                                             weeks=52))
                 Authority.objects.create(type='groupValid', user_id=user.id, course_id=course_id,
                                          start_time=datetime.datetime.now(),
-                                         end_time=datetime.datetime.now() + datetime.timedelta(weeks=52))
+                                         end_time=datetime.datetime.now() + datetime.timedelta(
+                                             weeks=52))
                 return JsonResponse({"TeacherAddOneStudent": "success"})
         except Exception as e:
             logger.debug('%s %s', self, e)
@@ -4060,7 +4155,8 @@ class TeacherAddStudent(View):
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             project = Project.objects.get(id=project_id)
-            auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=project.course_id)
+            auth = Authority.objects.get(user_id=user_id, type="projectEdit",
+                                         course_id=project.course_id)
 
             arr = request.FILES.keys()
             file_name = ''
@@ -4083,9 +4179,11 @@ class TeacherAddStudent(View):
                     os.remove(path)
                     for i in students:
                         student = UserProfile.objects.get(student_id=i)
-                        tmp1 = UserCourse.objects.filter(user_name_id=student.id, course_name_id=project.course_id)
+                        tmp1 = UserCourse.objects.filter(user_name_id=student.id,
+                                                         course_name_id=project.course_id)
                         if tmp1.count() == 0:
-                            UserCourse.objects.create(user_name_id=student.id, course_name_id=project.course_id)
+                            UserCourse.objects.create(user_name_id=student.id,
+                                                      course_name_id=project.course_id)
                     return JsonResponse({"TeacherAddStudent": "success"})
 
             return JsonResponse({"TeacherAddStudent": "failed"})
