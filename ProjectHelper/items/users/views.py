@@ -3105,7 +3105,7 @@ class GetEventDetail(View):
             project = Project.objects.get(id=event.project_id)
             course_id = project.course_id
             course = Authority.objects.get(user_id=user_id, type="eventVisible", course_id=course_id)
-            auth = Authority.objects.filter(user_id=user_id, type="eventEdit", course_id=course_id)
+            auth = Authority.objects.filter(user_id=user_id, type="tagEdit", course_id=course_id)
 
             if course.end_time > datetime.datetime.now() > course.start_time:
                 publisher = UserProfile.objects.get(id=event.publish_user_id)
