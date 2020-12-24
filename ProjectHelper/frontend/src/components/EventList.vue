@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 style="font-family: Verdana, serif;">Event List</h1>
+    <h1 style="font-family: Verdana, serif;">Initiate a new event</h1>
     <div v-if="this.privileges['teach'] && this.privileges['teach'] === 1">
       <el-card>
         <NewEvent v-bind:sid="this.$props.sid"
@@ -9,6 +9,8 @@
         </NewEvent>
       </el-card>
     </div>
+    <el-divider></el-divider>
+    <h1 style="font-family: Verdana, serif;">Event List</h1>
     <div>
       <el-card v-for="(componentObj) in componentObjs">
         <div>
@@ -20,9 +22,7 @@
                      :eventId="componentObj['id']">
           </component>
         </div>
-
       </el-card>
-      <el-divider></el-divider>
     </div>
   </div>
 </template>
