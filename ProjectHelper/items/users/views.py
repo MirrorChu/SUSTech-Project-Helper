@@ -2357,6 +2357,8 @@ class GetEventList(View):
                 parameter = json.loads(i.parameter)
                 if 'selectedPartitionList' in parameter.keys() and not boo1:
                     boo = False
+                    if len(parameter['selectedPartitionList']) == 0:
+                        boo = True
                     partitionList = parameter['selectedPartitionList']
                     for j in partitionList:
                         n = json.loads(j)

@@ -21,7 +21,7 @@
           </div>
         </div>
         <div v-else>No Attachment</div>
-        <div>
+        <div v-if="this.privileges && this.privileges['eventEdit']">
           <el-button @click="onClickDeleteEvent">Delete Event</el-button>
         </div>
       </div>
@@ -98,13 +98,20 @@ export default {
       edit: false,
       dueDatetime: new Date(),
       announcementData: {},
+      privileges: {},
     };
   },
   created() {
     this.edit = false;
     this.announcementData['event_id'] = this.eventId;
     this.announcementData['token'] = localStorage.getItem('Authorization');
-    this.pullData();
+    this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+      console.log(res)
+      this.privileges = res.data['Data'];
+      this.pullData();
+    }).catch(err => {
+      console.log(err)
+    })
   },
   methods: {
     getResult() {
