@@ -9,44 +9,29 @@
 
       <div v-if="expand">
         <div v-if="privileges && privileges['teach'] === 1">
-          <div v-if="!this.edit">
-            <el-form>
-              <h3 style="font-family: Verdana, serif;">Introduction: </h3>
-              <el-form-item label="">
-                {{ this.eventObj['data']['introduction'] }}
-              </el-form-item>
-              <h3 style="font-family: Verdana, serif;">Due time: </h3>
-              <el-form-item label="">
-                {{ new Date(this.eventObj.data.due) }}
-              </el-form-item>
-              <h3 style="font-family: Verdana, serif;">Limit of selection: </h3>
-              <el-form-item label="">
-                {{ this.eventObj.data.selectionLimit }}
-              </el-form-item>
-              <h3 style="font-family: Verdana, serif;">File list:</h3>
-              <el-form-item label="">
-                <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
-                  <div v-for="(item, index) in eventDetail['file_name']">
-                    <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-                    <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
-                    </el-button>
-                  </div>
-                </div>
-                <div v-else>No file</div>
-              </el-form-item>
-            </el-form>
-            <div >
-              <el-select v-model="selected"
-                         :multiple="this.eventObj.data.selectionLimit > 1"
-                         :multiple-limit="this.eventObj.data.selectionLimit"
-                         placeholder="Please select.">
-                <el-option v-for="(item, index) in this.eventObj.data.options" :key="item.value"
-                           :label="getLabelAndNumberFromItem(item)" :value="index">
-                </el-option>
-              </el-select>
+
+          <div><el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button></div>
+          <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
+          <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
+          <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
+          <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+            <div v-for="(item, index) in eventDetail['file_name']">
+              <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+              <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+              </el-button>
             </div>
-            <el-row></el-row>
-            <div><el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button></div>
+          </div>
+          <div v-else>No file</div>
+          <div >
+            <el-select v-model="selected"
+                       :multiple="this.eventObj.data.selectionLimit > 1"
+                       :multiple-limit="this.eventObj.data.selectionLimit"
+                       placeholder="Please select.">
+              <el-option v-for="(item, index) in this.eventObj.data.options" :key="item.value"
+                         :label="getLabelAndNumberFromItem(item)" :value="index">
+              </el-option>
+            </el-select>
+
           </div>
           <div v-if="this.edit">
             <el-form>

@@ -27,7 +27,6 @@
           </div>
         </div>
         <div v-else>No Attachment</div>
-        <el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button>
       </div>
       <div v-else>
         <el-form>

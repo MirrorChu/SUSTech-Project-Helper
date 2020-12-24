@@ -38,7 +38,7 @@
         :on-error="handleerror"
         :multiple="false"
         :data="datas">
-      <el-button size="small" type="primary">Upload Grading Excel</el-button>
+      <el-button size="small" type="primary" v-if="idx === -1">Upload Grading Excel</el-button>
     </el-upload>
 
     <h4 v-if="idx >= 0">
@@ -61,15 +61,16 @@
           </div>
           <div v-else-if="eventDetail['Data']['event_type'] === 'submission' ||
           eventDetail['Data']['event_type'] === 'SubmissionEvent'">
-            {{ eventDetail }}
             <div>
               <h3>
                 Submission
               </h3>
-              <el-link v-for="(item, index) in eventDetail['Data']['data']"
-                       :href="generateFileUrl(item['file_id'][index])">
-                {{ item['file_name'][index] }}
-              </el-link>
+              <div v-for="(item, index) in eventDetail['Data']['data'][idx]['file_name']">
+                <el-link :href="generateFileUrl(eventDetail['Data']['data'][idx]['file_id'][index])">
+                  {{ index + ': ' + item }}
+                </el-link>
+              </div>
+
             </div>
           </div>
 
@@ -153,7 +154,7 @@ export default {
   created() {
     this.groupList = this.$props.submissionDetail;
     this.downloadAllUrl = this.downloadAllSubmissionUrl();
-    this.downloadGradingTemplate = 'http://127.0.0.1:8000/get_model_for_event?token=' +
+    this.downloadGradingTemplate = 'http://127.0.0.1:8000/get_score_for_event?token=' +
         localStorage.getItem('Authorization') + '&event_id=' + this.eventId;
     this.datas['token'] = localStorage.getItem('Authorization');
     this.datas['event_id'] = this.$props.eventId;
@@ -189,7 +190,6 @@ export default {
         else {
           for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['choice'].length; i += 1) {
             const option = this.$props.eventDetail['Data']['data'][this.idx]['choice'][i];
-            console.log(option);
             this.selectedChoiceLiteral.push('option' + this.$props.eventDetail['Data']['data'][this.idx]['index'][i] +
                 ': ' + option[0]);
           }
@@ -197,21 +197,16 @@ export default {
       }
       //TODO
       else if (eventType === 'Submission' || eventType === 'SubmissionEvent') {
+        this.memberLiterals = {}
+        this.memberScores = {}
         for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
+          console.log(i)
           const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i];
+          console.log(member)
           this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name'];
           this.memberScores[member['student_id']] = 0;
         }
       }
-      //TODO
-      else if (eventType === 'Selection' || eventType === 'SelectionEvent') {
-        for (let i = 0; i < this.$props.eventDetail['Data']['data'][this.idx]['memberList'].length; i += 1) {
-          const member = this.$props.eventDetail['Data']['data'][this.idx]['memberList'][i];
-          this.memberLiterals[member['student_id']] = member['student_id'] + ' ' + member['real_name'];
-          this.memberScores[member['student_id']] = 0;
-        }
-      }
-
     },
     onClickGrade() {
       const dataBlock = {
@@ -228,6 +223,7 @@ export default {
       });
     },
     generateFileUrl(id) {
+      console.log(id);
       return 'http://127.0.0.1:8000/download_event_file?token='
           + localStorage.getItem('Authorization')
           + '&file_id='
