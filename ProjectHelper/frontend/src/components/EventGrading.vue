@@ -32,12 +32,12 @@
     </div>
 
     <el-upload
-      class="upload-demo"
-      action="http://127.0.0.1:8000/submit_model_for_event/"
-      :on-success="handlesuccess"
-      :on-error="handleerror"
-      :multiple="false"
-      :data="datas">
+        class="upload-demo"
+        action="http://127.0.0.1:8000/submit_model_for_event/"
+        :on-success="handlesuccess"
+        :on-error="handleerror"
+        :multiple="false"
+        :data="datas">
       <el-button size="small" type="primary">Upload Grading Excel</el-button>
     </el-upload>
 
@@ -147,7 +147,7 @@ export default {
       submission_datetime: 0,
       downloadAllUrl: '',
       downloadGradingTemplate: '',
-      datas: {'token': '', 'event_id': ''}
+      datas: {'token': '', 'event_id': ''},
     };
   }
   ,
@@ -156,18 +156,16 @@ export default {
     this.downloadAllUrl = this.downloadAllSubmissionUrl();
     this.downloadGradingTemplate = 'http://127.0.0.1:8000/get_model_for_event?token=' +
         localStorage.getItem('Authorization') + '&event_id=' + this.eventId;
-    this.datas['token'] = localStorage.getItem('Authorization')
-    this.datas['event_id'] = this.$props.eventId
+    this.datas['token'] = localStorage.getItem('Authorization');
+    this.datas['event_id'] = this.$props.eventId;
   }
   ,
   methods: {
-    handlesuccess(response, file, fileList)
-    {
-      this.$message.info('Upload grading file success')
+    handlesuccess(response, file, fileList) {
+      this.$message.info('Upload grading file success');
     },
-    handleerror(err, file,fileList)
-    {
-      this.$message.error('Upload grading file failed')
+    handleerror(err, file, fileList) {
+      this.$message.error('Upload grading file failed');
     },
     onClickDetail(scope) {
       this.idx = scope.$index;

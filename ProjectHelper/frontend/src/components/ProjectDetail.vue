@@ -1,85 +1,86 @@
 <template>
   <div class="project_detail">
-    <el-row :gutter="2"><el-col :span="10" >
-      <div v-if="this.displayControl.projectDetail">
-        <h1 style="font-family: Verdana, serif;">Project Info</h1>
-        <el-card>
+    <el-row :gutter="2">
+      <el-col :span="10">
+        <div v-if="this.displayControl.projectDetail">
+          <h1 style="font-family: Verdana, serif;">Project Info</h1>
+          <el-card>
 
-          <div>
-            Course Name: {{ this.projectDetail['courseName'] }}
-          </div>
-
-          <div v-if="!this.edit">
             <div>
-              Project Name: {{ this.projectDetail['projectName'] }}
+              Course Name: {{ this.projectDetail['courseName'] }}
             </div>
 
-            <div>
-              Project Introduction: {{ this.projectDetail['projectIntroduction'] }}
-            </div>
+            <div v-if="!this.edit">
+              <div>
+                Project Name: {{ this.projectDetail['projectName'] }}
+              </div>
 
-            <div>
-              <div v-for="(value, key) in this.file_dict">
-                <el-link :href="value" target="_blank" type="primary">{{ key }}</el-link>
+              <div>
+                Project Introduction: {{ this.projectDetail['projectIntroduction'] }}
+              </div>
+
+              <div>
+                <div v-for="(value, key) in this.file_dict">
+                  <el-link :href="value" target="_blank" type="primary">{{ key }}</el-link>
+                </div>
               </div>
             </div>
-          </div>
-          <el-form v-else>
-            <el-form-item label="Project Name">
-              <el-input v-model="projectDetail['projectName']"></el-input>
-            </el-form-item>
+            <el-form v-else>
+              <el-form-item label="Project Name">
+                <el-input v-model="projectDetail['projectName']"></el-input>
+              </el-form-item>
 
-            <el-form-item label="Project Introduction">
-              <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
-            </el-form-item>
+              <el-form-item label="Project Introduction">
+                <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
+              </el-form-item>
 
-            <el-form-item label="Upload File">
-              <el-upload
-                drag
-                action="/api/test"
-                :headers="{'token': token, 'project_id': this.$props.projectId}"
-                multiple>
-                <i class="el-icon-upload"></i>
-                <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
-              </el-upload>
-            </el-form-item>
-          </el-form>
-
-
-          <div>
-            <div v-if="this.privileges && this.privileges['teach'] !== 1">
-              <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
-                         v-bind:project_id="this.projectId"></GroupInfo>
-              <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
-                You are not in any groups!</h1>
-              <CreateOrJoinGroup
-
-                v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
-                v-bind:sid="this.sid"
-                v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
-            </div>
-
-            <div v-if="this.privileges && this.privileges['teach'] === 1">
-              <el-button @click="onClickEdit">{{ editLiteral }}</el-button>
-            </div>
+              <el-form-item label="Upload File">
+                <el-upload
+                    drag
+                    action="/api/test"
+                    :headers="{'token': token, 'project_id': this.$props.projectId}"
+                    multiple>
+                  <i class="el-icon-upload"></i>
+                  <div class="el-upload__text">Drag the file here, or <em>click to upload</em>.</div>
+                </el-upload>
+              </el-form-item>
+            </el-form>
 
 
             <div>
-              <el-form :inline="true" :model="target_user" class="querypersonalprofile">
-                <h2>Wanna know somebody?</h2>
-                <el-form-item label="">
-                  <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" @click="onQueryPersonalProfile" align="right">Query</el-button>
-                </el-form-item>
-              </el-form>
-            </div>
+              <div v-if="this.privileges && this.privileges['groupValid'] === 1">
+                <GroupInfo v-if="this.groupInfo['StudentGetsGroupInformationInProject'] == null"
+                           v-bind:project_id="this.projectId"></GroupInfo>
+                <h1 v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)">
+                  You are not in any groups!</h1>
+                <CreateOrJoinGroup
 
-          </div>
-        </el-card>
-      </div>
-    </el-col>
+                    v-if="!(this.groupInfo['StudentGetsGroupInformationInProject'] == null)"
+                    v-bind:sid="this.sid"
+                    v-bind:projectId="this.$props.projectId"></CreateOrJoinGroup>
+              </div>
+
+              <div v-if="this.privileges && this.privileges['teach'] === 1">
+                <el-button @click="onClickEdit">{{ editLiteral }}</el-button>
+              </div>
+
+
+              <div>
+                <el-form :inline="true" :model="target_user" class="querypersonalprofile">
+                  <h2>Wanna know somebody?</h2>
+                  <el-form-item label="">
+                    <el-input v-model="target_user.sid" placeholder="Input his or her sid"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="onQueryPersonalProfile" align="right">Query</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+
+            </div>
+          </el-card>
+        </div>
+      </el-col>
       <el-col :span="13" :offset="1">
         <div>
           <EventList v-bind:sid="this.$props.sid"
@@ -172,40 +173,40 @@
     </div>
 
 
-<!--    <div v-if="showAd">-->
-<!--      <h2>Advertisement</h2>-->
+    <!--    <div v-if="showAd">-->
+    <!--      <h2>Advertisement</h2>-->
 
-<!--      <el-card v-if="advertisementData.length !== 0">-->
+    <!--      <el-card v-if="advertisementData.length !== 0">-->
 
-<!--        <el-collapse v-if="advertisementData !== []">-->
-<!--          <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>-->
+    <!--        <el-collapse v-if="advertisementData !== []">-->
+    <!--          <el-collapse-item v-for="item in advertisementData" :title=item.titlee :name=item.id>-->
 
-<!--            <div>{{ item.content }}</div>-->
+    <!--            <div>{{ item.content }}</div>-->
 
-<!--          </el-collapse-item>-->
-<!--        </el-collapse>-->
-<!--      </el-card>-->
+    <!--          </el-collapse-item>-->
+    <!--        </el-collapse>-->
+    <!--      </el-card>-->
 
-<!--      <div v-show="this.advertisementData.length === 0">There is no advertisement now !</div>-->
+    <!--      <div v-show="this.advertisementData.length === 0">There is no advertisement now !</div>-->
 
-<!--      <el-card v-if="this.privileges['teach'] !== 1">-->
-<!--        <div>-->
-<!--          <h3>Upload AD</h3>-->
-<!--          <el-form>-->
-<!--            <el-form-item label="Title">-->
-<!--              <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>-->
-<!--            </el-form-item>-->
-<!--            <el-form-item label="Content">-->
-<!--              <el-input type="textarea" :rows="3" placeholder="the content of advertisement"-->
-<!--                        v-model="advertisement_content"></el-input>-->
-<!--            </el-form-item>-->
-<!--            <el-form-item>-->
-<!--              <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>-->
-<!--            </el-form-item>-->
-<!--          </el-form>-->
-<!--        </div>-->
-<!--      </el-card>-->
-<!--    </div>-->
+    <!--      <el-card v-if="this.privileges['teach'] !== 1">-->
+    <!--        <div>-->
+    <!--          <h3>Upload AD</h3>-->
+    <!--          <el-form>-->
+    <!--            <el-form-item label="Title">-->
+    <!--              <el-input v-model="advertisement_title" placeholder="the title of advertisement"></el-input>-->
+    <!--            </el-form-item>-->
+    <!--            <el-form-item label="Content">-->
+    <!--              <el-input type="textarea" :rows="3" placeholder="the content of advertisement"-->
+    <!--                        v-model="advertisement_content"></el-input>-->
+    <!--            </el-form-item>-->
+    <!--            <el-form-item>-->
+    <!--              <el-button @click="onClickUploadAdvertisement()">Upload Advertisement</el-button>-->
+    <!--            </el-form-item>-->
+    <!--          </el-form>-->
+    <!--        </div>-->
+    <!--      </el-card>-->
+    <!--    </div>-->
 
 
     <el-row v-if="this.privileges && this.privileges['group'] === 1">
@@ -302,7 +303,7 @@ export default {
       // }
       this.$axios.post('/student_gets_group_information_in_project/', {'project_id': this.$props.projectId}).
           then(res => {
-            console.log(res)
+            console.log(res);
             this.groupInfo = res.data;
             this.$axios.post('/get_privilege_list/', {'course_id': this.courseId}).then(res => {
               this.privileges = res.data['Data'];
@@ -319,7 +320,7 @@ export default {
                 for (let i = 0; i < this.groupInfo['members'].length; i++) {
                   this.membersList = this.membersList + this.groupInfo['members'][i] + '  ';
                 }
-                this.status = ''
+                this.status = '';
               }
               else {
                 this.status = 'unknown';
@@ -446,37 +447,34 @@ export default {
         });
       }
     },
-    addStudent()
-    {
-      if (isNaN(Number(this.addingStudent)) || !this.addingStudent || this.addingStudent.length === 0)
-      {
-        alert("You can only add a student whose sid is number")
-        this.addingStudent = ''
+    addStudent() {
+      if (isNaN(Number(this.addingStudent)) || !this.addingStudent || this.addingStudent.length === 0) {
+        alert('You can only add a student whose sid is number');
+        this.addingStudent = '';
       }
       else {
-        this.$confirm('Are you sure to add ' + this.addingStudent + ' into ' + this.projectDetail['courseName'] + '?', 'Notice', {
-          confirmButtonText: 'Confirm',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
-        }).then(() => {
+        this.$confirm('Are you sure to add ' + this.addingStudent + ' into ' + this.projectDetail['courseName'] + '?',
+            'Notice', {
+              confirmButtonText: 'Confirm',
+              cancelButtonText: 'Cancel',
+              type: 'warning',
+            }).then(() => {
           this.$axios.post('/teacher_add_one_student/', {
             course_id: this.courseId,
             sid: this.addingStudent,
           }).then(res => {
             console.log('add student', res.data);
-            if (res.data['TeacherAddOneStudent'] === 'success')
-            {
+            if (res.data['TeacherAddOneStudent'] === 'success') {
               this.$message({
                 type: 'success',
-                message: 'Add Student Success'
+                message: 'Add Student Success',
               });
             }
-            else
-            {
+            else {
               this.$message({
                 type: 'error',
-                message: 'Add Student Failed'
-              })
+                message: 'Add Student Failed',
+              });
             }
             this.addingStudent = '';
           }).catch(err => {
@@ -485,7 +483,7 @@ export default {
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: 'Canceled'
+            message: 'Canceled',
           });
         });
       }

@@ -30,18 +30,17 @@
       </div>
 
       <div v-if="privileges && privileges['eventGrade'] === 1">
-        <div>
+        <div v-if="privileges && privileges['eventEdit'] === 1">
           <el-button @click="onClickDeleteEvent">Delete Event</el-button>
         </div>
 
-        <div>
+        <div v-if="privileges && privileges['eventGrade']">
           <EventGrading
               v-bind:eventDetail="eventDetail"
               v-bind:eventId="this.$props.eventId"
               v-bind:submissionDetail="submissionDetail">
           </EventGrading>
         </div>
-
       </div>
       <div v-else>
         <el-upload
