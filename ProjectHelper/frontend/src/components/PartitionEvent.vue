@@ -9,17 +9,17 @@
       <div v-if="expand">
         <div v-if="privileges && privileges['teach'] === 1">
           <div><el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button></div>
-          <el-form>
-            <el-form-item label="Introduction"><br/>
-              {{ this.eventObj['data']['introduction'] }}
-            </el-form-item>
-            <el-form-item label="Due"><br/>
-              {{ new Date(this.eventObj.data.due) }}
-            </el-form-item>
-            <el-form-item label="Limit of Selection"><br/>
-              {{ this.eventObj.data.selectionLimit }}
-            </el-form-item>
-            <div v-show="!this.edit">
+          <div v-if="!this.edit">
+            <el-form>
+              <el-form-item label="Introduction"><br/>
+                {{ this.eventObj['data']['introduction'] }}
+              </el-form-item>
+              <el-form-item label="Due"><br/>
+                {{ new Date(this.eventObj.data.due) }}
+              </el-form-item>
+              <el-form-item label="Limit of Selection"><br/>
+                {{ this.eventObj.data.selectionLimit }}
+              </el-form-item>
               <el-form-item label="File list">
                 <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
                   <div v-for="(item, index) in eventDetail['file_name']">
@@ -30,17 +30,17 @@
                 </div>
                 <div v-else>No file</div>
               </el-form-item>
+            </el-form>
+            <div >
+              <el-select v-model="selected"
+                         :multiple="this.eventObj.data.selectionLimit > 1"
+                         :multiple-limit="this.eventObj.data.selectionLimit"
+                         placeholder="Please select.">
+                <el-option v-for="(item, index) in this.eventObj.data.options" :key="item.value"
+                           :label="getLabelAndNumberFromItem(item)" :value="index">
+                </el-option>
+              </el-select>
             </div>
-          </el-form>
-          <div >
-            <el-select v-model="selected"
-                       :multiple="this.eventObj.data.selectionLimit > 1"
-                       :multiple-limit="this.eventObj.data.selectionLimit"
-                       placeholder="Please select.">
-              <el-option v-for="(item, index) in this.eventObj.data.options" :key="item.value"
-                         :label="getLabelAndNumberFromItem(item)" :value="index">
-              </el-option>
-            </el-select>
           </div>
           <div v-if="this.edit">
             <el-form>
@@ -118,160 +118,160 @@
 </template>
 
 <script>
-import EventGrading from './EventGrading';
+  import EventGrading from './EventGrading';
 
-export default {
-  name: 'PartitionEvent',
-  components: {EventGrading},
-  props: {
-    data: {
-      required: true,
+  export default {
+    name: 'PartitionEvent',
+    components: {EventGrading},
+    props: {
+      data: {
+        required: true,
+      },
+      courseId: {
+        required: true,
+      },
+      eventId: {
+        required: true,
+      },
+      eventTitle: {
+        required: true,
+      },
     },
-    courseId: {
-      required: true,
+    data() {
+      return {
+        selected: [],
+        expand: false,
+        privileges: {},
+        eventObj: {},
+        submissionDetail: [],
+        edit: false,
+        token: '',
+        eventDetail: {},
+        partitionData: {'token': '', 'event_id': ''},
+        fileList: [],
+        due: new Date(),
+      };
     },
-    eventId: {
-      required: true,
+    created() {
+      this.token = localStorage.getItem('Authorization');
+      this.partitionData['token'] = localStorage.getItem('Authorization')
+      this.partitionData['event_id'] = this.$props.eventId
+      this.edit = false;
+      this.pullData()
     },
-    eventTitle: {
-      required: true,
-    },
-  },
-  data() {
-    return {
-      selected: [],
-      expand: false,
-      privileges: {},
-      eventObj: {},
-      submissionDetail: [],
-      edit: false,
-      token: '',
-      eventDetail: {},
-      partitionData: {'token': '', 'event_id': ''},
-      fileList: [],
-      due: new Date(),
-    };
-  },
-  created() {
-    this.token = localStorage.getItem('Authorization');
-    this.partitionData['token'] = localStorage.getItem('Authorization')
-    this.partitionData['event_id'] = this.$props.eventId
-    this.edit = false;
-    this.pullData()
-  },
-  methods: {
-    pullData()
-    {
-      this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
-        console.log(res);
-        this.submissionDetail = res.data['Data']['data'];
-        this.eventDetail = res.data;
-        const eventEle = res.data['Data'];
-        const typeStr = eventEle['event_type'];
-        if (typeStr === 'partition') {
-          this.eventObj['type'] = 'PartitionEvent';
-          this.eventObj['data'] = {};
-          this.eventObj['data']['type'] = 'PartitionEvent';
-          this.eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit'];
-          this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
-          this.eventObj['data']['partitionType'] = eventEle['event_detail']['partitionType'];
-          this.eventObj['data']['options'] = [];
-          if (this.eventObj['data']['partitionType'] === 'normal') {
-            for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-              const option = eventEle['event_detail']['options'][j];
-              this.eventObj['data']['options'].push({'label': option[0], 'value': j, 'limit': option[1]});
+    methods: {
+      pullData()
+      {
+        this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+          console.log(res);
+          this.submissionDetail = res.data['Data']['data'];
+          this.eventDetail = res.data;
+          const eventEle = res.data['Data'];
+          const typeStr = eventEle['event_type'];
+          if (typeStr === 'partition') {
+            this.eventObj['type'] = 'PartitionEvent';
+            this.eventObj['data'] = {};
+            this.eventObj['data']['type'] = 'PartitionEvent';
+            this.eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit'];
+            this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
+            this.eventObj['data']['partitionType'] = eventEle['event_detail']['partitionType'];
+            this.eventObj['data']['options'] = [];
+            if (this.eventObj['data']['partitionType'] === 'normal') {
+              for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+                const option = eventEle['event_detail']['options'][j];
+                this.eventObj['data']['options'].push({'label': option[0], 'value': j, 'limit': option[1]});
+              }
+            }
+            else {
+              for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+                const option = eventEle['event_detail']['options'][j];
+                this.eventObj['data']['options'].push(this.generateTimeSlotPartitionOptions(option));
+              }
             }
           }
-          else {
-            for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-              const option = eventEle['event_detail']['options'][j];
-              this.eventObj['data']['options'].push(this.generateTimeSlotPartitionOptions(option));
-            }
-          }
-        }
-        this.eventObj['data']['title'] = eventEle['event_title'];
-        this.eventObj['data']['introduction'] = eventEle['introduction'];
-        this.eventObj['data']['due'] = eventEle['event_detail']['due'];
-        this.eventObj['publisher'] = eventEle['publisher'];
-        this.eventObj['id'] = this.$props.eventId;
+          this.eventObj['data']['title'] = eventEle['event_title'];
+          this.eventObj['data']['introduction'] = eventEle['introduction'];
+          this.eventObj['data']['due'] = eventEle['event_detail']['due'];
+          this.eventObj['publisher'] = eventEle['publisher'];
+          this.eventObj['id'] = this.$props.eventId;
 
-        this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
-          this.privileges = res.data['Data'];
+          this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+            this.privileges = res.data['Data'];
+          }).catch(err => {
+            console.log(err);
+          });
+          this.eventDetail = res.data['Data'];
         }).catch(err => {
           console.log(err);
         });
-        this.eventDetail = res.data['Data'];
-      }).catch(err => {
-        console.log(err);
-      });
-    },
-    generateFileUrl(id) {
-      return 'http://127.0.0.1:8000/download_event_file?token='
-        + localStorage.getItem('Authorization')
-        + '&file_id='
-        + id.toString();
-    },
-    handleFileChange (file, fileList) {
-      this.fileList = fileList
-    },
-    generateTimeSlotPartitionOptions(option) {
-      const label = new Date(option[0]) + ' to ' + new Date(option[1]);
-      const value = label;
-      const limit = option[2];
-      return {'label': label, 'value': value, 'limit': limit};
-    },
-    onClickDeleteEvent() {
-      this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
-        this.$message.success('Delete Event ' + res.data['DeleteEvent']);
-        this.$parent.$parent.pullData()
-      }).catch(err => {
-        console.log(err);
-      });
-    },
-    onClickSubmit() {
-      const selected = this.selected;
-      this.$axios.post('/submit_event/', {'event_id': this.$props.eventId, 'selected': selected}).then(res => {
-        console.log(res);
-        this.pullData()
-      }).catch(err => {
-        console.log(err);
-      });
-    },
-    getLabelAndNumberFromItem(item) {
-      return item.label + ': ' + item.limit + ' remaining';
-    },
-    onClickExpand() {
-      this.expand = !this.expand;
-    },
-    generateTimeSlotChoiceLiteral(choice) {
-      if (choice.length === 3) {
-        return new Date(choice[0]) + ' to ' + new Date(choice[1]);
-      }
-      else {
-        return choice[0];
-      }
-    },
-    onClickConfirmEdit()
-    {
-      this.$axios.post('/change_event/', {
-        'event_id': this.$props.eventId,
-        'introduction': this.eventObj['data']['introduction'],
-        'due': this.due.getTime()
-      }).then(res => {
-        console.log(res);
-        if (this.fileList && this.fileList.length !== 0)
-        {
-          this.$refs.upload.submit()
+      },
+      generateFileUrl(id) {
+        return 'http://127.0.0.1:8000/download_event_file?token='
+          + localStorage.getItem('Authorization')
+          + '&file_id='
+          + id.toString();
+      },
+      handleFileChange (file, fileList) {
+        this.fileList = fileList
+      },
+      generateTimeSlotPartitionOptions(option) {
+        const label = new Date(option[0]) + ' to ' + new Date(option[1]);
+        const value = label;
+        const limit = option[2];
+        return {'label': label, 'value': value, 'limit': limit};
+      },
+      onClickDeleteEvent() {
+        this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
+          this.$message.success('Delete Event ' + res.data['DeleteEvent']);
+          this.$parent.$parent.pullData()
+        }).catch(err => {
+          console.log(err);
+        });
+      },
+      onClickSubmit() {
+        const selected = this.selected;
+        this.$axios.post('/submit_event/', {'event_id': this.$props.eventId, 'selected': selected}).then(res => {
+          console.log(res);
+          this.pullData()
+        }).catch(err => {
+          console.log(err);
+        });
+      },
+      getLabelAndNumberFromItem(item) {
+        return item.label + ': ' + item.limit + ' remaining';
+      },
+      onClickExpand() {
+        this.expand = !this.expand;
+      },
+      generateTimeSlotChoiceLiteral(choice) {
+        if (choice.length === 3) {
+          return new Date(choice[0]) + ' to ' + new Date(choice[1]);
         }
-        this.edit = false
-        this.$parent.$parent.pullData()
-        this.pullData()
-      }).catch(err => {
-        console.log(err);
-      });
-    }
-  },
-};
+        else {
+          return choice[0];
+        }
+      },
+      onClickConfirmEdit()
+      {
+        this.$axios.post('/change_event/', {
+          'event_id': this.$props.eventId,
+          'introduction': this.eventObj['data']['introduction'],
+          'due': this.due.getTime()
+        }).then(res => {
+          console.log(res);
+          if (this.fileList && this.fileList.length !== 0)
+          {
+            this.$refs.upload.submit()
+          }
+          this.edit = false
+          this.$parent.$parent.pullData()
+          this.pullData()
+        }).catch(err => {
+          console.log(err);
+        });
+      }
+    },
+  };
 </script>
 
 <style scoped>
