@@ -2913,34 +2913,29 @@ class ChangeEvent(View):
         :return:
         """
         try:
-
-            headersLiteral = str(request.headers).replace('\'', '\"')
-            headers = json.loads(headersLiteral)
-            if 'Token' in headers.keys():
-                print('in')
-                token = headers['Token']
-                student_id = get_sid(token)
+            #
+            # headersLiteral = str(request.headers).replace('\'', '\"')
+            # headers = json.loads(headersLiteral)
+            # if 'Token' in headers.keys():
+            #     print('in')
+            #     token = headers['Token']
+            #     student_id = get_sid(token)
+            # if student_id is None:
+            #     return HttpResponse('Unauthorized', status=401)
+            #     event_id = headers['Event_id']
+            #     introduction = headers['Introduction']
+            #     title = headers['Title']
+            #     key = headers['Idx']
+            # else:
+            #     print('not in')
+            token = get_from_request(request, 'token')
+            student_id = get_sid(token)
             if student_id is None:
                 return HttpResponse('Unauthorized', status=401)
-                event_id = headers['Event_id']
-                introduction = headers['Introduction']
-                title = headers['Title']
-                key = headers['Idx']
-            else:
-                print('not in')
-                token = get_from_request(request, 'token')
-                student_id = get_sid(token)
-            if student_id is None:
-                return HttpResponse('Unauthorized', status=401)
-                event_id = eval(request.body.decode()).get("event_id")
-                title = eval(request.body.decode()).get("title")
-                introduction = eval(request.body.decode()).get("introduction")
-                key = eval(request.body.decode()).get("idx")
-
-            arr = request.FILES.keys()
-            file_name = ''
-            for k in arr:
-                file_name = k
+            event_id = eval(request.body.decode()).get("event_id")
+            introduction = eval(request.body.decode()).get("introduction")
+            due = eval(request.body.decode()).get("due")
+            ddl = datetime.datetime.fromtimestamp(due // 1000)
 
             now = datetime.datetime.now()
             user = UserProfile.objects.get(student_id=student_id)
@@ -2951,22 +2946,10 @@ class ChangeEvent(View):
             course = Authority.objects.get(user_id=user_id, type="eventEdit", course_id=course_id)
             if course.end_time > now > course.start_time:
                 parameter = json.loads(event.parameter)
-                parameter['title'] = title
                 parameter['introduction'] = introduction
+                parameter['due'] = due
                 string = json.dumps(parameter)
-                Event.objects.filter(id=event_id).update(detail=introduction, title=title, parameter=string)
-                keys = Key.objects.filter(key_word=key)
-                if keys.count() == 0:
-                    return JsonResponse({"ChangeEvent": "has no key"})
-                array = json.loads(base64.b64decode(key.encode("utf-8")).decode("utf-8"))
-                if float(array['time']) + 3600 < time.time():
-                    return JsonResponse({"ChangeEvent": "has no key"})
-                if file_name != '':
-                    file = request.FILES.get(file_name)
-                    path = default_storage.save('file/' + project.name + "/" + event.title + "/" + file_name,
-                                                ContentFile(file.read()))
-                    ProjectAttachment.objects.create(file_path=path, project_id=project.id, event_id=event_id,
-                                                     group_id=8, user_id=user_id)
+                Event.objects.filter(id=event_id).update(detail=introduction, parameter=string, end_time=ddl)
                 return JsonResponse({"ChangeEvent": "success"})
             return JsonResponse({"ChangeEvent": "failed"})
 
