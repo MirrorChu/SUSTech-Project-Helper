@@ -316,9 +316,9 @@ export default {
   width: 1000px;
 }
 
-#li {
+ul li {
   display: inline-block;
-  width: 90px;
+  width: 100px;
 }
 
 #multi {

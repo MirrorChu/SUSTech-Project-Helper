@@ -1,26 +1,30 @@
 <template>
   <div>
     <div>
-      <div><h3>{{ this.$props.eventTitle }}</h3></div>
-      <div>
+      <div><h2 align="center">{{ this.$props.eventTitle }}</h2></div>
+      <div align="center">
         <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand'}}</el-button>
+        <el-button @click="onClickDeleteEvent">Delete Event</el-button>
       </div>
 
       <div v-if="expand">
         <div v-if="privileges && privileges['teach'] === 1">
-          <div><el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button></div>
           <div v-if="!this.edit">
             <el-form>
-              <el-form-item label="Introduction"><br/>
+              <h3 style="font-family: Verdana, serif;">Introduction: </h3>
+              <el-form-item label="">
                 {{ this.eventObj['data']['introduction'] }}
               </el-form-item>
-              <el-form-item label="Due"><br/>
+              <h3 style="font-family: Verdana, serif;">Due time: </h3>
+              <el-form-item label="">
                 {{ new Date(this.eventObj.data.due) }}
               </el-form-item>
-              <el-form-item label="Limit of Selection"><br/>
+              <h3 style="font-family: Verdana, serif;">Limit of selection: </h3>
+              <el-form-item label="">
                 {{ this.eventObj.data.selectionLimit }}
               </el-form-item>
-              <el-form-item label="File list">
+              <h3 style="font-family: Verdana, serif;">File list:</h3>
+              <el-form-item label="">
                 <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
                   <div v-for="(item, index) in eventDetail['file_name']">
                     <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
@@ -41,19 +45,24 @@
                 </el-option>
               </el-select>
             </div>
+            <el-row></el-row>
+            <div><el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button></div>
           </div>
           <div v-if="this.edit">
             <el-form>
-              <el-form-item label="Introduction">
+              <h3 style="font-family: Verdana, serif;">Introduction: </h3>
+              <el-form-item label="">
                 <el-input v-model="eventObj['data']['introduction']"></el-input>
               </el-form-item>
-              <el-form-item label="Due">
+              <h3 style="font-family: Verdana, serif;">Due time: </h3>
+              <el-form-item label="">
                 <el-date-picker
                   v-model="this.due"
                   type="datetime"
                   placeholder="Due Datetime">
                 </el-date-picker>
               </el-form-item>
+              <h3 style="font-family: Verdana, serif;">File list: </h3>
               <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
                 <div v-for="(item, index) in eventDetail['file_name']">
                   <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
@@ -62,7 +71,8 @@
                 </div>
               </div>
               <div v-else>No file</div>
-              <el-form-item label="Upload File">
+              <h3 style="font-family: Verdana, serif;">Upload File: </h3>
+              <el-form-item label="">
                 <el-upload
                   class="upload-demo"
                   drag
@@ -80,13 +90,15 @@
               <el-form-item><el-button @click="onClickConfirmEdit">Confirm Edit</el-button></el-form-item>
             </el-form>
           </div>
-          <div><el-button @click="onClickDeleteEvent">Delete Event</el-button></div>
         </div>
 
         <div v-if="privileges && privileges['teach'] === 0">
-          <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
-          <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
-          <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
+          <h3 style="font-family: Verdana, serif;">Introduction: </h3>
+          <div>{{ this.eventObj['data']['introduction'] }}</div>
+          <h3 style="font-family: Verdana, serif;">Due time: </h3>
+          <div>{{ new Date(this.eventObj.data.due) }}</div>
+          <h3 style="font-family: Verdana, serif;">Limit of Selections: </h3>
+          <div> {{ this.eventObj.data.selectionLimit }}</div>
           <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
             <div v-for="(item, index) in eventDetail['file_name']">
               <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
