@@ -56,12 +56,14 @@
         <div v-else>No Attachment</div>
       </div>
 
-      <div v-if="!this.edit && privileges && privileges['eventGrade'] === 1">
-        <EventGrading
-            v-bind:eventDetail="eventDetai"
-            v-bind:eventId="this.$props.eventId"
-            v-bind:submissionDetail="submissionDetail">
-        </EventGrading>
+      <div v-if="privileges && privileges['eventGrade'] === 1">
+        <div v-if="privileges && privileges['eventGrade']">
+          <EventGrading
+              v-bind:eventDetail="eventDetail"
+              v-bind:eventId="this.$props.eventId"
+              v-bind:submissionDetail="submissionDetail">
+          </EventGrading>
+        </div>
       </div>
       <div v-if="!privileges || privileges['eventGrade'] !== 1">
         <el-upload
@@ -104,7 +106,7 @@
         </div>
       </div>
 
-      <div v-if="privileges && privileges['teach'] === 1">
+      <div v-if="privileges && privileges['eventEdit'] === 1">
         <br/>
         <el-button @click="onClickDeleteEvent">Delete Event</el-button>
       </div>
