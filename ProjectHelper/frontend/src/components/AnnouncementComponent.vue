@@ -129,7 +129,7 @@ export default {
       this.$axios.post('/delete_event/', {
         'event_id': this.$props.eventId,
       }).then(res => {
-        alert('Delete Event ' + res.data['DeleteEvent']);
+        this.$message.success('Delete Event ' + res.data['DeleteEvent']);
         this.$parent.$parent.pullData();
       }).catch(err => {
         console.log(err);

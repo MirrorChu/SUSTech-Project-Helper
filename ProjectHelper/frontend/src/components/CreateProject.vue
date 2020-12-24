@@ -146,13 +146,13 @@ export default {
     onClickAdd () {
       if (!this.newProjectCourse)
       {
-        alert("must choose course first")
+        this.$message.error("must choose course first")
       }
       else
       {
         if (isNaN(Number(this.manuallySearchSid)) || !this.manuallySearchSid || this.manuallySearchSid.length === 0)
         {
-          alert("You can only add a student whose sid is number")
+          this.$message.error("You can only add a student whose sid is number")
           this.manuallySearchSid = ''
         }
         else {

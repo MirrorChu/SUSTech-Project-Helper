@@ -189,7 +189,7 @@ export default {
           this.$router.push('/');
         }
         else if (data['attempt'] === 'failure') {
-          alert('Failed to edit profile!');
+          this.$message.error('Failed to edit profile!');
         }
         this.pullPersonalData();
         this.edit = false;
@@ -253,7 +253,7 @@ export default {
           console.log('like success');
         }
         else {
-          alert('failed');
+          this.$message.error('failed');
         }
         this.pulltagData();
       }).catch(err => {
@@ -285,7 +285,7 @@ export default {
     onClickAddTag(id, name) {
       let len = this.tags.Data.length;
       if (len >= 10) {
-        alert('You can not add tag anymore! or delete some first');
+        this.$message.error('You can not add tag anymore! or delete some first');
       }
       else {
         this.$axios.post('/add_tag/', {
@@ -334,7 +334,7 @@ export default {
         });
       }
       else {
-        alert('You cannot add a space tag');
+        this.$message.error('You cannot add a air tag');
       }
     },
     pulltageditable() {
