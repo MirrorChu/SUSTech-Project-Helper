@@ -44,22 +44,31 @@
       </div>
 
       <div v-if="!edit">
-        <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
-        <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
-        <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
-          <div v-for="(item, index) in eventDetail['file_name']">
-            <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-            <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
-            </el-button>
-          </div>
-        </div>
-        <div v-else>No Attachment</div>
+        <el-form>
+          <el-form-item label="Introduction"><br/>
+            <div>{{ this.eventObj['data']['introduction'] }}</div>
+          </el-form-item>
+          <el-form-item label="Due"><br/>
+            {{ new Date(this.eventObj.data.due) }}
+          </el-form-item>
+          <el-form-item label="File List"><br/>
+            <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+              <div v-for="(item, index) in eventDetail['file_name']">
+                <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+                <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+                </el-button>
+              </div>
+            </div>
+            <div v-else>No Attachment</div>
+          </el-form-item>
+        </el-form>
+
       </div>
 
       <div v-if="privileges && privileges['eventGrade'] === 1">
         <div v-if="privileges && privileges['eventGrade']">
           <EventGrading
-              v-bind:eventDetail="eventDetail"
+              v-bind:eventDetail="this.eventDetai"
               v-bind:eventId="this.$props.eventId"
               v-bind:submissionDetail="submissionDetail">
           </EventGrading>
@@ -151,37 +160,41 @@ export default {
     this.submissionData['token'] = localStorage.getItem('Authorization')
     this.submissionData['event_id'] = this.$props.eventId
     this.edit = false;
-    this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
-      console.log(res);
-      this.submissionDetail = res.data['Data']['data'];
-      this.eventDetai = res.data;
-      this.eventDetail = res.data['Data'];
-      const eventEle = res.data['Data'];
-      const typeStr = eventEle['event_type'];
-      if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
-        this.eventObj['type'] = 'SubmissionComponent';
-        this.eventObj['data'] = {};
-        this.eventObj['data']['type'] = 'SubmissionComponent';
-        this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
-      }
-      this.eventObj['data']['title'] = eventEle['event_title'];
-      this.eventObj['data']['introduction'] = eventEle['introduction'];
-      this.eventObj['data']['due'] = eventEle['event_detail']['due'];
-      this.eventObj['publisher'] = eventEle['publisher'];
-      this.eventObj['id'] = this.$props.eventId;
+    this.pullData()
+  },
+  methods: {
+    pullData()
+    {
+      this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+        console.log(res);
+        this.submissionDetail = res.data['Data']['data'];
+        this.eventDetai = res.data;
+        this.eventDetail = res.data['Data'];
+        const eventEle = res.data['Data'];
+        const typeStr = eventEle['event_type'];
+        if (typeStr === 'submission' || typeStr === 'SubmissionEvent') {
+          this.eventObj['type'] = 'SubmissionComponent';
+          this.eventObj['data'] = {};
+          this.eventObj['data']['type'] = 'SubmissionComponent';
+          this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
+        }
+        this.eventObj['data']['title'] = eventEle['event_title'];
+        this.eventObj['data']['introduction'] = eventEle['introduction'];
+        this.eventObj['data']['due'] = eventEle['event_detail']['due'];
+        this.eventObj['publisher'] = eventEle['publisher'];
+        this.eventObj['id'] = this.$props.eventId;
 
-      this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
-        this.privileges = res.data['Data'];
+        this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+          this.privileges = res.data['Data'];
+        }).catch(err => {
+          console.log(err);
+        });
+        this.dataBlock['token'] = localStorage.getItem('Authorization');
+        this.dataBlock['event_id'] = this.$props.eventId;
       }).catch(err => {
         console.log(err);
       });
-      this.dataBlock['token'] = localStorage.getItem('Authorization');
-      this.dataBlock['event_id'] = this.$props.eventId;
-    }).catch(err => {
-      console.log(err);
-    });
-  },
-  methods: {
+    },
     onClickDeleteEvent() {
       this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
         this.$message.warning('Delete Event ' + res.data['DeleteEvent']);
@@ -201,6 +214,8 @@ export default {
     },
     onSuccess(response, file, fileList) {
       console.log(response);
+      this.$parent.$parent.pullData()
+      this.pullData()
     },
     generateFileUrl(id) {
       return 'http://127.0.0.1:8000/download_event_file?token='

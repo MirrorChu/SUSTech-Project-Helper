@@ -144,50 +144,54 @@ export default {
     this.partitionData['token'] = localStorage.getItem('Authorization')
     this.partitionData['event_id'] = this.$props.eventId
     this.edit = false;
-    this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
-      console.log(res);
-      this.submissionDetail = res.data['Data']['data'];
-      this.eventDetail = res.data;
-      const eventEle = res.data['Data'];
-      const typeStr = eventEle['event_type'];
-      if (typeStr === 'partition') {
-        this.eventObj['type'] = 'PartitionEvent';
-        this.eventObj['data'] = {};
-        this.eventObj['data']['type'] = 'PartitionEvent';
-        this.eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit'];
-        this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
-        this.eventObj['data']['partitionType'] = eventEle['event_detail']['partitionType'];
-        this.eventObj['data']['options'] = [];
-        if (this.eventObj['data']['partitionType'] === 'normal') {
-          for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-            const option = eventEle['event_detail']['options'][j];
-            this.eventObj['data']['options'].push({'label': option[0], 'value': j, 'limit': option[1]});
+    this.pullData()
+  },
+  methods: {
+    pullData()
+    {
+      this.$axios.post('/get_event_detail/', {'event_id': this.$props.eventId}).then(res => {
+        console.log(res);
+        this.submissionDetail = res.data['Data']['data'];
+        this.eventDetail = res.data;
+        const eventEle = res.data['Data'];
+        const typeStr = eventEle['event_type'];
+        if (typeStr === 'partition') {
+          this.eventObj['type'] = 'PartitionEvent';
+          this.eventObj['data'] = {};
+          this.eventObj['data']['type'] = 'PartitionEvent';
+          this.eventObj['data']['selectionLimit'] = eventEle['event_detail']['selectionLimit'];
+          this.eventObj['partitionType'] = eventEle['event_detail']['partitionType'];
+          this.eventObj['data']['partitionType'] = eventEle['event_detail']['partitionType'];
+          this.eventObj['data']['options'] = [];
+          if (this.eventObj['data']['partitionType'] === 'normal') {
+            for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+              const option = eventEle['event_detail']['options'][j];
+              this.eventObj['data']['options'].push({'label': option[0], 'value': j, 'limit': option[1]});
+            }
+          }
+          else {
+            for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
+              const option = eventEle['event_detail']['options'][j];
+              this.eventObj['data']['options'].push(this.generateTimeSlotPartitionOptions(option));
+            }
           }
         }
-        else {
-          for (let j = 0; j < eventEle['event_detail']['options'].length; j += 1) {
-            const option = eventEle['event_detail']['options'][j];
-            this.eventObj['data']['options'].push(this.generateTimeSlotPartitionOptions(option));
-          }
-        }
-      }
-      this.eventObj['data']['title'] = eventEle['event_title'];
-      this.eventObj['data']['introduction'] = eventEle['introduction'];
-      this.eventObj['data']['due'] = eventEle['event_detail']['due'];
-      this.eventObj['publisher'] = eventEle['publisher'];
-      this.eventObj['id'] = this.$props.eventId;
+        this.eventObj['data']['title'] = eventEle['event_title'];
+        this.eventObj['data']['introduction'] = eventEle['introduction'];
+        this.eventObj['data']['due'] = eventEle['event_detail']['due'];
+        this.eventObj['publisher'] = eventEle['publisher'];
+        this.eventObj['id'] = this.$props.eventId;
 
-      this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
-        this.privileges = res.data['Data'];
+        this.$axios.post('/get_privilege_list/', {'course_id': this.$props.courseId}).then(res => {
+          this.privileges = res.data['Data'];
+        }).catch(err => {
+          console.log(err);
+        });
+        this.eventDetail = res.data['Data'];
       }).catch(err => {
         console.log(err);
       });
-      this.eventDetail = res.data['Data'];
-    }).catch(err => {
-      console.log(err);
-    });
-  },
-  methods: {
+    },
     generateFileUrl(id) {
       return 'http://127.0.0.1:8000/download_event_file?token='
         + localStorage.getItem('Authorization')
@@ -247,6 +251,7 @@ export default {
         }
         this.edit = false
         this.$parent.$parent.pullData()
+        this.pullData()
       }).catch(err => {
         console.log(err);
       });
