@@ -1,7 +1,7 @@
 <!--TODO After refresh, everything is gone.-->
 <template>
-  <div>
-    <el-col :span="10">
+  <div id="profile">
+    <el-card>
       <h1>Personal Profile</h1>
       <el-divider></el-divider>
       <el-col :span="16">
@@ -9,7 +9,6 @@
           <el-form-item label="SID">
             <el-input v-model="this.sid" v-if="false" :placeholder="this.sid" clearable>
             </el-input>
-
 
             <el-row>
               {{ this.sid }}
@@ -43,10 +42,6 @@
           </el-form-item>
 
 
-        </el-form>
-      </el-card>
-  </el-col>
-
           <el-form-item label="MOBILE">
             <el-input v-model="mobile" v-if="this.edit" :placeholder="mobile" clearable>
             </el-input>
@@ -66,7 +61,6 @@
           </el-form-item>
 
           <el-form-item label="Tag">
-
             <div v-if="!this.edit">
           <span v-for="item in this.tags['Data']">
             <el-badge :value="item.likes">
@@ -76,11 +70,12 @@
           </span>
             </div>
 
-
-            <div v-if="this.edit" align="left">
+            <div v-if="this.edit">
               <b>Have Selected:</b>
               <span v-for="item in this.tags['Data']">
-            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{ item.tag_name }}</el-button>
+            <el-button @click="onClickDeleteTag(item.tag_id, item.tag_name, item.IDofTag)">{{
+                item.tag_name
+              }}</el-button>
             &nbsp
           </span>
               <br>
@@ -121,7 +116,6 @@
         </el-upload>
       </el-col>
     </el-card>
-
   </div>
 </template>
 
@@ -378,7 +372,7 @@ export default {
   background-color: #F7F8F8;
   border-color: whitesmoke;
   align-content: center;
-  /*text-align: center;*/
+  text-align: center;
   line-height: 50px;
 }
 </style>

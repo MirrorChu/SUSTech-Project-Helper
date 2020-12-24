@@ -81,7 +81,6 @@
           </el-card>
         </div>
       </el-col>
-
       <el-col :span="13" :offset="1">
         <div>
           <EventList v-bind:sid="this.$props.sid"
@@ -89,6 +88,7 @@
                      v-bind:projectId="this.$props.projectId">
           </EventList>
         </div>
+
         <div v-if="showAd">
           <h1 style="font-family: Verdana, serif;">Advertisement</h1>
           <el-card>
@@ -122,7 +122,6 @@
           </el-card>
 
         </div>
-
       </el-col>
     </el-row>
 

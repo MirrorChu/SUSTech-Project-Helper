@@ -9,29 +9,17 @@
       <div v-if="expand">
         <div v-if="privileges && privileges['teach'] === 1">
           <div><el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button></div>
-          <el-form>
-            <el-form-item label="Introduction"><br/>
-              {{ this.eventObj['data']['introduction'] }}
-            </el-form-item>
-            <el-form-item label="Due"><br/>
-              {{ new Date(this.eventObj.data.due) }}
-            </el-form-item>
-            <el-form-item label="Limit of Selection"><br/>
-              {{ this.eventObj.data.selectionLimit }}
-            </el-form-item>
-            <div v-show="!this.edit">
-              <el-form-item label="File list">
-                <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
-                  <div v-for="(item, index) in eventDetail['file_name']">
-                    <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-                    <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
-                    </el-button>
-                  </div>
-                </div>
-                <div v-else>No file</div>
-              </el-form-item>
+          <div>Introduction: {{ this.eventObj['data']['introduction'] }}</div>
+          <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
+          <div>Limit of Selections: {{ this.eventObj.data.selectionLimit }}</div>
+          <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
+            <div v-for="(item, index) in eventDetail['file_name']">
+              <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
+              <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
+              </el-button>
             </div>
-          </el-form>
+          </div>
+          <div v-else>No file</div>
           <div >
             <el-select v-model="selected"
                        :multiple="this.eventObj.data.selectionLimit > 1"
