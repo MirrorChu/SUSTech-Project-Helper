@@ -1960,10 +1960,6 @@ class TeacherKickMember(View):
             project = Project.objects.get(id=group.project_id)
             auth = Authority.objects.get(user_id=student_id, type="group", course_id=project.course_id)
             if auth.end_time > datetime.datetime.now() > auth.start_time:
-                if group.member == 1:
-                    GroupOrg.objects.filter(id=group_id).delete()
-                else:
-                    GroupOrg.objects.filter(id=group_id).update(member=group.member - 1)
                 if user.id == group.captain_name_id:
                     member = UserGroup.objects.filter(group_name_id=group_id)
                     for i in member:
@@ -1971,6 +1967,10 @@ class TeacherKickMember(View):
                             GroupOrg.objects.filter(id=group_id).update(captain_name_id=i.user_name_id)
                             break
                 UserGroup.objects.filter(group_name_id=group_id, user_name_id=user.id).delete()
+                if group.member == 1:
+                    GroupOrg.objects.filter(id=group_id).delete()
+                else:
+                    GroupOrg.objects.filter(id=group_id).update(member=group.member - 1)
                 return JsonResponse({"TeacherKickMemberCheck": "success"})
             return HttpResponse('Unauthorized', status=401)
         except Exception as e:
