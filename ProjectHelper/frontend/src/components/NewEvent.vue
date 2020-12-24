@@ -88,10 +88,10 @@ export default {
         //TODO: timeSlot and normal
         const partition = res.data['Data'][i]
         const option = {}
-        if (typeof partition['option_name'] === typeof Number) {
+        if (typeof partition['option_name'] === typeof []) {
           const start = new Date(partition['option_name'][0])
           const end = new Date(partition['option_name'][1])
-          option['label'] = partition['partition_name'] + start + ' to ' + end
+          option['label'] = partition['partition_name'] + ' ' + start + ' to ' + end
         } else {
           option['label'] = partition['partition_name'] + ': ' + partition['option_name']
         }
@@ -113,9 +113,9 @@ export default {
     onClickExpand () {
       this.expand = !this.expand
     },
-    parentFunc () {
-      this.$parent.$parent.testing()
-    },
+    // parentFunc () {
+    //   this.$parent.$parent.testing()
+    // },
   },
 }
 </script>

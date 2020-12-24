@@ -3104,6 +3104,7 @@ class SubmitEvent(View):
                             ChooseEvent.objects.create(event_id_id=event_id, group_id=group.id,
                                                        choice=i)
                             parameter['options'][i][1] -= 1
+                    Event.objects.filter(id=event.id).update(parameter=json.dumps(parameter))
                 return JsonResponse({"SubmitEvent": "success"})
             return JsonResponse({"SubmitEvent": "failed"})
 
