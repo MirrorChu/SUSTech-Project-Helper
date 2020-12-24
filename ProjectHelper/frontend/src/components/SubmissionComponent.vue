@@ -12,7 +12,7 @@
         <el-button @click="onClickExpand">Close</el-button>
       </div>
 
-      <div v-if="privileges['teach']">
+      <div v-if="privileges && privileges['teach'] === 1">
         <el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button>
 
         <div v-if="edit">
@@ -29,7 +29,7 @@
         <div>Due: {{ new Date(this.eventObj.data.due) }}</div>
       </div>
 
-      <div v-if="privileges['teach'] === 1">
+      <div v-if="privileges && privileges['teach'] === 1">
         <div>
           <el-button @click="onClickDeleteEvent">Delete Event</el-button>
         </div>
@@ -62,7 +62,7 @@
             <el-link :href="generateFileUrl(eventDetail['Data']['data']['file_id'][index])">
               {{ item }}
             </el-link>
-            <i class="el-icon-delete" @click="onClickDelete(index)"></i>
+            <el-button class="el-icon-delete" @click="onClickDelete(index)"></el-button>
           </div>
         </div>
 
@@ -156,7 +156,7 @@ export default {
   methods: {
     onClickDeleteEvent() {
       this.$axios.post('/delete_event/', {'event_id': this.eventObj['id']}).then(res => {
-        alert('Delete Event ' + res.data['DeleteEvent']);
+        this.$message.warning('Delete Event ' + res.data['DeleteEvent']);
         this.$parent.$parent.pullData()
       }).catch(err => {
         console.log(err);
@@ -184,7 +184,14 @@ export default {
           + id.toString();
     },
     onClickDelete(index) {
-      console.log(index);
+      this.$axios.post('/delete_event_file/', {
+        'file_id': this.eventDetail['Data']['data']['file_id'][index]
+      }).then(res => {
+        this.$message.warning('Delete File ' + this.eventDetail['Data']['data']['file_name'][index]);
+        this.$parent.$parent.pullData()
+      }).catch(err => {
+        console.log(err);
+      });
     },
   },
 };

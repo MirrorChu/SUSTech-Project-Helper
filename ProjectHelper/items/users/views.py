@@ -3513,7 +3513,6 @@ class SubmitModelForEvent(View):
             token = request.POST.get('token')
             event_id = request.POST.get('event_id')
             student_id = get_sid(token)
-
             user = UserProfile.objects.get(student_id=student_id)
             user_id = user.id
             event = Event.objects.get(id=event_id)
@@ -3551,8 +3550,10 @@ class SubmitModelForEvent(View):
                         pointer += 1
                         grades.append(data)
                     os.remove(path)
+                    print(grades)
                     for i in grades:
                         for j in i['member']:
+                            print(j)
                             tmp = EventGrades.objects.filter(event_id=event_id, user_id=j[0])
                             if tmp.count() == 0:
                                 EventGrades.objects.create(grade=j[1], comment=i['comment'], event_id=event_id,
@@ -3572,6 +3573,8 @@ class SubmitModelForEvent(View):
             return JsonResponse({"SubmitModelForEvent": "failed"})
 
         except Exception as e:
+            print(pointer)
+            e.with_traceback()
             logger.debug('%s %s', self, e)
             return JsonResponse({"SubmitModelForEvent": "wrong submit"})
 

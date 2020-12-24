@@ -49,6 +49,16 @@
 
         <el-button @click="semirandomgrouping"> Semi-random Grouping</el-button>
         <el-button @click="showCreateGroupDialog"> Create New Group for Students</el-button>
+        <el-upload
+          class="upload-demo"
+          action="http://127.0.0.1:8000/teacher_add_student/"
+          :on-success="handlesuccess"
+          :on-error="handleerror"
+          :multiple="false"
+          :data="datas">
+          <el-button size="small" type="primary">Add Students via File</el-button>
+          <div slot="tip" class="el-upload__tip">SID of students need to be added in the column0 of Excel </div>
+        </el-upload>
       </div>
     </div>
 
@@ -153,14 +163,25 @@ export default {
       member_select: [],
       GroupingVisiblity: false,
       allGroupingUrl: '',
+      datas: {'token': '', 'project_id': ''},
     };
   },
   created() {
     this.pullGroupingData();
     this.allGroupingUrl = 'http://127.0.0.1:8000/get_student_in_project?token=' +
         localStorage.getItem('Authorization') + '&project_id=' + this.project_id;
+    this.datas['token'] = localStorage.getItem('Authorization')
+    this.datas['project_id'] = this.$props.project_id
   },
   methods: {
+    handlesuccess(response, file, fileList)
+    {
+      this.$message.info('Add students success')
+    },
+    handleerror(err, file,fileList)
+    {
+      this.$message.error('Add students failed')
+    },
     test(group_id) {
       for (const index in this.stu_invite) {
         this.$axios.post('/teacher_add_member/', {
@@ -168,6 +189,7 @@ export default {
           sid_invite: this.stu_invite[index],
         }).then(res => {
           console.log(res.data);
+          this.$message.info('You invite ' + this.stu_invite[index] )
         }).catch(err => {
           console.log(err);
         });
@@ -211,6 +233,7 @@ export default {
         sid_kick: sid,
       }).then(res => {
         console.log(res.data);
+        this.$message.warning('You kick ' + sid )
         this.pullSingleData();
       }).catch(err => {
         console.log(err);
@@ -222,6 +245,7 @@ export default {
             'project_id': this.$props.project_id,
           }).then(res => {
         console.log(res);
+        this.$message.info('Auto-grouping is done')
         this.pullGroupingData();
       }).catch(err => {
         console.log(err);

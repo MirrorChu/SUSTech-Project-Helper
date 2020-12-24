@@ -208,19 +208,22 @@
 <!--    </div>-->
 
 
-    <el-row v-if="this.privileges && this.privileges['teach'] === 1">
+    <el-row v-if="this.privileges && this.privileges['group'] === 1">
       <div>
         <Grouping v-bind:project_id="this.$props.projectId"></Grouping>
       </div>
+    </el-row>
+
+    <el-row v-if="this.privileges && this.privileges['authEdit'] === 1">
       <div>
         <AuthorityManage v-bind:project_id="this.$props.projectId"></AuthorityManage>
       </div>
     </el-row>
 
-    <div v-if="this.privileges['teach'] === 1">
+    <el-row v-if="this.privileges && this.privileges['teach'] === 1">
       <el-input v-model="addingStudent" placeholder="sid of student"></el-input>
       <el-button @click="addStudent">Add Student into This Course</el-button>
-    </div>
+    </el-row>
 
   </div>
 </template>

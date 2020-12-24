@@ -164,6 +164,7 @@ export default {
           this.address = data['address']
           console.log('after pull info', this.sid)
           this.pulltagData()
+          this.pulltageditable()
         }
       }).catch(err => {
         console.log('err', err)

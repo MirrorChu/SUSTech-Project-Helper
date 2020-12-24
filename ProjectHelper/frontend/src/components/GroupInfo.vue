@@ -99,7 +99,7 @@ export default {
     },
     onClickInvite ()
     {
-      if (this.toInviteList.length === 0) {
+      if (this.toInviteList && this.toInviteList.length === 0) {
         alert('You are inviting air!')
       } else {
         console.log(this.toInviteList)
