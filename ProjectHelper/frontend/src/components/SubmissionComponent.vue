@@ -82,7 +82,6 @@
           <h3>Comment</h3>
           {{ eventDetail['Data']['data']['comment'] }}
         </div>
-        <el-button @click="onClickSubmit">Submit</el-button>
       </div>
 
     </div>
@@ -161,9 +160,6 @@ export default {
       }).catch(err => {
         console.log(err);
       });
-    },
-    onClickSubmit() {
-      //  TODO: Implement submit.
     },
     handleFileChange() {
 
