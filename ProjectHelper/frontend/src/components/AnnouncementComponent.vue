@@ -1,20 +1,26 @@
 <template>
   <div>
     <div>
-      <h3>
+      <h2 align="center">
         {{ this.title }}
-      </h3>
+      </h2>
 
       <div>
-        <el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand' }}</el-button>
+        <div style="float: left;margin-left: 175px"><el-button @click="onClickExpand">{{ this.expand ? 'Close' : 'Expand' }}</el-button></div>
+        <div v-if="this.privileges && this.privileges['eventEdit']" style="float: left;padding-left: 15px;padding-bottom: 20px">
+        <el-button @click="onClickDeleteEvent">Delete Event</el-button>
+      </div>
       </div>
     </div>
-
+    <br>
     <div v-if="expand">
-      <el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'edit' }}</el-button>
       <div v-if="!edit">
-        {{ this.introduction }}<br>
-        <div>Due: {{ new Date(this.due) }}</div>
+        <el-row></el-row>
+        <h3 style="font-family: Verdana, serif;">Introduction: </h3>
+        <div>{{ this.introduction }}</div>
+        <h3 style="font-family: Verdana, serif;">Due time: </h3>
+        <div>{{ new Date(this.due) }}</div>
+        <h3 style="font-family: Verdana, serif;">Attachments: </h3>
         <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
           <div v-for="(item, index) in eventDetail['file_name']">
             <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
@@ -24,11 +30,13 @@
       </div>
       <div v-else>
         <el-form>
-          <el-form-item label="introduction">
+          <el-row></el-row>
+          <h3 style="font-family: Verdana, serif;">Introduction: </h3>
+          <el-form-item label="">
             <el-input v-model="introduction" type="textarea"></el-input>
           </el-form-item>
-          <el-form-item label="Due">
-            <br>
+          <h3 style="font-family: Verdana, serif;">Due time: </h3>
+          <el-form-item label="">
             <el-date-picker
                 v-model="this.dueDatetime"
                 type="datetime"
@@ -38,9 +46,8 @@
           <div>
             <el-button @click="onClickUpdateEvent">Update</el-button>
           </div>
-
-          <el-form-item label="File List">
-            <br>
+          <h3 style="font-family: Verdana, serif;">File List: </h3>
+          <el-form-item label="">
             <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
               <div v-for="(item, index) in eventDetail['file_name']">
                 <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
@@ -50,7 +57,8 @@
             </div>
             <div v-else>No file</div>
           </el-form-item>
-          <el-form-item label="Attachment">
+          <h3 style="font-family: Verdana, serif;">Attachment: </h3>
+          <el-form-item label="">
             <el-upload
                 class="upload-demo"
                 drag
@@ -64,6 +72,7 @@
             </el-upload>
           </el-form-item>
         </el-form>
+        <el-button @click="edit = !edit">{{ edit ? 'Cancel' : 'Edit' }}</el-button>
       </div>
 
     </div>
