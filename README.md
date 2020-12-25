@@ -1,5 +1,7 @@
 # SUSTech-Project-Helper
 
+**For those who are concerned with CS309 OOAD in SUSTech, the branch for presentation in Dec 25, 2020 is *pre_version*. Please refer to the correct branch for source code. Or, you may download our release for the source code.**
+
 This branch is for frontend and backend development. Frontend barnch is merged into main branch.
 
 This branch is actively developed.
