@@ -10,12 +10,12 @@
               :header-cell-style="{background:'#F7F8F8',color:'#606266'}">
 
       <!--      sortable is not supported-->
-      <el-table-column fixed prop=1 label="Course" width="450"></el-table-column>
+      <el-table-column prop=1 label="Course" min-width="30%" align="center"></el-table-column>
 
       <!--      sortable is not supported-->
-      <el-table-column prop=2 label="Project" width="450"></el-table-column>
+      <el-table-column prop=2 label="Project" min-width="40%" align="center"></el-table-column>
 
-      <el-table-column width="250" align="right">
+      <el-table-column min-width="30%" align="center">
         <template slot="header" slot-scope="scope">
           <el-input size="mini" v-model="searchKey" placeholder="Search"/>
         </template>
@@ -37,7 +37,7 @@
 
     <CreateProject
         v-bind:sid="this.sid"
-        v-if="this.displayControl.createProjectForm">
+        v-show="this.displayControl.createProjectForm">
     </CreateProject>
 
   </div>

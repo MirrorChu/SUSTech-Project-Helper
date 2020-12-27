@@ -227,6 +227,7 @@ export default {
         this.submitUpload()
         this.$parent.displayControl['createProjectForm'] = false
         this.$parent.loadProjects()
+        this.$parent.createProjectLiteral = 'Create New Project'
       }).catch(err => {
         console.log(err, 'err')
       })
@@ -243,7 +244,7 @@ export default {
         this.dataBlock['token'] = localStorage.getItem('Authorization')
         console.log('create project with files', this.dataBlock)
         this.$axios.post('/teacher_create_project/', this.dataBlock).then(res => {
-          console.log(res)
+          console.log('sdjvjdsvjnsdjvkjdshvsdjv',res)
           if (res.data['TeacherCreateProject'] === 'success') {
             this.dataforfile['project_id'] = res.data.project_id
             this.dataforfile['token'] = localStorage.getItem('Authorization')

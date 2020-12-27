@@ -131,6 +131,7 @@ urlpatterns = [
     path('teacher_add_student/', TeacherAddStudent.as_view()),
     path('teacher_add_one_student/', TeacherAddOneStudent.as_view()),
     path('verify_token/', VerifyToken.as_view()),
+    path('change_group/', ChangeGroup.as_view()),
     url(r'^mailurl/$', MailUrl.as_view()),
 
     # 传入name使得不同子目录也能对应同一个网页，比如path('login2', LoginView.as_view(), name="login")也能对应登录网页

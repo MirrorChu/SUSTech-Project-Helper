@@ -23,7 +23,7 @@
 <!--            <i class="el-icon-message"></i>-->
 <!--            <span slot="title">Messages</span>-->
 <!--          </el-menu-item>-->
-          <el-menu-item>
+          <el-menu-item @click="onClickSettings">
             <i class="el-icon-setting" @click="onClickSettings"></i>
             <span slot="title">Settings</span>
           </el-menu-item>
@@ -113,6 +113,7 @@ export default {
 
     //TODO: Personal profile request.
     onClickProfile () {
+      console.log(1)
       this.changeMainContent('profile')
     },
 

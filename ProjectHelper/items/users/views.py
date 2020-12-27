@@ -23,6 +23,7 @@ from items.operations.models import UserCourse, UserGroup, Tag, UserTag, UserLik
     Key, ProjectFile, ProjectComment, Event, ChooseEvent, ProjectAttachment, EventGrades
 from items.projects.models import Project
 from items.users.models import UserProfile
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -1849,7 +1850,7 @@ class TeacherCreateProject(View):
                                               course_id=course_id, min_group_size=min_group_size,
                                               group_ddl=group_ddl)
                 project_id = project.id
-                subject = 'A Project published in Course ' + course.name
+                subject = 'A Project'# published in Course ' + course.name
                 text_content = 'You need to read this email with a client can read html.'
                 html_content = '''
                                 <div><includetail>
@@ -1916,7 +1917,7 @@ class SubmitProjectFile(View):
 
             query_set = UserProfile.objects.get(student_id=student_id)
             user_id = query_set.id
-            auth = Authority.objects.get(user_id=user_id, type="proejctEdit", course_id=course_id)
+            auth = Authority.objects.get(user_id=user_id, type="projectEdit", course_id=course_id)
 
             arr = request.FILES.keys()
             file_name = ''
@@ -1969,6 +1970,7 @@ class SubmitEventFile(View):
                     path = default_storage.save(
                         'file/' + project_name + "/" + event.title + "/" + name,
                         ContentFile(file.read()))
+                    print()
                     ProjectAttachment.objects.create(file_path=path, project_id=project.id,
                                                      group_id=8,
                                                      user_id=user_id, event_id=event_id)
@@ -2365,6 +2367,7 @@ class GetEventList(View):
                     partitionList = parameter['selectedPartitionList']
                     for j in partitionList:
                         n = json.loads(j)
+                        print(n)
                         t_event = Event.objects.get(id=n['partition_id'])
                         choice = ChooseEvent.objects.filter(group_id=group.id,
                                                             event_id_id=t_event.id,
@@ -2381,6 +2384,7 @@ class GetEventList(View):
                 events.append(data)
             return JsonResponse({"Data": events, "GetEventListCheck": "success"})
         except Exception as e:
+            print(e.with_traceback())
             logger.debug('%s %s', self, e)
             return JsonResponse({"GetEventListCheck": "failed"})
 

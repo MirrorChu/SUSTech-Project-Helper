@@ -64,7 +64,6 @@
             <div v-if="this.eventDetail['file_name'] && this.eventDetail['file_name'].length !== 0">
               <div v-for="(item, index) in eventDetail['file_name']">
                 <el-link :href="generateFileUrl(eventDetail['file_id'][index])">{{ item }}</el-link>
-                <el-button icon="el-icon-delete" @click="onClickDeleteEventFile(eventDetail['file_id'][index])">
                 </el-button>
               </div>
             </div>
@@ -78,8 +77,16 @@
                            :label="getLabelAndNumberFromItem(item)" :value="index">
                 </el-option>
               </el-select>
-              <div><el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button></div>
-            </div></div>
+            </div>
+            <div>
+              <EventGrading
+                v-bind:eventDetail="geteventdetailresponse"
+                v-bind:eventId="this.$props.eventId"
+                v-bind:submissionDetail="submissionDetail">
+              </EventGrading>
+            </div>
+            <div><el-button @click="edit = !edit">{{ edit ? 'Close' : 'Edit' }}</el-button></div>
+          </div>
         </div>
 
         <div v-if="privileges && privileges['teach'] === 0">

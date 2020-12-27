@@ -23,4 +23,5 @@ export default {
   /*padding:0px;*/
   margin-top: 60px;
 }
+
 </style>

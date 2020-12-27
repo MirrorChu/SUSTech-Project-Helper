@@ -34,7 +34,7 @@
                 <el-input v-model="projectDetail['projectIntroduction']" type="textarea"></el-input>
               </el-form-item>
 
-              <el-form-item label="Upload File">
+              <el-form-item label="Upload File"><br/>
                 <el-upload
                     drag
                     action="/api/test"
@@ -80,7 +80,7 @@
             </div>
           </el-card>
           <el-divider></el-divider>
-          
+
           <div v-if="showAd">
             <h1 style="font-family: Verdana, serif;">Advertisement</h1>
             <el-card>
@@ -113,7 +113,7 @@
               </div>
             </el-card>
           </div>
-        
+
         </div>
       </el-col>
       <el-col :span="13" :offset="1">
@@ -343,7 +343,7 @@ export default {
     onClickEdit() {
       this.edit = !this.edit;
       if (this.edit) {
-        this.editLiteral = 'Cancel';
+        this.editLiteral = 'Confirm Edit';
       }
       else {
         this.editLiteral = 'Edit';

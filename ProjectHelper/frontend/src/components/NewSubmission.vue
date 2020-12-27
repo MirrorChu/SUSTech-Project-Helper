@@ -29,7 +29,7 @@
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item label="Attachment">
+    <el-form-item label="Attachment"><br/>
       <el-upload
           class="upload-demo"
           drag
@@ -126,6 +126,7 @@ export default {
           }
           this.$parent.$parent.$parent.$parent.$parent.pullData()
           this.$parent.$parent.$parent.expand = false
+          this.$message.success('Create success')
         }).catch(err => {
           console.log(err)
         })

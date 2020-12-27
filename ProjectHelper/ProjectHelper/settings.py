@@ -114,9 +114,10 @@ DATABASES = {
     #     }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ooad_pre',
+        'NAME': 'project',
         'USER': 'root',
-        'HOST': '127.0.0.1',
+        'HOST': '47.103.209.183',
+        'PASSWORD': 'ooad123456',
         'TEST': {
             'CHARSET': 'utf8',
             'COLLATION': 'utf8_general_ci'
@@ -146,7 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": "redis://47.103.209.183:6379",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "IGNORE_EXCEPTIONS": True,
