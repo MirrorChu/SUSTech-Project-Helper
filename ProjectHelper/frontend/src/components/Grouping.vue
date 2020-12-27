@@ -313,9 +313,9 @@ export default {
   width: 1000px;
 }
 
-ul li {
+#li {
   display: inline-block;
-  width: 100px;
+  width: 90px;
 }
 
 #multi {
